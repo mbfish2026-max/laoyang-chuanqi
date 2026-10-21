@@ -17,3 +17,4 @@ ICON2.bh1='assets/icon2/bh1.webp'; ICON2.bh2='assets/icon2/bh2.webp'; ICON2.bh3=
 ICON2.dp1='assets/icon2/dp1.webp'; ICON2.dp2='assets/icon2/dp2.webp'; ICON2.dp3='assets/icon2/dp3.webp'; ICON2.dp4='assets/icon2/dp4.webp'; ICON2.dp5='assets/icon2/dp5.webp'; // 德鲁伊专属头饰（底材 id）
 ICON2.aw1='assets/icon2/aw1.webp'; ICON2.aw2='assets/icon2/aw2.webp'; ICON2.aw3='assets/icon2/aw3.webp'; ICON2.aw4='assets/icon2/aw4.webp'; ICON2.aw5='assets/icon2/aw5.webp'; // 荒野射手专属弓/标枪（底材 id）
 ICON2.ps1='assets/icon2/ps1.webp'; ICON2.ps2='assets/icon2/ps2.webp'; ICON2.ps3='assets/icon2/ps3.webp'; ICON2.ps4='assets/icon2/ps4.webp'; ICON2.ps5='assets/icon2/ps5.webp'; // 圣誓骑士专属盾（底材 id）
+['shd1','shd2','shd3','shd4','shd5','glv1','glv2','glv3','glv4','glv5'].forEach(id=>ICON2[id]='assets/icon2/cq/'+id+'.webp'); ICON2.bracelet_n='assets/icon2/cq/shd1.webp'; ICON2.bracelet_x='assets/icon2/cq/shd4.webp'; ICON2.bracelet_e='assets/icon2/cq/shd5.webp';
