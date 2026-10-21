@@ -155,4 +155,14 @@ ok(!/iterations\s*:\s*Infinity|infinite/i.test(js.replace(/\/\/.*$/mg,'')),'JS �
  ok(/今日已签到/.test(G(`${P}.signPanel()`)),'签到后按钮变为已签到');
  ok(/暂无离线收益|领取/.test(G(`${P}.offPanelPg()`))&&/CQSys\.offline/.test(src)&&/claim\(!!d\)/.test(src),'离线收益走 CQSys.offline.state/claim(double)');
  ok(!/S\.cqSign|CQ_SIGN\b/.test(src),'不再自带签到逻辑');}
+// ---------- 角色/技能/福利 顶栏（设计稿 topbar） ----------
+{const src=fs.readFileSync(path.join(root,'cq/pages_cq.js'),'utf8'),css=fs.readFileSync(path.join(root,'cq/pages_cq.css'),'utf8');
+ const T2=JSON.parse(G('JSON.stringify(cqPg._t.TOPT)'));ok(['hero','bag','shop','merc','skill','eg'].every(k=>T2[k])&&!T2.map&&!T2.fight,'顶栏只在 角色(含背包/商店/佣兵)/技能/福利 显示，地图/战斗不显示');
+ G('S.lvl=17;S.name="顶栏QA";S.gold=12345;calc();H.life=ST.life/2;H.mana=ST.mana');const d=JSON.parse(G('JSON.stringify(cqPg.topData())'));
+ ok(d.lvl===17&&d.name==='顶栏QA'&&d.gold===G('CQSys.currency().gold')&&d.yb===G('CQSys.currency().yb'),'顶栏等级/名字/金币/元宝取真实数据（CQSys.currency）');
+ ok(Math.abs(d.hp-50)<1&&Math.abs(d.mp-100)<1&&d.power===G('CQSys.power()'),'顶栏血蓝百分比与战力');
+ for(const c of['zs','fs','ds']){G(`S.cls='${c}'`);ok(G('cqPg.topData().cls')===c,c+' 顶栏头像随职业切换');}G("S.cls='zs'");
+ ok(/\.ava\.fs\{[^}]*hero_fs/.test(css)&&/\.ava\.ds\{[^}]*hero_ds/.test(css),'三职业头像图');
+ ok(/#cqtopx\{[^}]*flex-wrap:nowrap/.test(css)&&/#cqtopx \.ccur div\{[^}]*white-space:nowrap/.test(css),'顶栏不换行');
+ ok(/setInterval\(\(\)=>\{try\{if\(TOPT\[TAB\]/.test(src)&&/render\.__cqtop/.test(src),'顶栏 render 后与 0.5s 轮询刷新');}
 T.done();

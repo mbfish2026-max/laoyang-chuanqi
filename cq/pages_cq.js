@@ -66,6 +66,21 @@ function offPanelPg(){let st=null;try{st=OF()&&OF().state()}catch(e){}
  return `<div class="cqpanel">${head}<div class="row" style="justify-content:space-between"><div class="offl">离线 <b>${fm(st.sec)}</b>${st.zone?' · '+esc(st.zone):''}<br>经验 <b class="q5">+${kn(st.xp|0)}</b>　金币 <b>+${num(st.gold)}</b><br>击杀 <b>${num(st.kills)}</b>　装备 <b class="q3">×${st.items|0}</b>${boss?`　首领 <b class="q6">${boss}</b>`:''}</div>
  <div class="offb">${btn}</div></div><div class="dim">元宝 ${num(st.yb)} · 双倍只翻金币与经验</div></div>`}
 function flTabs(){return `<div class="stabs sm cqfltabs">${FLN.map(([k,n])=>`<button class="${FLT===k?'on':''}" onclick="cqPg.fl('${k}')">${n}${(k==='sign'&&(signState()||{}).canClaim)||(k==='off'&&cqPg._offDot())?'<em class="dot"></em>':''}</button>`).join('')}</div>`}
+// ---------------- 顶栏（设计稿 live.js topbar()：头像 / Lv+名字+战力 / 血蓝条 / 金币元宝 / 菜单）----------------
+// 与战斗页 #cqStage .cqb .top 同一组件外观（样式同 cq.css .cqb .top），这里给 角色(含背包/商店/佣兵)/技能/福利 页单独挂一份；地图页、战斗页不显示。
+const TOPT={hero:1,bag:1,shop:1,merc:1,skill:1,eg:1};
+function topData(){const c=cls(),cur=(window.CQSys&&CQSys.currency)?CQSys.currency():{gold:S.gold,yb:null};const st=ST||{},h=(typeof H!=='undefined'&&H)||{};
+ let xp=0;try{const a=xpNeed(S.lvl),b=xpNeed(S.lvl+1);xp=b>a?Math.max(0,Math.min(100,(S.xp-a)/(b-a)*100)):100}catch(e){}
+ return {cls:c,lvl:S.lvl|0,name:S.name||'',power:pw(),hp:st.life?Math.max(0,Math.min(100,(+h.life||0)/st.life*100)):0,mp:st.mana?Math.max(0,Math.min(100,(+h.mana||0)/st.mana*100)):0,xp,gold:cur.gold|0,yb:cur.yb}}
+function topEl(){let e=document.getElementById('cqtopx');if(e)return e;const P=document.getElementById('panel');if(!P)return null;
+ e=document.createElement('div');e.id='cqtopx';e.className='cqtopx hide';
+ e.innerHTML=`<div class="ava"></div><div class="pinfo"><div class="clv"><span data-r="pn"></span><small data-r="pw"></small></div><div class="cbar hp"><i data-r="hp"></i></div><div class="cbar mp"><i data-r="mp"></i></div></div>
+ <div class="ccur"><div><img src="${UI}coin.png" alt=""><span data-r="gold"></span></div><div><img src="${UI}yb.png" alt=""><span data-r="yb"></span></div></div><div class="menu metal" title="设置" onclick="cqPg.menu()"><b></b><b></b><b></b></div>`;
+ P.parentNode.insertBefore(e,P);return e}
+const tx=(e,v)=>{if(e&&e.textContent!==v)e.textContent=v},wd=(e,v)=>{v=v.toFixed(1)+'%';if(e&&e.style.width!==v)e.style.width=v};
+function topSync(){const e=topEl();if(!e)return;const on=!!TOPT[TAB];e.classList.toggle('hide',!on);document.body.classList.toggle('cq-topx',on);if(!on)return;
+ const d=topData(),q=k=>e.querySelector('[data-r='+k+']');const ac='ava '+d.cls;const a=e.querySelector('.ava');if(a.className!==ac)a.className=ac;
+ tx(q('pn'),'Lv.'+d.lvl+' '+d.name);tx(q('pw'),'战力 '+num(d.power));wd(q('hp'),d.hp);wd(q('mp'),d.mp);tx(q('gold'),num(d.gold));tx(q('yb'),d.yb!=null?num(d.yb):'—');return d}
 // ---------------- 包装 ----------------
 function hook(){
  if(ok('renderHero')&&!renderHero.__cqpg){const f=renderHero;renderHero=function(){const r=f.apply(this,arguments);try{const P=$('#panel');P.insertAdjacentHTML('afterbegin',roleTop());P.classList.add('cqpgp')}catch(e){console.error('[cq pages] role',e)}return r};renderHero.__cqpg=1}
@@ -78,9 +93,13 @@ function hook(){
    if(FLT!=='more')EGT=FLT;const r=f.apply(this,arguments);try{P.insertAdjacentHTML('afterbegin',flTabs());if(FLT!=='more')P.classList.add('cqfl1');else P.classList.remove('cqfl1')}catch(e){}return r};renderEG.__cqpg=1}
 }
 window.cqPg={autoEquip,smith(){TAB='shop';try{SHT='enh'}catch(e){}render()},toAttr(){const a=document.querySelector('#panel .attr');if(a)a.scrollIntoView({block:'center'})},
+ menu(){try{if(typeof setUI==='function')return setUI()}catch(e){}TAB='eg';FLT='more';render()},topSync,topData,
  sk(k){SKV=k;if(k==='ac')SKT=4;render()},fl(k){FLT=k;render()},sign(){const G=SG();if(!G)return null;const r=G.claim();if(ok('toast'))toast(r&&r.ok?'签到成功：'+((r.reward&&r.reward.name)||''):(r&&r.reason)||'签到失败');render();return r},
  offClaim(d){const O=OF();if(!O)return null;const r=O.claim(!!d);if(ok('toast'))toast(r&&r.ok?(d?'已双倍领取':'已领取'):(r&&r.reason)||'领取失败');render();return r},
  _offDot(){try{const o=OF()&&OF().state();return !!(o&&o.has&&!o.claimed)}catch(e){return false}},
- _t:{attrs,skList,FLN,EQL,EQR,roleTop,skillPage,signPanel,offPanelPg,flTabs,skTabs,get SKV(){return SKV},get FLT(){return FLT}}};
+ _t:{TOPT,attrs,skList,FLN,EQL,EQR,roleTop,skillPage,signPanel,offPanelPg,flTabs,skTabs,get SKV(){return SKV},get FLT(){return FLT}}};
+// 顶栏刷新：每次 render 后 + 0.5s 轮询（只在页签显示时写 DOM，且值变了才写）；换角色/职业后 render 也会同步
+{const f=render;if(!render.__cqtop){render=function(){const r=f.apply(this,arguments);try{topSync()}catch(e){}return r};render.__cqtop=1}}
+setInterval(()=>{try{if(TOPT[TAB]||document.body.classList.contains('cq-topx'))topSync()}catch(e){}},500);
 hook();setTimeout(()=>{hook();try{if(TAB!=='fight')render()}catch(e){}},0);
 })();
