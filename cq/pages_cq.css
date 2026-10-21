@@ -1,18 +1,18 @@
 /* cq/pages_cq.css — 角色/技能/福利 设计稿样式（pages.css + p5/p6/p8 内联样式），只作用于 .cqpg 与本页签行 */
-#panel .cqpg{padding:0 8px}
-#panel .cqpanel{border:12px solid transparent;border-image:url(../assets/cq/ui/pg/panel_9s.png) 40 fill / 18px stretch;padding:6px 6px 8px;margin:6px 0}
-#panel .cqttl{border:1px solid transparent;border-image:url(../assets/cq/ui/pg/title_9s.png) 20 60 fill / 9px 26px stretch;padding:4px 22px;min-height:28px;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:800;color:#ffe2a0;text-shadow:0 1px 2px #000;white-space:nowrap;margin-bottom:6px}
-#panel .cqttl .r{margin-left:auto;font-size:11px;font-weight:400;color:#c9b48a}
-#panel .cqttl b.g,#panel .cqpg b.g{color:#7cff8a}
+:is(#panel,#modal) .cqpg{padding:0 8px}
+:is(#panel,#modal) .cqpanel{border:12px solid transparent;border-image:url(../assets/cq/ui/pg/panel_9s.png) 40 fill / 18px stretch;padding:6px 6px 8px;margin:6px 0}
+:is(#panel,#modal) .cqttl{border:1px solid transparent;border-image:url(../assets/cq/ui/pg/title_9s.png) 20 60 fill / 9px 26px stretch;padding:4px 22px;min-height:28px;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:800;color:#ffe2a0;text-shadow:0 1px 2px #000;white-space:nowrap;margin-bottom:6px}
+:is(#panel,#modal) .cqttl .r{margin-left:auto;font-size:11px;font-weight:400;color:#c9b48a}
+:is(#panel,#modal) .cqttl b.g,:is(#panel,#modal) .cqpg b.g{color:#7cff8a}
 #panel .cqmore{margin:10px 0 0}
-#panel .cqbtn{display:inline-flex;align-items:center;justify-content:center;height:32px;min-height:0;min-width:0;padding:0 12px;font-family:inherit;font-size:13px;font-weight:700;color:#f2dca6;background:none;border:1px solid transparent;border-image:url(../assets/cq/ui/pg/btn_9s.png) 14 fill / 7px stretch;border-radius:0;box-shadow:none;text-shadow:0 1px 2px #000;white-space:nowrap;flex:none}
-#panel .cqbtn.gold{border-image-source:url(../assets/cq/ui/pg/btn_on_9s.png);color:#fff6d8}
-#panel .cqbtn.dis{border-image-source:url(../assets/cq/ui/pg/btn_disabled_9s.png);color:#9a9384}
-#panel .cqbtn.xs{height:26px;padding:0 8px;font-size:12px}
-#panel .cqpg .dim{color:#a8977a;font-size:11px}
-#panel .cqpg .row{display:flex;align-items:center;gap:8px}#panel .cqpg .row.c{justify-content:center;margin-top:8px}
-#panel .cqpg .acts{display:flex;gap:6px;justify-content:center;flex-wrap:nowrap;margin-top:2px}
-#panel .cqpg .acts .cqbtn{padding:0 9px}
+:is(#panel,#modal) .cqbtn{display:inline-flex;align-items:center;justify-content:center;height:32px;min-height:0;min-width:0;padding:0 12px;font-family:inherit;font-size:13px;font-weight:700;color:#f2dca6;background:none;border:1px solid transparent;border-image:url(../assets/cq/ui/pg/btn_9s.png) 14 fill / 7px stretch;border-radius:0;box-shadow:none;text-shadow:0 1px 2px #000;white-space:nowrap;flex:none}
+:is(#panel,#modal) .cqbtn.gold{border-image-source:url(../assets/cq/ui/pg/btn_on_9s.png);color:#fff6d8}
+:is(#panel,#modal) .cqbtn.dis{border-image-source:url(../assets/cq/ui/pg/btn_disabled_9s.png);color:#9a9384}
+:is(#panel,#modal) .cqbtn.xs{height:26px;padding:0 8px;font-size:12px}
+:is(#panel,#modal) .cqpg .dim{color:#a8977a;font-size:11px}
+:is(#panel,#modal) .cqpg .row{display:flex;align-items:center;gap:8px}:is(#panel,#modal) .cqpg .row.c{justify-content:center;margin-top:8px}
+:is(#panel,#modal) .cqpg .acts{display:flex;gap:6px;justify-content:center;flex-wrap:nowrap;margin-top:2px}
+:is(#panel,#modal) .cqpg .acts .cqbtn{padding:0 9px}
 #panel .cqsktabs,#panel .cqfltabs{flex-wrap:nowrap;white-space:nowrap}
 #panel .cqsktabs button,#panel .cqfltabs button{min-width:0;white-space:nowrap}
 #panel.cqfl1 .egtabs{display:none}
@@ -89,3 +89,45 @@
 #cqtopx .menu{width:40px;height:40px;flex:none;border-radius:6px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;cursor:pointer;box-sizing:border-box}
 #cqtopx .menu b{display:block;width:18px;height:2px;background:#e8c27a;border-radius:1px}
 #cqtopx .metal{background:linear-gradient(180deg,#2a1d14,#140c08);border:1px solid #6b4a24;box-shadow:inset 0 1px 0 rgba(255,220,150,.25),inset 0 0 0 2px #1a0f08,inset 0 0 0 3px rgba(201,150,72,.55),0 4px 14px rgba(0,0,0,.6)}
+/* 地图（设计稿 p7_map 内联样式） */
+.cqmap{padding-bottom:10px}
+.cqmap .jump{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,#120a06 70%,rgba(18,10,6,0));margin:0 -8px;padding:0 0 4px}
+#panel .cqmaptabs{flex-wrap:nowrap;white-space:nowrap}#panel .cqmaptabs button{min-width:0;white-space:nowrap;padding:0 2px}
+.cqmap .dnote{text-align:center;margin:4px 0}
+.cqmap .chc{position:relative;height:132px;margin:10px 0 0;border:3px solid transparent;border-image:url(../assets/cq/ui/pg/btn_on_9s.png) 14 / 7px stretch;overflow:hidden;background:#140c08}
+.cqmap .chc .bg{position:absolute;inset:0;background-size:cover;background-position:center}
+.cqmap .chc .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,5,2,.92) 0,rgba(10,5,2,.55) 55%,rgba(10,5,2,.1) 100%),linear-gradient(0deg,rgba(60,8,4,.55),rgba(0,0,0,0) 50%)}
+.cqmap .chc .boss{position:absolute;right:-4px;bottom:-6px;height:132px;filter:drop-shadow(0 0 8px rgba(255,50,20,.7)) drop-shadow(0 4px 4px #000)}
+.cqmap .chc .tx{position:absolute;left:12px;top:10px;right:120px}
+.cqmap .chc .no{font-size:11px;color:#d8b070;letter-spacing:2px;white-space:nowrap}
+.cqmap .chc .t{font-size:22px;font-weight:900;color:#ffe2a0;white-space:nowrap;text-shadow:0 0 8px rgba(255,140,40,.5),0 2px 0 #000}
+.cqmap .chc .m{font-size:11px;color:#d8c290;white-space:nowrap;line-height:17px;text-shadow:0 1px 1px #000}
+.cqmap .chc .bn{color:#ff6a4a}
+.cqmap .chc .st{position:absolute;left:12px;bottom:9px;display:flex;gap:6px;align-items:center}
+.cqmap .prog{width:110px;height:6px;border-radius:3px;background:#0b0604;border:1px solid #6b4a24;overflow:hidden}.cqmap .prog i{display:block;height:100%;background:linear-gradient(90deg,#c99648,#ffe2a0)}
+.cqmap .chc.lk .bg{filter:grayscale(.9) brightness(.55)}.cqmap .chc.lk .boss{filter:grayscale(1) brightness(.35)}
+.cqmap .chc.soon{height:88px}.cqmap .chc.soon .t{font-size:18px}
+.cqmap .zl{margin-top:4px;border:10px solid transparent;border-image:url(../assets/cq/ui/pg/panel_9s.png) 40 fill / 14px stretch;padding:0 2px}
+.cqmap .z{position:relative;display:flex;align-items:center;gap:8px;min-height:58px;padding:5px 4px;border-bottom:1px solid rgba(107,74,36,.4);cursor:pointer}
+.cqmap .z:last-child{border:0}
+.cqmap .z .pin{width:30px;height:30px;flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;border-radius:50%;background:radial-gradient(circle,#3a2616,#120a06);box-shadow:0 0 0 1px #8a6230;color:#c9b48a}
+.cqmap .z.done .pin{color:#7cff8a}.cqmap .z.here .pin{background:radial-gradient(circle,#ffcf6a,#a8641a);color:#2a1000;box-shadow:0 0 0 1px #fff0b8,0 0 10px rgba(255,180,60,.8)}
+.cqmap .z .i{flex:1;min-width:0}
+.cqmap .z .n{font-size:14px;font-weight:800;color:#f2dca6;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.cqmap .z .n small{font-size:11px;color:#ffcf6a;font-weight:700}
+.cqmap .z .m{font-size:11px;color:#a8977a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cqmap .z .m b{color:#ff6a4a;font-weight:700}.cqmap .rdy{color:#7cff8a}.cqmap .cd{color:#ffe9b8}
+.cqmap .z .bh{width:38px;height:38px;flex:none;border-radius:50%;overflow:hidden;background:#2a0805;box-shadow:0 0 0 1px #d23a22,0 0 6px rgba(255,40,20,.5)}
+.cqmap .z .bh img{width:100%;height:100%;object-fit:cover;object-position:50% 12%}
+.cqmap .z.here{background:linear-gradient(90deg,rgba(255,170,60,.2),rgba(0,0,0,0));box-shadow:inset 3px 0 0 #ffcf6a}
+.cqmap .z.lk{opacity:.5;cursor:default}.cqmap .z.lk .bh{filter:grayscale(1)}
+.cqmap .z .rt{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none}
+.cqmap .tag,.cqgo .tag{display:inline-block;font-size:10px;padding:0 5px;border-radius:2px;line-height:16px;white-space:nowrap}
+.cqmap .tag.ok{background:#2f6b25;color:#d8ffd0}.cqmap .tag.lk{background:#3a3128;color:#a8977a}.cqmap .tag.new{background:#b3170c;color:#fff}
+.cqmap .tag.here{background:#a8641a;color:#fff}.cqmap .tag.op{background:#1d4a7a;color:#d8ecff}.cqmap .tag.dun{background:#4a2a10;color:#ffcf6a}
+.cqmap .cqmapold{margin:12px 0 4px}.cqmap .cqmapold>summary{font-size:12px;color:#c9b48a;text-align:center;padding:8px;cursor:pointer}
+.cqpg .kv.one{grid-template-columns:1fr}
+#modal .cqpg{padding:0}#modal .cqpg .kv b.rdy{color:#7cff8a}
+#modal .cqgo,#modal .cqpg{min-width:300px;max-width:340px}
+#modal .cqpg .kv.one div{gap:12px}#modal .cqpg .kv.one b{text-align:right;white-space:normal}
+#modal .cqpanel{background:#140c08;background-clip:padding-box;margin:0}

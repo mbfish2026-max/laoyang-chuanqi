@@ -159,7 +159,7 @@ const QAC={};const useCls=c=>{if(QAC[c])G(`switchChar(${QAC[c]})`);else QAC[c]=G
  ok(!/S\.cqSign|CQ_SIGN\b/.test(src),'不再自带签到逻辑');}
 // ---------- 角色/技能/福利 顶栏（设计稿 topbar） ----------
 {const src=fs.readFileSync(path.join(root,'cq/pages_cq.js'),'utf8'),css=fs.readFileSync(path.join(root,'cq/pages_cq.css'),'utf8');
- const T2=JSON.parse(G('JSON.stringify(cqPg._t.TOPT)'));ok(['hero','bag','shop','merc','skill','eg'].every(k=>T2[k])&&!T2.map&&!T2.fight,'顶栏只在 角色(含背包/商店/佣兵)/技能/福利 显示，地图/战斗不显示');
+ const T2=JSON.parse(G('JSON.stringify(cqPg._t.TOPT)'));ok(['hero','bag','shop','merc','skill','eg','map'].every(k=>T2[k])&&!T2.fight,'顶栏在 角色(含背包/商店/佣兵)/技能/福利/地图 显示，战斗页不显示（战斗页有自己的金属顶栏）');
  G('S.lvl=17;S.name="顶栏QA";S.gold=12345;calc();H.life=ST.life/2;H.mana=ST.mana');const d=JSON.parse(G('JSON.stringify(cqPg.topData())'));
  ok(d.lvl===17&&d.name==='顶栏QA'&&d.gold===G('CQSys.currency().gold')&&d.yb===G('CQSys.currency().yb'),'顶栏等级/名字/金币/元宝取真实数据（CQSys.currency）');
  ok(Math.abs(d.hp-50)<1&&Math.abs(d.mp-100)<1&&d.power===G('CQSys.power()'),'顶栏血蓝百分比与战力');
@@ -167,4 +167,18 @@ const QAC={};const useCls=c=>{if(QAC[c])G(`switchChar(${QAC[c]})`);else QAC[c]=G
  ok(/\.ava\.fs\{[^}]*hero_fs/.test(css)&&/\.ava\.ds\{[^}]*hero_ds/.test(css),'三职业头像图');
  ok(/#cqtopx\{[^}]*flex-wrap:nowrap/.test(css)&&/#cqtopx \.ccur div\{[^}]*white-space:nowrap/.test(css),'顶栏不换行');
  ok(/setInterval\(\(\)=>\{try\{if\(TOPT\[TAB\]/.test(src)&&/render\.__cqtop/.test(src),'顶栏 render 后与 0.5s 轮询刷新');}
+// ---------- 地图页（设计稿 p7_map） ----------
+{useCls('zs');G('S.lvl=7;calc()');const P='cqPg._t';ok(G('renderMap.__cqpg')===1,'包装 renderMap');ok(G(`${P}.MAPN`)===3,'传奇版 3 章');
+ const h=G(`${P}.mapPage('')`);ok((h.match(/class="z /g)||[]).length===19,'列出 19 张具体地图');ok((h.match(/class="chc /g)||[]).length===4&&/敬请期待/.test(h),'3 张章节卡 + 第四章敬请期待');
+ ok(['一 · 新手村','二 · 比奇','三 · 矿区','首领刷新'].every(t=>h.includes(t)),'章节页签 + 首领刷新');
+ ok(/钉耙猫王/.test(h)&&/半兽统领/.test(h)&&/尸王/.test(h)&&/石墓尸王/.test(h)&&/Lv\.12/.test(h)&&/怪物：鸡 \/ 鹿/.test(h),'首领/等级/怪物取真实数据');
+ ok(/章节首领 30 分钟/.test(h)&&/· 10 分钟/.test(h),'刷新周期取 CQSys.bossRt');
+ ok(G(`${P}.zState(0,0,0)`)==='here'&&G(`${P}.zState(0,1,0)`)==='lk'&&G(`${P}.zState(1,0,0)`)==='lk','状态：挂机中/未解锁');
+ G('S.unl=2;S.cleared={0:1}');ok(G(`${P}.zState(0,0,0)`)==='here'&&G(`${P}.zState(0,1,0)`)==='open'&&G(`${P}.zState(0,2,0)`)==='open','状态：已解锁');
+ G('goZone(1)');ok(G(`${P}.zState(0,0,0)`)==='done','状态：已通关');
+G('TAB="map"');ok(G('cqPg.travel(0,2,0)')===true&&G('S.zone')===2&&G('TAB')==='fight','点地图 → 传送挂机（goZone + 回战斗页）');
+ ok(G('cqPg.travel(0,5,0)')===false&&G('S.zone')===2,'未解锁地图不能传送');
+ G('S.actU=S.actU||{};S.actU[0]=1');ok(G('cqPg.travel(1,0,0)')===true&&G('S.act')===1&&G('S.zone')===0,'跨章节传送（goAct）');G('goAct(0,0,1)');
+ ok(G('cqPg._t.TOPT.map')===1,'地图页带顶栏');
+ const br=fs.readFileSync(path.join(root,'cq_bridge.js'),'utf8');ok(/openMap: function\(\)\{ var b = document\.querySelector\('#tabs button\[data-t=map\]'\)/.test(br),'openMap 钩子仍点底栏地图');}
 T.done();

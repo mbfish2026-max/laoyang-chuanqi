@@ -68,7 +68,7 @@ function offPanelPg(){let st=null;try{st=OF()&&OF().state()}catch(e){}
 function flTabs(){return `<div class="stabs sm cqfltabs">${FLN.map(([k,n])=>`<button class="${FLT===k?'on':''}" onclick="cqPg.fl('${k}')">${n}${(k==='sign'&&(signState()||{}).canClaim)||(k==='off'&&cqPg._offDot())?'<em class="dot"></em>':''}</button>`).join('')}</div>`}
 // ---------------- 顶栏（设计稿 live.js topbar()：头像 / Lv+名字+战力 / 血蓝条 / 金币元宝 / 菜单）----------------
 // 与战斗页 #cqStage .cqb .top 同一组件外观（样式同 cq.css .cqb .top），这里给 角色(含背包/商店/佣兵)/技能/福利 页单独挂一份；地图页、战斗页不显示。
-const TOPT={hero:1,bag:1,shop:1,merc:1,skill:1,eg:1};
+const TOPT={hero:1,bag:1,shop:1,merc:1,skill:1,eg:1,map:1};
 function topData(){const c=cls(),cur=(window.CQSys&&CQSys.currency)?CQSys.currency():{gold:S.gold,yb:null};const st=ST||{},h=(typeof H!=='undefined'&&H)||{};
  let xp=0;try{const a=xpNeed(S.lvl),b=xpNeed(S.lvl+1);xp=b>a?Math.max(0,Math.min(100,(S.xp-a)/(b-a)*100)):100}catch(e){}
  return {cls:c,lvl:S.lvl|0,name:S.name||'',power:pw(),hp:st.life?Math.max(0,Math.min(100,(+h.life||0)/st.life*100)):0,mp:st.mana?Math.max(0,Math.min(100,(+h.mana||0)/st.mana*100)):0,xp,gold:cur.gold|0,yb:cur.yb}}
@@ -81,6 +81,53 @@ const tx=(e,v)=>{if(e&&e.textContent!==v)e.textContent=v},wd=(e,v)=>{v=v.toFixed
 function topSync(){const e=topEl();if(!e)return;const on=!!TOPT[TAB];e.classList.toggle('hide',!on);document.body.classList.toggle('cq-topx',on);if(!on)return;
  const d=topData(),q=k=>e.querySelector('[data-r='+k+']');const ac='ava '+d.cls;const a=e.querySelector('.ava');if(a.className!==ac)a.className=ac;
  tx(q('pn'),'Lv.'+d.lvl+' '+d.name);tx(q('pw'),'战力 '+num(d.power));wd(q('hp'),d.hp);wd(q('mp'),d.mp);tx(q('gold'),num(d.gold));tx(q('yb'),d.yb!=null?num(d.yb):'—');return d}
+// ---------------- 地图（设计稿 p7_map：章节卡 + 19 张具体地图，按章分组）----------------
+// 数据全部来自 ACTS[0..2].zones / MONS / BOSSES / QUESTS / CQSys.bossRt / actOpen；点地图 → 传送确认 → goAct+goZone 后回战斗挂机。
+// 第四章起仍是暗夜数据，只显示「敬请期待」卡；原地图页（难度切换/主线任务/其他扩展）保留在底部「难度 · 任务」折叠区。
+const MAPN=3,CHB=[['stage_1001.png','orclord'],['stage_1002.png','zombieking'],['a2_cave_0.webp','stonezombieking']];
+let MAPOPEN=false;
+function mlv(z,d){try{return ok('mlD')?mlD(z.ml0!=null?z.ml0:z.ml,d):z.ml}catch(e){return z.ml}}
+function bossRt(k){try{return CQSys.bossRt(k)}catch(e){return null}}
+function cdTxt(r){if(!r)return'';if(r.ready)return'可挑战';const s=Math.max(0,Math.ceil(r.left||0)),m=Math.floor(s/60),x=s%60;return (m<10?'0':'')+m+':'+(x<10?'0':'')+x}
+function zState(a,i,d){const open=ok('actOpen')?actOpen(a,d):a===0,here=a===S.act&&d===S.diff,k=ok('pkey')?pkey(a,d):'';
+ const cl=here?S.cleared:((S.CL||{})[k]||{}),unl=here?S.unl:((S.UN||{})[k]||0);
+ if(!open||i>unl)return'lk';if(here&&i===S.zone)return'here';if(cl[i])return'done';return'open'}
+function chInfo(a,d){const A=ACTS[a],q=d===S.diff?S.q:((S.Q||{})[d]||{}),qs=Object.keys(QUESTS).filter(k=>QUESTS[k].act===a),dn=qs.filter(k=>q[k]).length;
+ const open=ok('actOpen')?actOpen(a,d):a===0;const ml=A.zones.map(z=>mlv(z,d));
+ return {a,n:(A.n.split('·')[1]||A.n).trim(),no:A.n.split('·')[0].trim(),camp:A.camp,boss:A.boss,open,done:qs.length&&dn===qs.length,qd:dn,qn:qs.length,lv:Math.min(...ml)+'–'+Math.max(...ml)}}
+function zoneRow(a,z,i,d){const s=zState(a,i,d),b=z.boss,B=b&&BOSSES[b],r=b?bossRt(b):null,tm=b&&s!=='lk'?cdTxt(r):'';
+ const mons=(z.mons||[]).slice(0,3).map(k=>(MONS[k]||{}).n||k).join(' / ');
+ const TAG={done:'<span class="tag ok">已通关</span>',here:'<span class="tag here">挂机中</span>',open:'<span class="tag op">已解锁</span>',lk:'<span class="tag lk">未解锁</span>'}[s];
+ const per=r?(r.cd>=3600?'60':r.cd>=1800?'30':String(Math.round((r.cd||600)/60))):'';
+ const btn=s==='lk'?'<button class="cqbtn xs dis">未解锁</button>':s==='here'?`<button class="cqbtn xs gold" onclick="cqPg.mapFight()">挂机中</button>`:`<button class="cqbtn xs" onclick="cqPg.mapGo(${a},${i})">前往</button>`;
+ return `<div class="z ${s}" data-a="${a}" data-i="${i}"${s!=='lk'&&s!=='here'?` onclick="if(event.target.tagName!=='BUTTON')cqPg.mapGo(${a},${i})"`:''}><div class="pin">${s==='done'?'✔':s==='lk'?'🔒':i+1}</div><div class="i"><div class="n">${esc(z.n)}<small>Lv.${mlv(z,d)}</small>${z.dun?'<span class="tag dun">副本</span>':''}${TAG}</div>
+ <div class="m">怪物：${esc(mons)}</div><div class="m">${B?`首领：<b>${esc(B.n)}</b> · ${r&&r.actboss?'章节首领 ':''}${per} 分钟${tm?` · <span class="${tm==='可挑战'?'rdy':'cd'}">${tm}</span>`:''}`:'首领：—'}</div></div>
+ <div class="rt">${b?`<div class="bh"><img src="${UI}mdl_mst_${b==='skelspirit'?'1017':b}.png" alt="" onerror="this.style.display='none'"></div>`:''}${btn}</div></div>`}
+function chapCard(c,d){const [bg,bo]=CHB[c.a]||[];const st=c.done?'<span class="tag ok">已通关</span>':c.open?'<span class="tag new">进行中</span>':`<span class="tag lk">${c.a?'击败'+esc(ACTS[c.a-1].boss)+'解锁':'未解锁'}</span>`;
+ return `<div class="chc ${c.open?'':'lk'}" id="cqch_${c.a}"><div class="bg" style="background-image:url(${UI}pg/${bg})"></div><img class="boss" src="${UI}mdl_mst_${bo}.png" alt="">
+ <div class="tx"><div class="no">${esc(c.no)} · CHAPTER</div><div class="t">${esc(c.n)}</div><div class="m">Lv.${c.lv} · 营地 ${esc(c.camp)}</div><div class="m">章节首领 <b class="bn">${esc(c.boss)}</b> · 区域 ${ACTS[c.a].zones.length}</div></div>
+ <div class="st"><div class="prog"><i style="width:${c.qn?c.qd/c.qn*100:0}%"></i></div><span class="m">任务 ${c.qd}/${c.qn}</span>${st}</div></div>
+ <div class="zl">${ACTS[c.a].zones.map((z,i)=>zoneRow(c.a,z,i,d)).join('')}</div>`}
+function mapPage(old){const d=MAPD==null?S.diff:MAPD,cs=[];for(let a=0;a<MAPN&&a<ACTS.length;a++)cs.push(chInfo(a,d));const cur=Math.min(MAPN-1,S.act);
+ return `<div class="cqpg cqmap"><div class="jump"><div class="stabs sm cqmaptabs">${cs.map(c=>`<button class="${c.a===cur?'on':''}" data-ch="${c.a}" onclick="cqPg.mapJump(${c.a})">${'一二三'[c.a]} · ${esc(c.n)}</button>`).join('')}<button onclick="cqPg.bossPop()">首领刷新</button></div></div>
+ ${d!==S.diff?`<div class="dim dnote">正在查看 ${esc(DIFFS[d].n)} 难度（当前挂机：${esc(DIFFS[S.diff].n)}）</div>`:''}
+ ${cs.map(c=>chapCard(c,d)).join('')}
+ <div class="chc lk soon"><div class="bg" style="background-image:url(${UI}pg/img_bg_maptile1.png)"></div><div class="tx"><div class="no">第四章 · CHAPTER</div><div class="t">敬请期待</div><div class="m">击败${esc(ACTS[2].boss)}后开放</div></div></div>
+ <details class="cqmapold"${MAPOPEN?' open':''} ontoggle="cqPg._mapOpen(this.open)"><summary>难度 · 主线任务 · 其他</summary>${old}</details></div>`}
+function mapGo(a,i){const z=ACTS[a]&&ACTS[a].zones[i];if(!z)return;const d=MAPD==null?S.diff:MAPD,s=zState(a,i,d);if(s==='lk'){if(ok('toast'))toast('尚未解锁');return}
+ const r=z.boss?bossRt(z.boss):null,mons=(z.mons||[]).map(k=>(MONS[k]||{}).n||k).join(' / ');
+ modal(`<div class="cqpg cqgo"><div class="cqpanel"><div class="cqttl">传送 · ${esc(z.n)}</div><div class="kv one"><div><span>怪物等级</span><b>Lv.${mlv(z,d)}</b></div><div><span>主要怪物</span><b>${esc(mons)}</b></div>${r?`<div><span>首领</span><b>${esc(r.n)} · ${cdTxt(r)}</b></div><div><span>推荐战力</span><b>${num(r.recPower)}</b></div>`:''}<div><span>难度</span><b>${esc(DIFFS[d].n)}</b></div></div>
+ <div class="row c"><button class="cqbtn gold" onclick="closeM();cqPg.travel(${a},${i},${d})">传送挂机</button><button class="cqbtn" onclick="closeM()">取消</button></div></div></div>`)}
+function travel(a,i,d){if(d==null)d=MAPD==null?S.diff:MAPD;if(zState(a,i,d)==='lk')return false;if(a!==S.act||d!==S.diff){if(ok('goAct'))goAct(a,d,1)}
+ if(i>S.unl)return false;goZone(i);try{S.auto=S.auto}catch(e){}TAB='fight';render();return true}
+function bossPop(){let L=[];try{L=CQSys.bossList().filter(b=>b.act<MAPN)}catch(e){}
+ modal(`<div class="cqpg"><div class="cqpanel"><div class="cqttl">首领刷新</div><div class="kv one">${L.map(b=>`<div><span>${esc(b.n)} · ${esc(b.zn)}</span><b class="${b.ready?'rdy':''}">${cdTxt(b)}</b></div>`).join('')}</div>
+ <div class="dim" style="margin-top:6px">普通首领 10 分钟 · 章节首领 30 分钟（第三章起 60 分钟）</div><div class="row c"><button class="cqbtn" onclick="closeM()">关闭</button></div></div></div>`)}
+function mapJump(a){const e=document.getElementById('cqch_'+a),P=document.getElementById('panel');if(!e||!P)return;const j=P.querySelector('.cqmap .jump');
+ const y=a===0?0:P.scrollTop+e.getBoundingClientRect().top-P.getBoundingClientRect().top-(j?j.offsetHeight:0)-4;P.scrollTo({top:Math.max(0,y),behavior:'smooth'});mapHi(a)}
+function mapHi(a){document.querySelectorAll('#panel .cqmaptabs button[data-ch]').forEach(b=>b.classList.toggle('on',+b.dataset.ch===a))}
+function mapScroll(){if(TAB!=='map')return;const P=document.getElementById('panel'),j=P&&P.querySelector('.cqmap .jump');if(!j)return;let a=0;
+ const pt=P.getBoundingClientRect().top+j.offsetHeight+12;for(let i=0;i<MAPN;i++){const e=document.getElementById('cqch_'+i);if(e&&e.getBoundingClientRect().top<=pt)a=i}if(P.scrollTop+P.clientHeight>=P.scrollHeight-4)a=MAPN-1;mapHi(a);return a}
 // ---------------- 包装 ----------------
 function hook(){
  if(ok('renderHero')&&!renderHero.__cqpg){const f=renderHero;renderHero=function(){const r=f.apply(this,arguments);try{const P=$('#panel');P.insertAdjacentHTML('afterbegin',roleTop());P.classList.add('cqpgp')}catch(e){console.error('[cq pages] role',e)}return r};renderHero.__cqpg=1}
@@ -88,16 +135,20 @@ function hook(){
    try{if(SKV==='list'){P.innerHTML=skTabs()+`<div class="cqpg cqskill">${skillPage()}</div>`;return}
     if(SKV==='ac'){P.innerHTML=skTabs()+`<div class="cqpg">${ok('acPanel')?acPanel():''}</div>`;return}}catch(e){console.error('[cq pages] skill',e)}
    if(SKT===4)SKT=0;const r=f.apply(this,arguments);try{P.querySelectorAll('.stabs button[onclick*="SKT=4"]').forEach(b=>b.remove());P.insertAdjacentHTML('afterbegin',skTabs())}catch(e){}return r};renderSkills.__cqpg=1}
+ if(ok('renderMap')&&!renderMap.__cqpg){const f=renderMap;renderMap=function(){const P=$('#panel');const r=f.apply(this,arguments);
+   try{const st=P.scrollTop,kids=[...P.childNodes];const box=document.createElement('div');box.innerHTML=mapPage('');const det=box.querySelector('.cqmapold');kids.forEach(n=>det.appendChild(n));P.innerHTML='';P.appendChild(box.firstElementChild);P.scrollTop=st;if(!P.__cqms){P.__cqms=1;P.addEventListener('scroll',()=>{try{mapScroll()}catch(e){}},{passive:true})}
+    if(!P.__cqmapfirst&&TAB==='map'){P.__cqmapfirst=1;const a0=Math.min(MAPN-1,S.act);if(a0>0)setTimeout(()=>mapJump(a0),0)}else mapScroll()}catch(e){console.error('[cq pages] map',e)}return r};renderMap.__cqpg=1}
  if(ok('renderEG')&&!renderEG.__cqpg){const f=renderEG;renderEG=function(){const P=$('#panel');
    try{if(FLT==='sign'||FLT==='off'){P.innerHTML=flTabs()+`<div class="cqpg cqfuli">${FLT==='sign'?signPanel()+offPanelPg():offPanelPg()}</div>`;return}}catch(e){console.error('[cq pages] fuli',e)}
    if(FLT!=='more')EGT=FLT;const r=f.apply(this,arguments);try{P.insertAdjacentHTML('afterbegin',flTabs());if(FLT!=='more')P.classList.add('cqfl1');else P.classList.remove('cqfl1')}catch(e){}return r};renderEG.__cqpg=1}
 }
 window.cqPg={autoEquip,smith(){TAB='shop';try{SHT='enh'}catch(e){}render()},toAttr(){const a=document.querySelector('#panel .attr');if(a)a.scrollIntoView({block:'center'})},
+ mapGo,travel,bossPop,mapJump,mapScroll,mapFight(){TAB='fight';render()},_mapOpen(o){MAPOPEN=!!o},
  menu(){try{if(typeof setUI==='function')return setUI()}catch(e){}TAB='eg';FLT='more';render()},topSync,topData,
  sk(k){SKV=k;if(k==='ac')SKT=4;render()},fl(k){FLT=k;render()},sign(){const G=SG();if(!G)return null;const r=G.claim();if(ok('toast'))toast(r&&r.ok?'签到成功：'+((r.reward&&r.reward.name)||''):(r&&r.reason)||'签到失败');render();return r},
  offClaim(d){const O=OF();if(!O)return null;const r=O.claim(!!d);if(ok('toast'))toast(r&&r.ok?(d?'已双倍领取':'已领取'):(r&&r.reason)||'领取失败');render();return r},
  _offDot(){try{const o=OF()&&OF().state();return !!(o&&o.has&&!o.claimed)}catch(e){return false}},
- _t:{TOPT,attrs,skList,FLN,EQL,EQR,roleTop,skillPage,signPanel,offPanelPg,flTabs,skTabs,get SKV(){return SKV},get FLT(){return FLT}}};
+ _t:{zState,chInfo,mapPage,MAPN,TOPT,attrs,skList,FLN,EQL,EQR,roleTop,skillPage,signPanel,offPanelPg,flTabs,skTabs,get SKV(){return SKV},get FLT(){return FLT}}};
 // 顶栏刷新：每次 render 后 + 0.5s 轮询（只在页签显示时写 DOM，且值变了才写）；换角色/职业后 render 也会同步
 {const f=render;if(!render.__cqtop){render=function(){const r=f.apply(this,arguments);try{topSync()}catch(e){}return r};render.__cqtop=1}}
 setInterval(()=>{try{if(TOPT[TAB]||document.body.classList.contains('cq-topx'))topSync()}catch(e){}},500);
