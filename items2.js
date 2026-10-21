@@ -87,7 +87,8 @@ const _i2_show=showItem;showItem=function(uid){_i2_show(uid);if(typeof document=
  if(isCharm(it)||isJewel(it)){const eb=[...box.querySelectorAll('button')].find(x=>/装备|需求不足/.test(x.textContent));if(eb)eb.remove();
   base.insertAdjacentHTML('beforeend',`<div class="dim">${isCharm(it)?'护身符：放在背包中即生效（仓库中不生效）':'珠宝：可镶嵌到有空凹槽的装备中'}</div>`)}
  if(!f.slot&&!f.stash&&it.sock>it.soc.length&&it.rw==null&&!isJewel(it)&&S.bag.some(isJewel))box.insertAdjacentHTML('afterbegin',`<button class="btn" onclick="jewelUI(${uid})">镶嵌珠宝</button>`)};
-modsTxt=function(m){return Object.entries(m).map(([k,v])=>(MODT[k]||k+' {v}').replace('{v}',Array.isArray(v)?v[0]+'-'+v[1]:v).replace('+-','-')).join('，')};
+const MODS_GONE=new Set(['mcast']);// 已删除词缀（multicast.js），旧存档物品上的字段忽略不显示
+modsTxt=function(m){return Object.entries(m).filter(([k])=>!MODS_GONE.has(k)).map(([k,v])=>(MODT[k]||k+' {v}').replace('{v}',Array.isArray(v)?v[0]+'-'+v[1]:v).replace('+-','-')).join('，')};
 
 // ---------- 炼金匣：升级 / 修复配方 ----------
 function nextTierBase(b){const cur=BASES.filter(x=>x.cat===b.cat&&x.tier===b.tier&&!x.jew).sort((a,c)=>a.q-c.q),nx=BASES.filter(x=>x.cat===b.cat&&x.tier===b.tier+1&&!x.jew).sort((a,c)=>a.q-c.q);
