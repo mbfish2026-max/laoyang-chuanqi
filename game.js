@@ -23,18 +23,16 @@ function save(){S.last=Date.now();GS.setItem(KEY,JSON.stringify(S))}
 function slotOf(b){return b.s==='ring'?'ring':b.s}
 function itemGroups(b){if(b.s==='weapon')return'W';if(b.jew)return'J';let g='A';if(b.cat==='head')g+='H';if(b.s==='gloves')g+='G';return g}
 function sockCat(b){return b.s==='weapon'?'w':(b.s==='shield'?'s':'a')}
-function socketMods(it){const b=BASEM[it.b],m={},c=sockCat(b);
- for(const x of it.soc||[]){let e;if(x.g){const G=GEMS[x.g];e=(c==='w'?G.w:c==='s'?G.s:G.a)(x.lv)}else{const r=RUNES[x.r];e=c==='w'?r[2]:r[3]}for(const k in e)m[k]=(m[k]||0)+e[k]}
- if(it.rw!=null){const w=RUNEWORDS[it.rw].m;for(const k in w)m[k]=(m[k]||0)+w[k]}return m}
+function socketMods(it){return{}}// 宝石/符文/符文之语已删除（legacy_prune 批次2），凹槽不再提供属性
 function allMods(it){const m=Object.assign({},it.m),s=socketMods(it);for(const k in s)m[k]=(m[k]||0)+s[k];return m}
 function itemLocal(it){const b=BASEM[it.b],m=allMods(it),o={};
  if(b.dmg){const ed=(m.edmg||0)/100;o.min=Math.floor(it.dmg[0]*(1+ed))+(m.mindmg||0);o.max=Math.max(o.min+1,Math.floor(it.dmg[1]*(1+ed))+(m.maxdmg||0))}
  if(b.def){o.def=Math.floor(it.def*(1+(m.edef||0)/100))+(m.def||0)}return o}
-function itemReq(it){const b=BASEM[it.b];let l=it.req||0;for(const x of it.soc||[])if(x.r!=null)l=Math.max(l,RUNES[x.r][1]);if(it.rw!=null)l=Math.max(l,RUNEWORDS[it.rw].lv);
+function itemReq(it){const b=BASEM[it.b];let l=it.req||0;
  const f=it.q===0?0.8:1;return{lv:l,str:Math.floor((b.str||0)*f),dex:Math.floor((b.dex||0)*f)}}
 function canEquip(it){const r=itemReq(it),A=ST?ST.attr:S.at;if(BASEM[it.b]&&BASEM[it.b].cls&&typeof curCls==='function'&&(BASEM[it.b].ccls||'zs')!==curCls())return false;return S.lvl>=r.lv&&A.str>=r.str&&A.dex>=r.dex}
-function itemName(it){if(!it)return'损坏物品';if(it.k==='gem')return GEMS[it.g]?(GEMG[it.lv]||'')+GEMS[it.g].n:'未知宝石';if(it.k==='rune')return RUNES[it.r]?RUNES[it.r][0]+'符文':'未知符文';return it.rw!=null?(RUNEWORDS[it.rw]?RUNEWORDS[it.rw].n:'未知符文之语'):(it.name||'未知物品')}
-function itemColor(it){if(it.k==='gem')return GEMS[it.g].c;if(it.k==='rune')return'#ffa040';if(it.rw!=null)return QC[8];if((it.q===1||it.q===2)&&it.sock)return'#a0a0a0';return QC[it.q]}
+function itemName(it){if(!it)return'损坏物品';return it.name||'未知物品'}
+function itemColor(it){if((it.q===1||it.q===2)&&it.sock)return'#a0a0a0';return QC[it.q]}
 function power(it){if(it.k)return 0;const m=allMods(it),l=itemLocal(it);let p=(l.def||0)*1+((l.min||0)+(l.max||0))*2;
  const w={str:3,dex:3,vit:4,ene:3,life:2,mana:1.5,ar:.2,fres:1.5,cres:1.5,lres:1.5,pres:1.2,allres:6,allsk:120,t0sk:60,t1sk:60,t2sk:60,fcr:3,mf:2,gf:.3,ll:8,ml:6,ias:3,regen:6,mpk:8,undead:.5,firemin:4,coldmin:4,lightmax:2,poisdmg:.3,tdef:1,dr:8,mdr:6,fhr:1.5,block:2,thorns:1,mregen:1,dmgmana:1,sumdmg:2,sumlife:2};
  for(const k in m){if(k.startsWith('sk_'))p+=m[k]*45;else p+=(w[k]||0)*m[k]}return Math.max(1,Math.round(p))}
@@ -178,19 +176,19 @@ function rollTC(m){const t=m.actboss?{p:7,nd:0}:m.boss?{p:5,nd:15}:m.fl==='uniq'
   if(e==='gold'){const g=Math.round(R(m.lv,4*m.lv+8)*(1+ST.gf/100));S.gold+=g;cqInc(g)}
   else if(e==='junk'){const k=wpick([['hp',5],['mp',3],['rej',1],['tp',1]],x=>x[1])[0];S.pot[k]++}
   else if(e==='eq')out.push(genItem(m.lv,{mf:ST.mf,bossMod:bm}));
-  else if(e==='good')out.push(rnd()<0.5?rollRune(m.lv):rollGem(m.lv))}
+  else if(e==='good')out.push(rollGood(m))}
  return out}
-function rollRune(ml){const mx=Math.min(RUNES.length-1,Math.floor(ml/3));const r=wpick([...Array(mx+1).keys()],i=>1/Math.pow(1.6,i));return{uid:S.uid++,k:'rune',r}}
-function rollGem(ml){const g=ml>=36?R(0,3):ml>=24?R(0,2):ml>=12?R(0,1):0;return{uid:S.uid++,k:'gem',g:pick(Object.keys(GEMS)),lv:g}}
-function addBag(it){if(it.k==='rune')S.found[it.r]=1;
+// 符文/宝石已删除：rollRune/rollGem 只保留名字（cq/sys_cq.js 与 eg_* 仍调用/赋值），产出 1 个黑铁矿
+function rollRune(){return{uid:S.uid++,k:'mat',id:'heitie',n:1}}function rollGem(){return rollRune()}
+function addBag(it){
  if(!it.k&&it.sock===0&&S.sell[it.q]&&it.q<3){const g=sellPrice(it);S.gold+=g;cqInc(g);return}
  if(S.bag.length>=40){const g=sellPrice(it);S.gold+=g;cqInc(g);log('背包已满，自动出售 '+itemName(it));return}S.bag.push(it)}
-function sellPrice(it){if(it.k==='rune')return 50*(it.r+1);if(it.k==='gem')return 20*(it.lv+1);return Math.round((5+BASEM[it.b].q*3)*[0.5,1,1.5,3,6,10,8,8,10][it.q])+power(it)}
+function sellPrice(it){return Math.round((5+BASEM[it.b].q*3)*[0.5,1,1.5,3,6,10,8,8,10][it.q])+power(it)}
 function bossKilled(m){const z=zoneData();if(z.quest&&!S.q[z.quest])questDone(z.quest)}
 function questDone(q){S.q[q]=1;const Q=QUESTS[q];log(`<b class="quest">任务完成【${Q.n}】奖励：${Q.rw}</b>`);toast('任务完成：'+Q.n);
  if(q==='q1')S.kp++;if(q==='q2'){gainXp(500);S.gold+=300}
  if(q==='q3'){const it=genItem(S.lvl,{base:BASEM.rin,q:3});addBag(it);log('长老赠予 '+itemName(it))}
- if(q==='q4'){for(let i=0;i<3;i++){const r=rollRune(15);addBag(r);log('获得 '+itemName(r))}}
+ if(q==='q4'){S.gold+=600;log('获得 600 金币')}
  if(q==='q5')S.imbue=1;if(q==='q6')S.act1done=1}
 // --- 召唤物 ---
 function addAlly(kind,o){const a=Object.assign({uid:mUid++,kind,t:rnd(),res:slvl('sr')?SV('sr',slvl('sr')).res:0},o);a.max=a.hp=Math.round(a.hp*(1+ST.sumlife/100));ALLY.push(a);return a}
@@ -349,9 +347,8 @@ function renderHero(){const s=ST,A=s.attr,P=$('#panel');const row=(a,b)=>`<div c
 function addStat(k,n){n=Math.min(n,S.sp);S.at[k]+=n;S.sp-=n;calc();render()}
 
 // ===== 技能页 =====
-function renderSkills(){const P=$('#panel');const tabs=trees().map((t,i)=>`<button class="${SKT===i?'on':''}" onclick="SKT=${i};render()">${t}</button>`).join('')+`<button class="${SKT===3?'on':''}" onclick="SKT=3;render()">符文图鉴</button>`;
- if(SKT===3){P.innerHTML=`<div class="stabs">${tabs}</div><div class="gp"><h3>符文图鉴</h3><div class="rgrid">${RUNES.map((r,i)=>S.found[i]?`<div class="rc on"><div class="ro">${i+1}</div><b>${r[0]}符文</b><small>需求 ${r[1]} 级</small><small>武:${modsTxt(r[2])}</small><small>防:${modsTxt(r[3])}</small></div>`:`<div class="rc back"><div class="ro">?</div><small>未发现</small></div>`).join('')}</div></div>
-  <div class="gp"><h3>符文之语</h3>${RUNEWORDS.map(w=>`<div class="rw"><b class="uq">${w.n}</b> <span class="dim">${w.r.map(i=>RUNES[i][0]).join('+')} · ${w.cats.map(c=>({wand:'魔杖',dagger:'匕首',sword:'剑',helm:'头盔',armor:'铠甲',shield:'盾',head:'缩颅'})[c]).join('/')} ${w.r.length}孔 · 需求${w.lv}</span><div class="dim">${modsTxt(w.m)}</div></div>`).join('')}</div>`;return}
+function renderSkills(){const P=$('#panel');const tabs=trees().map((t,i)=>`<button class="${SKT===i?'on':''}" onclick="SKT=${i};render()">${t}</button>`).join('');
+// 符文图鉴页已删除（legacy_prune 批次2）
  const list=SKILLS.filter(s=>s.t===SKT&&skOfCls(s)).sort((a,b)=>a.r-b.r||a.col-b.col);
  P.innerHTML=`<div class="stabs">${tabs}</div><div class="pts">技能点 <b>${S.kp}</b>　主攻：<b>${S.main?SKM[S.main].n:'自动'}</b>　诅咒：<b>${S.curse?SKM[S.curse].n:'自动'}</b></div>
  <div class="tree">${REQL.map((r,ri)=>`<div class="trow"><span class="rq">${r}</span>${[0,1,2].map(c=>{const s=list.find(x=>x.r===r&&x.col===c);return s?`<div class="tn ${bl(s.id)?'has':''} ${canLearn(s.id)?'can':''}" id="tn_${s.id}" onclick="skPop('${s.id}')">${skIcon(s)}<b>${bl(s.id)||''}</b></div>`:'<div class="tn void"></div>'}).join('')}</div>`).join('')}</div>
@@ -383,7 +380,7 @@ function learn(id){if(!canLearn(id))return;S.sk[id]=bl(id)+1;S.kp--;calc();skPop
 // ===== 背包/装备 =====
 function modsTxt(m){return Object.entries(m).map(([k,v])=>(MODT[k]||k+' {v}').replace('{v}',v)).join('，')}
 const SLOTG={weapon:'🪄',shield:'💀',helm:'⛑',armor:'🥋',gloves:'🧤',belt:'🎗',boots:'🥾',amulet:'📿',ring:'💍'};
-function itemIcon(it){if(it.k==='rune')return`<i class="ii rune">${it.r+1}</i>`;if(it.k==='gem')return`<i class="ii gem" style="--c:${GEMS[it.g].c}">◆</i>`;
+function itemIcon(it){
  const b=BASEM[it.b];return`<i class="ii">${b.cat==='wand'?'🪄':b.cat==='dagger'?'🗡':b.cat==='sword'?'⚔':b.cat==='shield'?'🛡':SLOTG[slotOf(b)]}</i>`}
 // 坏物品（缺数据/旧版存档）只显示占位，不让整页渲染崩溃
 function cell(it,on){try{return cell0(it,on)}catch(e){console.warn('坏物品',it,e);return`<div class="cell bad" style="--c:#844"><span class="glyph">?</span><small>损坏物品</small></div>`}}
@@ -392,33 +389,30 @@ function renderBag(){const P=$('#panel');const doll=SLOTS.map(k=>{const it=S.eq[
  const sc=setCount();const sets=Object.entries(sc).map(([k,n])=>`<span class="setb">${SETS[k].n} ${n}件</span>`).join('');
  const fl=[['all','全部'],['eq','装备'],['misc','符文宝石']];const items=S.bag.filter(it=>BAGF==='all'||(BAGF==='eq'?!it.k:!!it.k));
  P.innerHTML=`<div class="gp"><h3>装备 <span class="dim">战力 ${SLOTS.reduce((a,k)=>a+(S.eq[k]?power(S.eq[k]):0),0)}</span></h3><div class="doll">${doll}</div>${sets}</div>
- <div class="gp"><h3>背包 ${S.bag.length}/40 <span class="r"><button class="btn xs" onclick="cubeUI()">炼金匣</button><button class="btn xs" onclick="sellJunk()">出售白/蓝</button></span></h3>
+ <div class="gp"><h3>背包 ${S.bag.length}/40 <span class="r"><button class="btn xs" onclick="sellJunk()">出售白/蓝</button></span></h3>
  <div class="stabs sm">${fl.map(([k,n])=>`<button class="${BAGF===k?'on':''}" onclick="BAGF='${k}';render()">${n}</button>`).join('')}</div>
  <div class="grid">${items.map(it=>cell(it,`showItem(${it.uid},'bag')`)).join('')||'<div class="dim">空</div>'}</div></div>`}
 function findItem(uid){for(const k of SLOTS)if(S.eq[k]&&S.eq[k].uid===uid)return{it:S.eq[k],slot:k};const i=S.bag.findIndex(x=>x.uid===uid);return i>=0?{it:S.bag[i],i}:null}
 function stars(it){const n=it.k?1:it.rw!=null?5:[1,1,2,3,4,5,5,4,5][it.q];return'★'.repeat(n)+'☆'.repeat(5-n)}
 function showItem(uid){const f=findItem(uid);if(!f)return;const it=f.it;
- if(it.k){const desc=it.k==='rune'?`<div class="sec"><h4>【符文】</h4><div>需求等级 ${RUNES[it.r][1]}</div><div>镶入武器：<span class="g">${modsTxt(RUNES[it.r][2])}</span></div><div>镶入防具/盾：<span class="g">${modsTxt(RUNES[it.r][3])}</span></div></div>`:
-  `<div class="sec"><h4>【宝石】</h4><div>武器：<span class="g">${modsTxt(GEMS[it.g].w(it.lv))}</span></div><div>防具：<span class="g">${modsTxt(GEMS[it.g].a(it.lv))}</span></div><div>盾/缩颅：<span class="g">${modsTxt(GEMS[it.g].s(it.lv))}</span></div></div>`;
-  return modal(`<div class="ipanel"><div class="ih">${itemIcon(it)}<div><b style="color:${itemColor(it)}">${itemName(it)}</b><div class="dim">${stars(it)}</div></div></div>${desc}<div class="tags"><span>可交易</span><span>可镶嵌</span></div><div class="btns c"><button class="btn" onclick="sell(${uid})">出售 ${sellPrice(it)}◈</button><button class="btn" onclick="closeM()">关闭</button></div></div>`)}
+  if(it.k){const desc='';
+  return modal(`<div class="ipanel"><div class="ih">${itemIcon(it)}<div><b style="color:${itemColor(it)}">${itemName(it)}</b><div class="dim">${stars(it)}</div></div></div>${desc}<div class="tags"><span>可交易</span></div><div class="btns c"><button class="btn" onclick="sell(${uid})">出售 ${sellPrice(it)}◈</button><button class="btn" onclick="closeM()">关闭</button></div></div>`)}
  const b=BASEM[it.b],l=itemLocal(it),r=itemReq(it),m=allMods(it),ok=canEquip(it);
  const vis=[],hid=[];for(const k in it.m){const t=(MODT[k]||k).replace('{v}',it.m[k]);if(['edmg','edef','mindmg','maxdmg'].includes(k)&&(b.dmg||b.def))continue;(HIDDEN_KEYS.has(k)?hid:vis).push(t)}
  const sm=socketMods(it);
  let base='';if(b.dmg){const enh=l.min!==it.dmg[0]||l.max!==it.dmg[1];base+=`<div>单手伤害：<span class="${enh?'g':''}">${l.min}-${l.max}</span>${enh?` <small class="dim">(基础 ${it.dmg[0]}-${it.dmg[1]})</small>`:''}</div>`}
  if(b.def){const enh=l.def!==it.def;base+=`<div>防御：<span class="${enh?'g':''}">${l.def}</span>${enh?` <small class="dim">(基础 ${it.def})</small>`:''}</div>`}if(b.block)base+=`<div>格挡：${b.block}%</div>`;
  const setT=it.set?`<div class="setsec"><b>${SETS[it.set].n}</b>（已装备 ${setCount()[it.set]||0} 件）${Object.entries(SETS[it.set].bonus).map(([n,bo])=>`<div class="${(setCount()[it.set]||0)>=+n?'g':'dim'}">${n}件：${modsTxt(bo)}</div>`).join('')}${SETITEMS.filter(x=>x.set===it.set).map(x=>`<div class="dim">· ${x.n}</div>`).join('')}</div>`:'';
- const rwT=it.rw!=null?`<div class="rwt">符文之语「${RUNEWORDS[it.rw].n}」『${RUNEWORDS[it.rw].r.map(i=>RUNES[i][0]).join('+')}』</div><div class="g">${modsTxt(RUNEWORDS[it.rw].m)}</div>`:'';
- const socs=it.sock?`<div class="socks">${[...Array(it.sock)].map((_,i)=>{const x=it.soc[i];return x?`<span class="so on" style="--c:${x.g?GEMS[x.g].c:'#ffa040'}">${x.g?'◆':x.r+1}</span>`:'<span class="so"></span>'}).join('')}</div>
-  <div>${it.soc.length?`<span class="g">${modsTxt(Object.fromEntries(Object.entries(sm).filter(([k])=>it.rw==null||!(k in RUNEWORDS[it.rw].m))))}</span>`:'<span class="dim">空凹槽可镶嵌宝石/符文；白色底材按配方顺序镶满符文可组成符文之语</span>'}</div>${rwT}`:'<span class="dim">无凹槽</span>';
+  const rwT='';
+  const socs='';
  const cmp=f.slot?'':(()=>{const k=slotOf(b)==='ring'?'ring1':slotOf(b);const e=S.eq[k];return e?`<div class="dim">当前已装备：${itemName(e)}（战力 ${power(e)}）</div>`:''})();
- const canSock=it.sock>it.soc.length&&it.rw==null&&S.bag.some(x=>x.k);
+  const canSock=false;
  modal(`<div class="ipanel q${it.q}"><div class="ih">${itemIcon(it)}<div><b style="color:${itemColor(it)}">${itemName(it)}</b><div class="dim">${b.n} · ${['普通','扩展','精英'][b.tier]}级 · ${QN[it.rw!=null?8:it.q]}${it.sock&&it.q<3&&it.rw==null?' · 有凹槽':''}</div><div class="star">${stars(it)}</div><div class="dim">物品等级 ${it.il} · 耐久 —（挂机不磨损）</div></div></div>
  <div class="sec"><h4>【基础属性】</h4>${base}${vis.map(t=>`<div class="g">${t}</div>`).join('')}<div class="${S.lvl>=r.lv?'':'bad'}">需求等级：${r.lv}</div>${r.str?`<div class="${ST.attr.str>=r.str?'':'bad'}">需求力量：${r.str}</div>`:''}${r.dex?`<div class="${ST.attr.dex>=r.dex?'':'bad'}">需求敏捷：${r.dex}</div>`:''}</div>
  ${hid.length?`<div class="sec hid"><h4>【隐藏属性】</h4>${hid.map(t=>`<div>${t}</div>`).join('')}</div>`:''}${setT}
- <div class="sec"><h4>【铸造 / 凹槽 ${it.soc.length}/${it.sock}】</h4>${socs}</div>
  <div class="pw">战力 <b>${power(it)}</b></div>${cmp}<div class="tags"><span>可交易</span><span>已鉴定</span>${it.q===5?'<span class="u">暗金</span>':''}${it.set?'<span class="s">套装</span>':''}${it.rw!=null?'<span class="u">符文之语</span>':''}</div>
  <div class="btns c">${f.slot?`<button class="btn" onclick="unequip('${f.slot}')">卸下</button>`:`<button class="btn gold" onclick="equip(${uid})" ${ok?'':'disabled'}>${ok?'装备':'需求不足'}</button>`}
- ${canSock?`<button class="btn" onclick="sockUI(${uid})">镶嵌</button>`:''}${S.imbue&&!f.slot&&(it.q===1||it.q===2)&&!it.soc.length?`<button class="btn gold" onclick="imbue(${uid})">灌注</button>`:''}
+ ${S.imbue&&!f.slot&&(it.q===1||it.q===2)&&!it.soc.length?`<button class="btn gold" onclick="imbue(${uid})">灌注</button>`:''}
  ${f.slot?'':`<button class="btn" onclick="sell(${uid})">出售 ${sellPrice(it)}◈</button>`}<button class="btn" onclick="closeM()">关闭</button></div></div>`)}
 function equip(uid){const f=findItem(uid);if(!f||f.slot)return;const it=f.it,b=BASEM[it.b];let k=slotOf(b);if(k==='ring')k=!S.eq.ring1?'ring1':!S.eq.ring2?'ring2':'ring1';
  S.bag.splice(f.i,1);if(S.eq[k])S.bag.push(S.eq[k]);S.eq[k]=it;calc();H.life=Math.min(H.life,ST.life);closeM();render()}
@@ -426,25 +420,9 @@ function unequip(k){if(S.bag.length>=40)return toast('背包已满');S.bag.push(
 function sell(uid){const f=findItem(uid);if(!f||f.slot)return;S.gold+=sellPrice(f.it);S.bag.splice(f.i,1);closeM();render()}
 function sellJunk(){let g=0;S.bag=S.bag.filter(it=>{if(!it.k&&it.q<=3&&!it.sock&&it.rw==null){g+=sellPrice(it);return false}return true});S.gold+=g;toast('出售获得 '+g+' 金币');render()}
 function imbue(uid){const f=findItem(uid);const it=f.it;const n=genItem(Math.max(S.lvl,it.il),{base:BASEM[it.b],q:4});n.uid=it.uid;S.bag[f.i]=n;S.imbue=0;log(`灌注成功：<span style="color:${QC[4]}">${n.name}</span>`);showItem(n.uid);render()}
-function sockUI(uid){const f=findItem(uid);const g=S.bag.filter(x=>x.k);modal(`<div class="mtitle">选择镶嵌物</div><div class="gp"><div class="dim">镶嵌不可逆。白色底材镶满且顺序与配方一致时形成符文之语。</div><div class="grid">${g.map(x=>cell(x,`doSock(${uid},${x.uid})`)).join('')}</div><div class="btns c"><button class="btn" onclick="showItem(${uid})">返回</button></div></div>`)}
-function doSock(uid,gid){const f=findItem(uid),it=f.it,gi=S.bag.findIndex(x=>x.uid===gid),g=S.bag[gi];if(it.soc.length>=it.sock)return;S.bag.splice(gi,1);it.soc.push(g.k==='gem'?{g:g.g,lv:g.lv}:{r:g.r});
- if(it.soc.length===it.sock&&(it.q===1||it.q===2)&&it.soc.every(x=>x.r!=null)){const cat=BASEM[it.b].cat;const w=RUNEWORDS.findIndex(w=>w.r.length===it.sock&&(typeof rwCatOk==='function'?rwCatOk(w,cat):w.cats.includes(cat))&&w.r.every((r,i)=>it.soc[i].r===r));if(w>=0){it.rw=w;log(`<b class="uq">符文之语「${RUNEWORDS[w].n}」诞生！</b>`);toast('符文之语：'+RUNEWORDS[w].n)}}
- calc();showItem(uid);render()}
-// ===== 炼金匣 =====
-function cubeUI(){const rec=[];const gc={},rc={};for(const x of S.bag){if(x.k==='gem'&&x.lv<4)(gc[x.g+x.lv]=gc[x.g+x.lv]||[]).push(x);if(x.k==='rune'&&x.r<10)(rc[x.r]=rc[x.r]||[]).push(x)}
- for(const k in gc)if(gc[k].length>=3)rec.push([`3×${itemName(gc[k][0])} → ${GEMG[gc[k][0].lv+1]}${GEMS[gc[k][0].g].n}`,`cubeGem('${k}')`]);
- for(const k in rc)if(rc[k].length>=3)rec.push([`3×${RUNES[k][0]}符文 → ${RUNES[+k+1][0]}符文`,`cubeRune(${k})`]);
- const has=(f)=>S.bag.find(f);const amu=has(x=>!x.k&&x.b==='amu'&&x.q===3),rin=has(x=>!x.k&&x.b==='rin'&&x.q===3);
- if(amu&&has(x=>x.k==='rune'&&x.r===7)&&has(x=>x.k==='gem'&&x.g==='ame'))rec.push(['魔法护符+8号符文+紫晶 → 施法护符(合成)',"craft('amu')"]);
- if(rin&&has(x=>x.k==='rune'&&x.r===10)&&has(x=>x.k==='gem'&&x.g==='rub'))rec.push(['魔法戒指+11号符文+赤玉 → 嗜血戒指(合成)',"craft('rin')"]);
- modal(`<div class="mtitle">炼金匣</div><div class="gp"><div class="dim">配方：3 同级同色宝石→升一级；3 同符文→下一枚(前10枚)；魔法护符+8号+紫晶→施法护符；魔法戒指+11号+赤玉→嗜血戒指</div>
- ${rec.length?rec.map(([t,f])=>`<div class="row"><span>${t}</span><button class="btn xs gold" onclick="${f}">合成</button></div>`).join(''):'<div class="dim" style="margin:10px 0">背包中没有满足条件的材料</div>'}<div class="btns c"><button class="btn" onclick="closeM()">关闭</button></div></div>`)}
+// 炼金匣已删除（legacy_prune 批次2）；cubeUI 仅保留空壳，因 cq/sys_cq.js 仍对它赋值（战斗开发删掉那行后可去掉）
+function cubeUI(){}
 function takeBag(f,n){for(let i=0;i<n;i++){const j=S.bag.findIndex(f);if(j>=0)S.bag.splice(j,1)}}
-function cubeGem(k){const g=k.slice(0,3),lv=+k.slice(3);takeBag(x=>x.k==='gem'&&x.g===g&&x.lv===lv,3);S.bag.push({uid:S.uid++,k:'gem',g,lv:lv+1});cubeUI();render()}
-function cubeRune(r){takeBag(x=>x.k==='rune'&&x.r===r,3);S.bag.push({uid:S.uid++,k:'rune',r:r+1});S.found[r+1]=1;cubeUI();render()}
-function craft(t){const isA=t==='amu';takeBag(x=>!x.k&&x.b===t&&x.q===3,1);takeBag(x=>x.k==='rune'&&x.r===(isA?7:10),1);takeBag(x=>x.k==='gem'&&x.g===(isA?'ame':'rub'),1);
- const it=genItem(Math.max(S.lvl,10),{base:BASEM[t],q:7});it.name=isA?'施法护符':'嗜血戒指';if(isA){it.m.fcr=(it.m.fcr||0)+R(5,10);it.m.mana=(it.m.mana||0)+R(10,20)}else{it.m.ll=(it.m.ll||0)+R(1,3);it.m.life=(it.m.life||0)+R(10,20)}
- S.bag.push(it);log(`合成：<span style="color:${QC[7]}">${it.name}</span>`);showItem(it.uid);render()}
 
 // ===== 地图页 =====
 let MAPA=0;

@@ -8,9 +8,9 @@
 (function(){
 const MAX=50;
 function rwBase(it){if(it.k||it.rw!=null||!(it.q===1||it.q===2)||!(it.sock>=3)||(it.soc&&it.soc.length))return false;const b=BASEM[it.b];if(!b||b.jew)return false;
- return RUNEWORDS.some(w=>w.r.length===it.sock&&rwCatOk(w,b.cat))}
+ return false}// 符文之语已删除
 // q码：u暗金 s套装 w符文之语 r符文 b底材
-function kind(it){if(!it)return'';if(it.k==='rune')return it.r>=19?'r':'';if(it.k)return'';if(it.rw!=null)return'w';if(it.q===5)return'u';if(it.q===6)return's';return rwBase(it)?'b':''}
+function kind(it){if(!it)return'';if(it.k)return'';if(it.rw!=null)return'w';if(it.q===5)return'u';if(it.q===6)return's';return rwBase(it)?'b':''}
 const COL={u:'#c8a060',s:'#3c3',w:'#e8c070',r:'#f90',b:'#bbb'},TAG={u:'暗金',s:'套装',w:'符文之语',r:'符文',b:'底材'};
 function zn(){try{return zoneData().n||''}catch(e){return''}}
 function beam(k){const fb=document.getElementById('fbattle');if(!fb||document.hidden)return;const old=fb.querySelector('.dlbeam');if(old)old.remove();

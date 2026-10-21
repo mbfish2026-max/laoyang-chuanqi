@@ -17,6 +17,7 @@ function acctLoad(){try{ACCT=JSON.parse(GS.getItem(ACCT_KEY))}catch(e){ACCT=null
  if(!ACCT||ACCT.v!==1){ACCT={v:1,cur:1,nid:2,suid:1e9,chars:[{id:1,name:'战士',cls:'战士',lvl:1,t:Date.now()}],shared:mkPages(shN())};
   const old=ACCT_NS?null:GS.getItem(KEY);if(old){GS.setItem(CH_PRE+1,old);try{const o=JSON.parse(old);ACCT.chars[0].lvl=o.lvl||1}catch(e){}}acctSave()}
  while(ACCT.shared.length<shN())ACCT.shared.push([]);if(!ACCT.chars.length)ACCT.chars.push({id:ACCT.nid++,name:'战士',cls:'战士',lvl:1,t:Date.now()});
+ for(const c of ACCT.chars)if(c&&c.mode==='season')c.mode='normal';// 纪元已删除：账号角色列表里的纪元标记转普通
  for(const p of ACCT.shared)mergeMats(p)}
 // 存档命名空间：游客 = 默认 key；登录账号 = key 带 user_id（数据按账号隔离）
 function setNS(uid){ACCT_NS=uid||null;ACCT_KEY=uid?'cq_acct@'+uid:'cq_acct';CH_PRE=uid?'cq_ch@'+uid+'_':'cq_ch_'}
@@ -36,7 +37,7 @@ const _st_load=load;load=function(){acctLoad();const c=curChar()||ACCT.chars[0];
  if(d)GS.setItem(KEY,d);else GS.removeItem(KEY);_st_load();migrateChar(c)};
 function migrateChar(c){if(!S.pst){S.pst=mkPages(pstN());let p=0;for(const it of (S.stash||[])){while(p<pstN()-1&&!fits(S.pst[p],it,PAGE_SZ))p++;S.pst[p].push(it)}S.stash=[]}
  while(S.pst.length<pstN())S.pst.push([]);if(!S.stash)S.stash=[];drainOld();for(const p of S.pst)mergeMats(p);mergeMats(S.bag);
- S.name=S.name||c.name;S.cid=c.id;S.cls=S.cls||c.cid||'zs';S.mode=S.mode||c.mode||'normal';if(S.eg&&S.eg.season&&S.mode!=='season')S.mode='season';if(S.mode==='season')c.mode='season';if(!S.ci&&typeof clsInit==='function')clsInit();if(!S.ast)S.ast={on:0,dest:'p',t:{gem:1,rune:1,mat:1,jewel:0,charm:0,unique:0,set:0,rare:0,sock:0}}}
+ S.name=S.name||c.name;S.cid=c.id;S.cls=S.cls||c.cid||'zs';S.mode=S.mode||c.mode||'normal';if(S.mode==='season'){S.mode='normal';S.cqSeasonOld=1}if(c.mode==='season')c.mode='normal';/* 纪元已删除（legacy_prune C5）：旧纪元角色转普通，S.eg.season 原样保留不生效 */if(!S.ci&&typeof clsInit==='function')clsInit();if(!S.ast)S.ast={on:0,dest:'p',t:{gem:1,rune:1,mat:1,jewel:0,charm:0,unique:0,set:0,rare:0,sock:0}}}
 function drainOld(){if(S.stash&&S.stash.length){for(const it of S.stash.splice(0)){const p=S.pst.findIndex(pg=>fits(pg,it,PAGE_SZ));(S.pst[p<0?0:p]).push(it)}}}
 const _st_save=save;save=function(){if(ST_RESET)return;if(S.pst)drainOld();_st_save();try{const raw=GS.getItem(KEY);if(raw)GS.setItem(CH_PRE+ACCT.cur,raw);const c=curChar();if(c){c.lvl=S.lvl;c.t=Date.now();c.name=S.name||c.name}acctSave()}catch(e){}};
 function resetRuntime(){MON=[];ALLY=[];CORPSE=[];killWin=[];spawnT=2;LOGS.length=0;LOGDIRTY=1;Object.assign(H,{cb:null,abs:0,castT:0,atkT:0,potT:0,mpT:0,curse:0});if(typeof ACX!=='undefined')ACX.mercOn=0}
@@ -60,8 +61,8 @@ function charUI(){const L=ACCT.chars.map(c=>`<div class="chrow ${c.id===ACCT.cur
  <div class="dim">所有角色共用共享仓库（${shN()}页×${PAGE_SZ}格）；个人仓库/背包/装备/进度各自独立。${ACCT_NS?'当前为账号存档':'当前为游客存档（仅本机）'}</div><div class="btns c"><button class="btn" onclick="closeM()">关闭</button></div></div>`)}
 function newCharUI(){modal(`<div class="mtitle">新建角色</div><div class="gp newcu"><h4>选择职业</h4><div class="clsgrid">${CLASSES.map(c=>`<div class="clsc ${c.open?'':'lock'} ${NEWCLS===c.id?'on':''}" onclick="${c.open?`NEWCLS='${c.id}';newCharUI()`:"toast('敬请期待')"}"><i>${c.ic}</i><b>${c.n}</b><small>${c.open?c.d:'敬请期待'}</small></div>`).join('')}</div>
  <h4>角色名</h4><div class="newch"><input id="chname" maxlength="12" placeholder="最多 12 字"></div>
- <h4>模式</h4><div class="btns"><button class="btn sm ${NEWMODE==='normal'?'on':''}" onclick="NEWMODE='normal';newCharUI()">普通</button><button class="btn sm ${NEWMODE==='season'?'on':''}" onclick="NEWMODE='season';newCharUI()">纪元</button></div><div class="dim">${NEWMODE==='season'?'纪元角色从 1 级开始，享受纪元加成并完成纪元旅程获得专属奖励与称号（共享仓库仍可使用）。':'普通角色：没有纪元加成与旅程。'}</div>
- <div class="btns c"><button class="btn gold" onclick="newChar($('#chname').value,NEWCLS,NEWMODE)">创建</button><button class="btn" onclick="charUI()">返回</button></div></div>`)}
+
+ <div class="btns c"><button class="btn gold" onclick="newChar($('#chname').value,NEWCLS,'normal')">创建</button><button class="btn" onclick="charUI()">返回</button></div></div>`)}
 // 角色页：显示角色名 + 角色按钮；重置存档只重置当前角色
 const _st_hero=renderHero;renderHero=function(){_st_hero();const h=document.querySelector('#panel .gp h3');if(h)h.innerHTML=`${S.name} · `+h.innerHTML+` <button class="btn xs gold r chsw" onclick="charUI()">🔄 切换角色</button>`;
  const b=[...document.querySelectorAll('#panel button')].find(x=>x.textContent==='重置存档');if(b)b.setAttribute('onclick','resetChar()')};
@@ -108,7 +109,7 @@ const _st_show=showItem;showItem=function(uid){_st_show(uid);if(window.__NOUI)re
 unequip=function(k){if(slotsUsed(S.bag)>=BAG_SZ)return toast('背包已满');S.bag.push(S.eq[k]);delete S.eq[k];calc();closeM();render()};
 if(typeof mercUnequip==='function')mercUnequip=function(k){if(slotsUsed(S.bag)>=BAG_SZ)return toast('背包已满');S.bag.push(S.merc.eq[k]);delete S.merc.eq[k];render()};
 // ---------- 自动存仓（拾取时；自动回收优先，见 loot.js） ----------
-const AST_T={gem:'宝石',rune:'符文',mat:'材料',jewel:'珠宝',charm:'护身符',unique:'暗金',set:'套装',rare:'稀有',sock:'带凹槽底材'};
+const AST_T={mat:'材料',unique:'暗金',set:'套装',rare:'稀有'};// 宝石/符文/珠宝/护身符/凹槽底材 已删除（legacy_prune 批次2）
 function astType(it){if(it.k==='gem')return'gem';if(it.k==='rune')return'rune';if(it.k==='mat')return'mat';const b=BASEM[it.b];if(b.s==='jewel')return'jewel';if(b.s==='charm')return'charm';
  if(it.q===5)return'unique';if(it.q===6)return'set';if(it.q===4)return'rare';if(it.sock&&it.q<=2&&it.rw==null)return'sock';return null}
 let AST_WARN=0;const STATS={rcy:0,rcyG:0,rcyE:0,ast:0};

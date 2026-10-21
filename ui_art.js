@@ -2,7 +2,7 @@
 // ui_art.js — UI2 手绘框架的少量 DOM 接入（只替换 emoji / 给炼金匣配方加工匠图标；不改玩法文件）
 // 商店「药水/卷轴」行的 🧪💜📜 → assets/ui2/pot_*.webp；炼金匣配方行 → artCraft() 工匠图标（art_map.js）
 const UA_CRAFT={cubeGem:'cube',cubeRune:'cube',cubeJewel:'cube',cubePot:'cube',craft:'anvil',craft2:'anvil',cubeUpgrade:'anvil',cubeRepair:'anvil',
- cubeSocket:'socket',cubeMagSock:'socket',cubeReroll:'scroll',essReroll:'ess',recycleNow:'recycle',egLpExtract:'ess'};
+ cubeSocket:'socket',cubeMagSock:'socket',cubeReroll:'scroll',essReroll:'ess',recycleNow:'recycle'};
 function uaFix(){try{
  document.querySelectorAll('#panel .row>button[onclick^="buyPot("]').forEach(b=>{const sp=b.parentNode.firstElementChild;if(!sp||sp.dataset.ua)return;
   const k=(b.getAttribute('onclick').match(/buyPot\('(\w+)'/)||[])[1];const t=sp.firstChild;if(!k||!t||t.nodeType!==3)return;

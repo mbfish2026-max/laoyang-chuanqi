@@ -63,37 +63,30 @@ function finishDefense(it,b){/* 暗金/套装的 def 区间作为本地加成；
 
 // ---------- 物品显示 / 需求 ----------
 const _itm_itemName=itemName;itemName=function(it){if(it&&!it.k&&it.rw==null&&!it.name)return(BASEM[it.b]||{n:'?'}).n;const nm=_itm_itemName(it);return typeof sufDn==='function'&&it&&!it.k&&nm&&nm[0]==='之'?nm.replace(/^之.(·[小大巨])?/,x=>sufDn(x)):nm};
-socketMods=function(it){const b=BASEM[it.b],m={},c=sockCat(b);
- for(const x of it.soc||[]){let e;if(x.g){const G=GEMS[x.g];e=(c==='w'?G.w:c==='s'?G.s:G.a)(x.lv)}else{const r=RUNES[x.r];e=c==='w'?r[2]:(c==='s'&&r[4]?r[4]:r[3])}for(const k in e)m[k]=(m[k]||0)+e[k]}
- if(it.rw!=null){const w=it.rwm||RUNEWORDS[it.rw].m;for(const k in w){const v=Array.isArray(w[k])?w[k][1]:w[k];m[k]=(m[k]||0)+v}}return m};
-itemReq=function(it){const b=BASEM[it.b];let l=it.req||0;for(const x of it.soc||[])if(x.r!=null)l=Math.max(l,RUNES[x.r][1]);if(it.rw!=null)l=Math.max(l,RUNEWORDS[it.rw].lv);
+// socketMods：宝石/符文/符文之语已删除（legacy_prune 批次2），沿用 game.js 的空实现
+itemReq=function(it){const b=BASEM[it.b];let l=it.req||0;
  const red=(socketMods(it).reqp||0)/100;const f=(it.q===0?0.8:1)*(1-red);return{lv:l,str:Math.floor((b.str||0)*f),dex:Math.floor((b.dex||0)*f)}};
 
 // ---------- 掉落 ----------
 function goodBand(off){return clamp((S.diff||0)*5+(S.act||0)+(off||0),0,14)}
-function rollRuneTC(tc){for(let n=tc;n>=1;n--){const lo=2*n-2;const opts=n===17?[[32,1]]:[[lo,3],[lo+1,2]];if(n>1)opts.push(['fall',RUNE_FALL[n]]);const r=wpick(opts,x=>x[1])[0];if(r!=='fall')return r}return 0}
-rollRune=function(ml,tc){if(tc==null){const g=GOODT[goodBand(0)].R;const ks=Object.keys(g);tc=ks.length?+ks[ks.length-1]:1}const r=Math.min(RUNES.length-1,rollRuneTC(tc));return{uid:S.uid++,k:'rune',r}};
-rollGem=function(ml,band){const G=GOODT[band==null?goodBand(0):band].G;const lv=wpick(G.map((w,i)=>[i,w]),x=>x[1])[0];return{uid:S.uid++,k:'gem',g:pick(Object.keys(GEMS)),lv}};
-function rollGood(m,band){const T=GOODT[band];const opts=[['J',T.J*JEWEL_SCALE],['G',T.G.reduce((a,b)=>a+b,0)]];for(const k in T.R)opts.push(['R'+k,T.R[k]]);const e=wpick(opts,x=>x[1])[0];
- if(e==='J')return genItem(m.lv,{base:rnd()<8/12?BASEM.rin:BASEM.amu,mf:ST.mf,fac:m._fac});if(e==='G')return rollGem(m.lv,band);return{uid:S.uid++,k:'rune',r:Math.min(RUNES.length-1,rollRuneTC(+e.slice(1)))}}
+// 掉落「好东西」：只出戒指/护符（符文/宝石已删除；cq/sys_cq.js 会再覆盖为首饰/黑铁矿）
+function rollGood(m){return genItem(m.lv,{base:rnd()<8/12?BASEM.rin:BASEM.amu,mf:ST.mf,fac:m._fac})}
 function tcOf(m){if(m.actboss)return TCS.actboss;if(m.key==='countess')return TCS.countess;if(m.boss)return TCS.boss;if(m.fl==='uniq')return TCS.uniq;if(m.fl==='champ')return TCS.champ;return TCS.normal}
 function rollPicks(m,T,out){m._fac=T.f||null;const band=goodBand(T.gb||0);
  for(let i=0;i<T.pk;i++){const e=wpick([['nd',T.nd],['gold',T.gold],['junk',T.junk],['eq',T.eq],['good',T.good]],x=>x[1])[0];
   if(e==='gold'){const g=Math.round(R(m.lv,4*m.lv+8)*(T.gmul||1)*(1+ST.gf/100));S.gold+=g}
   else if(e==='junk'){const k=wpick([['hp',5],['mp',3],['rej',1],['tp',1]],x=>x[1])[0];S.pot[k]++}
   else if(e==='eq')out.push(genItem(m.lv,{mf:ST.mf,fac:T.f}));
-  else if(e==='good')out.push(rollGood(m,band))}}
+  else if(e==='good')out.push(rollGood(m))}}
 rollTC=function(m){const T=tcOf(m),out=[];rollPicks(m,T,out);
  if(T.extra)for(let i=0;i<T.extraPk;i++)rollPicks(m,TCS[T.extra],out);
  if(T.pots)for(let i=0;i<T.pots;i++)if(rnd()<0.5)S.pot.hp++;
- if(T.runes){const tc=COUNTESS_RTC[clamp(S.diff||0,0,2)];for(let i=0;i<T.runes;i++)if(rnd()<0.75)out.push({uid:S.uid++,k:'rune',r:rollRuneTC(tc)})}
  return out};
 
 // ---------- 背包 / 出售（addBag 返回是否进入背包） ----------
-addBag=function(it){if(it.k==='rune')S.found[it.r]=1;
+addBag=function(it){
  if(!it.k&&!it.sock&&S.sell[it.q]&&it.q<3){S.gold+=sellPrice(it);return false}
  if(S.bag.length>=40){S.gold+=sellPrice(it);log('背包已满，自动出售 '+itemName(it));return false}S.bag.push(it);return true};
-const _itm_sellPrice=sellPrice;sellPrice=function(it){if(it.k==='rune')return 50*(it.r+1)*(it.r>=10?2:1);return _itm_sellPrice(it)};
 
 // ---------- 离线收益：只列出真正放入背包的物品 ----------
 // 离线：按掉落表期望值折算的每只怪金币（与在线 rollPicks 的金币分支一致，不实际掷骰）
@@ -122,60 +115,7 @@ renderBag=function(){_itm_renderBag();const P=$('#panel');const gps=P.querySelec
  bagGp.insertAdjacentHTML('beforebegin',sw);
  if(BAGV==='stash'){bagGp.outerHTML=`<div class="gp stash"><h3>储物箱 ${S.stash.length}/${STASH_SIZE} <span class="r dim">点击物品可取回</span></h3><div class="grid">${S.stash.map(it=>cell(it,`showItem(${it.uid})`)).join('')||'<div class="dim">空。可在背包物品详情中点“存入储物箱”。</div>'}</div></div>`}};
 
-// ---------- 镶嵌（底材顺序检测保持原逻辑；符文之语区间词缀在形成时掷骰） ----------
-const _itm_doSock=doSock;doSock=function(uid,gid){_itm_doSock(uid,gid);const f=findItem(uid);if(f&&f.it.rw!=null&&!f.it.rwm){f.it.rwm=rollMods(RUNEWORDS[f.it.rw].m);calc();showItem(uid);render()}};
-
-// ---------- 炼金匣 ----------
-function bagHas(f){return S.bag.find(f)}
-function gemOf(g,lv){return x=>x.k==='gem'&&x.g===g&&x.lv===lv}
-function craftSlot(b){if(b.s==='weapon')return'weapon';if(b.s==='shield')return'shield';if(b.s==='ring')return'ring';return b.s}
-function cubeRecipes(){const rec=[];const gc={},rc={};
- for(const x of S.bag){if(x.k==='gem'&&x.lv<4)(gc[x.g+x.lv]=gc[x.g+x.lv]||[]).push(x);if(x.k==='rune'&&x.r<RUNES.length-1)(rc[x.r]=rc[x.r]||[]).push(x)}
- for(const k in gc)if(gc[k].length>=3)rec.push([`3×${itemName(gc[k][0])} → ${GEMG[gc[k][0].lv+1]}${GEMS[gc[k][0].g].n}`,`cubeGem('${k}')`]);
- for(const k in rc){const r=+k,need=runeUpCount(r),g=RUNE_UP[r];if(rc[k].length<need)continue;if(g&&!bagHas(gemOf(g[0],g[1])))continue;
-  rec.push([`${need}×${RUNES[r][0]}符文${g?' + '+GEMG[g[1]]+GEMS[g[0]].n:''} → ${RUNES[r+1][0]}符文`,`cubeRune(${r})`])}
- // 3 魔法戒指 → 魔法护符；3 魔法护符 → 魔法戒指
- const mr=S.bag.filter(x=>!x.k&&x.b==='rin'&&x.q===3),ma=S.bag.filter(x=>!x.k&&x.b==='amu'&&x.q===3);
- if(mr.length>=3)rec.push(['3×魔法戒指 → 魔法护符',"cubeJewel('rin')"]);if(ma.length>=3)rec.push(['3×魔法护符 → 魔法戒指',"cubeJewel('amu')"]);
- // 3 完美宝石 + 魔法物品 → 重铸魔法物品(ilvl 不变)
- const perf=S.bag.filter(x=>x.k==='gem'&&x.lv===4);const mag=S.bag.find(x=>!x.k&&x.q===3);if(perf.length>=3&&mag)rec.push([`3×完美宝石 + ${itemName(mag)} → 重铸魔法物品`,`cubeReroll(${mag.uid},'m')`]);
- // 6 完美颅石 + 稀有 → 重铸稀有(ilvl 40)
- const ps=S.bag.filter(gemOf('sku',4));const rar=S.bag.find(x=>!x.k&&x.q===4);if(ps.length>=6&&rar)rec.push([`6×完美颅石 + ${itemName(rar)} → 重铸稀有物品`,`cubeReroll(${rar.uid},'r')`]);
- // 3 碎裂宝石 + 魔法武器 → 带 1 孔魔法武器
- const chip=S.bag.filter(x=>x.k==='gem'&&x.lv===0);const mw=S.bag.find(x=>!x.k&&x.q===3&&BASEM[x.b].s==='weapon'&&!x.sock&&maxSock(BASEM[x.b],x.il));
- if(chip.length>=3&&mw)rec.push([`3×碎裂宝石 + ${itemName(mw)} → 魔法武器 +1 凹槽`,`cubeMagSock(${mw.uid})`]);
- // 普通底材加孔
- for(const it of S.bag){if(it.k||it.q!==1||it.sock||it.rw!=null)continue;const b=BASEM[it.b];const cs=b.s==='weapon'?'weapon':b.s==='armor'?'armor':b.s==='helm'?'helm':b.s==='shield'?'shield':SOCKET_RECIPES[b.s]?b.s:null;if(!cs||!maxSock(b,it.il))continue;
-  const[r1,r2,g]=SOCKET_RECIPES[cs];if(bagHas(x=>x.k==='rune'&&x.r===r1)&&bagHas(x=>x.k==='rune'&&x.r===r2&&(r1!==r2))&&bagHas(gemOf(g,4)))rec.push([`${RUNES[r1][0]}+${RUNES[r2][0]}+完美${GEMS[g].n} + ${itemName(it)} → 随机凹槽`,`cubeSocket(${it.uid})`])}
- // 拆镶嵌：有镶嵌物的物品 + 简符文 + 回城卷轴 → 清空凹槽（镶嵌物销毁）
- if(bagHas(x=>x.k==='rune'&&x.r===14)&&S.pot.tp>0)for(const it of S.bag.concat(Object.values(S.eq)))if(it&&!it.k&&it.soc&&it.soc.length)rec.push([`${itemName(it)} + 15号符文 + 回城卷轴 → 拆除镶嵌（镶嵌物销毁）`,`cubeUnsock(${it.uid})`]);
- // 合成：魔法底材 + 指定符文 + 完美宝石 + 任意宝石（代替珠宝）
- for(const ck in CRAFTS){const C=CRAFTS[ck];for(const it of S.bag){if(it.k||it.q!==3)continue;const part=C.parts[craftSlot(BASEM[it.b])];if(!part)continue;
-  if(bagHas(x=>x.k==='rune'&&x.r===part[0])&&bagHas(gemOf(C.gem,4))&&S.bag.filter(x=>x.k==='gem').length>=2)rec.push([`${C.n}合成：${itemName(it)} + ${RUNES[part[0]][0]} + 完美${GEMS[C.gem].n} + 任意宝石`,`craft2('${ck}',${it.uid})`])}}
- // 3 红药 + 3 蓝药 + 碎裂宝石 → 瞬回
- if(S.pot.hp>=3&&S.pot.mp>=3&&chip.length)rec.push(['3 红药 + 3 蓝药 + 碎裂宝石 → 瞬回药剂',"cubePot()"]);
- return rec}
-function recipeHelp(){const C=Object.values(CRAFTS).map(c=>`${c.n}(完美${GEMS[c.gem].n})`).join('、');
- return `3 同级同色宝石→升一级；符文升级 1~9号 3 枚，10号起 3 枚+宝石，21号起 2 枚+宝石；3 魔法戒指⇄护符；3 完美宝石+魔法=重铸；6 完美颅石+稀有=重铸；3 碎裂宝石+魔法武器=1 孔；
- 普通无孔底材加孔：甲(7号+10号+完美黄玉)/武器(8号+11号+完美紫晶)/盔(8号+10号+完美蓝玉)/盾(7号+11号+完美赤玉)；拆镶嵌：物品+15号符文+回城卷轴（镶嵌物销毁）；合成：${C} + 部位符文 + 魔法底材 + 任意宝石`}
-cubeUI=function(){const rec=cubeRecipes();
- modal(`<div class="mtitle">炼金匣</div><div class="gp"><div class="dim">${recipeHelp()}</div>
- ${rec.length?rec.map(([t,f])=>`<div class="row"><span>${t}</span><button class="btn xs gold" onclick="${f}">合成</button></div>`).join(''):'<div class="dim" style="margin:10px 0">背包中没有满足条件的材料</div>'}<div class="btns c"><button class="btn" onclick="closeM()">关闭</button></div></div>`)};
-cubeRune=function(r){const g=RUNE_UP[r];takeBag(x=>x.k==='rune'&&x.r===r,runeUpCount(r));if(g)takeBag(gemOf(g[0],g[1]),1);S.bag.push({uid:S.uid++,k:'rune',r:r+1});S.found[r+1]=1;cubeUI();render()};
-function cubeJewel(from){takeBag(x=>!x.k&&x.b===from&&x.q===3,3);const it=genItem(S.lvl,{base:BASEM[from==='rin'?'amu':'rin'],q:3});S.bag.push(it);cubeUI();render()}
-function cubeReroll(uid,t){const f=findItem(uid);if(!f||f.slot||f.stash)return;const old=f.it;if(t==='m'){takeBag(x=>x.k==='gem'&&x.lv===4,3)}else takeBag(gemOf('sku',4),6);
- const n=genItem(t==='m'?old.il:40,{base:BASEM[old.b],q:t==='m'?3:4});n.uid=old.uid;const i=S.bag.findIndex(x=>x.uid===uid);S.bag[i]=n;showItem(uid);render()}
-function cubeMagSock(uid){const f=findItem(uid);takeBag(x=>x.k==='gem'&&x.lv===0,3);f.it.sock=1;showItem(uid);render()}
-function cubeSocket(uid){const f=findItem(uid);const it=f.it,b=BASEM[it.b],cs=b.s==='weapon'?'weapon':b.s;const[r1,r2,g]=SOCKET_RECIPES[cs];takeBag(x=>x.k==='rune'&&x.r===r1,1);takeBag(x=>x.k==='rune'&&x.r===r2,1);takeBag(gemOf(g,4),1);
- it.sock=R(1,maxSock(b,it.il));log(`炼金匣：${itemName(it)} 获得 ${it.sock} 个凹槽`);showItem(uid);render()}
-function cubeUnsock(uid){const f=findItem(uid);if(!f)return;takeBag(x=>x.k==='rune'&&x.r===14,1);S.pot.tp--;const it=f.it;const n=it.soc.length;it.soc=[];delete it.rw;delete it.rwm;calc();log(`炼金匣：拆除 ${itemName(it)} 的 ${n} 个镶嵌物（已销毁）`);showItem(uid);render()}
-function cubePot(){S.pot.hp-=3;S.pot.mp-=3;takeBag(x=>x.k==='gem'&&x.lv===0,1);S.pot.rej++;cubeUI();render()}
-// 合成物品：ilvl = ⌊clvl/2⌋+⌊底材ilvl/2⌋；固定词缀 + 1~4 随机；需求等级 = 最高词缀需求 + 10 + 3×词缀数
-function craft2(ck,uid){const C=CRAFTS[ck],f=findItem(uid);if(!f)return;const old=f.it,b=BASEM[old.b],part=C.parts[craftSlot(b)];
- const i=S.bag.findIndex(x=>x.uid===uid);S.bag.splice(i,1);takeBag(x=>x.k==='rune'&&x.r===part[0],1);takeBag(gemOf(C.gem,4),1);takeBag(x=>x.k==='gem',1);
- const il=Math.floor(S.lvl/2)+Math.floor(old.il/2);const it=genItem(il,{base:b,q:7});it.name=C.n+'·'+b.n;it.craft=ck;const fixed=rollMods(part[1]);for(const k in fixed)it.m[k]=(it.m[k]||0)+fixed[k];
- const na=(it.af||[]).length;it.req=Math.min(99,(it.req||0)+10+3*na);S.bag.push(it);log(`合成：<span style="color:${QC[7]}">${it.name}</span>`);showItem(it.uid);render()}
-craft=function(t){toast('请使用新合成配方')};
+// 镶嵌 / 炼金匣 / 合成已删除（legacy_prune 批次2）
 
 // 若 game.js 未延迟 init（旧版入口），在此补齐存档字段
 if(typeof S!=='undefined'&&S&&!S.stash)S.stash=[];

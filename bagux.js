@@ -35,7 +35,7 @@ const BUX_CAT={leg:it=>!it.k&&it.q===5&&it.rw==null,set:it=>!it.k&&it.q===6,gem:
  const sb=h3&&h3.closest('.gp').querySelector('.stabs.sm');
  if(sb){const mis=[...sb.querySelectorAll('button')].find(b=>b.textContent.trim()==='符文宝石');
   if(mis){const cnt=fn=>groups(S.bag.filter(fn)).length;
-   mis.outerHTML=[['leg','传奇'],['set','套装'],['gem','宝石'],['rune','符文'],['mat','材料']].map(([k,n])=>`<button class="${BAGF===k?'on':''}" onclick="BAGF='${k}';BGP=0;render()">${n} ${cnt(BUX_CAT[k])}</button>`).join('')}}
+   mis.outerHTML=[['leg','传奇'],['set','套装'],['mat','材料']].map(([k,n])=>`<button class="${BAGF===k?'on':''}" onclick="BAGF='${k}';BGP=0;render()">${n} ${cnt(BUX_CAT[k])}</button>`).join('')}}
  // 仓库：传奇/套装 快捷分类（=品质筛选 暗金/套装，跨全部页，带数量）
  const sg=P.querySelector('.stash2');if(sg&&!sg.querySelector('.buxsc')){const Pg=STV==='shared'?ACCT.shared:S.pst,all=Pg.flat(),cnt=fn=>groups(all.filter(fn)).length;
   const ch=[['all','全部',all.length?groups(all).length:0],['5','传奇',cnt(BUX_CAT.leg)],['6','套装',cnt(BUX_CAT.set)]];

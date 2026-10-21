@@ -202,35 +202,8 @@ const MODT={str:'+{v} 力量',dex:'+{v} 敏捷',vit:'+{v} 体力',ene:'+{v} 精�
 for(const s of SKILLS)MODT['sk_'+s.id]='+{v} '+s.n+'（亡灵术士专属）';
 const HIDDEN_KEYS=new Set(['allsk','t0sk','t1sk','t2sk','ll','ml','mf','gf','fcr','ias','mpk','undead','tdef','dmgmana','thorns','sumlife','sumdmg','regen','mregen','dr','mdr','fhr'].concat(SKILLS.map(s=>'sk_'+s.id)));
 
-// ===== 宝石：7 种 × 5 级，[武器, 防具, 盾] 效果 =====
-const GEMG=['碎裂的','瑕疵的','','无瑕的','完美的'];
-const GEMS={
- ame:{n:'紫晶',c:'#b060ff',w:g=>({ar:[40,60,80,100,150][g]}),a:g=>({str:[3,4,6,8,10][g]}),s:g=>({def:[8,12,18,24,30][g]})},
- top:{n:'黄玉',c:'#ffd040',w:g=>({lightmax:[8,14,22,30,40][g]}),a:g=>({mf:[9,13,16,20,24][g]}),s:g=>({lres:[12,16,22,28,40][g]})},
- sap:{n:'蓝玉',c:'#4080ff',w:g=>({coldmin:[1,3,4,6,10][g]}),a:g=>({mana:[10,17,24,31,38][g]}),s:g=>({cres:[12,16,22,28,40][g]})},
- eme:{n:'翠玉',c:'#40d060',w:g=>({poisdmg:[10,20,40,60,100][g]}),a:g=>({dex:[3,4,6,8,10][g]}),s:g=>({pres:[12,16,22,28,40][g]})},
- rub:{n:'赤玉',c:'#ff3030',w:g=>({firemin:[4,7,10,13,17][g]}),a:g=>({life:[10,17,24,31,38][g]}),s:g=>({fres:[12,16,22,28,40][g]})},
- dia:{n:'白钻',c:'#f0f0ff',w:g=>({undead:[28,34,44,54,68][g]}),a:g=>({ar:[20,40,60,80,100][g]}),s:g=>({allres:[6,8,11,14,19][g]})},
- sku:{n:'颅石',c:'#d0c8a0',w:g=>({ll:[2,2,3,3,4][g],ml:[1,2,2,3,3][g]}),a:g=>({regen:[2,3,3,4,5][g]}),s:g=>({thorns:[4,8,12,16,20][g]})},
-};
-// ===== 符文：[名, 需求等级, 武器效果, 防具效果(头/甲/盾同) ] =====
-const RUNES=[
- ['晨',11,{ar:50},{def:15}],['曦',11,{undead:75,ar:50},{block:7}],['溪',13,{mpk:2},{mpk:2}],['澜',13,{ar:20},{def:30}],
- ['霁',15,{tdef:25},{mregen:15}],['锋',15,{maxdmg:9},{dmgmana:15}],['蚀',17,{poisdmg:75},{pres:30}],['炎',19,{firemin:12},{fres:30}],
- ['雷',21,{lightmax:50},{lres:30}],['霜',23,{coldmin:8},{cres:30}],['渴',25,{ll:7},{thorns:14}],['甲',27,{mindmg:9},{dr:7}],
- ['疾',29,{ias:20},{fhr:20}],['惧',31,{ar:30},{regen:7}],['简',33,{edmg:10},{edef:10}],
-];
-// ===== 符文之语 =====
-const RUNEWORDS=[
- {n:'精钢',r:[2,0],cats:['sword','dagger'],lv:13,m:{ias:20,edmg:20,mindmg:3,maxdmg:3,ar:50,mpk:2}},
- {n:'天幕',r:[3,2],cats:['helm'],lv:13,m:{edef:50,def:10,str:5,mpk:2,gf:-33}},
- {n:'恶念',r:[5,0,4],cats:['wand','dagger','sword'],lv:15,m:{edmg:33,maxdmg:9,tdef:25,ar:50,def:-100}},
- {n:'潜影',r:[6,4],cats:['armor'],lv:17,m:{fcr:25,fhr:25,dex:6,mregen:15,pres:30,mdr:3}},
- {n:'古誓',r:[7,8,6],cats:['shield','head'],lv:21,m:{edef:50,allres:13,cres:30,dmgmana:10}},
- {n:'力能',r:[10,2],cats:['wand','dagger','sword'],lv:25,m:{edmg:35,ll:7,str:20,vit:10,mpk:2}},
- {n:'学识',r:[8,11],cats:['helm'],lv:27,m:{allsk:1,ene:10,lres:30,dr:7,mpk:2}},
- {n:'韵律',r:[12,4],cats:['shield','head'],lv:29,m:{allres:25,gf:50,mf:25,block:20,mregen:15}},
-];
+// 已删除（legacy_prune 批次2：符文/宝石/护身符/珠宝/炼金匣）：GEMS/GEMG/符文表/符文之语。RUNES/RUNEWORDS 仅保留空数组，因 cq/data_cq.js 仍执行 .length=0（战斗开发删掉那行后可去掉）
+const RUNES=[],RUNEWORDS=[];
 // ===== 暗金 =====
 const UNIQUES=[
  {n:'腐根之咏',b:'wand1',lv:2,m:{t0sk:1,sk_rs:2,mana:10,edmg:[30,50],ll:3}},

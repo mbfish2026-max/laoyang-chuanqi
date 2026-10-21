@@ -50,7 +50,7 @@ function ubMake(id,o={}){const D=UB.ITEMS[id];const b=ubBase(D);const it=makeBas
 if(typeof ancDef==='function'){const f=ancDef;ancDef=function(it){return ubRanges(it)||f(it)}}
 function ubPickItem(){const T=Object.entries(UB.ITEMS),W=T.reduce((a,[,d])=>a+d.w,0);let r=rnd()*W;for(const[k,d]of T){r-=d.w;if(r<0)return k}return'torch'}
 // 每角色限 1：同 ub 的 uniq1 护身符只算第一件
-{const f=charmMods;charmMods=function(){const bag=S.bag,seen={},keep=[];for(const it of bag||[]){if(it&&it.uniq1&&it.ub){if(seen[it.ub])continue;seen[it.ub]=1}keep.push(it)}S.bag=keep;try{return f.apply(this,arguments)}finally{S.bag=bag}}}
+if(typeof charmMods==='function'){const f=charmMods;charmMods=function(){const bag=S.bag,seen={},keep=[];for(const it of bag||[]){if(it&&it.uniq1&&it.ub){if(seen[it.ub])continue;seen[it.ub]=1}keep.push(it)}S.bag=keep;try{return f.apply(this,arguments)}finally{S.bag=bag}}}
 // 经验加成（灭魂碎片）
 function ubXp(){let v=0,seen=0;for(const it of (S&&S.bag)||[])if(it&&it.ub==='shard'&&!seen){seen=1;v+=it.m.ub_xp||0}return v}
 egOn('xp',x=>{const v=ubXp();return v?x*(1+v/100):x});

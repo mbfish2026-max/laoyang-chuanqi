@@ -32,8 +32,8 @@ function shopSell(uid){const i=S.bag.findIndex(x=>x.uid===uid);if(i<0)return fal
  S.gold+=p;S.shop.bb.unshift({it:sold,p});if(S.shop.bb.length>12)S.shop.bb.pop();shopRe();return true}
 function buyBack(i){const e=S.shop.bb[i];if(!e)return false;if(S.gold<e.p)return shopMsg('金币不足'),false;if(!bagFits(e.it))return shopMsg('背包已满'),false;S.gold-=e.p;S.shop.bb.splice(i,1);pushInto(S.bag,e.it);shopRe();return true}
 function shopRefreshPaid(){const c=S.lvl*50;if(S.gold<c)return shopMsg('金币不足');S.gold-=c;ensureShop(true);shopRe()}
-const ESS_EX=[['瑕疵宝石',30,()=>({uid:S.uid++,k:'gem',g:pick(Object.keys(GEMS)),lv:1})],['魔法小护身符',80,()=>genItem(Math.max(28,S.lvl),{base:BASEM.cha_s,q:3})],['随机符文(1~12号)',150,()=>({uid:S.uid++,k:'rune',r:R(0,11)})]];
-function essExchange(i){const[n,c,f]=ESS_EX[i];if(matCount('ess')<c)return shopMsg('残骸精华不足'),false;const it=f();if(!bagFits(it))return shopMsg('背包已满'),false;takeMat('ess',c);addBag(it);shopRe();return true}
+const ESS_EX=[];// 精华兑换的宝石/护身符/符文已删除（legacy_prune 批次2）
+function essExchange(i){if(!ESS_EX[i])return false;const[n,c,f]=ESS_EX[i];if(matCount('ess')<c)return shopMsg('残骸精华不足'),false;const it=f();if(!bagFits(it))return shopMsg('背包已满'),false;takeMat('ess',c);addBag(it);shopRe();return true}
 function shopMsg(t){if(!window.__NOUI)toast(t)}
 function shopRe(){if(!window.__NOUI){closeM();render()}}
 function renderShop(){ensureShop();const P=$('#panel'),a=S.act||0;const left=Math.max(0,Math.ceil((SHOP_REFRESH-(Date.now()-S.shop.t))/60000));

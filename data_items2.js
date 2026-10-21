@@ -36,35 +36,9 @@ const NEW_BASES2=[
  W2('stf1','staff','短杖',1,0,[1,5],0,0,2),W2('stf2','staff','长杖',8,0,[2,8],0,0,3),W2('stf3','staff','节杖',12,0,[4,12],0,0,4),W2('stf4','staff','战杖',17,0,[6,13],0,0,4),W2('stf5','staff','军杖',24,0,[12,28],0,0,6),
  W2('stfx1','staff','乔木杖',30,1,[6,21],25,0,2),W2('stfx2','staff','四分杖',35,1,[8,26],25,0,3),W2('stfx3','staff','雪松杖',38,1,[11,32],25,0,4),W2('stfx4','staff','符文杖',47,1,[24,58],25,0,6),
  W2('stfe1','staff','橡心杖',62,2,[65,108],25,0,4),W2('stfe2','staff','元素杖',70,2,[80,93],25,0,5),W2('stfe3','staff','执政杖',82,2,[83,99],34,0,6),
- {id:'jew',s:'jewel',cat:'jewel',n:'珠宝',q:1,tier:0,jew:1,str:0,sock:[0,0,0]},
- {id:'cha_s',s:'charm',cat:'scha',n:'小护身符',q:28,tier:0,jew:1,str:0,sock:[0,0,0],sz:1},
- {id:'cha_m',s:'charm',cat:'mcha',n:'大护身符',q:42,tier:0,jew:1,str:0,sock:[0,0,0],sz:2},
- {id:'cha_l',s:'charm',cat:'lcha',n:'超大护身符',q:50,tier:0,jew:1,str:0,sock:[0,0,0],sz:3},
 ];
 for(const b of NEW_BASES2){BASES.push(b);BASEM[b.id]=b}
-Object.assign(RARE_B,{jewel:['之泪','之眼','之星','之晶'],charm:['之符','之印']});
-const AF2=(n,lv,rq,g,it,m)=>({n,lv,rq,g,it:it.split(','),ex:[],m});
-PREFIX.push(
- AF2('锐芒的',1,1,'dmg%','jewl',{edmg:[5,15]}),AF2('锋芒的',15,11,'dmg%','jewl',{edmg:[16,30]}),AF2('凶芒的',37,29,'dmg%','jewl',{edmg:[31,40]}),
- AF2('微彩的',6,5,'resall','jewl',{allres:[3,7]}),AF2('虹光的',28,21,'resall','jewl',{allres:[8,11]}),AF2('棱光的',45,37,'resall','jewl',{allres:[12,15]}),
- AF2('焰晶的',5,3,'rfire','jewl',{fres:[5,15]}),AF2('霜晶的',5,3,'rcold','jewl',{cres:[5,15]}),AF2('雷晶的',5,3,'rltng','jewl',{lres:[5,15]}),AF2('毒晶的',5,3,'rpois','jewl',{pres:[5,15]}),
- AF2('精准的',1,1,'att','jewl',{ar:[10,40]}),AF2('神射的',22,17,'att','jewl',{ar:[41,100]}),AF2('蓝晶的',3,2,'mana','jewl',{mana:[1,15]}),AF2('简约的',12,9,'req','jewl',{reqp:[5,15]}),
- AF2('坚韧小符',1,1,'att','scha',{ar:[5,20]}),AF2('锋锐小符',14,10,'dmax','scha',{maxdmg:[1,3]}),AF2('灵光小符',3,2,'mana','scha',{mana:[1,17]}),
- AF2('焰护小符',5,4,'rfire','scha',{fres:[3,11]}),AF2('霜护小符',5,4,'rcold','scha',{cres:[3,11]}),AF2('雷护小符',5,4,'rltng','scha',{lres:[3,11]}),AF2('毒护小符',5,4,'rpois','scha',{pres:[3,11]}),AF2('辉彩小符',20,15,'resall','scha',{allres:[3,5]}),
- AF2('坚韧大符',1,1,'att','mcha',{ar:[10,40]}),AF2('锋锐大符',14,10,'dmax','mcha',{maxdmg:[2,6]}),AF2('灵光大符',3,2,'mana','mcha',{mana:[5,25]}),
- AF2('焰护大符',5,4,'rfire','mcha',{fres:[5,15]}),AF2('霜护大符',5,4,'rcold','mcha',{cres:[5,15]}),AF2('雷护大符',5,4,'rltng','mcha',{lres:[5,15]}),AF2('毒护大符',5,4,'rpois','mcha',{pres:[5,15]}),AF2('辉彩大符',30,22,'resall','mcha',{allres:[4,6]}),
- AF2('坚韧巨符',1,1,'att','lcha',{ar:[20,76]}),AF2('锋锐巨符',14,10,'dmax','lcha',{maxdmg:[5,10]}),AF2('灵光巨符',3,2,'mana','lcha',{mana:[10,59]}),
- AF2('焰护巨符',5,4,'rfire','lcha',{fres:[11,15]}),AF2('霜护巨符',5,4,'rcold','lcha',{cres:[11,15]}),AF2('雷护巨符',5,4,'rltng','lcha',{lres:[11,15]}),AF2('毒护巨符',5,4,'rpois','lcha',{pres:[11,15]}),
- AF2('冥仆技巨符',50,42,'skill','lcha',{t0sk:[1,1]}),AF2('骨毒技巨符',50,42,'skill','lcha',{t1sk:[1,1]}),AF2('咒术技巨符',50,42,'skill','lcha',{t2sk:[1,1]}),
-);
-SUFFIX.push(
- AF2('之疾',31,23,'ias','jewl',{ias:[15,15]}),AF2('之稳',11,8,'fhr','jewl',{fhr:[7,7]}),AF2('之血',5,4,'hp','jewl',{life:[5,20]}),
- AF2('之力',5,4,'str','jewl',{str:[1,9]}),AF2('之巧',5,4,'dex','jewl',{dex:[1,9]}),AF2('之健',5,4,'vit','jewl',{vit:[1,9]}),AF2('之智',5,4,'enr','jewl',{ene:[1,9]}),
- AF2('之屠',15,11,'dmax','jewl',{maxdmg:[1,15]}),AF2('之衡',6,5,'dmin','jewl',{mindmg:[1,10]}),AF2('之焰',11,8,'fire','jewl',{firemin:[3,15]}),AF2('之霜',11,8,'cold','jewl',{coldmin:[2,10]}),AF2('之雷',11,8,'ltng','jewl',{lightmax:[10,60]}),
- AF2('之生·小',1,1,'hp','scha',{life:[1,20]}),AF2('之运·小',12,9,'mag','scha',{mf:[3,7]}),AF2('之财·小',1,1,'gold','scha',{gf:[5,10]}),AF2('之稳·小',10,8,'fhr','scha',{fhr:[5,5]}),
- AF2('之生·大',1,1,'hp','mcha',{life:[6,15]}),AF2('之运·大',12,9,'mag','mcha',{mf:[5,8]}),AF2('之稳·大',10,8,'fhr','mcha',{fhr:[8,8]}),AF2('之巧·大',10,8,'dex','mcha',{dex:[1,3]}),
- AF2('之生·巨',1,1,'hp','lcha',{life:[21,45]}),AF2('之运·巨',12,9,'mag','lcha',{mf:[6,12]}),AF2('之财·巨',1,1,'gold','lcha',{gf:[20,40]}),AF2('之稳·巨',10,8,'fhr','lcha',{fhr:[12,12]}),AF2('之力·巨',10,8,'str','lcha',{str:[1,6]}),
-);
+// 已删除（legacy_prune 批次2：符文/宝石/护身符/珠宝/炼金匣）：珠宝/护身符 RARE_B、AF2 前后缀
 // 珠宝/护身符后缀的显示名：与其它后缀统一为「XX之」放在名字最前（内部 n 不变，旧存档的词缀引用不受影响）
 const SUF_DN={'之疾':'迅疾之','之稳':'沉稳之','之血':'鲜血之','之力':'力量之','之巧':'灵巧之','之健':'强健之','之智':'睿智之','之屠':'屠戮之','之衡':'均衡之','之焰':'烈焰之','之霜':'寒霜之','之雷':'雷霆之','之生':'生命之','之运':'幸运之','之财':'财富之'};
 function sufDn(n){const m=/^(之.)(·[小大巨])?$/.exec(n);return m&&SUF_DN[m[1]]||n}
@@ -102,9 +76,6 @@ const NEW_UNIQUES2=[
  U2('冥约盾','shde2',80,72,{allres:[45,55],block:30,edef:[150,200],life:50}),U2('巨鲸之盾','shdx1',42,34,{life:[60,80],allres:20,block:20,edef:[120,150]}),
  U2('暮影之环','rin',60,50,{allres:[15,20],mf:[20,30],ll:4}),U2('雷之指环','rin',75,67,{lightmax:40,fcr:10,lres:30,allsk:1}),
  U2('猫眼护符','amu',58,50,{dex:25,ias:20,mdr:10,fhr:20}),U2('秘咒护符','amu',85,78,{allsk:2,fcr:15,ll:5,ml:5,allres:15}),
- U2('湮灭之印','cha_s',90,70,{allsk:1,str:[10,20],dex:[10,20],vit:[10,20],ene:[10,20],allres:[10,20]}),
- U2('炼狱炬火','cha_l',85,75,{allsk:3,str:[10,20],ene:[10,20],allres:[10,20]}),U2('贪婪之运','cha_l',62,62,{mf:[20,40],gf:[80,160],life:10}),
- U2('虹光碎面·雷','jew',85,49,{lightmax:[20,40],lres:[3,5],edmg:[5,10]}),U2('虹光碎面·火','jew',85,49,{firemin:[20,40],fres:[3,5],edmg:[5,10]}),
 ];
 for(const u of NEW_UNIQUES2)UNIQUES.push(u);
 Object.assign(SETS,{
@@ -166,124 +137,8 @@ const NEW_SETITEMS2=[
  S2('狂人·面具','snd','hlm6',25,25,{def:20,mana:20,allres:5}),S2('狂人·重手套','snd','glv2',28,28,{def:15,ias:10,ll:3}),S2('狂人·重靴','snd','bot2',20,20,{def:15,mf:20,fhr:10}),S2('狂人·骨杖','snd','wand3',25,25,{allsk:1,mana:20,fcr:10}),
 ];
 for(const s of NEW_SETITEMS2)SETITEMS.push(s);
-const RW2=(n,r,cats,m,lv)=>({n,r,cats,m,lv:Math.max(lv||0,...r.map(i=>RUNES[i][1]))});
-const MELEE2=['dagger','sword','axe','mace','polearm','spear'],ANYW=['wand','dagger','sword','axe','mace','polearm','spear','staff','bow','xbow'];
-const NEW_RW2=[
- RW2('凶兽',[29,2,21,22,16],['axe','mace'],{ias:40,edmg:[240,270],cb:20,ow:25,str:[25,40],ene:10,mpk:2,sumdmg:20},63),
- RW2('漆夜',[9,15,3],['mace'],{edmg:120,ias:15,cb:40,ar:200,vit:10,mdr:2},35),
- RW2('荆冠',[7,26,28,4],['armor'],{def:300,fhr:50,pres:100,thorns:[20,30],regen:13},61),
- RW2('烙印',[30,27,22,24],['bow','xbow'],{edmg:[260,340],ds:20,demon:[280,330],ignoredef:1},65),
- RW2('混沌',[18,26,21],['dagger'],{edmg:[290,340],ias:35,ow:25,str:10},57),
- RW2('新月',[12,21,2],['axe','sword','polearm'],{edmg:[180,220],ias:20,ignoredef:1,ml:[11,15],lightmax:60,mpk:2},47),
- RW2('毁灭',[25,27,29,30,17],['polearm','sword'],{edmg:350,ds:20,cb:20,ignoredef:1,dex:10,ml:7},65),
- RW2('天谴',[14,26,21,27,31],['axe','polearm','mace'],{edmg:[330,370],ias:45,ds:20,freeze:3,coldmin:40},67),
- RW2('利刃',[2,6,10],['bow','xbow'],{edmg:[320,380],ias:35,demon:[320,380],undead:280},25),
- RW2('启明',[20,7,11],['armor'],{edef:30,fres:30,dr:7},45),
- RW2('永恒',[10,29,23,11,28],MELEE2,{edmg:[260,310],regen:16,mregen:16,noheal:1},63),
- RW2('流放',[25,26,23,13],['shield'],{edef:[220,260],block:30,regen:7,freeze:1},57),
- RW2('信仰',[26,30,19,1],['bow','xbow'],{allsk:[1,2],edmg:[280,300],ignoredef:1,allres:15,gf:75},65),
- RW2('饥荒',[18,26,8,30],['axe','mace'],{edmg:[320,370],ias:30,ignoredef:1,str:10,noheal:1,firemin:50},65),
- RW2('狂怒',[30,24,4],MELEE2,{edmg:209,ias:40,ow:66,ds:33,ll:6,noheal:1},65),
- RW2('悲恸',[4,2,27,22,7],['sword','axe'],{maxdmg:[340,400],ias:[30,40],ds:20,ll:[10,15],noheal:1},59),
- RW2('裁决之手',[28,31,10,27],ANYW,{ias:33,edmg:[280,330],ignoredef:1,ds:20,ll:7},67),
- RW2('和弦',[2,5,11,17],['bow','xbow'],{edmg:[200,275],str:10,dex:10,vit:10,ene:10,regen:20},39),
- RW2('橡木之心',[17,25,20,9],['staff','mace'],{allsk:3,fcr:40,allres:[30,40],dex:10,regen:20,manapct:15},55),
- RW2('圣雷',[4,7,8,6],['mace'],{edmg:60,lightmax:75,lres:60,maxlres:5},23),
- RW2('寒霜',[10,12,30,27],['bow','xbow'],{edmg:[140,210],ias:20,coldmin:30,freeze:1},65),
- RW2('无尽',[29,22,29,23],['polearm','spear'],{edmg:[255,325],cb:40,noheal:1,vit:30,mf:30},63),
- RW2('洞见',[7,2,6,11],['polearm','staff'],{edmg:[200,260],fcr:35,mregen:[100,150],mf:23,ds:20},27),
- RW2('遗愿',[30,22,30,28,30,29],['sword','axe','mace'],{edmg:[330,375],cb:[60,70],mf:[60,70],ds:20},65),
- RW2('执法者',[10,19,17],['sword','mace'],{undead:150,dex:10,firemin:100,coldmin:50},43),
- RW2('叶语',[2,7],['staff'],{cres:33,firemin:10,def:30},19),
- RW2('旋律',[12,17,3],['bow','xbow'],{edmg:50,ias:20,undead:300,dex:10,kb:1},39),
- RW2('忆念',[16,15,11,4],['staff'],{fcr:33,manapct:20,mdr:7,ene:10,vit:10},37),
- RW2('神话',[14,10,3],['armor'],{regen:10,thorns:14,kb:1},25),
- RW2('服从',[14,17,9,4,18],['polearm','spear'],{edmg:370,cb:40,fhr:40,allres:[20,30],def:[200,300]},41),
- RW2('激情',[13,8,1,19],ANYW,{edmg:[160,210],ias:25,kb:1,undead:50},43),
- RW2('和平',[12,9,10],['armor'],{fhr:20,cres:30,ds:2},29),
- RW2('骄傲',[31,28,15,27],['polearm','spear'],{ar:300,ll:5,gf:100,lightmax:50,cb:10},67),
- RW2('原则',[7,24,1],['armor'],{life:[100,150],undead:50,maxpres:5,pres:30},53),
- RW2('光辉',[3,11,5],['helm'],{edef:75,ene:10,vit:10,mana:33,mdr:7},27),
- RW2('雨落',[8,22,5],['armor'],{mana:[100,150],lres:30,mdr:[3,5]},49),
- RW2('裂隙',[14,17,19,24],['polearm','mace'],{str:[5,10],dex:[5,10],vit:[5,10],ene:[5,10],ar:120,firemin:30},53),
- RW2('磐石',[12,21,20,16],['armor'],{edef:[250,290],fhr:60,str:16,vit:16,ene:10,allres:15},47),
- RW2('背誓',[12,9,19],['armor'],{ias:45,fhr:20,cres:30,gf:50},43),
- RW2('理性之声',[19,17,0,1],['sword','mace'],{edmg:[220,350],demon:[280,325],coldmin:20,ignoredef:1},43),
- RW2('疾风',[28,0],MELEE2,{edmg:[120,160],ias:40,ar:50,kb:1},61),
- RW2('天怒',[20,16,29,22],['bow','xbow'],{undead:[250,300],lightmax:100,ar:200,mdr:3},63),
- RW2('西风',[8,4],['bow','xbow'],{edmg:33,ar:66,ias:25,def:25,tdef:25},21),
-];
-for(const w of NEW_RW2)RUNEWORDS.push(w);
-// 升级配方（原版 cubemain 1.10+）：[名, 品质, 'w'武器/'a'防具, 来源档, 符文1, 符文2, 完美宝石]
-const UPGRADE_RECIPES=[
- ['暗金武器 普通→扩展',5,'w',0,7,11,'eme'],['暗金武器 扩展→精英',5,'w',1,16,20,'eme'],['暗金防具 普通→扩展',5,'a',0,6,12,'dia'],['暗金防具 扩展→精英',5,'a',1,17,19,'dia'],
- ['稀有武器 普通→扩展',4,'w',0,8,10,'sap'],['稀有武器 扩展→精英',4,'w',1,18,21,'sap'],['稀有防具 普通→扩展',4,'a',0,7,9,'ame'],['稀有防具 扩展→精英',4,'a',1,17,20,'ame'],
-];
-const REPAIR_RECIPES=[['w',1],['a',0]]; // 破旧→普通：武器 2号符文+碎裂宝石；防具 1号符文+碎裂宝石
+// 已删除（legacy_prune 批次2：符文/宝石/护身符/珠宝/炼金匣）：符文之语 NEW_RW2、升级/修复配方
 Object.assign(MODT,{reqp:'需求 -{v}%'});
-// ---------- 符文之语扩充（20261019x）----------
-// 1) 职业专属底材沿用父类型符文之语：圣徽盾=盾、毛皮头饰/野蛮人头盔=头盔、专属弓=弓、法球=施法类（魔杖/法杖）。匹配统一走 rwCatOk。
-const RW_CATMAP={pshd:['shield'],pelt:['helm'],bhelm:['helm'],abow:['bow'],orb:['wand','staff']};
-function rwCatOk(w,cat){return w.cats.includes(cat)||(RW_CATMAP[cat]||[]).some(c=>w.cats.includes(c))}
-// 2) 去掉孔数达不到的类别（魔杖最多2孔、匕首3孔、缩颅2孔、锤5孔）
-{const drop={'恶念':['wand'],'毒噬':['wand'],'刚毅':['wand','dagger'],'裁决之手':['wand','dagger'],'激情':['wand','dagger'],'永恒':['dagger'],'古誓':['head'],'遗愿':['mace']};
- for(const w of RUNEWORDS)if(drop[w.n])w.cats=w.cats.filter(c=>!drop[w.n].includes(c))}
-// 4) 手套/腰带/靴子可带凹槽（上限 2；掉落/铁匠/炼金匣打孔同其他装备）
 Object.assign(TCAP,{gloves:[1,2,2],belt:[1,2,2],boots:[1,2,2]});
 for(const b of BASES)if(['gloves','belt','boots'].includes(b.cat)&&!b.cls)b.sock=TCAP[b.cat].slice();
-Object.assign(SOCKET_RECIPES,{gloves:[5,8,'eme'],belt:[3,9,'top'],boots:[4,7,'sap']});
-// 3) 新增符文之语（只追加到末尾，旧存档 it.rw 索引不变）
-const NEW_RW3=[
- // 头盔
- RW2('新芽',[1,0],['helm'],{life:20,edef:30,lres:15},13),
- RW2('鹰目',[4,2],['helm'],{ar:60,dex:5,mregen:20,mf:10},17),
- RW2('静心',[9,6],['helm'],{fhr:20,cres:20,pres:20,edef:40,mana:20},25),
- RW2('战嚎',[12,10,13],['helm'],{str:10,life:40,ias:10,thorns:10,regen:5},33),
- RW2('星识',[16,4,17],['helm'],{allsk:1,fcr:15,ene:10,mana:40},39),
- RW2('狂血',[18,13,19],['helm'],{str:15,dex:10,ll:4,cb:10,life:50},45),
- RW2('守望',[21,22],['helm'],{allres:25,mdr:7,edef:[80,120],fhr:20},50),
- RW2('王冠',[24,28,30],['helm'],{allsk:2,lifepct:8,allres:20,mf:[20,30]},67),
- // 盾牌
- RW2('橡壁',[0,3],['shield'],{block:10,def:30,fres:15},13),
- RW2('回响',[2,7,5],['shield'],{block:15,fhr:20,mregen:25,allres:10},19),
- RW2('棘墙',[10,11,3],['shield'],{thorns:[15,25],dr:5,edef:60,block:10},27),
- RW2('晨壁',[14,13,15,20],['shield'],{edef:[100,140],block:20,vit:15,regen:7,allres:15},43),
- RW2('寒铁',[26,9,22],['shield'],{maxcres:5,cres:40,mdr:10,edef:[120,160],fhr:25},57),
- RW2('神佑',[29,21,28,24],['shield'],{allsk:1,allres:[35,45],block:25,drp:8},65),
- // 法杖（3孔，法球同样可用）
- RW2('余烬',[7,4,2],['staff'],{fcr:15,firemin:10,mana:25,ene:5},19),
- RW2('霜语',[9,16,5],['staff'],{fcr:20,coldmin:20,allsk:1,mana:40,cres:20},37),
- RW2('天穹',[17,28,20],['staff'],{allsk:2,fcr:30,manapct:10,mregen:50,allres:20},61),
- // 魔杖（2孔，法球同样可用）
- RW2('骨笛',[6,1],['wand'],{fcr:10,mana:20,sumdmg:10,pres:15},17),
- RW2('亡语',[13,5],['wand'],{fcr:20,sumlife:15,sumdmg:15,mregen:30},31),
- RW2('冥契',[22,23],['wand'],{allsk:1,fcr:20,sumdmg:25,mf:15,mdr:5},51),
- // 缩颅（2孔）
- RW2('枯语',[3,6],['head'],{sumlife:10,pres:25,def:25,mana:15},17),
- RW2('腐息',[8,10],['head'],{sumdmg:15,lres:25,thorns:10,block:10},25),
- RW2('冥颅',[25,27],['head'],{allsk:1,sumdmg:25,sumlife:20,allres:20},57),
- // 手套
- RW2('灵巧',[1],['gloves'],{ar:40,dex:3,ias:5},11),
- RW2('握力',[5,10],['gloves'],{ias:10,cb:5,str:5,thorns:5},25),
- RW2('吸星',[13,18],['gloves'],{ll:4,ml:3,ias:15,str:10},41),
- RW2('迅握',[28,17],['gloves'],{ias:20,dex:15,cb:10,ll:3},61),
- // 腰带
- RW2('束身',[3],['belt'],{life:15,def:15},13),
- RW2('韧带',[11,8],['belt'],{dr:5,life:30,lres:20,fhr:10},27),
- RW2('血誓',[15,12],['belt'],{vit:12,fhr:20,life:40,regen:4},35),
- RW2('巨力',[30,21],['belt'],{lifepct:6,allres:20,str:15,mdr:5},65),
- // 靴子
- RW2('轻步',[2],['boots'],{dex:3,fres:10,gf:15},13),
- RW2('旅者',[7,4],['boots'],{fhr:10,mf:10,fres:20,mregen:15},19),
- RW2('风行',[17,19],['boots'],{dex:12,mf:20,gf:40,fhr:15},43),
- RW2('虚步',[27,25],['boots'],{allres:20,mf:[25,35],dex:15,fhr:20},59),
-];
-for(const w of NEW_RW3)RUNEWORDS.push(w);
-// 前期带技能符文之语（20261019z）：手套/靴子/腰带/头盔各一个，+1 全部技能，全职业通用（ac:1 → 图鉴对全职业显示）
-const NEW_RW4=[
- RW2('启智',[2,4],['helm'],{allsk:1,mana:15},15),
- RW2('巧思',[0,5],['gloves'],{allsk:1,ar:30},15),
- RW2('凝神',[3,6],['belt'],{allsk:1,life:15},17),
- RW2('灵步',[1,7],['boots'],{allsk:1,fres:10},19),
-];
-for(const w of NEW_RW4){w.ac=1;RUNEWORDS.push(w)}
+// 已删除（legacy_prune 批次2：符文/宝石/护身符/珠宝/炼金匣）：SOCKET_RECIPES 扩充、符文之语 NEW_RW3/NEW_RW4

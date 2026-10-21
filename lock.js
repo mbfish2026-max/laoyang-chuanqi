@@ -19,8 +19,8 @@ function lkGuard(name,pos){if(typeof window[name]!=='function')return;const f=wi
 // 2) 以背包为材料来源的操作：执行期间把锁定物品从背包里“藏起来”，因此不会被当材料消耗，配方可用数量也不计入锁定物品
 function lkHide(name){if(typeof window[name]!=='function')return;const f=window[name];window[name]=function(...a){if(!S||!S.bag||!S.bag.some(isLk))return f.apply(this,a);
  const hid=S.bag.filter(isLk);S.bag=S.bag.filter(x=>!x.lk);let r;try{r=f.apply(this,a)}finally{for(const x of hid)S.bag.push(x);if(!window.__NOUI&&typeof TAB!=='undefined'&&TAB!=='fight'&&!LK.noRe){LK.noRe=1;try{render()}finally{LK.noRe=0}}}return r}}
-for(const n of ['cubeRecipes','cubeUI','cubeGem','cubeRune','craft','craft2','cubeJewel','cubePot','cubeSocket','cubeMagSock','cubeUpgrade','cubeRepair','cubeReroll','essReroll','egLpExtract','sellJunk','recycleNow'])lkHide(n);
-for(const[n,p]of[['sell',0],['shopSell',0],['imbue',0],['cubeReroll',0],['essReroll',0],['cubeUnsock',0],['craft2',1],['cubeUpgrade',1],['cubeRepair',1],['doSock',1],['doSockJewel',1],['egLpExtract',0],['toStash',-1]])if(p>=0)lkGuard(n,p);
+for(const n of ['cubeRecipes','cubeUI','cubeGem','cubeRune','craft','craft2','cubeJewel','cubePot','cubeSocket','cubeMagSock','cubeUpgrade','cubeRepair','cubeReroll','essReroll','sellJunk','recycleNow'])lkHide(n);
+for(const[n,p]of[['sell',0],['shopSell',0],['imbue',0],['cubeReroll',0],['essReroll',0],['cubeUnsock',0],['craft2',1],['cubeUpgrade',1],['cubeRepair',1],['doSock',1],['doSockJewel',1],['toStash',-1]])if(p>=0)lkGuard(n,p);
 if(typeof shouldRecycle==='function'){const f=shouldRecycle;shouldRecycle=function(it,n){return isLk(it)?false:f(it,n)}}
 // 3) 角色自动换装：锁定的背包物品不自动穿；已穿戴的锁定物品不被替换
 lkHide('autoTick');

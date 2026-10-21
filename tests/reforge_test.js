@@ -42,6 +42,6 @@ ok(G("rfKind({q:5,anc:1,m:{a:1},name:'x'})")===null,'旧上古（无额外词缀
 G(`S.eq.ring1=(()=>{let x=null;for(let i=0;i<50&&!x;i++){const y=genItem(85,{q:4,base:BASEM.rin});if(y.q===4)x=y}x.uid=S.uid++;return x})()`);
 ok(G("rfEligible('eq').some(x=>x===S.eq.ring1)")&&G("rfEligible('bag').includes(rare)")&&!G("rfEligible('bag').some(x=>x.q===5&&!x.anc)"),'身上/背包列表');
 ok(G("rfEligible('eq').length>0&&rfLock(S.eq.ring1.uid,rfLines(S.eq.ring1)[0])&&rfRoll(S.eq.ring1.uid)"),'身上装备可直接重铸');
-ok(!G("cubeRecipes().some(r=>/淬锋|重铸·单条|淬锋精铸/.test(r[0]))"),'炼金匣无淬锋入口');
+ok(G("typeof cubeRecipes")==='undefined','炼金匣已删除（无淬锋入口）');
 ok(/重铸/.test(G("rfPage()"))&&typeof G("renderShop")==='function','商店重铸页');
 console.log(`reforge_test: ${pass} pass, ${fail} fail`);process.exit(fail?1:0);

@@ -77,3 +77,21 @@ B 组合计约 205 行代码、约 27KB（不含 B7 数据）。
 1. 每删一项都要：从 index.html 去掉引用 → 删文件 → 给依赖方加 `typeof` 保护 → `node --check` → 全部 tests → pw_baseline。
 2. 存档字段一律「忽略不删」：`S.eg.lp`、`S.eg.season`、`S.md` 等留在存档里也无害。只有 B7（第 4/5 章进度）和 C5（赛季角色）需要写 CQ_SV 迁移。
 3. 涉及 **[职业]**（B2、B3、C12）先交给职业开发；涉及 **[cq]**（B7 地图、C6、C8、C11）先跟战斗开发确认。
+
+---------------------------------------------------------------------
+## PHASE 2 执行记录
+
+### 批次 1（已删）
+B1 eg_power（+「更多」入口；eg_secret/eg_events 的 egLpApply 改为直接 genItem，lock/ui_art 去掉 egLpExtract）、B4 summon_surv（注意：其 calc 包装里 `bl('xd_wild')` 给召唤物加 sumlife 的效果随之消失，无其它引用）、B5 uber_bal、B6 art_cls_icons/build_manual/clsfilter.js/.css、C5 eg_season（新建角色去掉纪元模式；载入时 `S.mode/ACCT.chars[].mode==='season'` 转 normal 并记 `S.cqSeasonOld=1`，`S.eg.season` 原样保留不生效）、C10 immfloor、C11 group.js/.css、focus.js/.css（power.js 去掉 grpPre 调用）。测试 tests/cq_prune_test.js。
+
+### 批次 2（已删）：符文 / 宝石 / 护身符 / 珠宝 / 炼金匣
+- 数据：data.js GEMS/GEMG/RUNES/RUNEWORDS 表；data_items.js GOODT/JEWEL_SCALE/RUNE_FALL/COUNTESS_RTC、宝石数值、NEW_RUNES/RUNE_UP/runeUpCount、NEW_RW、CRAFTS、SOCKET_RECIPES；data_items2.js 珠宝/护身符底材、AF2 前后缀、护身符/珠宝暗金、NEW_RW2/3/4、UPGRADE/REPAIR_RECIPES、RW_CATMAP/rwCatOk。
+- 函数：game.js 宝石/符文分支（socketMods 变空实现、itemName/itemColor/itemIcon/sellPrice/itemReq）、符文图鉴页、背包「炼金匣」按钮、镶嵌 UI（sockUI/doSock）、cubeUI 本体/cubeGem/cubeRune/craft；items.js rollRuneTC/rollRune/rollGem 覆盖、女伯爵符文、镶嵌与整个炼金匣段（cubeRecipes…craft2）；items2.js isCharm/isJewel/charmMods/珠宝镶嵌/genJC/护身符珠宝掉落与 genItem 包装/升级修复配方/符文之语列表；loot.js 精华重铸与符文回收行；stashux.js 仓库炼金匣；shop.js 精华兑换（宝石/护身符/符文）；acts.js a4q2/a5q2 奖励改金币；game.js q4 奖励改 600 金币；dlog 符文之语底材判断；bagux/stash/loot 的宝石/符文/护身符/珠宝筛选类型。
+- 保留的空壳（因 cq/ 仍引用，**战斗开发删掉对应行后即可去掉**）：
+  - `const RUNES=[],RUNEWORDS=[]`（cq/data_cq.js:129 `RUNES.length=0;RUNEWORDS.length=0;`）
+  - `function rollRune/rollGem`（返回 1 个黑铁矿；cq/sys_cq.js:27-28 赋值；eg_bounty/eg_rift/eg_mj/eg_secret/eg_events/cowlevel 仍调用）
+  - `function cubeUI(){}`（cq/sys_cq.js:37 赋值）
+  - cq/sys_cq.js:36 `genJC` 已有 typeof 保护，无需空壳；cq/ui_cq.js:10 的 `cubeUI|stashCube|SKT=3|BAGF='(rune|gem)'` 正则可删。
+  - skills.js:93 自动施法页的「符文图鉴」SKT=3 按钮未动（不确定归属；按钮已被 cq/ui_cq.js 移除，点了也只是空树）。
+- 守卫：bloodmoon.js / uber.js 的 charmMods 包装加 `typeof` 判断（C6/C3 本身未删）。
+- 旧存档：新文件 prune_mig.js 包装 load（每次载入、幂等，只处理 S.sv≥1 的存档；更早的交给 sys_cq v1）。背包/S.stash/S.pst/ACCT.shared/S.eq/S.merc.eq 中的符文、宝石、护身符、珠宝整件移除折金币（符文 50×(号+1)、宝石 20×(级+1)、护身符/珠宝 200）；已镶嵌物拆掉同价折金币，凹槽清零；**符文之语：保留物品本体，删 it.rw/it.rwm**，白/灰/普通底材名恢复底材名。金币加到当前角色，累计 `S.cqPruneG`。测试 tests/cq_prune2_test.js。

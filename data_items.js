@@ -158,84 +158,7 @@ const TCS={
  countess:{pk:5,nd:19,gold:11,eq:19,junk:15,good:3,f:{u:883,s:883,r:883,m:1024},gmul:1.25,gb:1,runes:3},
  actboss:{pk:7,nd:19,gold:11,eq:19,junk:15,good:3,f:{u:983,s:983,r:983,m:1024},gmul:1.25,gb:1},
 };
-// "ActX Good" 表：band = 难度×5 + 章节；J 首饰(只保留戒指/护符，按 12/20 折算) G 宝石级别权重 R 符文TC权重
-const GOODT=[
- {J:5,G:[5],R:{}},{J:20,G:[12,4],R:{1:3,2:3}},{J:20,G:[8,8],R:{3:3,4:3}},{J:50,G:[14,28,42],R:{5:14,6:7}},{J:50,G:[6,8,24,4],R:{7:10}},
- {J:60,G:[6,8,28,14],R:{8:14}},
-];
-for(let b=6;b<15;b++)GOODT.push({J:60,G:[4,10,14,28],R:{[b+3]:14}});
-const JEWEL_SCALE=12/20;
-// 符文 TC：Runes n 含 2 枚符文 (3:2)，并以 FALL[n] 权重落到 Runes n-1；Runes 17 仅最高符文(1) vs 5170 落回
-const RUNE_FALL=[0,0,2,5,7,12,22,45,90,180,360,720,1066,1519,2170,2941,3957,5170];
-const COUNTESS_RTC=[4,8,12]; // 女伯爵式首领的专属符文 TC（普通/噩梦/地狱），3 次，NoDrop 5:15
-
-// ---------- 宝石（数值按原版 gems 表；伤害区间取均值） ----------
-Object.assign(GEMS.sap,{w:g=>({coldmin:[2,4,6,8,12][g]})});
-Object.assign(GEMS.eme,{w:g=>({poisdmg:[34,51,82,101,143][g]})});
-Object.assign(GEMS.rub,{w:g=>({firemin:[4,6,10,13,18][g]})});
-Object.assign(GEMS.sku,{a:g=>({regen:[2,3,3,4,5][g],mregen:[8,8,12,12,19][g]})});
-
-// ---------- 符文：[名, 需求等级, 武器, 头盔/铠甲, 盾(缺省同铠甲)] ----------
-const NEW_RUNES=[
- ['晨',11,{ar:50},{def:15}], ['曦',11,{undead:75,ar:50},{},{block:7}], ['溪',13,{mpk:2},{mpk:2}], ['澜',13,{kb:1},{def:30}],
- ['霁',15,{tdef:25},{mregen:15}], ['锋',15,{maxdmg:9},{dmgmana:15}], ['蚀',17,{poisdmg:75},{pres:30},{pres:35}], ['炎',19,{firemin:17},{fres:30},{fres:35}],
- ['雷',21,{lightmax:50},{lres:30},{lres:35}], ['霜',23,{coldmin:8},{cres:30},{cres:35}], ['渴',25,{ll:7},{thorns:14}], ['甲',27,{mindmg:9},{dr:7}],
- ['疾',29,{ias:20},{fhr:20},{fbr:20}], ['惧',31,{flee:25},{regen:7}], ['简',0,{reqp:20},{reqp:15}], ['烬',35,{vit:10},{vit:10}],
- ['辉',37,{ene:10},{ene:10}], ['魄',39,{dex:10},{dex:10}], ['岚',41,{str:10},{str:10}], ['镰',43,{gf:75},{gf:50}],
- ['磐',45,{demon:75},{edef:30}], ['渊',47,{ow:25},{allres:15},{allres:22}], ['瘴',49,{noheal:1},{mdr:7}], ['祈',51,{mf:30},{mf:25}],
- ['噬',53,{arp:20},{maxpres:5}], ['冥',55,{ml:7},{maxfres:5}], ['煌',57,{edmg:50},{maxcres:5}], ['烁',59,{ds:20},{maxlres:5}],
- ['魇',61,{blind:20},{manapct:5},{mana:50}], ['裂',63,{cb:20},{drp:8}], ['恒',65,{ignoredef:1},{lifepct:5},{life:50}], ['凛',67,{freeze:3},{nofreeze:1}],
- ['寂',69,{indestr:1},{indestr:1}],
-];
-RUNES.length=0;for(const r of NEW_RUNES)RUNES.push(r);
-// 面向玩家的符文名一律用编号（按需求等级顺序：原「晨」=1号 … 33号）；存档只存索引 r，无需迁移
-NEW_RUNES.forEach((r,i)=>{r.orig=r[0];r[0]=(i+1)+'号'});
-// 炼金匣符文升级（原版 1.11+）：前 9 次只需 3 枚；之后需宝石 [宝石, 级别]；Pul(20) 起只需 2 枚
-const RUNE_UP=[null,null,null,null,null,null,null,null,null,['top',0],['ame',0],['sap',0],['rub',0],['eme',0],['dia',0],['top',1],['ame',1],['sap',1],['rub',1],['eme',1],
- ['dia',1],['top',2],['ame',2],['sap',2],['rub',2],['eme',2],['dia',2],['top',3],['ame',3],['sap',3],['rub',3],['eme',3]];
-const runeUpCount=r=>r>=20?2:3;
-
-// ---------- 符文之语（配方顺序/类型/凹槽 按原版；m 只写符文之语自身加成，符文本身效果另计） ----------
-const RW=(n,r,cats,m,lv)=>({n,r,cats,m,lv:Math.max(lv||0,...r.map(i=>NEW_RUNES[i][1]))});
-const WEAP=['wand','dagger','sword'],SHLD=['shield','head'];
-const NEW_RW=[
- RW('精钢',[2,0],['sword'],{ias:25,edmg:20,mindmg:3,maxdmg:3,ow:50}),
- RW('天幕',[3,2],['helm'],{edef:50,def:10,str:5,gf:-33}),
- RW('恶念',[5,0,4],WEAP,{edmg:33,ow:100,regen:-5}),
- RW('潜影',[6,4],['armor'],{mdr:3,dex:6,fcr:25,fhr:25}),
- RW('古誓',[7,8,6],SHLD,{cres:30,allres:13,edef:50,dmgmana:10}),
- RW('力能',[10,2],WEAP,{str:20,edmg:35,vit:10,cb:25}),
- RW('学识',[8,11],['helm'],{ene:10,allsk:1,mpk:2}),
- RW('韵律',[12,4],SHLD,{block:20,allres:25,gf:50,mf:25}),
- RW('君恩',[10,7,9],['sword'],{edmg:100,ar:150,undead:50}),
- RW('灵魄',[6,9,8,10],['sword','shield'],{allsk:2,fcr:[25,35],fhr:55,mana:[89,112],vit:22}),
- RW('荣光',[10,0,5,2,11],['sword'],{edmg:160,regen:10,allsk:1,ar:200,ds:25,str:10}),
- RW('白骨',[13,15],['wand'],{t1sk:3,mdr:4,fcr:20,mana:13,sk_ba:3,sk_bs:2,sk_sm:4}),
- RW('烟幕',[3,16],['armor'],{allres:50,edef:75,fhr:20}),
- RW('辉煌',[4,16],SHLD,{allsk:1,fcr:10,gf:50,mf:20,edef:[60,100]}),
- RW('狮心',[14,16,18],['armor'],{str:15,vit:20,dex:15,edmg:20,life:50,allres:30}),
- RW('富饶',[19,17,2],['armor'],{gf:250,mf:100}),
- RW('阴霾',[18,21,20],['armor'],{edef:[170,230],allres:30,dmgmana:5}),
- RW('胁迫',[12,21,9],['armor'],{coldmin:85,edmg:[10,20],edef:[150,200],fhr:20,ow:33,cb:15}),
- RW('骸咏',[11,21,21],['armor'],{allsk:2,mana:[100,150]}),
- RW('审慎',[22,2],['armor'],{edef:[140,170],mdr:10,dr:3,allres:[25,35],fhr:25}),
- RW('谵语',[19,23,15],['helm'],{allsk:2,def:261}),
- RW('圣域',[17,17,22],['shield'],{block:20,edef:[130,160],allres:[50,70],fhr:20}),
- RW('毒噬',[6,13,22],WEAP,{poisdmg:312,ignoredef:1,ml:7}),
- RW('王弑',[22,21,24,18],['sword'],{ias:30,edmg:[230,270],tdef:25,cb:33,ow:25,gf:40}),
- RW('誓约',[12,20,22,16],['sword'],{edmg:[210,340],ias:30,mdr:[10,15],indestr:1}),
- RW('枷锁之荣',[13,21,29,23],['armor'],{allres:65,edef:70,ll:8,allsk:2,str:20,undead:100}),
- RW('亡潮',[14,0,25,8,24],['sword'],{edmg:[300,385],cb:50,ds:30,indestr:1}),
- RW('寂默',[13,1,14,23,2,25],['sword'],{ml:4,edmg:200,ias:20,allres:75,allsk:2,fhr:20}),
- RW('刚毅',[0,11,13,27],['wand','dagger','sword','armor'],{edef:200,edmg:300,fcr:25,dmgmana:12,allres:[25,30],life:60}),
- RW('战令',[10,7,22,23,26],['sword'],{ias:40,edmg:[200,240],allsk:1,regen:12}),
- RW('龙吟',[28,27,11],['armor','shield'],{def:360,str:20,dex:5,vit:5,ene:5}),
- RW('梦魇',[15,30,20],['helm','shield'],{def:[150,220],allres:[5,20],fhr:[20,30],mf:[12,25]}),
- RW('谜域',[30,5,29],['armor'],{def:[750,775],allsk:2,str:40,mf:50}),
- RW('涅槃',[25,25,27,30],['sword','shield'],{edmg:[350,400],allres:30}),
- RW('终焉之息',[25,14,0,1,32,4],['sword'],{ias:60,edmg:[350,400],ll:[12,15],undead:125,str:30,dex:30,vit:30,ene:30}),
-];
-RUNEWORDS.length=0;for(const w of NEW_RW)RUNEWORDS.push(w);
+// 已删除（legacy_prune 批次2：符文/宝石/护身符/珠宝/炼金匣）：GOODT/JEWEL_SCALE/RUNE_FALL/COUNTESS_RTC、宝石数值、NEW_RUNES/RUNE_UP、符文之语 NEW_RW
 
 // ---------- 暗金（lv=物品等级门槛 qlvl，rq=需求等级；蓝本为原版对应物品，重新命名并小幅改造） ----------
 const U=(n,b,lv,rq,m)=>({n,b,lv,rq,m});
@@ -339,20 +262,7 @@ const NEW_SETITEMS=[
 ];
 SETITEMS.length=0;for(const s of NEW_SETITEMS)SETITEMS.push(s);
 
-// ---------- 合成配方（原版 cubemain：魔法底材 + 指定符文 + 完美宝石；本作无珠宝，以任意宝石代替） ----------
-// 部位 → [符文索引, 固定词缀]
-const CRAFTS={
- caster:{n:'施法',gem:'ame',parts:{helm:[3,{mregen:[4,10],mana:[10,20],ml:[1,4]}],boots:[9,{mregen:[4,10],mana:[10,20],manapct:[2,5]}],gloves:[8,{mregen:[4,10],mana:[10,20],mpk:[1,3]}],
-  belt:[5,{mregen:[4,10],mana:[10,20],fcr:[5,10]}],shield:[4,{mregen:[4,10],mana:[10,20],block:[5,10]}],armor:[6,{mregen:[4,10],mana:[10,20],mpk:[1,3]}],amulet:[7,{mregen:[4,10],mana:[10,20],fcr:[5,10]}],ring:[10,{mregen:[4,10],mana:[10,20],ene:[1,5]}],weapon:[2,{mregen:[4,10],mana:[10,20],manapct:[1,5]}]}},
- blood:{n:'嗜血',gem:'rub',parts:{helm:[7,{ll:[1,3],life:[10,20],ds:[5,10]}],boots:[4,{ll:[1,3],life:[10,20],regen:[5,10]}],gloves:[3,{ll:[1,3],life:[10,20],cb:[5,10]}],
-  belt:[6,{ll:[1,3],life:[10,20],ow:[5,10]}],shield:[5,{ll:[1,3],life:[10,20],thorns:[4,7]}],armor:[9,{ll:[1,3],life:[10,20]}],amulet:[10,{ll:[1,4],life:[10,20]}],ring:[11,{ll:[1,3],life:[10,20],str:[1,5]}],weapon:[8,{ll:[1,4],life:[10,20],edmg:[35,60]}]}},
- hit:{n:'强击',gem:'sap',parts:{helm:[5,{thorns:[3,7],def:[25,50]}],boots:[7,{thorns:[3,7],def:[25,60]}],gloves:[8,{thorns:[3,7],kb:[1,1]}],belt:[6,{thorns:[3,7],dmgmana:[5,10]}],
-  shield:[4,{thorns:[3,10],block:[5,10]}],armor:[3,{thorns:[3,10],fhr:[10,20]}],amulet:[9,{thorns:[3,10],flee:[5,15]}],ring:[10,{thorns:[3,6],dex:[1,5]}],weapon:[2,{thorns:[3,7],edmg:[35,60]}]}},
- safety:{n:'守护',gem:'eme',parts:{helm:[5,{dr:[1,4],mdr:[1,2],lres:[5,10],edef:[10,30]}],boots:[8,{dr:[1,4],mdr:[1,2],fres:[5,10],edef:[10,30]}],gloves:[7,{dr:[1,4],mdr:[1,2],cres:[5,10],edef:[10,30]}],
-  belt:[6,{dr:[1,4],mdr:[1,2],pres:[5,10],edef:[10,30]}],shield:[3,{dr:[1,4],mdr:[1,2],allres:[5,10],edef:[10,30]}],armor:[4,{dr:[1,4],mdr:[1,2],edef:[10,30]}],amulet:[9,{dr:[1,4],mdr:[1,2],block:[1,10]}],ring:[10,{dr:[1,4],mdr:[1,2],vit:[1,5]}],weapon:[11,{dr:[1,4],mdr:[1,2],edmg:[5,10]}]}},
-};
-// 底材加孔（原版：普通且无孔底材 + 两枚符文 + 完美宝石 → 随机 1~上限 个凹槽）
-const SOCKET_RECIPES={armor:[6,9,'top'],weapon:[7,10,'ame'],helm:[7,9,'sap'],shield:[6,10,'rub']};
+// 已删除（legacy_prune 批次2：符文/宝石/护身符/珠宝/炼金匣）：合成配方 CRAFTS、底材加孔 SOCKET_RECIPES
 const STASH_SIZE=48; // 储物箱容量（原版资料片 6×8）
 
 // ---------- 显示文本（新增键；无战斗实现的只做显示，标注于 DESIGN） ----------

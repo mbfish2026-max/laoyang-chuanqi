@@ -121,9 +121,9 @@ const _questDone=questDone;questDone=function(q){_questDone(q);const d=S.diff,Q=
  case'a3q2':{const it=genItem(S.lvl,{base:BASEM.rin,q:3});addBag(it);log('获得 '+itemName(it));break}
  case'a3q4':S.sp+=5;break;
  case'a4q1':S.kp+=2;break;
- case'a4q2':{const gl=[1,2,3][d];for(let i=0;i<4;i++)addBag({uid:S.uid++,k:'gem',g:pick(Object.keys(GEMS)),lv:gl});const rr=[[0,9],[6,11],[9,14]][d];const r={uid:S.uid++,k:'rune',r:R(rr[0],Math.min(RUNES.length-1,rr[1]))};addBag(r);log('熔炉迸出 4 颗宝石与 '+itemName(r));break}
+ case'a4q2':{const g=[1500,3000,6000][d];S.gold+=g;log('熔炉迸出 '+g+' 金币');break}// 原奖励宝石+符文（已删除）改金币
  case'a5q1':S.sockq++;toast('铁匠：可为一件物品加凹槽');break;
- case'a5q2':for(const r of [[7,8,9],[8,9,10],[9,10,11]][d]){const it={uid:S.uid++,k:'rune',r:Math.min(RUNES.length-1,r)};addBag(it);log('获得 '+itemName(it))}break;
+ case'a5q2':{const g=[2000,4000,8000][d];S.gold+=g;log('获得 '+g+' 金币');break}// 原奖励符文×3（已删除）改金币
  case'a5q3':S.bon.res+=10;calc();break;
  case'a5q4':S.pers++;toast('可个性化一件物品');break;
  case'a5q5':{const x=Math.round((xpNeed(S.lvl+1)-xpNeed(S.lvl))*0.6);gainXp(x);log('远古英灵的祝福：经验 +'+fmt(x));break}

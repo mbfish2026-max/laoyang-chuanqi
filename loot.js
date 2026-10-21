@@ -7,7 +7,7 @@
 const MATS={ess:{n:'残骸精华',c:'#b98cff',d:'回收装备得到的魔力残渣。用途：炼金匣「精华重铸」，商店「精华兑换」宝石/护身符/符文。'}};
 const RCY_Q=[[0,'破旧'],[1,'普通'],[2,'超强'],[3,'魔法'],[4,'稀有'],[6,'套装'],[5,'暗金']];
 const RCY_C=[['wand','魔杖'],['dagger','匕首'],['sword','剑'],['axe','斧'],['mace','锤'],['staff','法杖'],['bow','弓'],['xbow','弩'],['polearm','长柄'],['spear','矛'],['jav','标枪'],['throw','投掷'],
- ['shield','盾'],['head','缩颅'],['helm','头盔'],['armor','铠甲'],['gloves','手套'],['boots','鞋'],['belt','腰带'],['ring','戒指'],['amulet','护符'],['charm','护身符'],['jewel','珠宝'],['gem','宝石'],['rune','符文']];
+ ['shield','盾'],['head','缩颅'],['helm','头盔'],['armor','铠甲'],['gloves','手套'],['boots','鞋'],['belt','腰带'],['ring','戒指'],['amulet','护符']];// 护身符/珠宝/宝石/符文类型已删除（legacy_prune 批次2）
 function rcyDefault(){const s=S.sell||{};const c={};for(const[k]of RCY_C)c[k]=!['gem','rune','charm','jewel'].includes(k)?1:0;
  return{on:(s[0]||s[1])?1:0,q:{0:s[0]?1:0,1:s[1]?1:0,2:s[2]?1:0,3:0,4:1,5:0,6:0},c,runeMax:0,keepSock:1,keepElite:1,keepNew:1,keepSkill:1,mode:'gold'}}
 function ensureLoot(){if(!S)return;if(!S.rcy)S.rcy=rcyDefault();if(!S.codex){S.codex={};const all=[...S.bag,...Object.values(S.eq),...(S.pst||[]).flat()];for(const it of all)if(it&&!it.k&&(it.q===5||it.q===6))S.codex[it.name]=1}}
@@ -57,10 +57,7 @@ function rcyKeepWhy(bag){const r=S.rcy,o={},inc=k=>o[k]=(o[k]||0)+1;
 // ---------- 离线结算附加回收/存仓统计 ----------
 const _lt_off=offline;offline=function(){const a=STATS.rcy,g=STATS.rcyG,e=STATS.rcyE,s=STATS.ast;_lt_off();const n=STATS.rcy-a,m=STATS.ast-s;if(window.__NOUI||(!n&&!m))return;
  const box=document.querySelector('#modal .gp .grid');for(const d of document.querySelectorAll('#modal .gp>.dim'))if(n&&d.textContent.startsWith('自动出售'))d.remove();if(box)box.insertAdjacentHTML('beforebegin',`<div class="g">自动回收 ${n} 件：+${STATS.rcyG-g} 金币，+${STATS.rcyE-e} 残骸精华${m?`；自动存仓 ${m} 件`:''}</div>`)};
-// ---------- 炼金匣：精华重铸 ----------
-const ESS_REROLL=20;
-const _lt_rec=cubeRecipes;cubeRecipes=function(){const rec=_lt_rec();if(matCount('ess')>=ESS_REROLL)for(const it of S.bag)if(!it.k&&(it.q===3||it.q===4))rec.push([`${ESS_REROLL}×残骸精华 + ${itemName(it)} → 精华重铸（同品质，物品等级不变）`,`essReroll(${it.uid})`]);return rec};
-function essReroll(uid){const i=S.bag.findIndex(x=>x.uid===uid);if(i<0||!takeMat('ess',ESS_REROLL))return false;const o=S.bag[i];const j=S.bag.findIndex(x=>x.uid===uid);const n=genItem(o.il,{base:BASEM[o.b],q:o.q});n.uid=o.uid;S.bag[j]=n;if(!window.__NOUI){showItem(uid);render()}return true}
+// 炼金匣「精华重铸」已删除（legacy_prune 批次2）
 // ---------- 设置面板 ----------
 function rcyUI(){ensureLoot();const r=S.rcy,a=S.ast;const ck=(on,fn,t)=>`<button class="btn xs ${on?'on':''}" onclick="${fn};rcyUI()">${t}</button>`;
  modal(`<div class="mtitle">自动回收 / 自动存仓</div><div class="gp rcy">
@@ -68,11 +65,10 @@ function rcyUI(){ensureLoot();const r=S.rcy,a=S.ast;const ck=(on,fn,t)=>`<button
  <div class="dim">优先级：<b>自动回收 ＞ 自动存仓 ＞ 放入背包</b>。被保护的物品不会回收。离线结算同样生效。</div>
  <h4>品质</h4><div class="btns">${RCY_Q.map(([q,n])=>ck(r.q[q],`S.rcy.q[${q}]^=1`,n)).join('')}</div>
  <h4>部位 / 类型</h4><div class="btns">${RCY_C.map(([k,n])=>ck(r.c[k],`S.rcy.c['${k}']^=1`,n)).join('')}</div>
- <div class="row"><span>符文：回收 <b>${r.runeMax||0}号</b> 及以下（0=不回收）</span><span><button class="btn xs" onclick="S.rcy.runeMax=Math.max(0,(S.rcy.runeMax||0)-1);rcyUI()">－</button><button class="btn xs" onclick="S.rcy.runeMax=Math.min(33,(S.rcy.runeMax||0)+1);rcyUI()">＋</button></span></div>
  <h4>保护（例外）</h4><div class="btns">${ck(r.keepSock,'S.rcy.keepSock^=1','带凹槽白/超强底材')}${ck(r.keepElite,'S.rcy.keepElite^=1','精英底材')}${ck(r.keepNew,'S.rcy.keepNew^=1','未收录图鉴的暗金/套装')}${ck(r.keepSkill,'S.rcy.keepSkill^=1','带本职业技能')}</div>
  <div class="dim">「精英底材」保护只针对破旧/普通/超强品质的精英底材；魔法/稀有等其他品质的精英装备按品质勾选回收。</div>
  <h4>回收所得</h4><div class="btns">${ck(r.mode==='gold',"S.rcy.mode='gold'",'金币（按卖价）')}${ck(r.mode==='ess',"S.rcy.mode='ess'",'残骸精华')}</div>
- <div class="dim">残骸精华：炼金匣 ${ESS_REROLL} 个重铸魔法/稀有物品；商店「精华兑换」。当前 ${matCount('ess')} 个。</div>
+ <div class="dim">残骸精华：当前 ${matCount('ess')} 个。</div>
  <hr><div class="row"><b>自动存仓</b>${ck(a.on,'S.ast.on^=1',a.on?'已开启':'已关闭')}</div>
  <div class="btns">${Object.entries(AST_T).map(([k,n])=>ck(a.t[k],`S.ast.t['${k}']^=1`,n)).join('')}</div>
  <div class="btns">目标：${ck(a.dest!=='s',"S.ast.dest='p'",'个人仓库')}${ck(a.dest==='s',"S.ast.dest='s'",'共享仓库')}</div>
