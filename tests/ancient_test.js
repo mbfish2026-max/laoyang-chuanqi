@@ -32,7 +32,7 @@ ok(lo.q===0&&/属性品质 0%/.test(lo.tag)&&!/完美/.test(lo.tag),'下限=0% �
 ok(G(`(()=>{const s=SETITEMS.find(x=>Object.values(x.m).some(Array.isArray));if(!s)return true;const it={b:s.b,q:6,name:s.n,m:{}};for(const k in s.m)it.m[k]=Array.isArray(s.m[k])?s.m[k][1]:s.m[k];return ancQual(it)===1})()`),'套装满值=100%');
 ok(G(`(()=>{const it={b:'rin',q:5,name:'不存在的旧物品',m:{life:3}};return ancTag(it)===''&&itemName(it).indexOf('上古')<0})()`),'旧存档/未知物品不报错');
 // 回收保护
-G(`ensureLoot();S.rcy.on=1;S.rcy.q[5]=1;for(const k in S.rcy.c)S.rcy.c[k]=1;S.rcy.keepNew=0;S.rcy.keepSkill=0;`);
+G(`ensureLoot();S.rcy.on=1;S.rcy.q[4]=1;S.rcy.q[5]=1;for(const k in S.rcy.c)S.rcy.c[k]=1;S.rcy.keepNew=0;S.rcy.keepSkill=0;S.rcy.keepBetter=0;`);
 ok(G(`(()=>{const it=genItem(85,{q:5});it.anc=1;return shouldRecycle(it,false)===false})()`),'保留上古默认开');
 ok(G(`(()=>{S.rcy.keepAnc=0;const it=genItem(85,{q:5});it.m={};it.anc=1;return shouldRecycle(it,false)===true})()`),'关闭后可回收');
 console.log(`ancient_test: ${pass} pass, ${fail} fail`);process.exit(fail?1:0);
