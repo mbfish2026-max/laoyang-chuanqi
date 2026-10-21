@@ -11,12 +11,12 @@ const CLS_BAL={};
 function clsEK(m){const t=(CLS_BAL[curCls()]||{}).ek;return(t&&m&&(m.boss||m.fl==='uniq'||m.fl==='champ'))?clsBalK(t):1}
 function clsBalK(t){const l=(typeof S!=='undefined'&&S&&S.lvl)||1;if(l<=t[0][0])return t[0][1];for(let i=1;i<t.length;i++)if(l<=t[i][0]){const[a,x]=t[i-1],[b,y]=t[i];return x+(y-x)*(l-a)/(b-a)}return t[t.length-1][1]}
 const CLS_DEF={
- zs:{n:'战士',ic:'⚔',glyph:'⚔',at:{str:30,dex:20,vit:25,ene:10},life0:55,lpl:2,lpv:4,mana0:10,mpl:1,mpe:1,trees:['剑术','战技','体魄'],
-  sk:{},eq:['swd1','shd1'],ww:1,main:['str',5],autoEne:()=>false},
- fs:{n:'法师',ic:'✦',glyph:'✦',at:{str:10,dex:25,vit:10,ene:35},life0:40,lpl:1.5,lpv:2,mana0:35,mpl:2,mpe:2,trees:['火系','冰系','雷系'],
-  sk:{},eq:['wand1'],main:['ene',4],autoEne:()=>S.at.ene<S.lvl+35},
- ds:{n:'道士',ic:'☯',glyph:'☯',at:{str:15,dex:25,vit:20,ene:25},life0:45,lpl:1.5,lpv:2.5,mana0:25,mpl:2,mpe:2,trees:['召唤','符毒','辅助'],
-  sk:{},eq:['wand2'],main:['ene',4],autoEne:()=>false},
+ zs:{n:'战士',ic:'⚔',glyph:'⚔',grow:{str:2.8,dex:0.3,vit:2.5,ene:0},at:{str:30,dex:20,vit:25,ene:10},life0:55,lpl:2,lpv:4,mana0:10,mpl:1,mpe:1,trees:['剑术','战技','体魄'],
+  sk:{jbjs:1},eq:['swd1','shd1'],ww:1,main:['str',5],autoEne:()=>false},
+ fs:{n:'法师',ic:'✦',glyph:'✦',grow:{str:0,dex:0.3,vit:2.5,ene:2.8},at:{str:10,dex:25,vit:10,ene:35},life0:40,lpl:1.5,lpv:2,mana0:35,mpl:2,mpe:2,trees:['火系','冰系','雷系'],
+  sk:{hqs:1},eq:['wand1'],main:['ene',4],autoEne:()=>S.at.ene<S.lvl+35},
+ ds:{n:'道士',ic:'☯',glyph:'☯',grow:{str:0.2,dex:0.3,vit:2.5,ene:2.7},at:{str:15,dex:25,vit:20,ene:25},life0:45,lpl:1.5,lpv:2.5,mana0:25,mpl:2,mpe:2,trees:['召唤','符毒','辅助'],
+  sk:{lhhf:1},eq:['wand2'],main:['ene',4],autoEne:()=>false},
 };
 // 职业主属性（main，供 late.js 自动加点 LATE_MAIN 用）：战士力量、法师/道士精神（魔法/道术）。late.js 在本文件之后加载，首次 calc 时补登记
 function clsLateFix(){try{if(typeof LATE_MAIN!=='undefined'){for(const c of['zs','fs','ds'])if(!LATE_MAIN[c])LATE_MAIN[c]=CLS_DEF[c].main;if(typeof LATE_SHARE!=='undefined')for(const c of['zs','fs','ds'])if(!LATE_SHARE[c])LATE_SHARE[c]=[[1,0.5],[30,0.5],[60,0.6]]}}catch(e){}}
@@ -27,7 +27,9 @@ function heroArt(cls){const c=curCls();return c==='zs'?art('hero','🧙‍♂️
 function trees(){return clsBase().trees}
 function skOfCls(s){return!!s&&s.cls===curCls()}// 只认本职业技能：无 cls 的旧技能不再默认算战士（修：战士自动学到旧召唤技能）
 // 新角色/重置角色：按职业写入初始属性/技能/装备（只执行一次）
-function clsInit(){const c=curCls();if(S.ci)return;const D=CLS_DEF[c];S.ci=1;S.cqsk=1;S.at=Object.assign({},D.at);S.sk=Object.assign({},D.sk);S.main=null;S.curse=null;S.autoCast=null;
+// 属性自动成长：S.at = 初始 + floor(每级成长 × (L-1))（升级不给属性点）
+function clsAutoAt(c,L){const D=CLS_DEF[c]||CLS_DEF.zs,o={};L=Math.max(1,L|0||1);for(const k of['str','dex','vit','ene'])o[k]=(D.at[k]||0)+Math.floor(((D.grow||{})[k]||0)*(L-1)+1e-9);return o}
+function clsInit(){const c=curCls();if(S.ci)return;const D=CLS_DEF[c];S.ci=1;S.cqsk=1;S.at=clsAutoAt(c,S.lvl||1);S.sk=Object.assign({},D.sk);S.main=null;S.curse=null;S.autoCast=null;
  S.eq={};for(const b of D.eq.concat(['arm1'])){const B=BASEM[b];if(B)S.eq[B.s]=makeBase(B,1)}calc();H.life=ST.life;H.mana=ST.mana}
 // ===================================================================================
 // 职业技能引擎（数据驱动）：每个技能 = 定义 {id,cls,t 系,n,r 需求等级,col,pre 前置,ty 类型,el 元素,ic,mana,sm 智能施放所需怪数,v(L,sy) 数值}
@@ -53,7 +55,8 @@ const clsIconUrl=id=>CLS_ART.icons.has(id)?`assets/skills/${id}.webp`:null,clsFx
 // ---------- 数值 ----------
 function clsMk(){const t=(CLS_BAL[curCls()]||{}).mk;return t?clsBalK(t):1}// mk：职业近战伤害总系数（平衡用）
 function clsDk(c){const t=(CLS_BAL[c]||{}).dk;return t?clsBalK(t):1}
-function clsSV(id,L){const s=SKM[id];if(!s||!s.v)return{txt:''};return s.v(Math.max(1,L),syn(id)*clsDk(s.cls))}// dk：职业技能伤害总系数（平衡用，已计入显示数值）
+const clsOldL=N=>Math.round(1+(N-1)*19/8),clsNewL=o=>o>0?Math.ceil(1+(o-1)*8/19):0;// 新 9 级 ↔ 旧 20 级
+function clsSV(id,L){const s=SKM[id];if(!s||!s.v)return{txt:''};return s.v(clsOldL(Math.max(1,L)),syn(id)*clsDk(s.cls))}// dk：职业技能伤害总系数（平衡用，已计入显示数值）
 const CLS_ELC={fire:'#f84',cold:'#8cf',light:'#ff6',magic:'#e0c0ff',phys:'#fff'};
 const clsAvgD=d=>d?(d[0]+d[1])/2:0,clsRR=d=>R(Math.round(d[0]),Math.round(d[1]));
 const buffOn=id=>{const b=H.cbs&&H.cbs[id];return b&&b.until>GT?b:null};
@@ -153,10 +156,11 @@ function clsGroupPick(g){let b=null,bv=-1;for(const s of CLS_SKILLS){if(s.g!==g|
 // ---------- 属性：被动/增益（game.js calc 末尾调用） ----------
 // 旧存档清理（一次）：不属于本职业的已学技能（例如旧版战士自动学到的召唤/骨系技能）退还技能点；空技能的角色补本职业初始技能
 // 旧存档清理（一次）：已删除模块（late_mods 魔改技能 x*_ 等）残留的技能 id，不在 SKM 中的退还技能点
+function clsSk9(){if(typeof S==='undefined'||!S||!S.sk||S.sk9===1)return;S.sk9=1;for(const k of Object.keys(S.sk)){const s=SKM[k];if(s&&s.cls&&S.sk[k]>0)S.sk[k]=Math.min(CLS_SKMAX,clsNewL(S.sk[k]))}}
 function clsPruneSk(){if(typeof S==='undefined'||!S||!S.sk||S.skPr===1||!CLS_SKILLS.length)return;S.skPr=1;let back=0;
  for(const k of Object.keys(S.sk)){if(SKM[k])continue;back+=Math.max(0,S.sk[k]|0);delete S.sk[k]}
  if(back){S.kp=(S.kp||0)+back;if(S.main&&!SKM[S.main])S.main=null;if(typeof log==='function')try{log(`<b style="color:#ffd76a">技能整理：移除已下线技能，退还技能点 ${back}</b>`)}catch(e){}}}
-function clsMigrate(){clsLateFix();clsPruneSk();if(typeof S==='undefined'||!S||!S.sk||S.cqsk===1||!CLS_SKILLS.length)return;S.cqsk=1;const c=curCls();let back=0;const gone=[];
+function clsMigrate(){clsLateFix();clsPruneSk();clsSk9();if(typeof S==='undefined'||!S||!S.sk||S.cqsk===1||!CLS_SKILLS.length)return;S.cqsk=1;const c=curCls();let back=0;const gone=[];
  for(const k of Object.keys(S.sk)){const s=SKM[k];if(s&&s.cls===c)continue;back+=S.sk[k]||0;if(s)gone.push(s.n);delete S.sk[k]}
  for(const k in CLS_DEF[c].sk||{})if(!S.sk[k])S.sk[k]=CLS_DEF[c].sk[k]
  S.kp=(S.kp||0)+back;S.main=null;S.curse=null;if(gone.length&&typeof log==='function')try{log(`<b style="color:#ffd76a">职业技能整理：移除非本职业技能 ${gone.join('、')}，退还技能点 ${back}</b>`)}catch(e){}}
@@ -184,12 +188,48 @@ function clsCalc(o){const c=curCls();clsMigrate();const M=o.M||{};const lv=id=>{
   if(ST.cret&&GT>(H.retT||0)){H.retT=GT+1;const ml=liveMon().filter(m=>!m.ranged);if(ml.length){const m=pick(ml);clsHit(m,'cold',clsRR(ST.cret.ret));m.slow=GT+2}}}
  return r}}
 {const f=resetRuntime;resetRuntime=function(){f();H.cbs={};H.tur={}}}
-const CLS_SKPLAN={};// 各职业自动加点计划：cls_*.js 填 CLS_SKPLAN[cls]={order:[...],fill:()=>[...]}
-// 加点前置校验：计划里某技能的前置没点过时，先点前置（递归）；对所有职业的 CLS_SKPLAN 生效
-function clsPlanFix(order){const out=[],cnt={};const add=(id,d)=>{const s=SKM[id];if(!s||d>8)return;for(const p of s.pre||[])if(!cnt[p]&&!bl(p))add(p,d+1);out.push(id);cnt[id]=(cnt[id]||0)+1};for(const id of order)add(id,0);return out}
-function clsFirstNeed(id,d){const s=SKM[id];if(!s||(d||0)>8)return id;for(const p of s.pre||[])if(!bl(p))return clsFirstNeed(p,(d||0)+1);return id}
-const CLS_PLANC={};
-function clsSkPlan(){const c=curCls(),P=CLS_SKPLAN[c];if(!P)return null;const sig=c+JSON.stringify(S.sk||{});if(CLS_PLANC.sig!==sig){CLS_PLANC.sig=sig;CLS_PLANC.p={order:clsPlanFix(P.order),fill:()=>[...new Set((P.fill()||[]).map(x=>clsFirstNeed(x)))]}}return CLS_PLANC.p}
+// ===================================================================================
+// 技能学习 / 升级（沿用原版「传奇之旅」skill.txt）：升级不再给技能点，技能只能用技能书学习、升级
+//  原版规则：每技能 9 级（定稿 docs/auto_growth_plan.md）；第 L 级需求 角色等级 slevel(L)（原版 L1 需求 + 3×(L-1)）、技能书 booknum(L) 本（1,2,3,5,10,20,30,40,45）、
+//  且当前等级熟练度 ≥ exp(L-1)（施放一次 +1）；升级后熟练度清零。书页 pagenum 原版复刻未使用，这里不接。
+//  本项目映射：需求等级用 cls_*.js 的 r（已压缩到前三章）作 1 级，之后每级 +3（同原版步长）；上限 9 级；效果按比例换算：新 N 级 = 旧 clsOldL(N)=round(1+(N-1)×19/8) 级（新 9 ≈ 旧 20，v(L) 公式不变）；
+//  旧存档 o 级 → ceil(1+(o-1)×8/19) 级（向上取整，不变弱），clsPruneSk 内一次（S.sk9=1）。熟练度存 S.skx[id]。
+// ===================================================================================
+const CLS_SKMAX=9,CLS_BOOKN=[1,2,3,5,10,20,30,40,45];
+const CLS_EXPA=[600,1000,3000,5000,10000,20000,30000,40000,50000,60000],CLS_EXPB=[1000,2000,5000,10000,16000,25000,30000,40000,50000,60000];
+const CLS_BOOK={};// 技能 id → {oid 原版书物品 id, on 原版书名, or 原版 1 级需求等级, exp:[10]}
+function clsBookRule(cls,o){for(const id in o){const r=o[id];CLS_BOOK[id]=Object.assign({cls,exp:CLS_EXPB},r,{exp:r.exp==='A'?CLS_EXPA:r.exp==='B'||!r.exp?CLS_EXPB:r.exp})}}
+const clsBookId=id=>{const s=SKM[id];return s?s.cls+'_'+id:null};
+function clsSkReq(id,L){const s=SKM[id],B=CLS_BOOK[id];if(!s||!s.cls||L<1||L>CLS_SKMAX)return null;return{lvl:(s.r||1)+3*(L-1),books:CLS_BOOKN[L-1],exp:L>1?(B?B.exp:CLS_EXPB)[L-2]:0}}
+function clsSkExpGet(id){return((S&&S.skx)||{})[id]|0}
+function clsSkillExp(id,n){const s=SKM[id];if(!S||!s||!s.cls||!bl(id)||bl(id)>=CLS_SKMAX)return 0;S.skx=S.skx||{};const q=clsSkReq(id,bl(id)+1);S.skx[id]=Math.min(q.exp,(S.skx[id]|0)+(n==null?1:n));return S.skx[id]}
+function clsBookCount(id){const k=clsBookId(id);try{if(typeof CQSys!=='undefined'&&CQSys.bookCount)return CQSys.bookCount(k)|0}catch(e){}return((S.mats||{})['book_'+k])|0}
+// 校验下一级；opt.have=已有书数（不传则查背包材料）
+function clsCanLearn(id,opt){const s=SKM[id];if(!s||!s.cls)return{err:'未知技能'};if(s.cls!==curCls())return{err:'职业不符'};const cur=bl(id);
+ if(cur>=CLS_SKMAX)return{err:'技能已满级'};const q=clsSkReq(id,cur+1);if((S.lvl|0)<q.lvl)return{err:`需要等级 ${q.lvl}`};
+ if(cur>0&&clsSkExpGet(id)<q.exp)return{err:`技能熟练度不足 (${clsSkExpGet(id)}/${q.exp})`};
+ const have=opt&&opt.have!=null?opt.have:clsBookCount(id);if(have<q.books)return{err:`需要技能书 x${q.books}`};return{ok:1,from:cur,to:cur+1,books:q.books}}
+// 用技能书学习/升级：消耗 books 本（opt.noTake=1 时不扣书，由调用方扣）
+function clsLearn(id,opt){const c=clsCanLearn(id,opt);if(!c.ok)return c;if(!(opt&&opt.noTake)){const k='book_'+clsBookId(id);if(typeof CQSys!=='undefined'&&CQSys.takeMat)CQSys.takeMat(k,c.books);else if(S.mats)S.mats[k]=(S.mats[k]|0)-c.books}
+ S.sk[id]=c.to;S.skx=S.skx||{};S.skx[id]=0;if(typeof calc==='function')calc();try{if(typeof CQSys!=='undefined'&&CQSys.emit)CQSys.emit('skLearn',{id,from:c.from,to:c.to})}catch(e){}return c}
+// 技能书列表导出（系统开发：掉落/礼包/UI）
+function clsBookList(cls){return CLS_SKILLS.filter(s=>(!cls||s.cls===cls)&&s.cls).map(s=>{const B=CLS_BOOK[s.id]||{};const L=[];for(let i=1;i<=CLS_SKMAX;i++)L.push(clsSkReq(s.id,i));
+ return{sk:s.id,n:s.n,cls:s.cls,bookId:s.cls+'_'+s.id,oid:B.oid||null,on:B.on||s.n,origLvl:B.or||null,max:CLS_SKMAX,req:L.map(x=>x.lvl),books:L.map(x=>x.books),exp:L.map(x=>x.exp)}})}
+// 学习/升级按原版（职业相符、等级够、熟练度够、书够），不用技能点
+{const f=canLearn;canLearn=function(id){const s=SKM[id];if(s&&s.cls)return!!clsCanLearn(id).ok;return f(id)}}
+{const f=learn;learn=function(id){const s=SKM[id];if(!s||!s.cls)return f(id);const r=clsLearn(id);if(typeof toast==='function'&&!window.__NOUI)try{toast(r.ok?`${s.n} 提升到 ${r.to} 级`:r.err)}catch(e){}
+ if(r.ok&&!window.__NOUI)try{skPop(id);render()}catch(e){}return r}}
+function clsSkInfo(id){const s=SKM[id];if(!s||!s.cls)return null;const L=bl(id),q=L<CLS_SKMAX?clsSkReq(id,L+1):null,B=CLS_BOOK[id]||{};
+ return{id,lv:L,max:CLS_SKMAX,exp:clsSkExpGet(id),need:q?q.exp:0,reqLvl:q?q.lvl:0,books:q?q.books:0,have:clsBookCount(id),bookId:clsBookId(id),bookName:B.on||s.n,can:clsCanLearn(id)}}
+{const f=skPop;skPop=function(id){const s=SKM[id];if(!s||!s.cls)return f(id);if(window.__NOUI)return;const I=clsSkInfo(id),L=I.lv;let rows='';
+ for(let l=Math.max(1,L-1);l<=Math.min(CLS_SKMAX,Math.max(3,L+2));l++){const v=SV(id,l),q=clsSkReq(id,l);rows+=`<div class="lvr ${l===L?'cur':''} ${l===L+1?'nx':''}">${l}级（需求 ${q.lvl} 级、书×${q.books}）：${v.txt}${v.mana?`，消耗 ${v.mana} 法力`:''}</div>`}
+ const st=L>=CLS_SKMAX?'已满级':`下一级：需求等级 ${I.reqLvl} · 熟练度 ${L?I.exp+'/'+I.need:'—'} · 技能书「${I.bookName}」${I.have}/${I.books}`;
+ modal(`<div class="mtitle">${L?'技能升级':'技能学习'}</div><div class="gp"><div class="skh">${skIcon(s)}<div><b>${s.n}</b><div class="dim">${L?L+' 级':'未学习'} / 上限 ${CLS_SKMAX} 级</div></div></div>${rows}
+ <div class="dim">${st}${I.can.ok?'':` · <span style="color:#f66">${I.can.err}</span>`}</div><div class="btns c"><button class="btn" onclick="closeM()">关闭</button><button class="btn gold" onclick="learn('${id}')" ${I.can.ok?'':'disabled'}>${L?'升级':'学习'}</button></div></div>`)}}
+// 熟练度：主动技能每次施放 +1（acCast）；被动技能每次生效（角色命中）+1
+{const f=acCast;acCast=function(id,ms){const r=f.apply(this,arguments);try{const s=SKM[id];if(s&&s.cls&&s.ty!=='passive')clsSkillExp(id,1)}catch(e){}return r}}
+{const f=hitMon;hitMon=function(m,d,src){const r=f.apply(this,arguments);try{if(src==='hero'&&d&&S&&S.sk)for(const id in S.sk){const s=SKM[id];if(s&&s.cls===curCls()&&s.ty==='passive')clsSkillExp(id,1)}}catch(e){}return r}}
+
 
 // clsRegister() 由 cls_zs/fs/ds.js 定义完技能后调用（可重复调用，已注册的跳过）；clsArtLoad 只加载一次
 clsArtLoad();

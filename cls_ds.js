@@ -26,6 +26,9 @@ clsDef('ds',[
 ]);
 CLS_DEF.ds.sk={lhhf:1};
 CLS_BAL.ds={dk:[[1,1],[12,1.1],[30,1.25],[60,1.25]],ek:[[1,1.2],[12,1.5],[30,1.6],[60,1.6]]};
-CLS_SKPLAN.ds={order:['lhhf','zys','lhhf','lhhf','sds','lhhf','zhkl','zhkl','lhhf','zhkl','ysh','zhkl','zhss','zhss','zhss','zhss','zhss','sds','zhss','zhss','zys','zhss'],
- fill:()=>bl('zhss')<20?['zhss','zys']:bl('sds')<20?['sds','lhhf']:bl('lhhf')<20?['lhhf']:['zys','ysh','zhkl']};
+// 技能书规则（原版传奇之旅 skill.txt 对照；需求/书数/熟练度见 classes.js clsSkReq）
+clsBookRule('ds',{zys:{oid:104002,on:'治愈术',or:7,exp:'A'},lhhf:{oid:104012,on:'灵魂火符',or:7},sds:{oid:104007,on:'群体施毒术',or:13},zhkl:{oid:104025,on:'召唤术',or:17},ysh:{oid:104026,on:'隐身术',or:22,exp:'A'},zhss:{oid:104020,on:'召唤神兽',or:35}});
 clsRegister();
+
+// 召唤物生命加成（原 summon_surv.js，系统开发删除该文件后由职业文件补回，公式/条件不变）：学了 xd_wild 时 ST.sumlife += min(60, 10+3*(L-1))
+{const f=calc;calc=function(...a){const r=f.apply(this,a);try{if(ST&&typeof bl==='function'&&bl('xd_wild')&&typeof slvl==='function'){const L=slvl('xd_wild');ST.sumlife=(ST.sumlife||0)+Math.min(60,10+3*(L-1))}}catch(e){}return r}}

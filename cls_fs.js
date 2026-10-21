@@ -32,6 +32,6 @@ CLS_PRI.charm=1;
 CLS_DEF.fs.sk={hqs:1};CLS_DEF.fs.life0=65;CLS_DEF.fs.lpl=3;CLS_DEF.fs.lpv=2.5;// 生存：基础生命 40→65、每级 1.5→3、每点体力 2→2.5
 CLS_DEF.fs.elMul=el=>el==='light'&&bl('ldsh')?Math.min(30,bl('hqs')*1.5):0;// 雷电爆发协同：火球术每级 +1.5% 雷电伤害（上限 30%）
 CLS_BAL.fs={dk:[[1,1.5],[12,1.35],[30,1.25],[60,1.2]],ek:[[1,1.2],[12,1.3],[30,1.3],[60,1.3]]};
-CLS_SKPLAN.fs={order:['hqs','hqs','kjhh','hqs','mfd','hqs','yhzg','hqs','dyh','hqs','ldsh','ldsh','hqs','ldsh','bpx','ldsh','bpx','ldsh','bpx','ldsh','bpx','ldsh','bpx'],
- fill:()=>bl('ldsh')<20?['ldsh','bpx']:bl('bpx')<20?['bpx','hqs']:bl('hqs')<20?['hqs']:['mfd','dyh','kjhh','yhzg']};
+// 技能书规则（原版传奇之旅 skill.txt 对照；需求/书数/熟练度见 classes.js clsSkReq）
+clsBookRule('fs',{hqs:{oid:104001,on:'火球术',or:7,exp:'A'},kjhh:{oid:104008,on:'抗拒火环',or:12},yhzg:{oid:104028,on:'诱惑之光',or:13},dyh:{oid:104009,on:'地狱火',or:16},ldsh:{oid:104010,on:'雷电术',or:17,exp:'A'},mfd:{oid:104021,on:'魔法盾',or:32},bpx:{oid:104023,on:'冰咆哮',or:35}});
 clsRegister();
