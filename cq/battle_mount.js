@@ -61,7 +61,10 @@ function loadEngine(){
   const l=document.createElement('link');l.id='cqcss';l.rel='stylesheet';l.href='cq/cq.css?v='+VER;document.head.appendChild(l);
   let i=0;const next=()=>{if(i>=CQ_FILES.length)return;const s=document.createElement('script');s.src=CQ_FILES[i++]+'?v='+VER+'m1';s.onload=next;s.onerror=()=>{console.error('[CQ] 加载失败',s.src);next()};document.body.appendChild(s)};next();
 }
-function boot2(){boot();loadEngine()}
+// 角色/技能/福利 设计稿页（cq/pages_cq.*，独立于战斗引擎加载）
+function loadPages(){if(document.getElementById('cqpgcss'))return;const l=document.createElement('link');l.id='cqpgcss';l.rel='stylesheet';l.href='cq/pages_cq.css?v='+VER;document.head.appendChild(l);
+  const s=document.createElement('script');s.src='cq/pages_cq.js?v='+VER;document.body.appendChild(s)}
+function boot2(){boot();loadEngine();loadPages()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot2);else boot2();
 // 切页签暂停/恢复
 if(typeof window!=='undefined'){
@@ -89,6 +92,8 @@ function sync(){const nav=document.getElementById('tabs');if(!nav)return;const g
 let PB=false;
 function build(){const nav=document.getElementById('tabs');if(!nav)return false;
   nav.classList.add('cqnav');
+  // 用捕获阶段接管点击：game.js 初始化时会覆盖各按钮 onclick（TAB=data-t），福利需映射到 eg
+  if(!nav.__cqcap){nav.__cqcap=1;nav.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button[data-t]');if(!b||!nav.contains(b))return;e.preventDefault();e.stopPropagation();go(b.dataset.t)},true)}
   const have={};nav.querySelectorAll('button').forEach(b=>{if(NAV.some(n=>n[0]===b.dataset.t)&&!have[b.dataset.t])have[b.dataset.t]=b;else b.remove()});
   NAV.forEach(([t,ic,lb],i)=>{let b=have[t];if(!b){b=document.createElement('button');b.dataset.t=t}
     if(!b.__cq){b.__cq=1;b.innerHTML=`<i style="background-image:url(assets/cq/ui/nav_${ic}.png)"></i>${lb}`;b.onclick=e=>{e.preventDefault();go(t)}}

@@ -137,4 +137,22 @@ ok(!/iterations\s*:\s*Infinity|infinite/i.test(js.replace(/\/\/.*$/mg,'')),'JS �
  ok(L.some(x=>x[0]==='hqs'&&!x[1])&&L.filter(x=>!x[1]).length>=1&&L.findIndex(x=>x[1])>L.findIndex(x=>!x[1]),'已学技能在前且未锁定，未学补位为锁定');G('S.cls=_o[0];S.sk=_o[1]');
  const sc=fs.readFileSync(path.join(root,'cq/cq_scene.js'),'utf8'),cc=fs.readFileSync(path.join(root,'cq/cq.css'),'utf8');
  ok(/classList\.toggle\('lock'/.test(sc)&&/\.csk\.lock/.test(cc)&&/\.csk \.key\{[^}]*white-space:nowrap/.test(cc),'场景渲染锁定态与名称（不换行）');}
+// ---------- 角色 / 技能 / 福利 设计稿页（cq/pages_cq.js） ----------
+{const src=fs.readFileSync(path.join(root,'cq/pages_cq.js'),'utf8'),bm=fs.readFileSync(path.join(root,'cq/battle_mount.js'),'utf8');
+ ok(/loadPages\(\)/.test(bm)&&/cq\/pages_cq\.js/.test(bm)&&/cq\/pages_cq\.css/.test(bm),'battle_mount 加载 pages_cq.js/css');
+ G('__NOUI=0');vm.runInContext(src,ctx,{filename:'cq/pages_cq.js'});G('__NOUI=1');
+ const P='cqPg._t';ok(G('typeof cqPg')==='object'&&G('renderHero.__cqpg&&renderSkills.__cqpg&&renderEG.__cqpg')===1,'包装 renderHero/renderSkills/renderEG');
+ const sl=JSON.parse(G(`JSON.stringify(${P}.EQL.concat(${P}.EQR))`));ok(sl.length===10&&new Set(sl).size===10&&sl.every(k=>G('SLOTS').includes(k)),'装备人偶只用现有 10 部位：'+sl.join(','));
+ const role=G(`${P}.roleTop()`);ok((role.match(/class="cqslot/g)||[]).length===10,'角色页 10 个装备格');
+ ok(['一键换装','铁匠强化','分配属性点','切换职业'].every(t=>role.includes(t))&&/战力 <b>/.test(role)&&/剩余属性点/.test(role),'角色页按钮/战力/属性点');
+ ok(/CQSys\.equip/.test(src)&&/autoBest\(\)/.test(src),'一键换装走 CQSys.equip.autoBest');
+ for(const c of['zs','fs','ds']){G(`S.cls='${c}';S.sk=respBaseSk();calc()`);const h=G(`${P}.skillPage()`),L=G(`${P}.skList().length`);
+  ok(L>=6&&(h.match(/class="sk2/g)||[]).length===L,c+' 技能页列出本职业全部技能 '+L);ok(/ic_sk_\d+\.png/.test(h)&&/自动释放顺序/.test(h),c+' 技能页图标+自动释放顺序');}
+ G(`S.cls='zs';S.sk=respBaseSk();calc()`);
+ ok(JSON.stringify(G(`${P}.FLN.map(x=>x[1])`))==='["签到","离线收益","悬赏","功业","事件","更多"]','福利页签：签到/离线收益/悬赏/功业/事件/更多');
+ const sp=G(`${P}.signPanel()`);ok((sp.match(/class="dy/g)||[]).length===7&&/签到领取|今日已签到/.test(sp),'签到 7 天格 + 领取按钮（CQSys.signin.state）');
+ const st0=G('CQSys.signin.state().signed');G('cqPg.sign()');ok(G('CQSys.signin.state().claimedToday')===true&&G('CQSys.signin.state().signed')===st0+1,'签到按钮走 CQSys.signin.claim');
+ ok(/今日已签到/.test(G(`${P}.signPanel()`)),'签到后按钮变为已签到');
+ ok(/暂无离线收益|领取/.test(G(`${P}.offPanelPg()`))&&/CQSys\.offline/.test(src)&&/claim\(!!d\)/.test(src),'离线收益走 CQSys.offline.state/claim(double)');
+ ok(!/S\.cqSign|CQ_SIGN\b/.test(src),'不再自带签到逻辑');}
 T.done();

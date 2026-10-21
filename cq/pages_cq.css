@@ -1,0 +1,73 @@
+/* cq/pages_cq.css — 角色/技能/福利 设计稿样式（pages.css + p5/p6/p8 内联样式），只作用于 .cqpg 与本页签行 */
+#panel .cqpg{padding:0 8px}
+#panel .cqpanel{border:12px solid transparent;border-image:url(../assets/cq/ui/pg/panel_9s.png) 40 fill / 18px stretch;padding:6px 6px 8px;margin:6px 0}
+#panel .cqttl{border:1px solid transparent;border-image:url(../assets/cq/ui/pg/title_9s.png) 20 60 fill / 9px 26px stretch;padding:4px 22px;min-height:28px;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:800;color:#ffe2a0;text-shadow:0 1px 2px #000;white-space:nowrap;margin-bottom:6px}
+#panel .cqttl .r{margin-left:auto;font-size:11px;font-weight:400;color:#c9b48a}
+#panel .cqttl b.g,#panel .cqpg b.g{color:#7cff8a}
+#panel .cqmore{margin:10px 0 0}
+#panel .cqbtn{display:inline-flex;align-items:center;justify-content:center;height:32px;min-height:0;min-width:0;padding:0 12px;font-family:inherit;font-size:13px;font-weight:700;color:#f2dca6;background:none;border:1px solid transparent;border-image:url(../assets/cq/ui/pg/btn_9s.png) 14 fill / 7px stretch;border-radius:0;box-shadow:none;text-shadow:0 1px 2px #000;white-space:nowrap;flex:none}
+#panel .cqbtn.gold{border-image-source:url(../assets/cq/ui/pg/btn_on_9s.png);color:#fff6d8}
+#panel .cqbtn.dis{border-image-source:url(../assets/cq/ui/pg/btn_disabled_9s.png);color:#9a9384}
+#panel .cqbtn.xs{height:26px;padding:0 8px;font-size:12px}
+#panel .cqpg .dim{color:#a8977a;font-size:11px}
+#panel .cqpg .row{display:flex;align-items:center;gap:8px}#panel .cqpg .row.c{justify-content:center;margin-top:8px}
+#panel .cqpg .acts{display:flex;gap:6px;justify-content:center;flex-wrap:nowrap;margin-top:2px}
+#panel .cqpg .acts .cqbtn{padding:0 9px}
+#panel .cqsktabs,#panel .cqfltabs{flex-wrap:nowrap;white-space:nowrap}
+#panel .cqsktabs button,#panel .cqfltabs button{min-width:0;white-space:nowrap}
+#panel.cqfl1 .egtabs{display:none}
+/* 角色 */
+.cqrole .eqw{position:relative;height:296px}
+.cqrole .por{position:absolute;left:50%;top:6px;width:190px;height:250px;margin-left:-95px;background:center 20%/cover no-repeat;border-radius:6px;box-shadow:inset 0 0 40px 20px #140c08;opacity:.95}
+.cqrole .por::after{content:"";position:absolute;inset:0;background:radial-gradient(60% 60% at 50% 40%,rgba(0,0,0,0),#140c08 95%)}
+.cqrole .col{position:absolute;top:2px;display:flex;flex-direction:column;gap:4px}
+.cqrole .L{left:4px}.cqrole .R{right:4px}
+.cqrole .nm{position:absolute;left:0;right:0;top:250px;text-align:center;font-size:15px;font-weight:800;color:#ffe2a0;white-space:nowrap}
+.cqrole .pw{position:absolute;left:0;right:0;top:272px;text-align:center;font-size:12px;color:#c9b48a}
+.cqrole .pw b{color:#ff9a2a;font-size:16px}
+.cqslot{position:relative;width:54px;height:54px;border-radius:4px;background:radial-gradient(circle,#2c1d12,#0e0805);box-shadow:inset 0 0 0 1px #000,0 0 0 1px var(--c,#6b4a24),inset 0 0 10px color-mix(in srgb,var(--c,#000) 40%,transparent);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.cqslot img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 2px 2px #000)}
+.cqslot .ii{font-size:26px;font-style:normal}
+.cqslot .sn{display:none}
+.cqslot .en{position:absolute;right:2px;top:1px;font-size:10px;font-weight:800;color:#7cff8a;text-shadow:0 0 2px #000}
+.cqslot.emp{cursor:default;box-shadow:inset 0 0 0 1px #000,0 0 0 1px #6b4a24,inset 0 0 8px rgba(0,0,0,.8)}
+.cqslot.emp::after{content:"";width:22px;height:22px;border:1px dashed #5a3e20;border-radius:3px}
+.cqslot.emp .sn{display:block;position:absolute;left:0;right:0;bottom:2px;text-align:center;font-size:10px;color:#6f5c3e}
+.cqpg .kv{display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;font-size:12px}
+.cqpg .kv div{display:flex;justify-content:space-between;white-space:nowrap;border-bottom:1px solid rgba(107,74,36,.35);padding:1px 0}
+.cqpg .kv span{color:#b8a47c}.cqpg .kv b{color:#ffe9b8}
+/* 技能 */
+.cqskill .sk2{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid rgba(107,74,36,.4)}
+.cqskill .sk2:last-child{border:0}
+.cqskill .sk2 .ic{width:46px;height:46px;flex:none;border-radius:50%;box-shadow:0 0 0 2px #2b1a0c,0 0 0 3px #b8873f;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,#5a3a1c,#1c1008);overflow:hidden}
+.cqskill .ic img{width:100%;height:100%;border-radius:50%;filter:sepia(.35) saturate(1.6) hue-rotate(-12deg)}
+.cqskill .ic .gl{font-size:22px}
+.cqskill .sk2.lk .ic img,.cqskill .sk2.lk .ic .gl{filter:grayscale(1) brightness(.5)}
+.cqskill .sk2 .i{flex:1;min-width:0}
+.cqskill .sk2 .n{font-size:14px;font-weight:800;color:#ffe2a0;white-space:nowrap}
+.cqskill .sk2 .n small{font-size:11px;color:#7cff8a;margin-left:4px}
+.cqskill .sk2 .d{font-size:11px;color:#b8a47c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cqskill .sk2 .lv{height:5px;background:#0b0604;border:1px solid #4a321a;border-radius:3px;margin-top:3px;overflow:hidden}
+.cqskill .sk2 .lv i{display:block;height:100%;background:linear-gradient(90deg,#c99648,#ffe2a0)}
+.cqskill .ord{display:flex;align-items:center;gap:6px;padding:4px 2px;border-bottom:1px solid rgba(107,74,36,.35);font-size:12px;white-space:nowrap}
+.cqskill .ord b{color:#ffe2a0}
+.cqskill .ord .no{width:20px;height:20px;border-radius:50%;background:#6b4a24;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none;font-size:11px}
+.cqskill .ord img,.cqskill .ord .gl{width:26px;height:26px;border-radius:50%;flex:none;font-size:16px;text-align:center}
+.cqskill .ord .c{flex:1;min-width:0;color:#b8a47c;overflow:hidden;text-overflow:ellipsis}
+.cqskill .ord .ar{color:#c99648;font-size:13px;width:22px;text-align:center;cursor:pointer}
+.cqskill .sw{width:38px;height:20px;border-radius:10px;background:#2f6b25;position:relative;flex:none;box-shadow:inset 0 0 0 1px #000;cursor:pointer}
+.cqskill .sw::after{content:"";position:absolute;right:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#ffe2a0}
+.cqskill .sw.off{background:#3a3128}.cqskill .sw.off::after{right:auto;left:2px;background:#8f7d5c}
+/* 福利 */
+#panel .cqfltabs .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff3b30;box-shadow:0 0 4px #ff3b30;margin-left:3px;vertical-align:top}
+.cqfuli .days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cqfuli .dy{position:relative;height:72px;border-radius:4px;background:radial-gradient(circle,#2c1d12,#0e0805);box-shadow:inset 0 0 0 1px #6b4a24;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:#c9b48a;white-space:nowrap;overflow:hidden}
+.cqfuli .dy img{width:30px;height:30px;object-fit:contain}
+.cqfuli .dy .pot{font-style:normal;font-size:22px;line-height:30px}
+.cqfuli .dy.ok{opacity:.55}.cqfuli .dy.ok::after{content:"✔";position:absolute;top:18px;font-size:24px;color:#7cff8a;text-shadow:0 0 4px #000}
+.cqfuli .dy.now{box-shadow:inset 0 0 0 2px #ffcf6a,0 0 10px rgba(255,180,60,.6)}
+.cqfuli .dy.big{box-shadow:inset 0 0 0 2px #c8a050}
+.cqfuli .offl{font-size:12px;line-height:20px;color:#e8e0cc}.cqfuli .offl b{color:#ffe9b8}.cqfuli .q3{color:#4aa8ff!important}.cqfuli .q6{color:#ff3b30!important}
+.cqfuli .offb{display:flex;flex-direction:column;gap:4px;flex:none}
+.cqfuli .tag{display:inline-block;font-size:11px;padding:0 6px;border-radius:2px;line-height:18px;background:#2f6b25;color:#d8ffd0;white-space:nowrap}
+.cqfuli .q5{color:#ff9a2a!important}
