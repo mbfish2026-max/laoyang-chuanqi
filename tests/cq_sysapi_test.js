@@ -35,7 +35,7 @@ ok(typeof G('CQSys.questLine()')==='string'&&/药水/.test(G('CQSys.potHTML()'))
 // ---- 怪物立绘对照 web-replica monster.txt
 {const fs0=require('fs'),path0=require('path');const want={chick:1001,deer:1002,hookcat:1003,rakecat:1004,scarecrow:1005,halforc:1006,orcwar:1008,spider1:1009,redsnake:1025,tigersnake:1025,cqskel:1013,cqzombie:1023};
  ok(Object.keys(want).every(k=>G(`(CQSys.monArt('${k}')||{}).id`)==='mdl_mst_'+want[k]),'monArt 按 monster.txt 映射（鸡1001…红蛇/虎蛇1025）');
- ok(G("CQSys.monArt('orclord').id")==='mdl_mst_orclord'&&G("CQSys.monArt('imp').id")==='mdl_mst_imp'&&G("CQSys.monArt('zombieking')")===null&&G("CQSys.monArt('nosuchmon')")===null,'无图的怪 monArt 返回 null，不退到骷髅；美术2 首领/怪按 key 映射');
+ ok(G("CQSys.monArt('orclord').id")==='mdl_mst_orclord'&&G("CQSys.monArt('imp').id")==='mdl_mst_imp'&&G("CQSys.monArt('zombieking').id")==='mdl_mst_zombieking'&&G("CQSys.monArt('nosuchmon')")===null,'无图的怪 monArt 返回 null，不退到骷髅；美术2 首领/怪按 key 映射');
  ok(fs0.readdirSync(path0.join(__dirname,'..','assets/cq/ui')).filter(f=>/^mdl_mst_[a-z]\w*\.png$/.test(f)).every(f=>G(`CQ_MONART['${f.slice(8,-4)}']`)===f.slice(0,-4)),'assets/cq/ui 里每张 mdl_mst_<key>.png 都在 CQ_MONART');
  const fs=require('fs'),path=require('path');ok(Object.values(JSON.parse(G('JSON.stringify(CQ_MONART)'))).filter(Boolean).every(a=>fs.existsSync(path.join(__dirname,'..','assets/cq/ui',a+'.png'))),'映射的立绘文件都存在');}
 T.done();

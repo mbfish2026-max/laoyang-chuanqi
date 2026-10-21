@@ -132,4 +132,4 @@
 ### 8. 怪物立绘 CQSys.monArt(key)
 - 映射表 `CQ_MONART` 按 web-replica `assets/config/monster.txt` 的 name→model 对照。例：鸡 1001、鹿 1002、多钩猫 1003、钉耙猫 1004、稻草人 1005、半兽人 1006、半兽战士 1008、毒蜘蛛 1009、红蛇/虎蛇 1025。
 - 第 2/3 章：骷髅 1013、掷斧骷髅 1014、骷髅战士 1015、骷髅精灵 2001、僵尸 1023、爬行僵尸 1024、洞蛆 1022、山洞蝙蝠 1012、盔甲虫 1034、森林雪人 1007、食人花 1011、电僵尸 2002。
-- 没有图的怪（首领 model 是占位 1001，或者图片文件不存在）返回 `null`，战斗侧自己用 emoji，不要退到骷髅。美术2 的立绘 `assets/cq/ui/mdl_mst_<key>.png` 按怪物 key 直接映射（钉耙猫王、红蛇王、半兽统领、骷髅精英，以及 imp、shaman…wraith、shroom、sporer、hopper、cowbeast、cowbrute 等 50 个 key）。目前无图：千年树妖、尸王、电僵王、石墓尸王。召唤物 pet_* 立绘由战斗开发接。
+- 没有图的怪（首领 model 是占位 1001，或者图片文件不存在）返回 `null`，战斗侧自己用 emoji，不要退到骷髅。美术2 的立绘 `assets/cq/ui/mdl_mst_<key>.png` 按怪物 key 直接映射（钉耙猫王、红蛇王、半兽统领、骷髅精英、千年树妖、尸王、电僵王、石墓尸王，以及 imp、shaman…wraith、shroom、sporer、hopper、cowbeast、cowbrute 等 50 个 key）。第 1–3 章的怪和首领目前都有图（千年树妖、尸王、电僵王、石墓尸王用 mdl_mst_<key>）；新怪没图时 monArt 返回 null。召唤物 pet_* 立绘由战斗开发接。
