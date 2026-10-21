@@ -23,11 +23,11 @@ G(`ubGiveKey('h','week')`);ok(G("egUb().k.h")===1,'周保底不受上限');
 G(`egUb().k={t:1,h:1,d:1};S.diff=2;calc();H.life=ST.life`);G(`ubPrison()`);ok(G("EGM&&EGM.k")==='ubp'&&G("egUb().k.t")===0,'开启魂狱扣三钥');
 G(`nextWave()`);const gm=JSON.parse(G("JSON.stringify(MON.map(m=>({n:m.n,k:m.key,hp:m.max})))"));ok(gm.length===1&&/^abyss_g/.test(gm[0].k),'守魂者 '+gm[0].n);
 const core=G("UB.GATE[EGM.g].c");G(`MON[0].hp=0;killMon(MON[0])`);ok(G(`egUb().o.${core}`)===1,'击败守魂者得魂核 '+core);G(`EGM&&egLeave(1)`);
-// 暗渊
+// 暗渊（英雄暂停出手 H.castT：职业技能伤害较高时会随机打死某个魂，导致后续断言取不到目标）
 G(`egUb().o={horn:1,eye:1,brain:1};ubAbyss();nextWave()`);ok(G("EGM.k")==='uba'&&G("MON.length")===3&&G("MON.every(m=>m.uber===true)"),'三魂同场 m.uber');
 const hpr=G("(()=>{const b=egMjBossHP(30,EG_MJ.ml(30));return MON[0].max/b})()");ok(Math.abs(hpr-1.5)<0.01,'生命 = 秘境30层之主 ×1.5');
 ok(JSON.stringify(G("MON.map(m=>m.n)"))===JSON.stringify(['血噬·厄罗','焚世·巴戈','噩魇·缪渊']),'三魂原创名');
-G(`ST.res.cold=10;ST.nofreeze=0;H.life=1e12;UB.nova=GT;var lk=0;for(let i=0;i<3;i++)step(0.05);lk=UB.lock>GT`);ok(G("lk"),'冰抗<75 寒魂新星冻结');
+G(`H.castT=1e9;ST.res.cold=10;ST.nofreeze=0;H.life=1e12;UB.nova=GT;var lk=0;for(let i=0;i<3;i++)step(0.05);lk=UB.lock>GT`);ok(G("lk"),'冰抗<75 寒魂新星冻结');
 G(`const b=MON.find(m=>m.ubS==='abyss_s2');b.hp=b.max*0.49;step(0.05)`);ok(G("MON.some(m=>m.ubClone)"),'巴戈 50% 召残影');
 const dr=G("(()=>{const b=MON.find(m=>m.ubS==='abyss_s2');b._ph=b.hp;const h0=b.hp;b.hp-=1000;H.life=1e12;step(0.01);return h0-b.hp})()");ok(dr>400&&dr<=520,'残影存活本体减伤 50% → '+Math.round(dr));
 G(`UB.cage=GT;H.life=1e12;step(0.01)`);ok(G("UB.lock>GT+1.5")&&G("heroAct()")===0,'魇牢禁锢英雄');
