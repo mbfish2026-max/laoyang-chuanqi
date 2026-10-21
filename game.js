@@ -277,7 +277,7 @@ log(`<b style="color:#f44">你倒下了……回到营地</b>`);toast('死亡：
 function goZone(i){if(i>S.unl)return;S.zone=i;S.wave=0;MON=[];CORPSE=[];spawnT=1;log(`前往 <b>${zoneData().n}</b>`);render()}
 function townPortal(){if(S.pot.tp<=0)return toast('没有回城卷轴');S.pot.tp--;MON=[];S.wave=0;H.life=ST.life;H.mana=ST.mana;spawnT=2;log('使用回城卷轴：在营地恢复后返回 '+zoneData().n)}
 // 老羊传奇：自动吃药阈值（S.apot，百分比；on=0 关闭；0=该药不自动）。接口见 docs/systems_api.md
-const CQ_APD={on:1,hp:40,rej:20,mp:15};function cqAP(k){const a=(S&&S.apot)||CQ_APD;if(a.on===0)return 0;const v=a[k]!=null?a[k]:CQ_APD[k];const mx=k==='mp'?95:CQ_BAL.spend.hpMax;return Math.max(0,Math.min(mx,+v||0))/100}
+const CQ_APD={on:1,hp:40,rej:20,mp:15};function cqAP(k){const a=(S&&S.apot)||CQ_APD;if(a.on===0)return 0;const v=a[k]!=null?a[k]:CQ_APD[k];const mx=k==='mp'||!CQ_BAL.spend.on?95:CQ_BAL.spend.hpMax;return Math.max(0,Math.min(mx,+v||0))/100}
 function usePot(k){if(S.pot[k]<=0)return;if(k==='tp')return townPortal();S.pot[k]--;if(k==='hp'){H.potT=7;H.potHeal=ST.life*0.5/7}if(k==='mp'){H.mpT=5;H.mpHeal=ST.mana*0.6/5}if(k==='rej'){H.life=Math.min(ST.life,H.life+ST.life*.35);H.mana=Math.min(ST.mana,H.mana+ST.mana*.35)}}
 
 // ===== UI：战斗页 =====

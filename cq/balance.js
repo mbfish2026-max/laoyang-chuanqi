@@ -15,15 +15,16 @@ const CQ_BAL={
  // 仓库（§5.8）
  stash:{p0:2,pMax:6,s0:2,sMax:8,sFree:2,pCost:p=>100000*p*p,sCost:p=>500000*p},
 };
-// 自动消耗节流（挂机自动买药 / 自动复活随从）：只动玩家侧花费，不削怪物/首领。
-// 自动吃红药/瞬回仅在 HP 低于 hpMax% 时；花费后金币不低于 floor(lvl)；近期自动花费 ≤ 近期收入 × share
-CQ_BAL.spend={hpMax:40,share:0.3,floor:lv=>300+(lv|0)*60,win:lv=>20000+(lv|0)*2000};
+// 自动消耗节流（仅挂机自动买药；随从自动复活不受限）：只动玩家侧花费，不削怪物/首领。
+// 自动吃红药/瞬回仅在 HP 低于 hpMax% 时；花费后金币不低于 floor(lvl)；近期自动花费 ≤ 近期收入 × share + base（新角色固定起步额度）
+// on=0（默认，3h 消融 B 方案最优）：节流关闭，阈值上限回到 95%；on=1 启用下列参数
+CQ_BAL.spend={on:0,hpMax:55,share:0.5,base:2000,floor:lv=>300+(lv|0)*60,win:lv=>20000+(lv|0)*2000};
 function cqSpL(){if(typeof S==='undefined'||!S)return{inc:0,sp:0};if(!S.cqSp||typeof S.cqSp!=='object')S.cqSp={inc:0,sp:0};return S.cqSp}
 // 记录收入；累计超过窗口时收入/花费同比减半 → 近似“近期”滑动窗口
 function cqInc(g){g=+g||0;if(g<=0)return;const L=cqSpL();L.inc+=g;const W=CQ_BAL.spend.win(S.lvl);while(L.inc>W){L.inc/=2;L.sp/=2}}
 // 自动花费 c 金是否允许（不扣钱）；cqSpend 允许则记账并扣钱，返回 true/false
-function cqSpendOk(c){c=+c||0;if(typeof S==='undefined'||!S)return true;const B=CQ_BAL.spend,L=cqSpL();
- if(S.gold-c<B.floor(S.lvl))return false;return L.sp+c<=L.inc*B.share}
+function cqSpendOk(c){c=+c||0;const B=CQ_BAL.spend;if(!B.on||typeof S==='undefined'||!S)return true;const L=cqSpL();
+ if(S.gold-c<B.floor(S.lvl))return false;return L.sp+c<=L.inc*B.share+B.base}
 function cqSpend(c){if(!cqSpendOk(c))return false;S.gold-=c;cqSpL().sp+=c;return true}
 // 乘法叠满的总倍率（用于测试与调参自检）
 function cqBudgetProduct(){let p=1;for(const k in CQ_BAL.budget)if(k!=='hero')p*=1+CQ_BAL.budget[k];return p}

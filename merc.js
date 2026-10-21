@@ -132,7 +132,7 @@ hireMerc=function(t,v,free,opt){opt=opt||{};if(!MERCS[t])return;const d=opt.hd??
 function mercDismiss(ok){if(!mercUp())return;if(!ok&&!window.__NOUI)return modal(`<div class="mtitle">解雇佣兵</div><div class="gp"><div>确定解雇 <b>${S.merc.nm}</b>？装备将退回背包。可在下方「召回」以原等级重新雇用（需雇佣费）。</div><div class="btns c"><button class="btn gold" onclick="mercDismiss(1);closeM()">解雇</button><button class="btn" onclick="closeM()">取消</button></div></div>`);
  const m=S.merc;mercReturnEq(m);m.prev={t:m.t,v:m.v,nm:m.nm,lvl:m.lvl,xp:m.xp,hd:m.hd};m.off=1;m.dead=0;ALLY=ALLY.filter(a=>a.kind!=='merc');if(typeof ACX!=='undefined')ACX.mercOn=0;calc();log(`解雇了佣兵 ${m.nm}`);if(!window.__NOUI)render()}
 function mercRecall(){const p=S.merc&&S.merc.prev;if(!p)return;const L=S.lvl;hireMerc(p.t,p.v,0,{lvl:L,xp:Math.min(p.xp,mercXpNeed(L+1,p.t,p.hd)),hd:p.hd,nm:p.nm,keepPrev:1})}
-mercRevive=function(auto){if(!mercDead())return;const c=reviveCost();if(S.gold<c){if(!auto)toast('金币不足');return}if(auto){if(!cqSpend(c))return}else S.gold-=c;S.merc.dead=0;calc();log(`花费 ${c} 金币复活佣兵 ${S.merc.nm}`);if(!auto&&!window.__NOUI)render()};
+mercRevive=function(auto){if(!mercDead())return;const c=reviveCost();if(S.gold<c){if(!auto)toast('金币不足');return}S.gold-=c;S.merc.dead=0;calc();log(`花费 ${c} 金币复活佣兵 ${S.merc.nm}`);if(!auto&&!window.__NOUI)render()};
 
 // ---------- 经验 ----------
 function mercGainXp(x){if(mercUp()&&S.merc.lvl!==S.lvl){S.merc.lvl=S.lvl;S.merc.xp=mercXpNeed(S.lvl);calc()}return;if(!mercUp()||S.merc.dead||x<=0)return;const m=S.merc;m.xp+=x;const cap=mercXpNeed(S.lvl+1)-1;if(S.lvl<99&&m.xp>cap)m.xp=Math.max(cap,mercXpNeed(m.lvl));
