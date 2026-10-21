@@ -54,7 +54,15 @@ function boot(){
   }
   hideAnYeBattle();mountPlaceholder();showVersionChip();
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+// M1：按顺序加载传奇卡片战场（cq/*）与胶水 cq_bridge.js（不改 index.html）
+const CQ_FILES=['cq/cq_move.js','cq/cq_hero.js','cq/cq_fx.js','cq/cq_scene.js','cq_bridge.js'];
+function loadEngine(){
+  if(window.__CQ_NO_ENGINE||document.getElementById('cqcss'))return;
+  const l=document.createElement('link');l.id='cqcss';l.rel='stylesheet';l.href='cq/cq.css?v='+VER+'m1';document.head.appendChild(l);
+  let i=0;const next=()=>{if(i>=CQ_FILES.length)return;const s=document.createElement('script');s.src=CQ_FILES[i++]+'?v='+VER+'m1';s.onload=next;s.onerror=()=>{console.error('[CQ] 加载失败',s.src);next()};document.body.appendChild(s)};next();
+}
+function boot2(){boot();loadEngine()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot2);else boot2();
 // 切页签暂停/恢复
 if(typeof window!=='undefined'){
   document.addEventListener('click',e=>{

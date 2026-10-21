@@ -1,0 +1,187 @@
+/* cq/cq.css — 老羊传奇战场（M1），视觉以 /workspace/design/chuanqi_v2_live 4 个样稿为准（live.css 落地）。
+   作用域：#cqStage .cqb；壳布局覆盖只在 body.cq-on 时生效（不改 style.css）。
+   动画规则：除 .cqb .card .fig 的呼吸(cqBreath)外，全部 animation-iteration-count 为 1。 */
+body.cq-on #fbattle{flex:1 1 auto;min-height:0;padding:0;background-image:none!important}
+body.cq-on #ftop,body.cq-on #flog,body.cq-on #skbar{display:none}
+body.cq-on #fbattle>.fl,body.cq-on #fbattle>.cloot,body.cq-on #fbattle .tgbeam,body.cq-on #fbattle .dlbeam{display:none!important}
+body.cq-on #cqStage{top:0;background:#120a06}
+#cqStage.cq-paused *{animation-play-state:paused!important}
+#cqStage .cqb{position:absolute;left:0;top:0;width:390px;transform-origin:0 0;overflow:hidden;font-family:"PingFang SC","Noto Sans CJK SC","Noto Sans SC",sans-serif;color:#f3e6c8;-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none}
+.cqb *{box-sizing:border-box}
+/* ground */
+.cqb .field{position:absolute;inset:0;background:url(../assets/cq/ui/ground.jpg) center/520px auto repeat}
+.cqb .field::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 70% at 50% 45%,rgba(0,0,0,0) 45%,rgba(10,5,2,.55) 100%),linear-gradient(180deg,rgba(10,6,3,.55) 0,rgba(10,6,3,0) 120px,rgba(10,6,3,0) 70%,rgba(10,6,3,.8) 100%)}
+.cqb.boss .field::after{background:radial-gradient(120% 70% at 50% 45%,rgba(60,0,0,0) 40%,rgba(50,0,0,.6) 100%),linear-gradient(180deg,rgba(20,0,0,.6) 0,rgba(10,6,3,0) 150px,rgba(10,6,3,0) 70%,rgba(10,6,3,.8) 100%)}
+.cqb .world{position:absolute;inset:0}
+.cqb .layer{position:absolute;inset:0}
+.cqb canvas.cqfx{position:absolute;left:0;top:0;z-index:34;pointer-events:none}
+/* metal helpers */
+.cqb .metal{background:linear-gradient(180deg,#2a1d14,#140c08);border:1px solid #6b4a24;box-shadow:inset 0 1px 0 rgba(255,220,150,.25),inset 0 0 0 2px #1a0f08,inset 0 0 0 3px rgba(201,150,72,.55),0 4px 14px rgba(0,0,0,.6)}
+.cqb .glass{background:linear-gradient(180deg,rgba(28,18,12,.72),rgba(14,9,6,.78));-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(201,150,72,.55);box-shadow:inset 0 1px 0 rgba(255,220,150,.18),0 4px 12px rgba(0,0,0,.5)}
+/* 金属顶栏 */
+.cqb .top{position:absolute;left:0;top:0;width:390px;height:62px;display:flex;align-items:center;gap:8px;padding:0 10px;z-index:30;background:linear-gradient(180deg,#24170f 0,#120a06 100%);border-bottom:2px solid #8a6230;box-shadow:0 2px 0 #2b1a0c,0 6px 14px rgba(0,0,0,.6)}
+.cqb .ava{width:46px;height:46px;border-radius:50%;flex:none;overflow:hidden;border:2px solid #c99648;box-shadow:0 0 0 2px #2b1a0c,0 0 8px rgba(255,190,90,.35);background:#3b2616 url(../assets/cq/ui/hero_zs.png) 50% 6%/170% auto no-repeat}
+.cqb .ava.ds{background-image:url(../assets/cq/ui/hero_ds.png)}
+.cqb .pinfo{flex:1;min-width:0}
+.cqb .pinfo .clv{font-size:14px;font-weight:700;color:#ffe3a3;text-shadow:0 1px 0 #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cqb .pinfo .clv small{font-size:11px;color:#c9b48a;font-weight:400;margin-left:6px}
+.cqb .cbar{position:relative;height:7px;border-radius:4px;background:#0b0604;border:1px solid #4a321a;margin-top:3px;overflow:hidden}
+.cqb .cbar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;transition:width .25s}
+.cqb .cbar.hp i{background:linear-gradient(180deg,#ff6a5a,#c2160f 60%,#7a0806)}
+.cqb .cbar.mp i{background:linear-gradient(180deg,#6ab8ff,#1a5fd0 60%,#0b2f7a)}
+.cqb .cbar.xp{height:4px}.cqb .cbar.xp i{background:linear-gradient(180deg,#ffe58a,#c99648)}
+.cqb .ccur{display:flex;flex-direction:column;gap:4px;flex:none}
+.cqb .ccur div{display:flex;align-items:center;gap:4px;height:20px;padding:0 8px 0 2px;border-radius:10px;background:rgba(0,0,0,.55);border:1px solid #5a3e20;font-size:12px;font-weight:700;color:#ffe9b8;min-width:86px}
+.cqb .ccur img{width:18px;height:18px}
+.cqb .menu{width:40px;height:40px;flex:none;border-radius:6px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;cursor:pointer}
+.cqb .menu b{display:block;width:18px;height:2px;background:#e8c27a;border-radius:1px}
+/* 地名牌 */
+.cqb .plaque{position:absolute;right:8px;width:44px;padding:10px 0;z-index:20;text-align:center;border-radius:4px;font-size:18px;line-height:22px;font-weight:700;color:#ffe2a0;text-shadow:0 0 6px rgba(255,170,60,.5),0 1px 0 #000;writing-mode:vertical-rl;letter-spacing:3px;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.cqb .plaque::before,.cqb .plaque::after{content:"";position:absolute;left:50%;width:10px;height:10px;margin-left:-5px;background:#c99648;transform:rotate(45deg);box-shadow:0 0 0 2px #2b1a0c}
+.cqb .plaque::before{top:-5px}.cqb .plaque::after{bottom:-5px}
+.cqb .plaque small{font-size:12px;color:#d9c08a;letter-spacing:0;margin-top:4px}
+/* 怪物卡片（位置用 transform，走位过渡 .35s） */
+.cqb .card,.cqb .hero{position:absolute;left:0;top:0;transition:transform .35s ease-out}
+.cqb .card{width:66px;height:84px;z-index:10}
+.cqb .card .in{position:absolute;inset:0;transform-origin:50% 100%}
+.cqb .card .bd{position:absolute;inset:0;background:url(../assets/cq/ui/card.png) center/100% 100%;border-radius:4px;box-shadow:0 6px 10px rgba(0,0,0,.55)}
+.cqb .card .fig{position:absolute;left:50%;bottom:16px;height:84px;transform:translateX(-50%);filter:drop-shadow(0 2px 2px rgba(0,0,0,.5));animation:cqBreath 2.6s ease-in-out infinite}
+.cqb .card .clv{position:absolute;left:0;right:0;top:2px;text-align:center;font-size:10px;font-weight:700;color:#fff;text-shadow:0 0 2px #000,0 1px 1px #000}
+.cqb .card .cnm{position:absolute;left:2px;right:2px;bottom:9px;text-align:center;font-size:10.5px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-shadow:0 0 2px #000,0 0 3px #000,0 1px 1px #000}
+.cqb .card .hb{position:absolute;left:5px;right:5px;bottom:3px;height:5px;background:#1a0a06;border:1px solid #000;border-radius:3px;overflow:hidden}
+.cqb .card .hb i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(180deg,#ff6a50,#c0120c);transition:width .15s}
+.cqb .card .hb s{position:absolute;left:0;top:0;bottom:0;background:#ffe9c0;transition:width .6s .25s}
+.cqb .card.elite .cnm{color:#7cc4ff}
+.cqb .card.elite .bd{box-shadow:0 0 0 2px #3c8cff,0 6px 10px rgba(0,0,0,.55)}
+.cqb .card.cuniq .cnm{color:#f2c94a}
+.cqb .card.cuniq .bd{box-shadow:0 0 0 2px #e0a83a,0 6px 10px rgba(0,0,0,.55)}
+@keyframes cqBreath{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.025,1.04)}}
+.cqb .card.boss{width:104px;height:132px;z-index:12}
+.cqb .card.boss .bd{background-image:url(../assets/cq/ui/card_boss.png);box-shadow:0 0 0 2px #ff3a22,0 0 0 4px #2a0402,0 0 22px 4px rgba(255,40,20,.55),0 10px 16px rgba(0,0,0,.6)}
+.cqb .card.boss .fig{height:110px;bottom:26px}
+.cqb .card.boss .clv{font-size:13px;top:5px}
+.cqb .card.boss .cnm{font-size:13px;bottom:14px;color:#ffb24a}
+.cqb .card.boss .hb{height:8px;bottom:5px}
+.cqb .card .ctag{z-index:2;position:absolute;left:50%;top:-14px;transform:translateX(-50%);padding:1px 10px;font-size:12px;font-weight:800;color:#fff;letter-spacing:1px;background:linear-gradient(180deg,#e2321e,#7c0b05);border:1px solid #ffb08a;border-radius:3px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.6)}
+/* 一次性：受击闪白+抖动、出场、倒下 */
+.cqb .card.hit .bd,.cqb .card.hit .fig{animation:cqHitFlash .5s ease-out 1 both}
+.cqb .card.hit .in{animation:cqCShake .45s linear 1 both}
+.cqb .card.spawn .in{animation:cqRise .45s ease-out 1 both}
+.cqb .card.die{pointer-events:none}
+.cqb .card.die .in{animation:cqSink .6s ease-in 1 both}
+.cqb .card.die .fig{animation:none}
+@keyframes cqHitFlash{0%{filter:brightness(3) saturate(0)}100%{filter:none}}
+@keyframes cqCShake{0%,100%{transform:none}15%{transform:translate(-5px,0) rotate(-3deg)}35%{transform:translate(5px,0) rotate(3deg)}55%{transform:translate(-3px,0) rotate(-1.5deg)}75%{transform:translate(2px,0)}}
+@keyframes cqRise{0%{transform:translateY(30%) scale(.9);opacity:0}100%{transform:none;opacity:1}}
+@keyframes cqSink{to{transform:translateY(40%) scale(.9);opacity:0}}
+/* 角色 / 英雄立绘 */
+.cqb .hero{z-index:14;filter:drop-shadow(0 4px 3px rgba(0,0,0,.6));pointer-events:none}
+.cqb .hero .in{position:relative;height:100%}
+.cqb .hero img{display:block;height:100%}
+.cqb .hero .hn{position:absolute;left:50%;top:-16px;transform:translateX(-50%);font-size:11px;font-weight:700;color:#7dff8a;white-space:nowrap;text-shadow:0 0 2px #000,0 1px 1px #000}
+.cqb .hero.me .hn{color:#ffe3a3}
+.cqb .hero.dead{opacity:.35;filter:grayscale(1)}
+.cqb .hero .shadow{position:absolute;left:50%;bottom:-6px;width:70px;height:16px;margin-left:-35px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.55),rgba(0,0,0,0));z-index:-1}
+.cqb .hero.atk .in{animation:cqAtk .32s ease-out 1 both}
+.cqb .hero.hurt .in{animation:cqHurt .3s linear 1 both}
+@keyframes cqAtk{0%{transform:none}40%{transform:translate(var(--ax,0),var(--ay,-10px)) scale(1.06)}100%{transform:none}}
+@keyframes cqHurt{0%,100%{transform:none;filter:none}30%{transform:translateX(-4px);filter:brightness(1.8) sepia(1) hue-rotate(-40deg) saturate(4)}60%{transform:translateX(3px)}}
+/* 伤害飘字（一次性） */
+.cqb .dmg{position:absolute;z-index:40;font-weight:900;font-style:italic;white-space:nowrap;pointer-events:none;color:#ff4a36;font-size:20px;transform:translateX(-50%);
+ text-shadow:0 2px 0 #3a0000,0 0 2px #000,1px 1px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000;animation:cqFloat .9s ease-out 1 both}
+.cqb .dmg.cgold{color:#ffd24a}
+.cqb .dmg.heal{color:#5bff7a}
+.cqb .dmg.me{color:#ff6a5a;font-size:17px}
+.cqb .dmg.txt{color:#cfc6b0;font-size:14px;font-style:normal}
+.cqb .dmg.crit{font-size:26px;animation:cqPop .9s ease-out 1 both}
+.cqb .dmg.pop{font-size:22px;animation:cqPop .9s ease-out 1 both}
+@keyframes cqFloat{0%{transform:translate(-50%,6px) scale(1.4);opacity:0}18%{transform:translate(-50%,0) scale(1);opacity:1}75%{opacity:1}100%{transform:translate(-50%,-30px);opacity:0}}
+@keyframes cqPop{0%{transform:translate(-50%,10px) scale(1.8);opacity:0}25%{transform:translate(-50%,0) scale(1);opacity:1}80%{opacity:1}100%{transform:translate(-50%,-26px);opacity:0}}
+/* 暴击 / 合击大字 */
+.cqb .critw{position:absolute;left:0;right:0;z-index:45;text-align:center;pointer-events:none;animation:cqCritIn 1.3s cubic-bezier(.2,1.6,.4,1) 1 both}
+.cqb .critw .w{display:inline-block;font-size:30px;font-weight:900;letter-spacing:6px;padding:0 8px;background:linear-gradient(180deg,#fff6c8 0,#ffd04a 40%,#ff7a10 70%,#c42a00 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 0 #3a0a00) drop-shadow(0 0 8px rgba(255,120,0,.8))}
+.cqb .critw .n{display:block;font-size:54px;line-height:56px;font-weight:900;font-style:italic;letter-spacing:1px;background:linear-gradient(180deg,#fffbe6 0,#ffe15a 35%,#ff8a1a 65%,#d42400 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 0 #3a0600) drop-shadow(0 0 10px rgba(255,80,0,.85))}
+@keyframes cqCritIn{0%{transform:scale(2.6);opacity:0}25%{transform:scale(.92);opacity:1}40%{transform:scale(1.06)}55%{transform:scale(1)}85%{transform:translateY(-10px);opacity:1}100%{transform:translateY(-16px);opacity:0}}
+.cqb .combo{position:absolute;right:12px;z-index:40;text-align:right;pointer-events:none;animation:cqCombo 1.2s ease-out 1 both}
+.cqb .combo b{display:block;font-size:34px;line-height:34px;font-style:italic;font-weight:900;color:#ffe15a;text-shadow:0 2px 0 #6a1800,0 0 8px rgba(255,120,0,.8)}
+.cqb .combo span{font-size:13px;font-weight:800;color:#fff;letter-spacing:2px;text-shadow:0 1px 1px #000}
+@keyframes cqCombo{0%{transform:translateY(10px) scale(1.8);opacity:0}20%{transform:scale(1);opacity:1}80%{opacity:1}100%{transform:translateY(-20px);opacity:0}}
+.cqb .flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:35;pointer-events:none;mix-blend-mode:overlay;animation:cqFlash .45s ease-out 1 both}
+@keyframes cqFlash{0%{opacity:.9}100%{opacity:0}}
+.cqb .world.shake{animation:cqShake .4s linear 1}
+@keyframes cqShake{0%{transform:translate(0,0)}20%{transform:translate(-4px,2px)}40%{transform:translate(4px,-2px)}60%{transform:translate(-3px,1px)}80%{transform:translate(2px,-1px)}100%{transform:none}}
+.cqb .ring{position:absolute;z-index:32;border-radius:50%;border:3px solid rgba(180,220,255,.9);box-shadow:0 0 18px rgba(120,180,255,.9),inset 0 0 18px rgba(120,180,255,.7);pointer-events:none;animation:cqRing .6s ease-out 1 both}
+@keyframes cqRing{0%{transform:scale(.2);opacity:1}100%{transform:scale(1.6);opacity:0}}
+/* 首领大血条 */
+.cqb .bossbar{position:absolute;left:8px;right:8px;top:70px;height:80px;border-radius:8px;z-index:28;padding:8px 10px 8px 70px;display:none}
+.cqb.boss .bossbar{display:block}
+.cqb .bossbar .head{position:absolute;left:6px;top:50%;margin-top:-29px;width:58px;height:58px;border-radius:50%;overflow:hidden;background:#2a0805 center/cover;box-shadow:0 0 0 2px #1a0402,0 0 0 4px #d23a22,0 0 12px rgba(255,40,20,.7)}
+.cqb .bossbar .bn{display:flex;align-items:baseline;gap:6px;font-size:15px;font-weight:800;color:#ffcf8a;text-shadow:0 1px 0 #000;white-space:nowrap}
+.cqb .bossbar .bn small{font-size:11px;font-weight:700;color:#fff;background:#b3170c;padding:0 5px;border-radius:2px}
+.cqb .bossbar .bn em{margin-left:auto;font-style:normal;font-size:12px;color:#ffe9b8}
+.cqb .bbar{position:relative;height:16px;margin-top:6px;border-radius:3px;background:#120403;border:1px solid #000;box-shadow:0 0 0 1px #7a4a22;overflow:hidden}
+.cqb .bbar .trail{position:absolute;left:0;top:0;bottom:0;background:#ffe3b0;transition:width .7s .3s}
+.cqb .bbar .fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(180deg,#ff7a5a 0,#e0201a 45%,#8a0905 100%);transition:width .15s}
+.cqb .bbar .fill::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(0,0,0,0) 0 31px,rgba(0,0,0,.35) 31px 32px)}
+.cqb .bbar .txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;text-shadow:0 0 2px #000,0 1px 1px #000}
+.cqb .bbar .x{position:absolute;right:6px;top:0;bottom:0;display:flex;align-items:center;font-size:11px;font-weight:900;color:#ffd24a;text-shadow:0 0 2px #000}
+.cqb .bossbar .csub{display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:#d8c290}
+.cqb .bossbar .csub b{color:#ff6a4a}
+.cqb .warn{position:absolute;left:0;right:0;top:158px;text-align:center;z-index:27;pointer-events:none;animation:cqWarn 2.6s ease-out 1 both}
+.cqb .warn span{display:inline-block;padding:2px 26px;font-size:13px;font-weight:800;letter-spacing:3px;color:#ffd9c0;background:linear-gradient(90deg,rgba(160,10,0,0),rgba(160,10,0,.8),rgba(160,10,0,0));text-shadow:0 0 6px #ff2a00}
+@keyframes cqWarn{0%{opacity:0;transform:scaleX(.3)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+/* 掉落：光柱 + 地面标签 + 极品横幅 + 一键拾取 */
+.cqb .pillar{position:absolute;z-index:16;width:60px;margin-left:-30px;pointer-events:none;transform-origin:50% 100%;animation:cqPillarUp .7s ease-out 1 both}
+.cqb .pillar .beam{position:absolute;left:50%;bottom:0;width:30px;margin-left:-15px;height:100%;box-shadow:0 0 18px 6px var(--c2);background:linear-gradient(0deg,var(--c) 0,var(--c2) 40%,rgba(255,255,255,0) 100%);mix-blend-mode:screen;opacity:.85;border-radius:13px 13px 0 0}
+.cqb .pillar .core{position:absolute;left:50%;bottom:0;width:6px;margin-left:-3px;height:92%;background:linear-gradient(0deg,#fff 0,rgba(255,255,255,.8) 50%,rgba(255,255,255,0) 100%);border-radius:3px}
+.cqb .pillar .halo{position:absolute;left:50%;bottom:0;width:96px;margin-left:-48px;height:100%;background:radial-gradient(50% 100% at 50% 100%,var(--c2),rgba(0,0,0,0));opacity:.45;mix-blend-mode:screen;border-radius:30px 30px 0 0}
+.cqb .pillar .base{position:absolute;left:50%;bottom:-12px;width:86px;height:26px;margin-left:-43px;border-radius:50%;background:radial-gradient(closest-side,#fff 0,var(--c) 35%,rgba(0,0,0,0) 100%);mix-blend-mode:screen}
+@keyframes cqPillarUp{0%{transform:scaleY(0);opacity:0}60%{transform:scaleY(1.08);opacity:1}100%{transform:scaleY(1)}}
+.cqb .cloot{position:absolute;z-index:27;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);pointer-events:none}
+.cqb .cloot .ic{width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:26px;object-fit:contain;filter:drop-shadow(0 0 6px var(--c)) drop-shadow(0 3px 2px rgba(0,0,0,.7));animation:cqDrop .6s cubic-bezier(.3,1.5,.5,1) 1 both}
+.cqb .cloot .ic img{max-width:100%;max-height:100%}
+.cqb .cloot .lb{margin-top:2px;padding:2px 8px;border-radius:3px;font-size:12px;font-weight:800;white-space:nowrap;background:rgba(0,0,0,.72);border:1px solid var(--c);color:var(--c);text-shadow:0 0 6px var(--c2);box-shadow:0 0 8px rgba(0,0,0,.5)}
+.cqb .cloot.csmall .ic{width:30px;height:30px;font-size:18px}
+.cqb .cloot.csmall .lb{font-size:11px;padding:1px 6px;border-color:rgba(255,255,255,.25)}
+.cqb .cloot.gone,.cqb .pillar.gone{animation:cqGone .5s ease-in 1 both}
+@keyframes cqDrop{0%{transform:translateY(-40px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes cqGone{to{opacity:0}}
+.cqb .ltoast{position:absolute;left:50%;top:70px;z-index:40;width:330px;height:64px;margin-left:-165px;border-radius:8px;display:flex;align-items:center;gap:10px;padding:0 12px;pointer-events:none;animation:cqToast 3.2s ease-out 1 both}
+.cqb .ltoast .ti{width:48px;height:48px;flex:none;border-radius:6px;background:radial-gradient(circle,#5a1a0a,#1a0805);box-shadow:0 0 0 2px var(--c),0 0 12px var(--c);display:flex;align-items:center;justify-content:center;font-size:28px}
+.cqb .ltoast .tt{font-size:12px;color:#d8c290}
+.cqb .ltoast .ctn{font-size:18px;font-weight:900;color:var(--c);text-shadow:0 0 8px var(--c),0 1px 0 #000;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.cqb .ltoast .ctg{margin-left:auto;flex:none;font-size:11px;font-weight:800;color:#2a0a00;padding:3px 8px;border-radius:3px;background:linear-gradient(180deg,#ffe58a,#e29a1a)}
+@keyframes cqToast{0%{transform:translateY(-20px);opacity:0}12%{transform:none;opacity:1}85%{opacity:1}100%{opacity:0}}
+.cqb .pick{position:absolute;right:12px;z-index:26;height:34px;padding:0 18px;border-radius:17px;display:none;align-items:center;font-size:13px;font-weight:800;color:#2a1000;white-space:nowrap;cursor:pointer;background:linear-gradient(180deg,#ffe9a0,#e5a830 55%,#b27012);border:1px solid #fff0b8;box-shadow:0 0 0 2px #4a2a0a,0 4px 10px rgba(0,0,0,.6)}
+.cqb .pick.on{display:flex}
+/* 掉落滚动条 */
+.cqb .ticker{position:absolute;left:8px;width:208px;height:84px;border-radius:6px;z-index:25;padding:4px 8px;overflow:hidden;font-size:12px;line-height:19px;pointer-events:none}
+.cqb .ticker .crow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#cdbb95}
+.cqb .ticker .crow b,.cqb .ticker .crow span{font-weight:700}
+.cqb .ticker .rows.tick{animation:cqTick .6s ease-out 1 both}
+@keyframes cqTick{from{transform:translateY(19px);opacity:.6}to{transform:none;opacity:1}}
+.cqb .q1{color:#fff}.cqb .q2{color:#4ade5c}.cqb .q3{color:#4aa8ff}.cqb .q4{color:#c66bff}.cqb .q5{color:#ff9a2a}.cqb .q6{color:#ff3b30}
+/* 底部技能栏（冷却圈） + 合击 */
+.cqb .bottom{position:absolute;left:0;right:0;bottom:0;height:116px;z-index:30;background:linear-gradient(180deg,rgba(20,12,7,0) 0,rgba(20,12,7,.92) 26px,#120a06 60px)}
+.cqb .skills{position:absolute;left:0;right:0;top:6px;height:96px;display:flex;align-items:center;justify-content:center;gap:8px}
+.cqb .csk{position:relative;width:54px;height:54px;flex:none;border-radius:50%;background:radial-gradient(circle at 50% 35%,#5a3a1c,#1c1008);box-shadow:0 0 0 2px #2b1a0c,0 0 0 4px #b8873f,0 0 0 5px #2b1a0c,0 4px 10px rgba(0,0,0,.7)}
+.cqb .csk .ic{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;filter:sepia(.25) saturate(1.4)}
+.cqb .csk .ic img{width:100%;height:100%;border-radius:50%}
+.cqb .csk .cd{position:absolute;inset:0;border-radius:50%;background:conic-gradient(rgba(0,0,0,0) 0 var(--p),rgba(0,0,0,.66) var(--p) 100%)}
+.cqb .csk .cdt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;text-shadow:0 0 3px #000,0 1px 1px #000}
+.cqb .csk .key{position:absolute;left:50%;bottom:-17px;transform:translateX(-50%);font-size:11px;color:#d8c290;white-space:nowrap}
+.cqb .csk.ready{box-shadow:0 0 0 2px #2b1a0c,0 0 0 4px #ffcf6a,0 0 0 5px #2b1a0c,0 0 12px 2px rgba(255,180,60,.6)}
+.cqb .csk.cempty{opacity:.35}
+.cqb .csk{cursor:pointer}.cqb .csk.off .ic{filter:grayscale(1) brightness(.6)}
+.cqb .csk.fire .ic{animation:cqSkFire .35s ease-out 1}
+@keyframes cqSkFire{0%{transform:scale(1.18);filter:brightness(2)}100%{transform:none}}
+.cqb .heji{position:relative;width:92px;height:92px;flex:none;margin:0 4px;cursor:pointer}
+.cqb .heji img{width:100%;height:100%;display:block;filter:drop-shadow(0 0 10px rgba(255,60,30,.6))}
+.cqb .heji .t{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;letter-spacing:2px;color:#fff4d6;text-shadow:0 0 8px #ff3b1a,0 2px 0 #5a0700,0 0 2px #000}
+.cqb .heji svg{position:absolute;inset:-6px;width:104px;height:104px;transform:rotate(-90deg)}
+.cqb .heji .rg{position:absolute;left:50%;bottom:-18px;transform:translateX(-50%);font-size:11px;color:#ffcf6a;white-space:nowrap;text-shadow:0 1px 1px #000}
+.cqb .heji.cd img{filter:grayscale(.7) brightness(.7)}
+.cqb .heji.full img{filter:drop-shadow(0 0 14px rgba(255,200,60,.9))}
+.cqb .side{position:absolute;right:8px;display:flex;flex-direction:column;gap:8px;z-index:25}
+.cqb .chip{min-width:44px;height:30px;padding:0 10px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#ffe3a3;white-space:nowrap;cursor:pointer}
+.cqb .chip.off{color:#8a7a5a}
