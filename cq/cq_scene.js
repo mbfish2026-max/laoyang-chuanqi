@@ -247,7 +247,7 @@
     R.sk.forEach(function(e, i){ var s = sks[i]; if (!s) { if (e._id !== null) { e._id = null; e.className = 'csk cempty'; e.querySelector('.ic').textContent = ''; txt(e.querySelector('.key'), ''); txt(e.querySelector('.cdt'), ''); e.querySelector('.cd').style.setProperty('--p', '100%'); } return; }
       if (e._id !== s.id) { e._id = s.id; e.querySelector('.ic').innerHTML = s.img ? '<img src="' + esc(s.img) + '" alt="">' : esc(s.ic || '✦'); txt(e.querySelector('.key'), s.n); }
       var left = Math.max(0, s.cdLeft || 0), max = s.cdMax || 1, ready = left <= 0.05;
-      e.classList.toggle('ready', ready && !s.off); e.classList.toggle('off', !!s.off); e.classList.remove('cempty');
+      e.classList.toggle('ready', ready && !s.off && !s.lock); e.classList.toggle('off', !!s.off); e.classList.toggle('lock', !!s.lock); e.title = s.lock ? s.n + '（' + s.need + ' 级可学）' : s.n; e.classList.remove('cempty');
       e.querySelector('.cd').style.setProperty('--p', ready ? '100%' : (100 - left / max * 100).toFixed(1) + '%');
       txt(e.querySelector('.cdt'), ready ? '' : left.toFixed(1));
       if (s.fired && e._fired !== s.fired) { e._fired = s.fired; CQ.FX.once(e, 'fire', false, 500); } });

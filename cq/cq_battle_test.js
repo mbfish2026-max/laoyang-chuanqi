@@ -125,4 +125,16 @@ ok(!/iterations\s*:\s*Infinity|infinite/i.test(js.replace(/\/\/.*$/mg,'')),'JS �
  ok(['battle','role','skill','map','fuli'].every(n=>fs.existsSync(path.join(root,'assets/cq/ui/nav_'+n+'.png'))),'底栏图标资源存在');
  ok(/#tabs\.cqnav\{[^}]*flex-wrap:nowrap/.test(bc)&&/#tabs\.cqnav button\{[^}]*white-space:nowrap/.test(bc),'底栏不换行');
  ok(/\['bag','背包'\],\['shop','商店'\],\['merc','佣兵'\]/.test(bm),'背包/商店/佣兵在角色页子页签可达');}
+// ---------- 技能栏（设计稿 4 格 + 名称 + 图标，按当前职业，换职业即刷新） ----------
+{const row=c=>G(`(function(){var o=S.cls,ok0=S.sk;S.cls='${c}';S.sk=respBaseSk();var r=CQ.Host.skills();S.cls=o;S.sk=ok0;return JSON.stringify(r.map(function(x){return [x.id,x.n,x.img||'',x.lock||0,(SKM[x.id]||{}).cls]}))})()`);
+ for(const c of['zs','fs','ds']){const r=JSON.parse(row(c));
+  ok(r.length===4,c+' 技能栏 4 格：'+r.map(x=>x[1]).join('/'));
+  ok(r.every(x=>x[4]===c&&x[1]),c+' 全是本职业技能且有名字');
+  ok(r.filter(x=>x[2]).length>=3&&r.every(x=>!x[2]||fs.existsSync(path.join(root,x[2]))),c+' 图标为 ic_sk_*.png 且文件存在');}
+ ok(row('zs')!==row('fs')&&row('fs')!==row('ds'),'换职业技能栏随之变化');
+ G(`var _o=[S.cls,S.sk];S.cls='fs';S.sk=Object.assign(respBaseSk(),{ldsh:1})`);
+ const L=JSON.parse(G(`JSON.stringify(CQ.Host.skills().map(function(x){return [x.id,x.lock||0]}))`));
+ ok(L.some(x=>x[0]==='hqs'&&!x[1])&&L.filter(x=>!x[1]).length>=1&&L.findIndex(x=>x[1])>L.findIndex(x=>!x[1]),'已学技能在前且未锁定，未学补位为锁定');G('S.cls=_o[0];S.sk=_o[1]');
+ const sc=fs.readFileSync(path.join(root,'cq/cq_scene.js'),'utf8'),cc=fs.readFileSync(path.join(root,'cq/cq.css'),'utf8');
+ ok(/classList\.toggle\('lock'/.test(sc)&&/\.csk\.lock/.test(cc)&&/\.csk \.key\{[^}]*white-space:nowrap/.test(cc),'场景渲染锁定态与名称（不换行）');}
 T.done();

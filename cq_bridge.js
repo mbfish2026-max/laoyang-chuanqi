@@ -31,7 +31,19 @@
   CQ.SKILL_FX = SKILL_FX;
   // 美术专属序列帧（77305ba，按技能名精确匹配，优先于 SKILL_FX 与职业 cqfx 的通用映射）
   var SKILL_FX_ART = CQ.SKILL_FX_ART = {'抗拒火环': 'kangjuhuohuan', '地狱火': 'diyuhuo', '诱惑之光': 'youhuozhiguang', '隐身术': 'yinshenshu'};
-  var castAt = {};      // 技能施放时刻（冷却圈兜底）
+  var castAt = {};
+  // 技能栏图标：传奇原版 ic_sk_*（assets/cq/ui/sk/），按技能 id 对应；无图的技能回退到 SKM.ic 字符
+  var SK_ICON = {jbjs:1001, gsjs:1002, csjs:1003, bywd:1004, ymcz:1005, lhjf:1007, hqs:2001, ldsh:2002, hq:2003, yhzg:2004, mfd:2005, bpx:2007,
+    jsl:3001, zys:3002, lhhf:3003, sds:3004, zhkl:3005, zhss:3005, ysh:3006, sszj:3007};
+  CQ.SK_ICON = SK_ICON;
+  function skImg(id){ return SK_ICON[id] ? 'assets/cq/ui/sk/ic_sk_' + SK_ICON[id] + '.png' : null; }
+  // 设计稿：技能栏固定 4 格 = 当前职业技能。已学（自动施放顺序）在前，不足 4 个用本职业未学主动技能（按需求等级）补位，显示为锁定
+  function skRow(L){ var cls = Host.role().cls, SKM = G('SKM') || {}, pool = (G('CLS_SKILLS') || []).filter(function(x){ return x && x.cls === cls && x.kind !== 'passive' && SKM[x.id]; });
+    L = (L || []).filter(function(o){ var s = SKM[o.id]; return !s || !s.cls || s.cls === cls; }).slice(0, 4);
+    var seen = {}; L.forEach(function(o){ seen[o.id] = 1; });
+    pool.slice().sort(function(a, b){ return (a.r || 0) - (b.r || 0) || (SK_ICON[b.id] ? 1 : 0) - (SK_ICON[a.id] ? 1 : 0); }).forEach(function(x){ if (L.length < 4 && !seen[x.id]) { seen[x.id] = 1; L.push({id: x.id, n: x.n, ic: x.ic, lock: 1, need: x.r || 1, cdMax: 1, cdLeft: 0}); } });
+    L.forEach(function(o){ o.img = o.img || skImg(o.id); });
+    return L; }      // 技能施放时刻（冷却圈兜底）
   var ART = ['mdl_mst_1015', 'mdl_mst_1014', 'mdl_mst_1017', 'mdl_mst_1013'];
   // 传奇之旅 config/monster.txt 的 name→model（立绘已拷到 assets/cq/ui/）：CQSys.monArt 返回 null 时按怪名兜底
   var ART_BY_NAME = {'鸡': 'mdl_mst_1001', '鹿': 'mdl_mst_1002', '多钩猫': 'mdl_mst_1003', '钉耙猫': 'mdl_mst_1004', '稻草人': 'mdl_mst_1005', '半兽人': 'mdl_mst_1006', '森林雪人': 'mdl_mst_1007',
@@ -81,7 +93,8 @@
     zone: function(){ var S = G('S') || {}, z = has('zoneData') ? G('zoneData')() : null; if (!z) return {name: '', sub: ''};
       var w = Math.min(S.wave || 0, z.w || 0); return {name: z.n, sub: z.boss && w >= (z.w || 0) ? '首领' : '第' + w + '/' + (z.w || 0) + '波'}; },
     logs: function(n){ var L = G('LOGS') || []; return L.slice(-n); },
-    skills: function(){ var S = G('S') || {}, SKM = G('SKM') || {}, ST = G('ST') || {}, now = performance.now() / 1000, cls = Host.role().cls;
+    skills: function(){ return skRow(Host.skLearned()); },
+    skLearned: function(){ var S = G('S') || {}, SKM = G('SKM') || {}, ST = G('ST') || {}, now = performance.now() / 1000, cls = Host.role().cls;
       if (has('acLearned')) { var L = G('acLearned')() || [], cfg = has('acCfg') ? G('acCfg') : null, cm = Math.max(1, +ST.castT || 1);
         return L.slice(0, 4).map(function(id){ var s = SKM[id] || {}, t = castAt[id] || 0; return cdFix({id: id, n: s.n, ic: s.ic, img: null, off: cfg ? !cfg(id).on : false, cdMax: cm, cdLeft: t ? Math.max(0, cm - (now - t)) : 0, fired: t}); }); }
       var ids = Object.keys(S.sk || {}).filter(function(id){ var s = SKM[id]; return s && s.kind !== 'passive' && (S.sk[id] || 0) > 0 && (!s.cls || s.cls === cls || s.ccls === cls); });
