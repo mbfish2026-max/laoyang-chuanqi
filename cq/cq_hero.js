@@ -13,7 +13,7 @@
   // 有 CQSys.heroStats 时：生命 = heroStats.hp × statHpK，受伤减 def × defK，takesDmg=0 不受伤；hpK 只作兜底。
   var TUNE = CQ.HERO_TUNE = CQ.HERO_TUNE || {atkT: 1.6, dpsK: 0.095, hejiSec: 6.5, hejiSecMin: 6, hejiSecMax: 6.8, hejiRef: 3.2, hejiCd: 30, dpsWin: 120, dpsMin: 8,
     atkK: 0.35, hpK: 0.8, hurtK: 1.0, takesDmg: 1, skNorm: 1.25, healAt: 0.7, hurtT: 2.3, hurtP: 0.35, regen: 0.005, reviveSec: 30, statHpK: 1.0, defK: 0.5,
-    /* 2026-10-22 总控：合击 6.5 秒×30 秒冷却已占 ~13–16%，普攻降到 2–4%，9 组合合计 ≤20%（cq_hero_balance_sim 9 组合）；普攻系数按玩家职业分设（参考的是玩家有效 DPS，三职业输出形态不同，单一 dpsK 做不到都 8–10%）；缺省回落 dpsK */ dpsKBy: {zs: 0.06, fs: 0.045, ds: 0.05}};
+    /* 2026-10-22 总控：英雄预算 0.25（CQ_BAL.budget.hero，系统侧）：合击 6.5 秒×30 秒 ~9–15%，普攻+技能 ~7–10%，9 组合合计 17–23%（cq_hero_balance_sim 9 组合）；普攻系数按玩家职业分设（参考的是玩家有效 DPS，三职业输出形态不同，单一 dpsK 做不到都 8–10%）；缺省回落 dpsK */ dpsKBy: {zs: 0.2, fs: 0.15, ds: 0.17}};
   CQ.heroDpsK = function(host){ var c = host && host.cls ? host.cls() : null, B = TUNE.dpsKBy || {}; return +B[c] || TUNE.dpsK; };
   // 职业：1 战士 2 法师 3 道士（与传奇之旅 prof 一致）；老羊传奇 S.cls：zs/fs/ds
   var PROF = {zs: 1, fs: 2, ds: 3}, PNAME = {1: '战士', 2: '法师', 3: '道士'};
