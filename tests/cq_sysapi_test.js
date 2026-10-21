@@ -15,7 +15,7 @@ ok(G(`CQSys.heroUnequip('weapon').ok`)===1&&!G('S.hero.eq.weapon'),'英雄卸下
 // 按角色区分：切回另一角色无此英雄
 const c2=G(`CQSys.createChar('二号','ds')`);ok(!G('S.hero&&S.hero.cls'),'新角色英雄独立');G(`switchChar(${id})`);ok(G('S.hero&&S.hero.cls')==='zs','切回原角色英雄还在（随角色存档）');
 ok(G(`CQSys.skillCooldown('x').placeholder`)===true,'冷却占位');G(`CQ_SKCD.lhjf=10;CQSys.skillCast('lhjf')`);const cd=JSON.parse(G(`JSON.stringify(CQSys.skillCooldown('lhjf'))`));ok(cd.cd===10&&cd.left>9&&!cd.ready,'冷却剩余');
-ok(G(`CQSys.monArt('orclord').id`)==='mdl_mst_2001'&&G(`CQSys.monArt('nope')`)===null,'立绘映射');
+ok(G(`CQSys.monArt('skelspirit').id`)==='mdl_mst_2001'&&G(`CQSys.monArt('nope')`)===null,'立绘映射');
 ok(G('CQSys.currency().yb')===0&&G(`CQSys.ybAdd(50,'测试')`)===50&&G(`CQSys.ybSpend(20)`)===true&&G(`CQSys.ybSpend(999)`)===false&&G('ACCT.yb')===30,'元宝增减');
 ok(G('CQSys.power()')>0,'战力 '+G('CQSys.power()'));
 G(`window._ev=[];CQSys.on('bossSpawn',e=>_ev.push('s'));CQSys.on('bossEnrage',e=>_ev.push('e'));CQSys.on('bossDead',e=>_ev.push('d'))`);
@@ -32,4 +32,9 @@ G(`CQSys.autoPot({on:1,hp:0});H.potT=0;step(0.01)`);ok(G('S.pot.hp')===4,'阈值
 ok(G('CQSys.autoPot({hp:200}).hp')===95,'阈值上限 95');
 ok(G('CQSys.setAuto(0)')===0&&G('CQSys.idle()')===true&&G('CQSys.setAuto(1)')===1,'挂机开关');
 ok(typeof G('CQSys.questLine()')==='string'&&/药水/.test(G('CQSys.potHTML()')),'任务行/药水面板 HTML');
+// ---- 怪物立绘对照 web-replica monster.txt
+{const want={chick:1001,deer:1002,hookcat:1003,rakecat:1004,scarecrow:1005,halforc:1006,orcwar:1008,spider1:1009,redsnake:1025,tigersnake:1025,cqskel:1013,cqzombie:1023};
+ ok(Object.keys(want).every(k=>G(`(CQSys.monArt('${k}')||{}).id`)==='mdl_mst_'+want[k]),'monArt 按 monster.txt 映射（鸡1001…红蛇/虎蛇1025）');
+ ok(G("CQSys.monArt('orclord')")===null&&G("CQSys.monArt('zombieking')")===null&&G("CQSys.monArt('nosuchmon')")===null,'无图的怪 monArt 返回 null，不退到骷髅');
+ const fs=require('fs'),path=require('path');ok(Object.values(JSON.parse(G('JSON.stringify(CQ_MONART)'))).filter(Boolean).every(a=>fs.existsSync(path.join(__dirname,'..','assets/cq/ui',a+'.png'))),'映射的立绘文件都存在');}
 T.done();

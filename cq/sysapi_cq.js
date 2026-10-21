@@ -30,9 +30,8 @@ window.CQ_SKCD=window.CQ_SKCD||{};const CAST={};
 CS.skillCast=id=>{CAST[id]=now();CS.emit('skill',{id,t:CAST[id]})};
 CS.skillCooldown=id=>{const cd=+window.CQ_SKCD[id]||0,t=CAST[id]||0,left=t&&cd?Math.max(0,cd-(now()-t)/1000):0;return{id,cd,left,ready:left<=0,placeholder:!window.CQ_SKCD[id]}};
 // ---------- 怪物 → 传奇立绘（assets/cq/ui/<art>.png） ----------
-window.CQ_MONART=Object.assign({chick:'mdl_mst_1013',deer:'mdl_mst_1013',scarecrow:'mdl_mst_1014',hookcat:'mdl_mst_1014',rakecat:'mdl_mst_1014',
-  halforc:'mdl_mst_1015',orcwar:'mdl_mst_1015',spider1:'mdl_mst_1017',redsnake:'mdl_mst_1017',tigersnake:'mdl_mst_1017',
-  rakecatking:'mdl_mst_2001',redsnakeking:'mdl_mst_2001',orclord:'mdl_mst_2001'},window.CQ_MONART||{});
+// 按 web-replica monster.txt 的 name→model 对照（同名取首条；首领在 monster.txt 里 model 为占位 1001=鸡 的视为无图）；无图的怪为 ''，monArt 返回 null，不兜底骷髅
+window.CQ_MONART=Object.assign({chick:'mdl_mst_1001',deer:'mdl_mst_1002',scarecrow:'mdl_mst_1005',hookcat:'mdl_mst_1003',rakecat:'mdl_mst_1004',halforc:'mdl_mst_1006',spider1:'mdl_mst_1009',redsnake:'mdl_mst_1025',tigersnake:'mdl_mst_1025',orcwar:'mdl_mst_1008',rakecatking:'',redsnakeking:'',orclord:'',cqskel:'mdl_mst_1013',cqskelwar:'mdl_mst_1015',cqaxeskel:'mdl_mst_1014',cqyeti:'mdl_mst_1007',cqmaneater:'mdl_mst_1011',cqskelelite:'',skelspirit:'mdl_mst_2001',treedemon:'',zombieking:'',cqzombie:'mdl_mst_1023',cqcrawler:'mdl_mst_1024',cqelezombie:'mdl_mst_2002',cqmaggot:'mdl_mst_1022',cqbeetle:'mdl_mst_1034',cqbat:'mdl_mst_1012',elezombieking:'',stonezombieking:''},window.CQ_MONART||{});
 CS.monArt=key=>{const a=window.CQ_MONART[key];return a?{id:a,src:'assets/cq/ui/'+a+'.png'}:null};
 // ---------- 元宝（账号级 ACCT.yb，进云存档、跨角色共享） ----------
 CS.currency=()=>({gold:S.gold||0,yb:(typeof ACCT!=='undefined'&&ACCT&&ACCT.yb)|0});
