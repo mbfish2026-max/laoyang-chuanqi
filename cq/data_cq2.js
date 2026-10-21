@@ -3,27 +3,27 @@
 (function(){
 // ---------- 第 2 章：比奇（12–22） ----------
 Object.assign(MONS,{
- cqskel:{n:'骷髅',ic:'💀',hp:40,dmg:[3,8],ar:36,def:10,exp:30},
- cqskelwar:{n:'骷髅战士',ic:'☠',hp:52,dmg:[4,10],ar:40,def:13,exp:38},
- cqaxeskel:{n:'掷斧骷髅',ic:'🪓',hp:44,dmg:[4,11],ar:44,def:11,exp:40,ranged:1},
- cqyeti:{n:'森林雪人',ic:'🦍',hp:70,dmg:[5,13],ar:48,def:15,exp:52},
- cqmaneater:{n:'食人花',ic:'🌺',hp:60,dmg:[5,12],ar:50,def:14,exp:50,el:'pois',res:{pois:40},spd:0.6},
- cqskelelite:{n:'骷髅精英',ic:'☠',hp:85,dmg:[6,15],ar:54,def:18,exp:66}});
+ cqskel:{n:'骷髅',ic:'💀',hp:32,dmg:[2,6],ar:36,def:10,exp:30},
+ cqskelwar:{n:'骷髅战士',ic:'☠',hp:42,dmg:[3,8],ar:40,def:13,exp:38},
+ cqaxeskel:{n:'掷斧骷髅',ic:'🪓',hp:35,dmg:[3,9],ar:44,def:11,exp:40,ranged:1},
+ cqyeti:{n:'森林雪人',ic:'🦍',hp:56,dmg:[4,10],ar:48,def:15,exp:52},
+ cqmaneater:{n:'食人花',ic:'🌺',hp:48,dmg:[4,10],ar:50,def:14,exp:50,el:'pois',res:{pois:40},spd:0.6},
+ cqskelelite:{n:'骷髅精英',ic:'☠',hp:68,dmg:[5,12],ar:54,def:18,exp:66}});
 Object.assign(BOSSES,{
- skelspirit:{n:'骷髅精灵',ic:'👻',hp:450,dmg:[7,18],ar:100,def:45,exp:2500},
- treedemon:{n:'千年树妖',ic:'🌳',hp:700,dmg:[9,22],ar:115,def:55,exp:4200,el:'pois',res:{pois:50}},
- zombieking:{n:'尸王',ic:'🧟',hp:1200,dmg:[11,28],ar:130,def:70,exp:9000,actboss:1}});
+ skelspirit:{n:'骷髅精灵',ic:'👻',hp:300,dmg:[6,14],ar:100,def:45,exp:2500},
+ treedemon:{n:'千年树妖',ic:'🌳',hp:420,dmg:[7,17],ar:115,def:55,exp:4200,el:'pois',res:{pois:50}},
+ zombieking:{n:'尸王',ic:'🧟',hp:650,dmg:[8,20],ar:130,def:70,exp:9000,actboss:1}});
 // ---------- 第 3 章：矿区（22–30） ----------
 Object.assign(MONS,{
- cqzombie:{n:'僵尸',ic:'🧟',hp:95,dmg:[7,16],ar:58,def:20,exp:80,spd:0.8},
- cqcrawler:{n:'爬行僵尸',ic:'🧟',hp:88,dmg:[7,15],ar:60,def:18,exp:78,spd:0.7},
- cqelezombie:{n:'电僵尸',ic:'⚡',hp:100,dmg:[8,18],ar:62,def:20,exp:90,el:'light',res:{light:40}},
- cqmaggot:{n:'洞蛆',ic:'🐛',hp:80,dmg:[6,14],ar:60,def:16,exp:74},
- cqbeetle:{n:'盔甲虫',ic:'🪲',hp:120,dmg:[7,17],ar:62,def:30,exp:96},
- cqbat:{n:'山洞蝙蝠',ic:'🦇',hp:64,dmg:[6,15],ar:70,def:12,exp:70,spd:1.4}});
+ cqzombie:{n:'僵尸',ic:'🧟',hp:76,dmg:[6,13],ar:58,def:20,exp:80,spd:0.8},
+ cqcrawler:{n:'爬行僵尸',ic:'🧟',hp:70,dmg:[6,12],ar:60,def:18,exp:78,spd:0.7},
+ cqelezombie:{n:'电僵尸',ic:'⚡',hp:80,dmg:[6,14],ar:62,def:20,exp:90,el:'light',res:{light:40}},
+ cqmaggot:{n:'洞蛆',ic:'🐛',hp:64,dmg:[5,11],ar:60,def:16,exp:74},
+ cqbeetle:{n:'盔甲虫',ic:'🪲',hp:96,dmg:[6,14],ar:62,def:30,exp:96},
+ cqbat:{n:'山洞蝙蝠',ic:'🦇',hp:51,dmg:[5,12],ar:70,def:12,exp:70,spd:1.4}});
 Object.assign(BOSSES,{
- elezombieking:{n:'电僵王',ic:'⚡',hp:1100,dmg:[12,30],ar:140,def:75,exp:9500,el:'light',res:{light:50}},
- stonezombieking:{n:'石墓尸王',ic:'🗿',hp:2000,dmg:[15,36],ar:160,def:90,exp:18000,actboss:1}});
+ elezombieking:{n:'电僵王',ic:'⚡',hp:620,dmg:[9,22],ar:140,def:75,exp:9500,el:'light',res:{light:50}},
+ stonezombieking:{n:'石墓尸王',ic:'🗿',hp:950,dmg:[11,26],ar:160,def:90,exp:18000,actboss:1}});
 // ---------- 任务（沿用 a2q*/a3q* id：acts.js 的奖励分支 a2q1 技能点、a3q1 生命、a3q2 戒指、a3q4 属性点 仍生效） ----------
 for(const k of ['a2q1','a2q2','a2q3','a2q4','a2q5','a2q6','a3q1','a3q2','a3q3','a3q4','a3q5','a3q6'])delete QUESTS[k];
 Object.assign(QUESTS,{

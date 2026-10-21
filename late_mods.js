@@ -4,26 +4,9 @@
 // 音效 sfx_<id>（无配方时按元素回退）；图标为 emoji 占位，特效一次性，不加持续动画。
 const XMOD={boom:{},list:[]};
 const XM_P=(L,a,b,cap)=>Math.min(cap,a+b*(L-1));
-clsDef('nec',[
- {id:'xn_rot',t:1,n:'尸潮冥爆',r:60,col:0,pre:['pe'],ty:'passive',ic:'💀',xboom:{el:'magic',n:4},v:L=>{const p=XM_P(L,8,1,25);return{boom:p,txt:`怪物死亡时尸骸冥爆：对最多 4 个敌人造成其最大生命 ${p}% 的魔法伤害（首领减半，可连锁 2 层）`}}},
- {id:'xn_lord',t:0,n:'冥主统御',r:75,col:1,pre:['rv'],ty:'passive',ic:'👑',v:L=>{const d=XM_P(L,25,5,120),h=XM_P(L,10,3,60);return{sumdmg:d,sumlife:h,txt:`召唤物伤害 +${d}%，召唤物生命 +${h}%`}}}]);
-clsDef('sor',[
- {id:'xs_chain',t:0,n:'星火连爆',r:60,col:0,pre:['mmet'],ty:'passive',ic:'🎆',xboom:{el:'fire',n:5},v:L=>{const p=XM_P(L,8,1,25);return{boom:p,txt:`怪物死亡时爆燃：对最多 5 个敌人造成其最大生命 ${p}% 的火焰伤害（首领减半，可连锁 2 层）`}}},
- {id:'xs_tide',t:1,n:'寂灭冰潮',r:75,col:1,pre:['mbliz'],ty:'aoe',el:'cold',ic:'🌊',fx:'boom',sm:3,mana:L=>8,v:(L,sy)=>{const k=1.6+0.05*(L-1),B=['mbliz','mmet','mfball'].filter(x=>bl(x)).map(x=>clsSV(x,Math.max(1,slvl(x))).dmg).reduce((a,b)=>(b[0]+b[1]>a[0]+a[1]?b:a),CLS_DR(60,90,24,32,L,sy)),d=B.map(x=>Math.round(x*k));return{dmg:d,n:12,slow:4,txt:`冰潮席卷最多 12 个敌人 ${clsDtx(d,'cold')}（取暴雪/陨石术/爆炎球中最高伤害 ×${k.toFixed(2)}），减速 4 秒`}}}]);
-clsDef('bar',[
- {id:'xb_blood',t:1,n:'血怒狂潮',r:60,col:1,pre:['bfury'],ty:'passive',ic:'🩸',v:L=>{const ll=XM_P(L,2,0.3,8),dr=XM_P(L,5,0.5,15);return{xll:ll,xdr:dr,txt:`攻击吸取 ${ll}% 生命，受到伤害 -${dr}%`}}},
- {id:'xb_quake',t:2,n:'裂地震吼',r:75,col:2,pre:['bbo'],ty:'mall',ic:'🌋',sm:3,mana:L=>8+0.3*L,v:(L,sy)=>{const k=1.15+0.05*(L-1),W=bl('bww')?clsSV('bww',Math.max(1,slvl('bww'))):{pct:Math.round((60+12*(L-1))*sy),flat:4+3*(L-1)};const p=Math.round((100+W.pct)*k-100),f=Math.round((W.flat||0)*k);return{pct:p,flat:f,n:12,stun:1,txt:`震吼撼地：最多 12 个敌人 ${clsMtx(p,f)}（旋风斩 ×${k.toFixed(2)}），并眩晕 1 秒`}}}]);
-clsDef('dru',[
- {id:'xd_rift',t:0,n:'元素崩解',r:60,col:0,pre:['darm'],ty:'passive',ic:'🌀',xboom:{el:'magic',n:5},v:L=>{const p=XM_P(L,9,1,26);return{boom:p,txt:`怪物死亡时元素崩解：对最多 5 个敌人造成其最大生命 ${p}% 的魔法伤害（首领减半，可连锁 2 层）`}}},
- {id:'xd_wild',t:2,n:'荒野之潮',r:75,col:1,pre:['dgriz'],ty:'passive',ic:'🐺',v:L=>{const d=XM_P(L,25,5,120),ll=XM_P(L,2,0.2,6);return{sumdmg:d,xll:ll,txt:`召唤物伤害 +${d}%，你的攻击吸取 ${ll}% 生命`}}}]);
-clsDef('ama',[
- {id:'xa_split',t:0,n:'裂星分矢',r:60,col:1,pre:['astraf'],ty:'passive',ic:'✴',v:L=>{const n=Math.min(4,2+Math.floor(L/6)),p=XM_P(L,30,2,60);return{split:n,spct:p,txt:`单体技能命中后分裂，再打 ${n} 个敌人，伤害 ${p}%`}}},
- {id:'xa_mark',t:1,n:'猎魂印记',r:75,col:0,pre:['afury'],ty:'passive',ic:'🎯',xboom:{el:'light',n:4},v:L=>{const p=XM_P(L,7,1,22),ll=XM_P(L,2,0.2,6);return{boom:p,xll:ll,txt:`怪物死亡时雷魂炸裂：对最多 4 个敌人造成其最大生命 ${p}% 闪电伤害；攻击吸取 ${ll}% 生命`}}}]);
-clsDef('pal',[
- {id:'xp_judg',t:0,n:'圣裁连环',r:60,col:2,pre:['pfist'],ty:'passive',ic:'⚖',xboom:{el:'magic',n:5},v:L=>{const p=XM_P(L,8,1,25);return{boom:p,txt:`怪物死亡时降下圣裁：对最多 5 个敌人造成其最大生命 ${p}% 的魔法伤害（首领减半，可连锁 2 层）`}}},
- {id:'xp_aegis',t:2,n:'圣辉壁垒',r:75,col:2,pre:['psalv'],ty:'buff',ic:'🛡',fx:'shield',mana:L=>20,v:L=>{const dr=XM_P(L,10,0.75,25),ll=XM_P(L,2,0.2,6),t=60+3*(L-1);return{dr,xll:ll,dur:t,txt:`受到伤害 -${dr}%，攻击吸取 ${ll}% 生命；持续 ${t} 秒`}}}]);
+// 老羊传奇 M2：暗夜 D2 六职业 60/75 级魔改技能（xn_/xs_/xb_/xd_/xa_/xp_）已删除；传奇职业后期技能由职业 Bot 用同一机制 clsDef 注册（id 以 x 开头 + 职业字母即可接入下方连锁/分裂/吸血框架）
 clsRegister();
-for(const s of CLS_SKILLS)if(/^x[nsbdap]_/.test(s.id))XMOD.list.push(s.id);
+for(const s of CLS_SKILLS)if(/^x[nsbdapzfo]_|^x(zs|fs|ds)_/.test(s.id))XMOD.list.push(s.id);
 function xmOwn(){const c=curCls();return XMOD.list.filter(id=>SKM[id].cls===c)}
 function xmV(id){const L=typeof slvl==='function'&&bl(id)?slvl(id):0;return L?clsSV(id,L):null}
 // 被动/增益效果：calc 后叠加

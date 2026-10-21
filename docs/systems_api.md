@@ -80,3 +80,49 @@
 ## 其他
 - `CQSys.rollDrops(m)`、`addItem(it)`、`addMat/matCount/takeMat`、`acts()/zone()/monDef(id)` 见 docs/systems_m1.md
 - 强化 `cqEnhance(uid,{oil})`；仓库扩充 `cqStashExpand('p'|'s')`
+
+---
+
+## M2 系统接口（cq-20261021f 之后）
+
+### 1. 首领真实时间刷新（cq/m2_cq.js）
+- 刷新间隔 `CQ_BAL.bossRt`：小首领 600 秒，章节首领 1800 秒，后期章节首领 3600 秒。状态存在 `S.bossRt[key]`（下次刷新的时间戳）。
+- `bossCd(key)` 返回剩余秒数，`bossList()` 列出所有首领及状态，`bossGo(key)` 前往该首领所在地图。
+- spawnWave 被包装过：首领没刷新时这一波不出首领，`bossInfo().rt` 显示倒计时。
+- 事件：`bossKill`、`bossReady`、`bossWait`（用 `CQSys.on` 订阅，或监听 window 的 `cq:bossKill` 等）。
+
+### 2. 离线收益
+- 小怪击杀按 `kills × 0.2` 计算。首领按离线时长内的刷新次数结算，有战力判定，掉落减半，最多 6 只。离线收益最多计 8 小时。
+- 结果写在 `S.cqOff`，同时触发 `offline` 事件，并显示 `offPanel()` 面板。
+
+### 3. 第 2、3 章（cq/data_cq2.js）
+- 第 2 章比奇（12–22 级）：骷髅洞一/二/三层 → 沃玛森林 → 森林深处 → 尸王殿。
+- 第 3 章矿区（22–30 级）：南部/东部矿区 → 采矿所一/二层 → 黑铁矿坑 → 石墓深处。
+- 章节终点任务是 a2q6、a3q6，带 `fin`。每个首领有 2 件专属暗金装备（UNIQUES 的 `boss` 字段）。
+- **修复**：第 1 章的 q1–q6 原来没有 `act`，q6 也没有 `fin`，所以打完半兽统领后不会调用 `unlockAfter`，cls_sim 一直提示「已到达最终章节」。现已补上。旧存档由迁移 v2 处理（`CQ_SV=2`）：已完成 q6 的存档补解锁第 2 章，并给 bossRt、summons、cqBooks 填默认值。
+
+### 4. 技能书（职业 Bot 对接）
+- 物品 id 格式：`book_<cls>_<技能id>`，以 mats 形式存放，例如 `book_zs_csjs`、`book_ds_ysh`。技能 id 和 cls_zs/fs/ds.js 的 CLS_SKILLS 一致。
+- `CQ_BOOKS[id] = {cls, sk, lv, n}`：`sk` 是职业技能 id，`lv` 是学习所需等级（等于技能的 r）。
+- 接口：`bookDef(id)`、`bookKnown(cls,sk)`、`bookCount(id)`、`bookLearn(id)`、`bookDropFor(monster)`。
+- 职业 Bot 用 `onBookLearn(fn)` 注册回调。学习时会调用 `fn(cls, sk, def)`，由职业侧把技能写进自己的技能表。系统侧只负责扣书和检查等级/职业。
+- 掉落：包装了 `rollTC`，按怪物等级掉出本章节对应的技能书。物品详情里会出现「学习」按钮。
+
+### 5. 召唤物（战斗 / 职业 Bot 对接）
+- 数据存在 `S.summons`。接口：`summonAdd(type, lv)`、`summonRemove(i)`、`summonSetLv(i, lv)`、`summonStats(i)`（返回 hp/dmg/ar/def）、`summonDie(i)`、`summonRevive(i)`、`summonEquipCollar(i, item)`（项圈槽，暂时用护身符类物品）。
+- 数量上限 `summonCap(type)`：狗 1、骷髅 1、宠物 1（技能 10 级以上为 2）。
+- 战斗侧造成伤害时调用 `hitMon(m, d, 'cqpet')`。系统在 30 秒窗口内把召唤物的伤害占比限制在 `CQ_BAL.summon.share`（0.6）以内。
+
+### 6. 伤害封顶 CQ_BAL.cap
+- `CQ_BAL.capMul = 1.8`。脚本加载时就定义 `CQ_BAL.cap(dmg, ctx)`，返回封顶后的伤害。
+- `ctx = {src:'player'|'hero'|'combo'|'summon', base?, mul?}`，字段可以缺：
+  - 有 `base` 时返回 `min(dmg, base×1.8)`；
+  - 有 `mul` 且大于 1.8 时返回 `dmg×1.8/mul`；
+  - 两个都没有时，按 `CQ_BAL.curMul(src)` 估算；
+  - 什么信息都没有时原样返回。
+- 实际结算由 `cq/cap_cq.js` 负责（紧跟 game.js 加载，是最内层的 hitMon 包装）。总倍率 = `statMul`（强化、远古、精炼、转生）× 外层包装放大比例，超过 1.8 就按比例缩小。最近一次的结果在 `CQ_BAL.capLast`。
+- 测试：tests/cq_balance_test.js 在全部拉满的情况下验证实际结算倍率 ≤ 1.8，英雄和召唤物的伤害也会封顶。
+
+### 7. 后期加点 / 后期技能
+- late.js：`LATE_MAIN`/`LATE_K`/`LATE_SHARE` 补上了 zs（力量）、fs/ds（精神），比例和 classes.js 的 clsLateFix 一致。
+- late_mods.js：删除了暗黑 2 的 60/75 级职业技能，只保留通用的后期内容。

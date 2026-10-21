@@ -39,3 +39,11 @@ CQ_BAL.off={maxH:8,heroK:0.2,bossMax:6,bossDrop:0.5,winPow:0.8};
 CQ_BAL.book={boss:0.15,actboss:0.3,elite:0.02,normal:0.002,ownCls:0.7};
 // 召唤物：属性 = (道术|魔法) × 系数 × (1 + 技能等级×lvK)；伤害占比上限（召唤流，src 'cqpet'）
 CQ_BAL.summon={dog:{hp:12,atk:1.1,def:0.5},skel:{hp:7,atk:0.8,def:0.3},pet:{hp:1.0,atk:1.0,def:1.0},lvK:0.06,attrLv:0.8,revive:60,share:0.6,petMax:2};
+
+// ---------- 实际伤害封顶（M2）：总加成倍率 ≤ CQ_BAL.capMul ----------
+// CQ_BAL.cap(dmg, ctx) → 封顶后的伤害数值。ctx = {src:'player'|'hero'|'combo'|'summon', base?:未加成伤害, mul?:已乘总倍率}，字段可缺：
+//   有 base → min(dmg, base×capMul)；否则有 mul → mul>capMul 时 dmg×capMul/mul；都没有 → 用当前角色实测总倍率 CQ_BAL.curMul(src)（见 cq/cap_cq.js），再无则原样返回。
+CQ_BAL.capMul=1.8;
+CQ_BAL.cap=function(dmg,ctx){dmg=+dmg||0;if(dmg<=0)return dmg;ctx=ctx||{};const C=CQ_BAL.capMul;
+ if(+ctx.base>0)return Math.min(dmg,ctx.base*C);let m=+ctx.mul;if(!(m>0)&&typeof CQ_BAL.curMul==='function')m=CQ_BAL.curMul(ctx.src||'player');
+ return m>C?dmg*C/m:dmg};

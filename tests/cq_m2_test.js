@@ -35,10 +35,11 @@ ok(off2.capSec===8*3600&&off2.boss[0].kills<=6,'离线上限 8 小时');
 G(`S.bossRt.skelspirit={k:Date.now()-5*3600e3,n:3};S.last=Date.now()-3*3600e3;CQSys.power=()=>1;offline();CQSys.power=_p`);
 ok(JSON.parse(G('JSON.stringify(CQSys.offlineLast())')).boss[0].win===false,'战力不足离线不击杀首领');
 // ---- 技能书
+ok(G(`['zs_csjs','zs_lhjf','fs_ldsh','ds_ysh','ds_zhss'].every(k=>CQ_BOOKS[k]&&!CQ_BOOKS[k].placeholder&&CQ_BOOKS[k].sk===k.slice(3))`)&&G(`CQ_BOOKS.zs_lhjf.lv`)===G(`SKM.lhjf.r`)&&!G(`CQ_BOOKS.zs_cs`),'技能书 id/等级对齐 cls_*.js');
 ok(G(`CQSys.books('zs').length`)===6&&G(`CQSys.books('fs').length`)===14&&G(`CQSys.books('ds').length`)===12,'占位技能书 6/14/12');
 G(`S.cls='zs';S.lvl=30;S.bag=[];CQSys.addMat('book_zs_gsjs',1)`);ok(G(`CQSys.bookCount('zs_gsjs')`)===1,'书是材料');
 G(`window._lh=[];CQSys.onBookLearn(b=>_lh.push(b.id))`);
-ok(G(`CQSys.bookLearn('fs_hqs').err`)==='职业不符'&&G(`CQSys.bookLearn('zs_lhjf').err`)==='需要等级 35','学习校验');
+G(`S.lvl=10`);ok(G(`CQSys.bookLearn('fs_hqs').err`)==='职业不符'&&G(`CQSys.bookLearn('zs_lhjf').err`)==='需要等级 16','学习校验');G(`S.lvl=30`);
 ok(G(`CQSys.bookLearn('zs_gsjs').ok`)===1&&G(`CQSys.bookKnown('zs_gsjs')`)&&G('_lh[0]')==='zs_gsjs'&&G(`CQSys.bookCount('zs_gsjs')`)===0,'学习：消耗书、记 S.cqBooks、回调职业 Bot');
 ok(G(`CQSys.bookLearn('zs_gsjs').err`)==='已学会','不能重复学');
 G(`CQSys.bookDef('zs_gsjs',{n:'攻杀剑术',lv:7,sk:'gs'})`);ok(G(`CQ_BOOKS.zs_gsjs.sk`)==='gs'&&!G(`CQ_BOOKS.zs_gsjs.placeholder`),'职业 Bot 可覆盖书定义');
@@ -57,4 +58,7 @@ G(`CQSys._summonReset();CQSys._heroReset&&CQSys._heroReset();MON.length=0;window
 G(`for(let i=0;i<20;i++)hitMon(_m,{phys:100},'player');for(let i=0;i<50;i++)hitMon(_m,{phys:500},'cqpet')`);
 const ss=JSON.parse(G('JSON.stringify(CQSys.summonShare())'));ok(ss.share<=0.6+1e-6&&ss.share>0.55,'召唤物伤害占比 ≤60% 实测 '+ss.share.toFixed(3));
 G(`save()`);ok(G(`JSON.parse(GS.getItem(CH_PRE+ACCT.cur)).summons.length`)===3&&G(`!!JSON.parse(GS.getItem(CH_PRE+ACCT.cur)).bossRt`),'召唤物/首领计时进角色存档');
+// ---- 第 1 章通关解锁第 2 章（修复 q6 缺 fin）+ 存档迁移 v2
+G(`S=newSave();load();S.q={q6:0}`);ok(G(`QUESTS.q6.fin===1&&QUESTS.q6.act===0`),'q6 带 fin/act');G(`questDone('q6')`);ok(G('actOpen(1,0)')===true,'打完半兽统领解锁第二章');
+G(`S=newSave();load();S.q={q6:1};S.sv=1;delete S.bossRt;cqMigrate()`);ok(G('S.sv')===2&&G('actOpen(1,0)')===true&&G('typeof S.bossRt')==='object','迁移 v2：旧存档补解锁第二章');
 T.done();

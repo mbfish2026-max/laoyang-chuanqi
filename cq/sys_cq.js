@@ -8,7 +8,7 @@
 // 5) 存档版本 S.sv / ACCT.sv 与迁移 cqMigrate（只处理本作 cq_ 存档，绝不读取暗夜 anye_ 数据）
 // 6) 对外接口 window.CQSys（给战斗 / 职业 Bot）
 // ===================================================================================
-const CQ_SV=1;// 角色存档结构版本；每次结构变更 +1 并在 CQ_MIG 追加一步
+const CQ_SV=2;// 角色存档结构版本；每次结构变更 +1 并在 CQ_MIG 追加一步
 // ---------- 材料 ----------
 Object.assign(MATS.ess,{n:'黑铁碎片',c:'#9aa4b0',d:'回收装备所得。用途：淬锋精铸。'});
 Object.assign(MATS,{
@@ -45,6 +45,8 @@ function cqStrip(arr){let g=0;for(let i=arr.length-1;i>=0;i--){const it=arr[i];i
 const CQ_MIG=[
  function v1(){let g=cqStrip(S.bag);for(const p of S.pst||[])g+=cqStrip(p);for(const k in S.eq||{}){const it=S.eq[k];if(cqBadItem(it)){delete S.eq[k];g+=100}else if(it){it.sock=0;it.soc=[];delete it.rw}}
   for(const it of cqAllItems())if(!it.k&&it.en==null)it.en=0;S.gold=(S.gold||0)+g;if(S.lvl>CQ_BAL.lvlCap)S.lvl=CQ_BAL.lvlCap;S.cqMigGold=g},
+ // v2（M2）：q6 之前缺 fin 标记，已打完半兽统领的旧存档补解锁第二章；新字段 bossRt/summons/cqBooks 缺省
+ function v2(){try{if(S.q&&S.q.q6&&typeof unlockAfter==='function')unlockAfter(0)}catch(e){}if(!S.bossRt)S.bossRt={};if(!Array.isArray(S.summons))S.summons=[];if(!S.cqBooks)S.cqBooks={}},
 ];
 function cqMigrate(){if(!S)return 0;const from=S.sv||0;for(let v=from;v<CQ_SV;v++)CQ_MIG[v]();S.sv=CQ_SV;return CQ_SV-from}
 {const f=load;load=function(){const r=f.apply(this,arguments);try{if(cqMigrate()&&typeof calc==='function')calc()}catch(e){console.warn('cqMigrate',e)}return r}}

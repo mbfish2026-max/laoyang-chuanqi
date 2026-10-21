@@ -54,7 +54,7 @@ CS._heroReset=()=>{SH.b.length=0};
 CS.hit={crit:false,src:null,dmg:0,t:0};CS.critNow=false;
 {const f=hitMon;hitMon=function(m,d,src,fxc){let crit=(typeof CRIT!=='undefined'&&!!CRIT);
   const isH=src==='cqhero'||src==='cqheji';if(isH&&d&&typeof d==='object')d=heroCap(d);
-  if(!crit&&!isH&&src!=='hero'&&src!=='dot'&&d&&typeof d==='object'){const c=(CS.equipAttrs?CS.equipAttrs().crit:0)||0;if(c>0&&rnd()*100<c){crit=true;const d2={};for(const k in d)d2[k]=d[k]*CQ_BAL.critMul;d=d2}}
+  if(!crit&&!isH&&src!=='dot'&&d&&typeof d==='object'){const c=(CS.equipAttrs?CS.equipAttrs().crit:0)||0;if(c>0&&rnd()*100<c){crit=true;const d2={};for(const k in d)d2[k]=d[k]*CQ_BAL.critMul;d=d2}}
   CS.critNow=crit;try{const r=f.call(this,m,d,src,fxc);if(src!=='dot')shAdd(isH,+r||0);CS.hit={crit,src:src||null,dmg:r||0,t:now()};if(crit)CS.emit('crit',CS.hit);return r}finally{CS.critNow=false}}}
 // ---------- 首领刷新 / 狂暴 ----------
 const BS={on:null,spawnAt:0,killAt:0,enr:false};

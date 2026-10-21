@@ -1,12 +1,15 @@
 // late.js — 后期伤害方案：主属性加伤 + 技能 20 级以后成长 + 职业后期系数 + 自动加点主属性/体力分配
 // 全部用运行时包装实现（hitMon / syn / skPop / renderHero / autoTick），不改其他文件的函数体。
 // 主属性：超出职业初始值的部分每 X 点 → 所有技能、攻击、召唤物伤害 +1%（雇佣兵不算）
-const LATE_MAIN={nec:['ene',4],sor:['ene',4],dru:['ene',4],ama:['dex',5],pal:['str',5],bar:['str',6]};
+// 老羊传奇：zs 力量 / fs、ds 精力（魔法/道术）
+const LATE_MAIN={zs:['str',5],fs:['ene',4],ds:['ene',4],nec:['ene',4],sor:['ene',4],dru:['ene',4],ama:['dex',5],pal:['str',5],bar:['str',6]};
 const LATE_AN={str:'力量',dex:'敏捷',ene:'精力',vit:'体力'};
 // 技能有效等级超过 20 后，每级额外 +LATE_SL（乘在协同系数上，技能等级/协同/精通同吃）
 const LATE_SL=0.05;
 // 职业后期成长系数（按角色等级插值；≤30 级接近 1，保持 1–30 级平衡）
 const LATE_K={
+ // 老羊传奇三职业（等级上限 60；≤30 级 =1 保持前期平衡，30 级后按 cls_sim 再校准）
+ zs:[[1,1],[30,1],[45,1.1],[60,1.2]],fs:[[1,1],[30,1],[45,1.05],[60,1.15]],ds:[[1,1],[30,1],[45,1.05],[60,1.15]],
  nec:[[1,1],[24,1],[30,0.56],[50,1.51],[70,1.3],[85,2.4]],// 原 70:4.63 / 85:2.95——地狱段(64–80 级)伤害约为相邻节点的 3 倍，满屏秒怪；全程通关模拟 57.7h→65.2h
  sor:[[1,1],[24,1],[30,0.7],[50,0.47],[70,0.35],[85,7.5]],
  bar:[[1,1],[24,1],[30,0.45],[50,0.9],[70,1.2],[85,0.5]],
@@ -14,11 +17,11 @@ const LATE_K={
  ama:[[1,1],[24,1],[30,0.83],[50,0.9],[70,1.1],[85,4.2]],
  pal:[[1,1],[24,1],[30,0.8],[50,1.0],[70,0.75],[85,1.3]]};
 // 自动加点：主属性占「主属性+体力」新增点的比例（按角色等级插值）
-const LATE_SHARE={nec:[[1,0],[24,0],[30,0.3],[60,0.45],[85,0.5]],sor:[[1,0],[24,0],[30,0.3],[60,0.45],[85,0.5]],dru:[[1,0],[24,0],[30,0.3],[60,0.45],[85,0.5]],
+const LATE_SHARE={zs:[[1,0.5],[30,0.5],[60,0.6]],fs:[[1,0.5],[30,0.5],[60,0.6]],ds:[[1,0.5],[30,0.5],[60,0.6]],/* 与 classes.js clsLateFix 一致 */nec:[[1,0],[24,0],[30,0.3],[60,0.45],[85,0.5]],sor:[[1,0],[24,0],[30,0.3],[60,0.45],[85,0.5]],dru:[[1,0],[24,0],[30,0.3],[60,0.45],[85,0.5]],
  ama:[[1,0],[24,0],[30,0.35],[85,0.5]],pal:[[1,0],[24,0],[30,0.3],[85,0.5]],bar:[[1,0],[24,0],[30,0.2],[85,0.3]]};
-function lateC(){return typeof curCls==='function'?curCls():'nec'}
+function lateC(){return typeof curCls==='function'?curCls():'zs'}
 function lateTb(t){return typeof clsBalK==='function'&&t?clsBalK(t):1}
-function lateMain(){return LATE_MAIN[lateC()]||LATE_MAIN.nec}
+function lateMain(){return LATE_MAIN[lateC()]||LATE_MAIN.zs}
 function latePct(){if(typeof ST==='undefined'||!ST||!ST.attr)return 0;const[k,x]=lateMain(),B=typeof respBaseAt==='function'?respBaseAt():{};return Math.max(0,Math.floor(((ST.attr[k]||0)-(B[k]||0))/x))}
 // 后期系数按对数插值（相邻节点间按等比变化，避免线性插值在 70→85 级出现陡跳）
 function lateLog(t){const l=(typeof S!=='undefined'&&S&&S.lvl)||1;if(!t)return 1;if(l<=t[0][0])return t[0][1];for(let i=1;i<t.length;i++)if(l<=t[i][0]){const[a,x]=t[i-1],[b,y]=t[i];return x*Math.pow(y/x,(l-a)/(b-a))}return t[t.length-1][1]}

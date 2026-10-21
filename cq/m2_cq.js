@@ -59,7 +59,11 @@ window.CQ_BOOKS=window.CQ_BOOKS||{};
 const BK=[['zs',[['jbjs','基本剑术',1],['gsjs','攻杀剑术',7],['cs','刺杀剑术',22],['ymcz','野蛮冲撞',19],['bywd','半月弯刀',26],['lhjf','烈火剑法',35]]],
  ['fs',[['hqs','火球术',7],['kjhh','抗拒火环',12],['yhzg','诱惑之光',13],['dyh','地狱火',16],['ldsh','雷电术',17],['sxyd','瞬息移动',19],['dhq','大火球',19],['blhy','爆裂火焰',22],['hq','火墙',24],['jgdy','疾光电影',26],['dylg','地狱雷光',26],['mfd','魔法盾',31],['sys','圣言术',32],['bpx','冰咆哮',35]]],
  ['ds',[['zys','治愈术',7],['jsl','精神力战法',9],['sds','施毒术',14],['lhhf','灵魂火符',18],['zhkl','召唤骷髅',19],['yss','隐身术',20],['ylyd','幽灵盾',22],['xlqs','心灵启示',23],['sszj','神圣战甲术',25],['kmz','困魔咒',28],['qtzy','群体治愈术',33],['zhss','召唤神兽',35]]]];
-for(const[c,L]of BK)for(const[id,n,lv]of L){const k=c+'_'+id;if(!window.CQ_BOOKS[k])window.CQ_BOOKS[k]={id:k,n,cls:c,lv,placeholder:1}}
+// 与职业 Bot 对齐：cls_zs/fs/ds.js 已注册的技能（SKM[id].cls）按「同名」取其技能 id 与需求等级 r；书 id = 职业_技能id，sk = 技能 id
+const clsSk=c=>(typeof CLS_SKILLS!=='undefined'?CLS_SKILLS:[]).filter(x=>x&&x.cls===c);
+for(const[c,L]of BK){const real=clsSk(c);for(const[id0,n,lv0]of L){const r=real.find(x=>x.n===n);const id=r?r.id:id0,k=c+'_'+id;
+ if(!window.CQ_BOOKS[k])window.CQ_BOOKS[k]=r?{id:k,sk:id,n,cls:c,lv:r.r||lv0}:{id:k,sk:id,n,cls:c,lv:lv0,placeholder:1}}
+ for(const r of real)if(!/^x/.test(r.id)&&!window.CQ_BOOKS[c+'_'+r.id]&&r.ty!=='passive_hidden')window.CQ_BOOKS[c+'_'+r.id]={id:c+'_'+r.id,sk:r.id,n:r.n,cls:c,lv:r.r||1}}
 function bookMat(b){const k='book_'+b.id;if(!MATS[k])MATS[k]={n:'技能书·'+b.n,c:'#e8c070',d:`${({zs:'战士',fs:'法师',ds:'道士'})[b.cls]}技能书，需要等级 ${b.lv}。在背包中使用即可学会（职业 Bot 实现技能效果）。`};return k}
 for(const b of Object.values(window.CQ_BOOKS))bookMat(b);
 CS.books=cls=>Object.values(window.CQ_BOOKS).filter(b=>!cls||b.cls===cls);
@@ -106,5 +110,8 @@ CS._summonReset=()=>{SW.b.length=0};
 // 背包里点技能书 → 详情弹窗追加「学习」按钮
 if(typeof showItem==='function'){const f=showItem;showItem=function(uid){const r=f.apply(this,arguments);try{if(!window.__NOUI){const F=findItem(uid),it=F&&F.it;if(it&&it.k==='mat'&&/^book_/.test(it.id||'')){const id=it.id.slice(5);const m=document.querySelector('#modal .btns');
  if(m&&!m.querySelector('.cqbook'))m.insertAdjacentHTML('afterbegin',`<button class="btn gold cqbook" onclick="(()=>{const r=CQSys.bookLearn('${id}');toast(r.ok?'学会 '+r.book.n:r.err);if(r.ok){closeM();render()}})()">学习</button>`)}}}catch(e){}return r}}
+// 伤害封顶：记录进入 hitMon 最外层（共享包装之外）的伤害，供 cq/cap_cq.js 计算运行时包装倍率
+{const f=hitMon;hitMon=function(m,d,src,fxc){const o=window.CQ_CAPIN;if(o)o(d);try{return f.apply(this,arguments)}finally{if(o)o(null)}}}
+CS.capLast=()=>CQ_BAL.capLast?CQ_BAL.capLast():null;
 CS.m2=1;
 })();
