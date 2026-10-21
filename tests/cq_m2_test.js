@@ -60,5 +60,9 @@ const ss=JSON.parse(G('JSON.stringify(CQSys.summonShare())'));ok(ss.share<=0.6+1
 G(`save()`);ok(G(`JSON.parse(GS.getItem(CH_PRE+ACCT.cur)).summons.length`)===3&&G(`!!JSON.parse(GS.getItem(CH_PRE+ACCT.cur)).bossRt`),'召唤物/首领计时进角色存档');
 // ---- 第 1 章通关解锁第 2 章（修复 q6 缺 fin）+ 存档迁移 v2
 G(`S=newSave();load();S.q={q6:0}`);ok(G(`QUESTS.q6.fin===1&&QUESTS.q6.act===0`),'q6 带 fin/act');G(`questDone('q6')`);ok(G('actOpen(1,0)')===true,'打完半兽统领解锁第二章');
-G(`S=newSave();load();S.q={q6:1};S.sv=1;delete S.bossRt;cqMigrate()`);ok(G('S.sv')===2&&G('actOpen(1,0)')===true&&G('typeof S.bossRt')==='object','迁移 v2：旧存档补解锁第二章');
+G(`S=newSave();load();S.q={q6:1};S.sv=1;delete S.bossRt;cqMigrate()`);ok(G('S.sv')>=2&&G('actOpen(1,0)')===true&&G('typeof S.bossRt')==='object','迁移 v2：旧存档补解锁第二章');
+// ---- 全部任务可完成：清图任务带 clear，首领任务所在地图有该首领
+{const bad=JSON.parse(G(`JSON.stringify(Object.keys(QUESTS).filter(k=>/^(q[1-6]|a[23]q[1-6])$/.test(k)).filter(k=>{let z=null;ACTS.forEach(a=>a.zones.forEach(x=>{if(x.quest===k)z=x}));if(!z)return true;return !QUESTS[k].clear&&!z.boss}))`));ok(bad.length===0,'第 1–3 章任务都可完成（清图带 clear 或地图有首领） '+bad.join());
+ G(`S=newSave();load();S.q={};S.act=0;S.zone=ACTS[0].zones.findIndex(z=>z.quest==='q5');MON=[];zoneClear()`);ok(G('!!S.q.q5'),'清完比奇城东完成 q5');
+ G(`S=newSave();load();S.q={q6:1};S.sv=2;cqMigrate()`);ok(G('S.sv')===3&&G('!!(S.q.q1&&S.q.q3&&S.q.q5)'),'迁移 v3：已通第一章补完成 q1/q3/q5');}
 T.done();

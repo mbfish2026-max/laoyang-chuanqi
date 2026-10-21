@@ -144,11 +144,11 @@ Object.assign(BOSSES,{
  redsnakeking:{n:'红蛇王',ic:'🐉',hp:200,dmg:[4,11],ar:70,def:35,exp:800,el:'pois',res:{pois:50}},
  orclord:{n:'半兽统领',ic:'👹',hp:320,dmg:[6,16],ar:90,def:55,exp:4000,actboss:1}});
 Object.assign(QUESTS,{
- q1:{act:0,n:'初出银杏村',d:'清理比奇城南全部怪物',rw:'技能点 +1'},
+ q1:{act:0,clear:1,n:'初出银杏村',d:'清理比奇城南全部怪物',rw:'技能点 +1'},
  q2:{act:0,n:'钉耙猫王',d:'击败比奇城西的 钉耙猫王',rw:'经验与金币'},
- q3:{act:0,n:'比奇城北',d:'清理比奇城北全部怪物',rw:'精良戒指'},
+ q3:{act:0,clear:1,n:'比奇城北',d:'清理比奇城北全部怪物',rw:'精良戒指'},
  q4:{act:0,n:'红蛇王',d:'击败毒蛇山谷的 红蛇王',rw:'黑铁矿 ×3'},
- q5:{act:0,n:'比奇城东',d:'清理比奇城东全部怪物',rw:'金币'},
+ q5:{act:0,clear:1,n:'比奇城东',d:'清理比奇城东全部怪物',rw:'金币'},
  q6:{act:0,n:'半兽统领',d:'击败半兽人古墓的 半兽统领',rw:'解锁第二章',fin:1}});
 ACTS[0]=Object.assign(ACTS[0],{n:'第一章 · 新手村',camp:'银杏村',boss:'半兽统领',fq:'q6',zones:[
  Z('银杏村外',1,['chick','deer'],'bg_moor'),
