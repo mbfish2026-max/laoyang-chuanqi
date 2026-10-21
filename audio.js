@@ -84,7 +84,7 @@ function playBar(T,t,b,dest){const beat=60/T.bpm,bl=beat*4,ch=T.prog[b%T.prog.le
   if(T.perc>0.5&&(i===1||i===3))noise(dest,{t:tt,dur:0.18,vol:0.05*T.perc,f:1800,q:0.8,wet:0.3});
   if(T.perc>0.9)noise(dest,{t:tt+beat/2,dur:0.05,vol:0.03,type:'highpass',f:6000})}}
  if(T.ex)try{T.ex(T,t,b,dest,beat)}catch(e){}}
-function sched(){if(!ctx||!cur||ctx.state!=='running')return;const T=TRACKS[cur];while(nextBar<ctx.currentTime+1.2){playBar(T,nextBar,bar,trackGain);nextBar+=240/T.bpm;bar++}}
+function sched(){if(!ctx||!cur||ctx.state!=='running')return;if(window.AUDIO_CQ&&AUDIO_CQ.scene(cur)){nextBar=Math.max(nextBar,ctx.currentTime+0.05);return}const T=TRACKS[cur];while(nextBar<ctx.currentTime+1.2){playBar(T,nextBar,bar,trackGain);nextBar+=240/T.bpm;bar++}}
 function switchTo(k){if(!ctx||!TRACKS[k]||k===cur)return;const t=ctx.currentTime;
  if(trackGain){const old=trackGain;old.gain.cancelScheduledValues(t);old.gain.setValueAtTime(old.gain.value,t);old.gain.linearRampToValueAtTime(0.0001,t+2);setTimeout(()=>{try{old.disconnect()}catch(e){}},6000)}
  trackGain=ctx.createGain();trackGain.gain.setValueAtTime(0.0001,t);trackGain.gain.linearRampToValueAtTime(1,t+2);trackGain.connect(musBus);
@@ -102,7 +102,7 @@ function scene(){try{if(uberForce||window.UBER_ACTIVE||(typeof MON!=='undefined'
 function tick(){if(!ctx||hidden)return;const s=scene();if(s!==cur)switchTo(s);sched()}
 
 // ---------- 音效 ----------
-function sfx(name,arg){if(!ctx||!unlocked||hidden||ctx.state!=='running'||cfg().sm)return;const t=ctx.currentTime,D=sfxBus;
+function sfx(name,arg){if(!ctx||!unlocked||hidden||ctx.state!=='running'||cfg().sm)return;if(window.AUDIO_CQ&&AUDIO_CQ.sfx(name,arg))return;const t=ctx.currentTime,D=sfxBus;
  switch(name){
  case'attack':noise(D,{t,dur:0.12,vol:0.25,f:3000,f2:600,q:1.5});tone(D,{f:180,glide:70,t,dur:0.08,type:'square',vol:0.06,a:0.002,d:0.06,sus:0.1,r:0.05,cut:1200});break;
  case'skill':{const k=arg||'';const fq={teeth:900,spear:700,spirit:520,nova:300,boom:160,cloud:240,summon:220,stab:800,shield:440}[k]||480;
@@ -266,7 +266,7 @@ const SK={
 const KIND_FB={summon:'rs',golem:'cg',attack:'bs',buff:'ba',cbuff:'bshout',corpse:'ce',wall:'bw',cc:'bp',curse:'ad',melee:'bbash',warcry:'bhowl',spell:'mfb',passive:null};
 const EL_FB={fire:(D,t)=>P.fire(D,t),cold:(D,t)=>P.ice(D,t),light:(D,t)=>P.zap(D,t),pois:(D,t)=>P.hiss(D,t),magic:(D,t)=>P.crack(D,t),phys:(D,t)=>P.slash(D,t)};
 function skillRecipe(id){if(SK[id])return SK[id];const s=typeof SKM!=='undefined'&&SKM[id];if(s){if(s.el&&EL_FB[s.el])return EL_FB[s.el];const f=KIND_FB[s.kind];if(f&&SK[f])return SK[f]}return EL_FB.magic}
-function playSkill(id){voice('skill',id,0.6,(t,D)=>skillRecipe(id)(D,t))}
+function playSkill(id){if(ctx&&unlocked&&!hidden&&!cfg().sm&&(typeof TAB==='undefined'||TAB==='fight')&&window.AUDIO_CQ&&AUDIO_CQ.skill(id))return;voice('skill',id,0.6,(t,D)=>skillRecipe(id)(D,t))}
 
 // --- 召唤物 / 佣兵 / 命中 / 暴击 / 格挡 ---
 const colEl=c=>({'#f84':'fire','#f60':'fire','#8cf':'cold','#ff6':'light','#6f6':'pois','#8f6':'pois'})[c]||'phys';
@@ -349,7 +349,7 @@ function reforge(kind){const f=RF[kind];if(!f)return false;if(!ctx||!unlocked||h
  const now=performance.now();if(now-(rfLast[kind]||0)<RF_GAP[kind])return false;rfLast[kind]=now;
  let k=0;if(kind==='reveal'){rfRevealN=now-rfRevealT<1500?(rfRevealN+1)%3:0;rfRevealT=now;k=rfRevealN}
  try{f(sfxBus,ctx.currentTime+0.01,k)}catch(e){return false}return true}
-window.AUDIO_SK={lootLog:()=>LOOTLOG,table:SK,recipe:skillRecipe,play:playSkill,bus:()=>sfxBus,now:()=>ctx?ctx.currentTime:0};
+window.AUDIO_SK={lootLog:()=>LOOTLOG,table:SK,recipe:skillRecipe,play:playSkill,bus:()=>sfxBus,mbus:()=>musBus,now:()=>ctx?ctx.currentTime:0};
 // rollTC 返回本次击杀掉落的装备列表（gold 已直接加到 S.gold）
 let goldPrev=null;
 // 掉落去重（天光 tianguang.js 包在 rollTC 外层，会在本钩子之后同步调用 AUDIO.playLootTier）：
