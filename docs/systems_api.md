@@ -142,3 +142,28 @@
 - **挂机自动强化**：`S.cqAE={on,max:3,keep:300}`，可以用 `CQSys.autoEnh(on,max)` 设置，强化界面里也有开关。挂机时每 5 秒强化一件已穿装备：等级最低的先强化，同级先强化武器；金币扣完要留够 keep，黑铁矿要够。不使用祝福油。统计在 `S.cqAEn`（强化次数）和 `S.cqGoldIn`（累计金币收入）。
 - **重铸候选**：部位词缀池太小时（比如头盔只有 8 种属性），会依次用全等级池、护甲池、首饰池补足，保证 3 个候选互不相同。tests/cq_reforge_seed_test.js 用固定种子 8/1/2/3/13/21/34/55 回归。
 - 模拟：`CLS=zs|fs|ds node tests/cq_bal_sim.js [小时]`，输出金币收入、强化等级、技能书数、回收数和被保护的件数。
+
+## 福利 / 一键换装（cq/fuli_cq.js，存档 CQ_SV=4）
+只做逻辑与存档，页面由战斗侧实现（设计稿 design/chuanqi_v2_live p5_role / p8_fuli）。`CQSys.api` 仍为 1，所有返回值都是普通对象 `{ok, reason?, ...}`。
+
+### CQSys.signin（七日签到，账号级 `ACCT.cqSign={n,last}`）
+- `state()` → `{ok, today:'YYYY-MM-DD', claimedToday, canClaim, day(1–7，今天对应第几天), signed(本轮已签 0–7), total, last, resetOnMiss:false, days:[{day,name,ic,big,state:'ok'|'now'|''}]}`
+- `claim()` → 成功 `{ok:true, day, reward:{type,name,yb?|book?|item?}, state}`；同日重复 `{ok:false, reason:'今日已签到'}`
+- `rewards()` → 7 天奖励表（`window.CQ_SIGN_RW`）：元宝×20 / 金创药×5（S.pot.hp）/ 技能书页（本职业随机技能书 1 本，无可用书时折 2000 金）/ 太阳水×5（S.pot.rej）/ 金币×5000 / 元宝×50 / 极品戒指（当前等级可穿的戒指底材，q=5）
+- 规则：本地自然日（0 点换日）；断签不清零，每签一天进度 +1；第 7 天之后回到第 1 天。元宝进 ACCT.yb，其余进当前角色。
+- 事件 `signin`（claim 结果）。
+
+### CQSys.offline（离线收益领取 / 元宝双倍，角色级 `S.cqOff`）
+- 结算沿用原 `offline()`（m2_cq.js：上限 8 小时、英雄/首领补算），结算时金币/经验/掉落已入账；本模块在结算对象上补 `xp/claimed/doubled/zone/t`。
+- `state()` → 无待领 `{ok:true, has:false}`；有 `{ok, has, claimed, doubled, sec, capSec, capH:8, zone, kills, gold, xp, items(首领掉落件数), boss:[{key,n,kills}], ybCost, yb}`
+- `claim(double)`：`false` = 确认领取；`true` = 扣 `ybCost` 元宝再补发一份 **金币+经验**（掉落不翻倍）。失败：`'没有可领取的离线收益'` / `'本次离线收益已领取'` / `'元宝不足'`（附 need/yb，不消耗任何东西）。每次离线结算只能领一次。
+- 费用 `CQ_BAL.offYb={perH:10,min:10}`：每（不足）1 小时 10 元宝，8 小时 80。`cost()` 返回当前费用。
+- 事件 `offlineReady`（结算出新的待领收益）、`offlineClaim`。
+
+### CQSys.equip.autoBest(dryRun?)
+- 按单件战力 `power(it)` 每个部位从「已穿 + 背包可穿（canEquip：等级/力量/敏捷/职业专属）」中取最高；两个戒指位取战力前二（已穿且仍在前二的不动）。仅角色本体，不含佣兵/英雄。
+- 返回 `{ok:true, changed, changes:[{slot, from:{uid,name,q,power}|null, to:{...}, gain}], dryRun, power:{before,after}}`；无更好装备 `{ok:true, changed:0, changes:[], reason:'没有更强的装备'}`。替下的装备回背包（数量不增），`dryRun=true` 只返回方案不改动。
+- 事件 `autoBest`。
+
+### 存档迁移 v4
+旧存档里已结算的 `S.cqOff`（无 claimed）视为已领取，不能补领双倍；`ACCT.cqSign` 缺省 `{n:0,last:''}`。
