@@ -6,7 +6,7 @@ G(`S=newSave();load();S.cls='zs';S.ci=0;clsInit();ensureLoot();calc()`);
 ok(G('CQ_BAL.enh.gold(0)')===250&&G('CQ_BAL.enh.gold(1)')===1000&&G('CQ_BAL.enh.gold(8)')===20250,'强化金币 250×(n+1)²');
 ok(G('cqEnhCost(3).gold')===4000,'cqEnhCost 使用 CQ_BAL.enh.gold');
 // 2) GATE
-ok(G('gateOf(0,0)')===6&&G('gateOf(2,0)')===6,'普通难度门槛 6');ok(G('gateOf(0,1)')===4,'噩梦仍为 4');ok(G('gateOf(0,2)')===G('HELL_GATE[0]'),'地狱不变');
+ok(G('gateOf(0,0)')===6&&G('gateOf(2,0)')===6,'普通难度门槛 6');ok(G('gateOf(1,0,1)')===8&&G('gateOf(4,0,1)')===8,'普通难度进入新章节首区域门槛 8');ok(G('gateOf(1,1,1)')===4&&G('gateOf(1,2,1)')===G('HELL_GATE[1]'),'噩梦/地狱章节入口不变');ok(G('gateOf(0,1)')===4,'噩梦仍为 4');ok(G('gateOf(0,2)')===G('HELL_GATE[0]'),'地狱不变');
 // 3) 节流：默认关闭（on=0，消融 B 方案）
 ok(G('CQ_BAL.spend.on')===0,'默认节流关闭');G(`S.apot={on:1,hp:90,rej:80,mp:50}`);ok(G(`cqAP('hp')`)===0.9,'关闭时阈值上限 95%');
 G(`S.lvl=10;S.cqSp={inc:0,sp:0};S.gold=100000;S.pot.hp=0;S.pot.mp=0;autoTick()`);ok(G('S.pot.hp')===8,'关闭时照常自动买药');

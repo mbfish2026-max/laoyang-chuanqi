@@ -4,8 +4,8 @@
 const ACX={};const HSOFT=0.008,DSOFT=0.018;// 高等级怪物生命/伤害成长软化(近似调校)
 const GATE=4;let MAPD=null;
 // 地狱后期章节收紧等级宽限：第3/4章 2 级，第5章 0 级(世界之心/毁灭王座需≈84–85级)，让地狱曲线平滑、终章稳定通关
-const GATE_N=6;// 普通难度挂机推进宽限 6 级（噩梦仍 GATE=4，地狱见 HELL_GATE）
-function gateOf(a,d){return d===2?HELL_GATE[a]:d===0?GATE_N:GATE}
+const GATE_N=6,GATE_NE=8;// 普通难度挂机推进宽限：章内区域间 6 级、进入新章节首区域 8 级（噩梦仍 GATE=4，地狱见 HELL_GATE）
+function gateOf(a,d,entry){return d===2?HELL_GATE[a]:d===0?(entry?GATE_NE:GATE_N):GATE}
 const MSLOT=['weapon','helm','armor'];
 const ELK=['fire','cold','light','pois'],ELN={phys:'物',fire:'火',cold:'冰',light:'电',pois:'毒',magic:'魔'};
 function curPen(){return DIFFS[S.diff].pen}
@@ -137,7 +137,7 @@ const _zoneClear=zoneClear;zoneClear=function(){const z=zoneData(),zi=S.zone,a=S
  const zs=ACTS[a].zones;
  // 挂机推进门槛：角色等级 ≥ 下一区域怪物等级 - GATE 才自动前进，否则原地历练
  if(S.auto&&S.zone!==zi&&S.lvl<zs[S.zone].ml-gateOf(a,S.diff)){log(`<span class="dim">${zs[S.zone].n} 推荐 ${zs[S.zone].ml-gateOf(a,S.diff)} 级，先在 ${zs[zi].n} 历练</span>`);S.zone=zi}
- if(S.auto&&zi===zs.length-1&&S.q[ACTS[a].fq]){const n=nextStage();if(n){const nz=ACTS[n[0]].zones[0];if(S.lvl>=mlD(nz.ml0,n[1])-gateOf(n[0],n[1]))goAct(n[0],n[1],TAB!=='fight')}}};
+ if(S.auto&&zi===zs.length-1&&S.q[ACTS[a].fq]){const n=nextStage();if(n){const nz=ACTS[n[0]].zones[0];if(S.lvl>=mlD(nz.ml0,n[1])-gateOf(n[0],n[1],1))goAct(n[0],n[1],TAB!=='fight')}}};
 // 首领"连战受创"：每次在其面前阵亡，该首领(本难度)伤害 ×0.8，最低 ×0.5 —— 保留死亡风险又不形成死墙
 function bfKey(k){return S.diff+'_'+k}
 const _die=die;die=function(){S.bf=S.bf||{};for(const m of MON)if(m.boss&&m.hp>0){const k=bfKey(m.key);S.bf[k]=(S.bf[k]||0)+1;log(`<span class="dim">${m.n} 在连战中受创（伤害 -${Math.round((1-Math.max(0.5,Math.pow(0.8,S.bf[k])))*100)}%）</span>`)}
