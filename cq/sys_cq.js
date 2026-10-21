@@ -55,6 +55,11 @@ const CQ_MIG=[
 function cqMigrate(){if(!S)return 0;const from=S.sv||0;for(let v=from;v<CQ_SV;v++)CQ_MIG[v]();S.sv=CQ_SV;return CQ_SV-from}
 {const f=load;load=function(){const r=f.apply(this,arguments);try{if(cqMigrate()&&typeof calc==='function')calc()}catch(e){console.warn('cqMigrate',e)}return r}}
 {const f=newSave;newSave=function(){const s=f();s.sv=CQ_SV;s.eq={};return s}}
+// 属性低于职业初始值时补齐：game.js calc 用 (A.ene-职业初始ene)×mpe 等算法力/生命，若存档 S.at 是别的职业的初始值（如战士存档被直接改成法师 S.cls），
+// 会得到负的魔法值（法师 Lv7：35+6×2+(10-35)×2 = -3）。每次 calc 前把各项提到当前职业初始值（只升不降，已加的点不动）
+function cqAtFix(){try{if(!S||!S.at||typeof CLS_DEF==='undefined'||typeof curCls!=='function')return 0;const B=CLS_DEF[curCls()]&&CLS_DEF[curCls()].at;if(!B)return 0;let n=0;
+ for(const k in B)if(!((+S.at[k])>=B[k])){S.at[k]=B[k];n++}return n}catch(e){return 0}}
+{const f=calc;calc=function(){cqAtFix();return f.apply(this,arguments)}}
 // ---------- 对外接口 ----------
 function cqItemCls(it){if(!it||it.k)return null;const b=BASEM[it.b];return(b&&b.ccls)||null}
 function cqEquipAttrs(){const o={};for(const k of SLOTS){const it=S.eq[k];if(!it)continue;const m=allMods(it),l=itemLocal(it);for(const x in m)o[x]=(o[x]||0)+m[x];if(l.min)o.atkMin=(o.atkMin||0)+l.min;if(l.max)o.atkMax=(o.atkMax||0)+l.max;if(l.def)o.def=(o.def||0)+l.def}return o}
