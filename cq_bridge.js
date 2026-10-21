@@ -38,8 +38,9 @@
     '半兽战士': 'mdl_mst_1008', '毒蜘蛛': 'mdl_mst_1009', '食人花': 'mdl_mst_1011', '山洞蝙蝠': 'mdl_mst_1012', '骷髅': 'mdl_mst_1013', '掷斧骷髅': 'mdl_mst_1014', '骷髅战士': 'mdl_mst_1015',
     '洞蛆': 'mdl_mst_1022', '僵尸': 'mdl_mst_1023', '爬行僵尸': 'mdl_mst_1024', '红蛇': 'mdl_mst_1025', '虎蛇': 'mdl_mst_1025', '盔甲虫': 'mdl_mst_1034', '电僵尸': 'mdl_mst_2002'};
   CQ.ART_BY_NAME = ART_BY_NAME;
-  // 美术2 按怪物 key 出的立绘 assets/cq/ui/mdl_mst_<key>.png（6db3e84…9661a04）。CQSys.monArt 没给图时先按 key 找同名文件，再按怪名，最后才用旧的随机池
-  var ART_KEYS = {}; ['ape','archer','bat','beetle','corrupt','cowbeast','cowbrute','cqskelelite','fiend','flayer','flshaman','fly','frog','ghost','hopper','horror','hound','hulk','husk','imp','jackal','knight','leaper','mauler','minion','mosq','orclord','pitlord','priest','rakecatking','rat','redsnakeking','rogue','serpent','shaman','shroom','siren','skel','spider','sporer','storm','tombmage','vamp','venom','vulture','wolf','wraith','yeti','zealot','zombie'].forEach(function(k){ ART_KEYS[k] = 1; }); CQ.ART_KEYS = ART_KEYS;
+  // 立绘候选链（M1.8）：CQSys.monArt → 同名 mdl_mst_<key>.png → 按怪名 → 首领 2001 / 旧随机池。不手写文件清单：卡片 img onerror 时
+  //   CQ.artBad(url) 记一笔（缓存在 ART_BAD，整局不再请求），再取下一级。美术以后加 mdl_mst_<key>.png 无需改代码。
+  var ART_BAD = {}; CQ.artBad = function(u){ if (u) ART_BAD[u] = 1; }; CQ._artBad = ART_BAD;
   var PCLS = {1: 'zs', 2: 'fs', 3: 'ds'}, PPROF = {zs: 1, fs: 2, ds: 3};
   // 冷却圈：CQSys.skillCooldown 已登记（placeholder:false）就用正式冷却
   function cdFix(o){ var C = sysFn('skillCooldown'); if (!C) return o; try { var c = C.skillCooldown(o.id); if (c && !c.placeholder && c.cd > 0) { o.cdMax = c.cd; o.cdLeft = c.left; o.sys = 1; } } catch (e) {} return o; }
@@ -110,7 +111,13 @@
     skillFx: function(id){ var SKM = G('SKM') || {}, n = (SKM[id] || {}).n || ''; if (SKILL_FX_ART[n]) return SKILL_FX_ART[n]; for (var i = 0; i < SKILL_FX.length; i++) if (SKILL_FX[i][0].test(n)) return SKILL_FX[i][1]; return null; },
     skillPop: function(id){ if (has('acPop')) G('acPop')(id); },
     toast: function(t){ if (has('toast')) G('toast')(t); },
-    monArt: function(m){ var C = sysFn('monArt'); if (C) { try { var a = C.monArt(m.key); if (a && a.src) return a.src; } catch (e) {} } if (m.key && ART_KEYS[m.key]) return 'assets/cq/ui/mdl_mst_' + m.key + '.png'; var bn = ART_BY_NAME[m.n || ((G('MONS') || {})[m.key] || {}).n]; if (bn) return 'assets/cq/ui/' + bn + '.png'; if (m.boss) return 'assets/cq/ui/mdl_mst_2001.png'; return 'assets/cq/ui/' + ART[hash(m.key || m.n) % ART.length] + '.png'; },
+    monArts: function(m){ var L = [], C = sysFn('monArt'), U = 'assets/cq/ui/';
+      if (C) { try { var a = C.monArt(m.key); if (a && a.src) L.push(a.src); } catch (e) {} }
+      if (m.key) L.push(U + 'mdl_mst_' + m.key + '.png');
+      var bn = ART_BY_NAME[m.n || ((G('MONS') || {})[m.key] || {}).n]; if (bn) L.push(U + bn + '.png');
+      L.push(U + (m.boss ? 'mdl_mst_2001' : ART[hash(m.key || m.n) % ART.length]) + '.png');
+      return L.filter(function(u, i){ return L.indexOf(u) === i; }); },
+    monArt: function(m){ var L = Host.monArts(m); for (var i = 0; i < L.length; i++) if (!ART_BAD[L[i]]) return L[i]; return L[L.length - 1]; },
     itemInfo: function(it){ if (!it) return null; var name = has('itemName') ? G('itemName')(it) : (it.name || '物品'), color = has('itemColor') ? G('itemColor')(it) : '#e8e0cc';
       var t = has('tgTier') ? G('tgTier')(it) : null, TG = G('TG'), tier = null;
       if (t && TG) tier = {key: t, rank: TG.RANK[t] || 1, color: TG.COL[t], tag: TG.TAG[t] || '极品', top: !!TG.TOP[t] || (TG.RANK[t] || 0) >= 3};

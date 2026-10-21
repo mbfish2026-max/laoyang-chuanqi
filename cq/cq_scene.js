@@ -43,7 +43,7 @@
         '<div class="cbar hp"><i data-r="hp"></i></div><div class="cbar mp"><i data-r="mp"></i></div><div class="cbar xp"><i data-r="xp"></i></div></div>' +
         '<div class="ccur"><div><img src="' + UI + 'coin.png" alt=""><span data-r="gold"></span></div><div><img src="' + UI + 'yb.png" alt=""><span data-r="yb"></span></div></div>' +
         '<div class="menu metal" data-a="menu" title="英雄 / 合击说明"><b></b><b></b><b></b></div></div>' +
-      '<div class="bossbar metal"><div class="head" data-r="bhead"></div><div class="bn"><span data-r="bname"></span><small>首领</small><em data-r="blv"></em></div>' +
+      '<div class="bossbar metal" data-a="plaque"><div class="head" data-r="bhead"></div><div class="bn"><span data-r="bname"></span><small>首领</small><em data-r="blv"></em></div>' +
         '<div class="bbar"><div class="trail" data-r="btrail"></div><div class="fill" data-r="bfill"></div><div class="txt" data-r="btxt"></div><div class="x" data-r="bx"></div></div>' +
         '<div class="csub"><span><i data-r="blab">战斗用时</i> <b data-r="btime">00:00</b></span><span data-r="bwave"></span></div></div>' +
       '<div class="plaque metal" data-r="plaque" data-a="plaque" title="切换区域"></div>' +
@@ -73,7 +73,7 @@
     else if (k === 'menu' || k === 'hero') toggleHeroPanel();
     else if (k === 'hclose') toggleHeroPanel(false);
     else if (/^h(create|equip|unequip|rename)$/.test(k)) heroAct(k, a);
-    else if (k === 'plaque') st.R.zpop.classList.toggle('on');
+    else if (k === 'plaque') { st.R.zpop.style.top = (st.bossOn ? 154 : 100) + 'px'; st.R.zpop.classList.toggle('on'); }
     else if (k === 'zprev' || k === 'znext') { CQ.Host.zoneNav(k === 'zprev' ? -1 : 1); st.R.zpop.classList.remove('on'); }
     else if (k === 'zauto') { CQ.Host.autoAdv(true); renderSide(); }
     else if (k === 'zmap') { st.R.zpop.classList.remove('on'); CQ.Host.openMap(); }
@@ -100,8 +100,8 @@
   function layout(){ if (!st) return; var w = st.stage.clientWidth || DW, hh = st.stage.clientHeight || 600, s = w / DW;
     st.g = {s: s, H: Math.max(420, hh / s)}; var r = st.R.root; r.style.transform = 'scale(' + s + ')'; r.style.height = st.g.H + 'px';
     st.R.canvas.style.width = DW + 'px'; st.R.canvas.style.height = st.g.H + 'px'; CQ.FX.resize(DW, st.g.H);
-    var H = st.g.H, pb = H - BOTH - POTH; st.R.plaque.style.top = Math.round(H * .5) + 'px'; st.R.ticker.parentNode.style.top = (pb - 92) + 'px';
-    st.R.side.style.top = (pb - 78) + 'px'; st.R.pick.style.top = (pb - 120) + 'px'; st.R.zpop.style.top = (Math.round(H * .5) - 46) + 'px';
+    var H = st.g.H, pb = H - BOTH - POTH; st.R.ticker.parentNode.style.top = (pb - 92) + 'px';
+    st.R.side.style.top = (pb - 78) + 'px'; st.R.pick.style.top = (pb - 120) + 'px'; st.R.zpop.style.top = (st.bossOn ? 154 : 100) + 'px';
     Object.keys(st.views).forEach(function(k){ st.views[k]._pos = null; }); }
   function start(){ if (st.raf || st.paused) return; st.lastT = performance.now(); st.raf = requestAnimationFrame(frame); }
   function stop(){ if (st && st.raf) { cancelAnimationFrame(st.raf); st.raf = 0; } }
@@ -209,6 +209,7 @@
   function monCard(m){ var cls = 'card spawn' + (m.boss ? ' boss' : m.fl === 'champ' ? ' elite' : m.fl === 'uniq' ? ' cuniq' : '');
     var e = h('div', cls, '<div class="in"><div class="bd"></div>' + (m.boss ? '<div class="ctag">首领</div>' : '') + '<img class="fig" alt="" src="' + esc(CQ.Host.monArt(m)) + '" style="animation-delay:-' + ((m.uid * 7) % 26 / 10) + 's">' +
       '<div class="clv">Lv.' + (m.lv || 1) + '</div><div class="cnm">' + esc(m.n) + '</div><div class="hb"><s></s><i></i></div></div>');
+    var im = e.querySelector('img.fig'); im.onerror = function(){ var u = im.getAttribute('src'), nx; CQ.artBad(u); nx = CQ.Host.monArt(m); if (nx && nx !== u) im.src = nx; else im.onerror = null; };   // 缺图逐级兜底（结果缓存）
     e.style.transform = 'translate(-200px,-200px)'; st.R.units.appendChild(e); CQ.FX.once(e, 'spawn', false, 600);
     var v = st.views[m.uid]; if (v) { v.hbI = e.querySelector('.hb i'); v.hbS = e.querySelector('.hb s'); }
     return e; }

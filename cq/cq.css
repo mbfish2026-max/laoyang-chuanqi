@@ -190,7 +190,7 @@ body.cq-on #cqStage{top:0;background:#120a06}
 
 /* ---- M1.1：底部只留技能行+合击（样稿 p1）；区域浮层、英雄血条/面板 ---- */
 .cqb .plaque{cursor:pointer;pointer-events:auto}
-.cqb .zpop{position:absolute;right:46px;z-index:40;display:none;align-items:center;gap:4px;padding:6px 8px;border-radius:8px;white-space:nowrap}
+.cqb .zpop{position:absolute;right:8px;z-index:40;display:none;align-items:center;gap:4px;padding:6px 8px;border-radius:8px;white-space:nowrap}
 .cqb .zpop.on{display:flex}
 .cqb .zpop span{font-size:13px;font-weight:700;color:#ffe3a3;padding:0 4px}
 .cqb .zpop button{height:26px;padding:0 8px;font-size:12px;color:#ffe9c0;border:1px solid #6a4a22;border-radius:6px;background:#2a160a}
@@ -259,3 +259,10 @@ body.cq-on #cqStage{top:0;background:#120a06}
 .cqb .hero .hn{top:auto;bottom:0;max-width:100%;overflow:hidden}
 .cqb .hero .hhb{top:1px;width:54px;margin-left:-27px}
 .cqb .hero .shadow{width:52px;margin-left:-26px}
+
+/* ---- M1.8 区域牌：原竖牌（right:8 宽 44）正好压在第 6 列格子上（列 6 = x 326.5–387）。保留样稿 p1 的金框牌样式，改成横牌放在顶栏下、网格顶(150)之上的空带；首领战时这条带被首领条占用，牌收起，首领条里已显示波次，点首领条同样打开区域选单 ---- */
+.cqb .plaque{top:70px;right:8px;width:auto;height:auto;padding:3px 14px;writing-mode:horizontal-tb;font-size:15px;line-height:20px;letter-spacing:1px;white-space:nowrap}
+.cqb .plaque::before{top:50%;left:-5px;margin:-5px 0 0}.cqb .plaque::after{top:50%;bottom:auto;left:auto;right:-5px;margin:-5px 0 0}
+.cqb .plaque small{display:inline;margin:0 0 0 6px}
+.cqb.boss .plaque{display:none}
+.cqb .bossbar{cursor:pointer}
