@@ -11,3 +11,6 @@ node_modules/
 
 # gen_image.py 下载的原图
 tools/gen_raw/
+
+# Playwright 基线回归产物（截图/报告），不进仓库
+/test-artifacts/
