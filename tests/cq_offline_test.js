@@ -12,5 +12,5 @@ r=cl(true);ok(!r.ok&&r.reason==='本次离线收益已领取'&&G('ACCT.yb')===60
 G(`S.last=Date.now()-20*3600e3;offline()`);s=st();ok(s.has&&s.capSec===8*3600&&s.ybCost===80,'封顶 8 小时，费用 80');
 G('var g1=S.gold,y1=ACCT.yb');r=cl(false);ok(r.ok&&!r.double&&G('S.gold')===G('g1')&&G('ACCT.yb')===G('y1'),'普通领取：不扣元宝、不加倍');ok(!st().has,'领取后 has=false');
 // 迁移：旧存档 cqOff 无 claimed → 视为已领
-G(`S.cqOff={sec:100,capSec:100,gold:5,items:[],boss:[]};S.sv=3;cqMigrate()`);ok(G('S.sv')===4&&G('S.cqOff.claimed')===1&&!st().has,'迁移 v4：旧离线结算视为已领取');
+G(`S.cqOff={sec:100,capSec:100,gold:5,items:[],boss:[]};S.sv=3;cqMigrate()`);ok(G('S.sv')===G('CQ_SV')&&G('S.cqOff.claimed')===1&&!st().has,'迁移 v4：旧离线结算视为已领取');
 T.done();

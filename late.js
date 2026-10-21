@@ -44,11 +44,6 @@ let LATE_DISP=0;
  const[k,x]=lateMain(),g=P.querySelector('.pts');// 放在首屏「可用属性点」下方
  if(g&&!P.querySelector('.latebn')){const lk=lateLog(LATE_K[lateC()]);g.insertAdjacentHTML('afterend',`<div class="row latebn"><span>属性加成伤害<div class="dim">${LATE_AN[k]}超出初始值每${x}点 +1%${lk!==1?` · 后期成长 ×${lk.toFixed(2)}`:''}</div></span><b>+${latePct()}%</b></div>`)}
  for(const e of P.querySelectorAll('.attr')){const b=e.querySelector('b');if(b&&b.textContent===LATE_AN[k]){const d=e.querySelector('.dim');if(d&&!/伤害\+1%\/\d/.test(d.textContent))d.textContent+=` · 全部伤害+1%/${x}点`}}}catch(e){}return r}}
-// 自动加点（所有职业）：力量够装备 → 职业法力需求 → 主属性与体力按比例
-{const f=autoTick;autoTick=function(...a){try{if(S.autoAt&&S.sp>0&&ST){const c=lateC(),[k]=lateMain(),B=typeof respBaseAt==='function'?respBaseAt():{str:15,dex:25,vit:15,ene:25};const ns=needStr();const sh=lateTb(LATE_SHARE[c]);
-  const eneNeed=()=>c==='nec'?(ST.attr.ene<S.lvl+25&&S.at.ene<S.lvl+15):clsBase().autoEne();
-  while(S.sp>0){if(ST.attr.str<ns)S.at.str++;else if(k!=='ene'&&eneNeed())S.at.ene++;else if(c==='ama'&&S.at.dex<20+1.2*S.lvl)S.at.dex++;
-   else{const mk=Math.max(0,S.at[k]-(B[k]||0)),vt=Math.max(0,S.at.vit-(B.vit||0));if(k==='ene'&&eneNeed())S.at.ene++;else if(mk<sh*(mk+vt+1))S.at[k]++;else S.at.vit++}S.sp--;calc()}}}catch(e){}return f.apply(this,a)}}
 // 详情显示：伤害没有走协同系数的技能（如亡灵召唤物），把伤害区间按倍率换算后替换到文字里
 {const f=SV;SV=function(id,L){const v=f(id,L);if(!LATE_DISP||!v||!Array.isArray(v.dmg))return v;const d0=LATE_DISP;LATE_DISP=0;let raw;try{raw=f(id,L)}finally{LATE_DISP=d0}
  if(raw&&Array.isArray(raw.dmg)&&raw.dmg[0]===v.dmg[0]&&raw.dmg[1]===v.dmg[1]){const n=v.dmg.map(x=>Math.round(x*d0)),o=v.dmg.join('-');if(v.txt&&v.txt.includes(o)){v.txt=v.txt.replace(o,n.join('-'));v.dmg=n}}return v}}

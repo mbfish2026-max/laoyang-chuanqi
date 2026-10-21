@@ -24,10 +24,10 @@ Object.assign(MONS,{
 Object.assign(BOSSES,{
  elezombieking:{n:'电僵王',ic:'⚡',hp:1100,dmg:[12,30],ar:140,def:75,exp:9500,el:'light',res:{light:50}},
  stonezombieking:{n:'石墓尸王',ic:'🗿',hp:2000,dmg:[15,36],ar:160,def:90,exp:18000,actboss:1}});
-// ---------- 任务（沿用 a2q*/a3q* id：acts.js 的奖励分支 a2q1 技能点、a3q1 生命、a3q2 戒指、a3q4 属性点 仍生效） ----------
+// ---------- 任务（沿用 a2q*/a3q* id：acts.js 的奖励分支 a2q1 技能书、a3q1 生命、a3q2 戒指、a3q4 固定属性 仍生效） ----------
 for(const k of ['a2q1','a2q2','a2q3','a2q4','a2q5','a2q6','a3q1','a3q2','a3q3','a3q4','a3q5','a3q6'])delete QUESTS[k];
 Object.assign(QUESTS,{
- a2q1:{act:1,n:'骷髅洞',d:'肃清骷髅洞一层',rw:'技能点 +1',clear:1},
+ a2q1:{act:1,n:'骷髅洞',d:'肃清骷髅洞一层',rw:'技能书 ×1',clear:1},
  a2q2:{act:1,n:'骷髅精灵',d:'击败骷髅洞二层的 骷髅精灵',rw:'经验与金币'},
  a2q3:{act:1,n:'洞底',d:'肃清骷髅洞三层',rw:'金币',clear:1},
  a2q4:{act:1,n:'沃玛森林',d:'肃清沃玛森林',rw:'黑铁矿',clear:1},
@@ -36,7 +36,7 @@ Object.assign(QUESTS,{
  a3q1:{act:2,n:'南部矿区',d:'肃清南部矿区',rw:'生命丹：永久最大生命 +20',clear:1},
  a3q2:{act:2,n:'东部矿区',d:'肃清东部矿区',rw:'精良戒指',clear:1},
  a3q3:{act:2,n:'采矿所',d:'肃清采矿所一层',rw:'金币',clear:1},
- a3q4:{act:2,n:'电僵王',d:'击败采矿所二层的 电僵王',rw:'属性点 +5'},
+ a3q4:{act:2,n:'电僵王',d:'击败采矿所二层的 电僵王',rw:'主属性 +3 体力 +2（永久）'},
  a3q5:{act:2,n:'黑铁矿坑',d:'肃清黑铁矿坑',rw:'黑铁矿',clear:1},
  a3q6:{act:2,n:'石墓尸王',d:'击败石墓深处的 石墓尸王',rw:'解锁第四章',fin:1}});
 const Z=(n,ml,mons,bg,o={})=>Object.assign({n,ml,w:o.w||6,mons,bg},o);

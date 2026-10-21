@@ -169,7 +169,7 @@ function killMon(m){m.hp=0;S.kills=(S.kills||0)+1;killWin.push(GT);
  log(`击杀 <span class="${m.boss?'bossn':m.fl}">${m.n}</span>，经验+${xp}${names.length?'，获得 '+names.join('、'):''}`);
  for(const it of drops){groundLoot(it);addBag(it)}
  if(m.boss)bossKilled(m)}
-function gainXp(x){S.xp+=x;while(S.lvl<99&&S.xp>=xpNeed(S.lvl+1)){S.lvl++;S.sp+=5;S.kp+=1;calc();H.life=ST.life;H.mana=ST.mana;toast(`升级！等级 ${S.lvl}：属性点+5 技能点+1`);log(`<b style="color:#ffd76a">升到 ${S.lvl} 级</b>`)}}
+function gainXp(x){S.xp+=x;while(S.lvl<99&&S.xp>=xpNeed(S.lvl+1)){S.lvl++;calc();H.life=ST.life;H.mana=ST.mana;toast(`升级！等级 ${S.lvl}：属性自动成长`);log(`<b style="color:#ffd76a">升到 ${S.lvl} 级</b>`)}}
 // --- TC 掉落 ---
 function rollTC(m){const t=m.actboss?{p:7,nd:0}:m.boss?{p:5,nd:15}:m.fl==='uniq'?{p:3,nd:40}:m.fl==='champ'?{p:2,nd:60}:{p:1,nd:100};
  const out=[],bm=m.boss?983:0;for(let i=0;i<t.p;i++){const e=wpick([['nd',t.nd],['gold',30],['junk',25],['eq',22],['good',4+(m.boss?8:0)]],x=>x[1])[0];
@@ -186,7 +186,7 @@ function addBag(it){
 function sellPrice(it){return Math.round((5+BASEM[it.b].q*3)*[0.5,1,1.5,3,6,10,8,8,10][it.q])+power(it)}
 function bossKilled(m){const z=zoneData();if(z.quest&&!S.q[z.quest])questDone(z.quest)}
 function questDone(q){S.q[q]=1;const Q=QUESTS[q];log(`<b class="quest">任务完成【${Q.n}】奖励：${Q.rw}</b>`);toast('任务完成：'+Q.n);
- if(q==='q1')S.kp++;if(q==='q2'){gainXp(500);S.gold+=300}
+ if(q==='q1'&&window.CQSys&&CQSys.bookGive)CQSys.bookGive(1);if(q==='q2'){gainXp(500);S.gold+=300}
  if(q==='q3'){const it=genItem(S.lvl,{base:BASEM.rin,q:3});addBag(it);log('长老赠予 '+itemName(it))}
  if(q==='q4'){S.gold+=600;log('获得 600 金币')}
  if(q==='q5')S.imbue=1;if(q==='q6')S.act1done=1}
@@ -335,16 +335,15 @@ let FX_CLR=0;function drawFX(dt){if(!FX.length){if(FX_CLR)return;FX_CLR=1}else F
 function renderHero(){const s=ST,A=s.attr,P=$('#panel');const row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;
  const at=[['str','力量','装备需求 · 武器伤害+1%/点'],['dex','敏捷','命中+5 · 防御+1/4'],['vit','体力','生命+2/点'],['ene','精力','法力+2/点']];
  P.innerHTML=`<div class="gp"><div class="heroart">${heroArt()}</div><h3>${clsName()} · Lv.${S.lvl}</h3><div class="sub">经验 ${fmt(S.xp)} / ${fmt(xpNeed(S.lvl+1))} · 难度 ${DIFFS[S.diff].n}</div>
- <div class="pts">可用属性点 <b>${S.sp}</b> · 技能点 <b>${S.kp}</b></div>
- ${at.map(([k,n,d])=>`<div class="attr"><div><b>${n}</b> <span class="v">${A[k]}</span>${A[k]!==S.at[k]?`<span class="plus"> (+${A[k]-S.at[k]})</span>`:''}<div class="dim">${d}</div></div>
-  <div><button class="btn sm" onclick="addStat('${k}',1)" ${S.sp?'':'disabled'}>+1</button><button class="btn sm" onclick="addStat('${k}',5)" ${S.sp>=5?'':'disabled'}>+5</button></div></div>`).join('')}</div>
+ <div class="pts">属性随等级自动成长（无属性点 / 技能点；技能靠技能书学习）</div>
+ ${at.map(([k,n,d])=>`<div class="attr"><div><b>${n}</b> <span class="v">${A[k]}</span>${A[k]!==S.at[k]?`<span class="plus"> (+${A[k]-S.at[k]})</span>`:''}<div class="dim">${d}</div></div></div>`).join('')}</div>
  <div class="gp"><h3>战斗属性</h3>${row('生命',s.life)+row('法力',s.mana)+row('防御',s.def)+row('命中',s.ar)+row('武器伤害',s.wmin+'-'+s.wmax)+row('施法速度',`${s.fcr}%（断点 ${s.fcrBP}，${Math.round(s.castT*25)}帧）`)+row('攻击速度',s.ias+'%')+
  row('火/冰/电/毒 抗',`<span style="color:#f84">${s.res.fire}</span>/<span style="color:#8cf">${s.res.cold}</span>/<span style="color:#ff6">${s.res.light}</span>/<span style="color:#6f6">${s.res.pois}</span>`)+
  row('寻宝(MF)',s.mf+'%')+row('金币获取',s.gf+'%')+row('生命/法力偷取',s.ll+'% / '+s.ml+'%')+row('格挡',s.block+'%')+row('+全部技能',s.allsk)+row('召唤物伤害/生命',`+${s.sumdmg}% / +${s.sumlife}%`)}</div>
  <div class="gp"><h3>任务</h3>${Object.entries(QUESTS).map(([k,q])=>`<div class="row"><span>${S.q[k]?'✔':'○'} ${q.n}<div class="dim">${q.d}</div></span><b class="dim">${q.rw}</b></div>`).join('')}</div>
- <div class="gp"><h3>设置</h3><div class="btns">${[['autoSk','自动加技能'],['autoAt','自动加属性(力量够用,其余体力)'],['autoEq','自动换装(战力更高)']].map(([k,n])=>`<button class="btn sm ${S[k]?'on':''}" onclick="S.${k}^=1;render()">${n}</button>`).join('')}</div><div class="dim">自动出售（无凹槽）：</div><div class="btns">${[0,1,2,3].map(q=>`<button class="btn sm ${S.sell[q]?'on':''}" onclick="S.sell[${q}]^=1;render()" ${q===3?'disabled':''}>${QN[q]}</button>`).join('')}</div>
+ <div class="gp"><h3>设置</h3><div class="btns">${[['autoSk','自动使用技能书'],['autoEq','自动换装(战力更高)']].map(([k,n])=>`<button class="btn sm ${S[k]?'on':''}" onclick="S.${k}^=1;render()">${n}</button>`).join('')}</div><div class="dim">自动出售（无凹槽）：</div><div class="btns">${[0,1,2,3].map(q=>`<button class="btn sm ${S.sell[q]?'on':''}" onclick="S.sell[${q}]^=1;render()" ${q===3?'disabled':''}>${QN[q]}</button>`).join('')}</div>
  <button class="btn sm" onclick="resetChar()">重置存档</button></div>`}
-function addStat(k,n){n=Math.min(n,S.sp);S.at[k]+=n;S.sp-=n;calc();render()}
+function addStat(){if(typeof toast==='function')toast('属性随等级自动成长')}
 
 // ===== 技能页 =====
 function renderSkills(){const P=$('#panel');const tabs=trees().map((t,i)=>`<button class="${SKT===i?'on':''}" onclick="SKT=${i};render()">${t}</button>`).join('');
@@ -456,7 +455,6 @@ const SK_FILL=()=>bl('bs')<20?['bs','sm','rs','te']:[...['ba','bw','bp'].filter(
 function autoTick(){let ch={};ch=0;const learned=[];for(const[k,c]of[['hp',30],['mp',30]])while(S.pot[k]<8&&S.gold>=c*4&&cqSpend(c))S.pot[k]++
  const PL=(typeof clsSkPlan==='function'&&clsSkPlan())||{order:SK_ORDER,fill:SK_FILL};
  if(S.autoSk)while(S.kp>0){const done={};const id=PL.order.find(x=>{done[x]=(done[x]||0)+1;return bl(x)<done[x]&&canLearn(x)})||PL.fill().find(canLearn);if(!id)break;S.sk[id]=bl(id)+1;S.kp--;ch=1;learned.push(SKM[id].n)}if(learned.length)log('自动加点：'+learned.join('、'));
- if(S.autoAt&&S.sp>0){const ns=needStr();while(S.sp>0){if(ST.attr.str<ns)S.at.str++;else if(clsBase().autoEne?clsBase().autoEne():(ST.attr.ene<S.lvl+25&&S.at.ene<S.lvl+15))S.at.ene++;else S.at.vit++;S.sp--;calc()}ch=1}
  if(S.autoEq)for(const it of S.bag.slice()){if(!it||it.k||!BASEM[it.b]||!canEquip(it))continue;const b=BASEM[it.b];let k=slotOf(b);if(k==='ring')k=!S.eq.ring1?'ring1':!S.eq.ring2?'ring2':(power(S.eq.ring1)<power(S.eq.ring2)?'ring1':'ring2');
   if(!S.eq[k]||power(it)>power(S.eq[k])){const i=S.bag.indexOf(it);S.bag.splice(i,1);if(S.eq[k])S.bag.push(S.eq[k]);S.eq[k]=it;ch=1;log(`自动换装：<span style="color:${itemColor(it)}">${itemName(it)}</span>`)}}
  if(ch){calc();if(TAB!=='fight')render()}}

@@ -47,7 +47,8 @@ function cqHeroDmgCap(playerDmg){const s=CQ_BAL.budget.hero;return Math.max(0,(+
 CQ_BAL.bossRt={small:600,act:1800,actLate:3600};
 CQ_BAL.off={maxH:8,heroK:0.2,bossMax:6,bossDrop:0.5,winPow:0.8};
 // 技能书：每次击杀掉落几率；本职业书占比
-CQ_BAL.book={boss:0.15,actboss:0.3,elite:0.02,normal:0.002,ownCls:0.7,maxLv:20};
+// 技能书：掉率 + 原版 skill.txt 升级规则（9 级；需求等级每级 +3；书数量按掉落经济从原版 1,2,3,5,10,20,30,40,45 压缩；熟练度 = 原版 600…50000 × expK）
+CQ_BAL.book={boss:0.15,actboss:0.3,elite:0.02,normal:0.002,ownCls:0.7,maxLv:9,lvStep:3,cnt:[1,1,1,2,2,3,3,4,5],exp:[600,1000,3000,5000,10000,20000,30000,40000,50000],expK:0.05};
 // 召唤物：属性 = (道术|魔法) × 系数 × (1 + 技能等级×lvK)；伤害占比上限（召唤流，src 'cqpet'）
 CQ_BAL.summon={dog:{hp:12,atk:1.1,def:0.5},skel:{hp:7,atk:0.8,def:0.3},pet:{hp:1.0,atk:1.0,def:1.0},lvK:0.06,attrLv:0.8,revive:60,share:0.6,petMax:2};
 

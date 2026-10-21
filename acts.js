@@ -116,11 +116,11 @@ const _calc=calc;calc=function(){const o=_calc();const b=S.bon||{life:0,res:0};o
 const _questDone=questDone;questDone=function(q){_questDone(q);const d=S.diff,Q=QUESTS[q];
  switch(q){
  case'q2':S.mercU=1;if(!S.merc){hireMerc('archer',null,1);log('<b class="quest">荒原女射手 加入了你的队伍（随从）</b>')}break;
- case'a2q1':S.kp++;break;
+ case'a2q1':if(window.CQSys&&CQSys.bookGive)CQSys.bookGive(1);break;
  case'a3q1':S.bon.life+=20;calc();break;
  case'a3q2':{const it=genItem(S.lvl,{base:BASEM.rin,q:3});addBag(it);log('获得 '+itemName(it));break}
- case'a3q4':S.sp+=5;break;
- case'a4q1':S.kp+=2;break;
+ case'a3q4':{const x=S.atb||(S.atb={}),k=(typeof clsBase==='function'&&clsBase().main||['str'])[0];x[k]=(x[k]|0)+3;x.vit=(x.vit|0)+2;calc();break}
+ case'a4q1':if(window.CQSys&&CQSys.bookGive)CQSys.bookGive(2);break;
  case'a4q2':{const g=[1500,3000,6000][d];S.gold+=g;log('熔炉迸出 '+g+' 金币');break}// 原奖励宝石+符文（已删除）改金币
  case'a5q1':S.sockq++;toast('铁匠：可为一件物品加凹槽');break;
  case'a5q2':{const g=[2000,4000,8000][d];S.gold+=g;log('获得 '+g+' 金币');break}// 原奖励符文×3（已删除）改金币
