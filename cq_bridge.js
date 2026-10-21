@@ -13,17 +13,15 @@
   var on = function(){ return !!(CQ.Scene && CQ.Scene.mounted() && window.CQBattle && CQBattle.isActive()); };
 
   // ---------- 缺口清单（本地兜底） ----------
-  CQ.MISSING = [
-    {api: 'Host.heroSave / 英雄存档字段', why: '英雄(职业/名字/怒气/自动合击)要进云存档', fallback: 'localStorage cq_battle_hero_v1（不跟云存档、不分角色）'},
-    {api: 'Host.heroProf / 英雄创建界面', why: '英雄职业由玩家选择', fallback: '战士带道士，法师/道士带战士'},
-    {api: 'Host.heroStats', why: '英雄自身攻防血/装备', fallback: 'CQ.HERO_TUNE：普攻 1.6 秒/玩家武器上限×0.35，血量=玩家生命×0.8，贴身怪按其攻击力打英雄，阵亡 30 秒复活'},
-    {api: 'Host.skillCooldown(id)', why: '技能冷却圈需要真实冷却/剩余时间（暗夜技能无独立冷却）', fallback: '技能列表取 acLearned() 前 4 个；按 spend(id) 施放时刻 + max(ST.castT,1s) 画圈；点圈调 acPop(id)'},
-    {api: 'Host.monArt(key) / 怪物→传奇立绘映射', why: '卡片立绘', fallback: '首领 mdl_mst_2001，其余按 key 哈希到 4 张骷髅立绘'},
-    {api: 'Host.currency().yb 元宝', why: '顶栏第二货币', fallback: '显示 —'},
-    {api: 'Host.power() 战力', why: '顶栏战力', fallback: '显示职业名'},
-    {api: 'Host.crit 标记', why: '暴击飘字', fallback: '读 skills.js 全局 CRIT（致命一击）'},
-    {api: 'Host.onBossSpawn / 首领刷新时间', why: '首领大血条狂暴倒计时、真实时间刷新', fallback: '血条副行显示战斗用时+波次'},
-    {api: 'Host.hejiBalance', why: '英雄/合击伤害系数需数值确认', fallback: 'heroK=0.35，合击倍率沿用传奇之旅 COMBO'}
+  // 系统接口：window.CQSys（api===1，docs/systems_api.md）。每项先用正式接口，接口不在时用本地兜底。
+  var SYS = function(){ var C = window.CQSys; return C && C.api === 1 ? C : null; };
+  var sysFn = function(n){ var C = SYS(); return C && typeof C[n] === 'function' ? C : null; };
+  CQ.MISSING = [   // 已由 CQSys 提供的接口不再列出；下面是仍然缺、或 CQSys 不在时才用的兜底
+    {api: 'CQSys 不存在时（单测/旧页面）', why: '离线兜底', fallback: '英雄存 localStorage cq_battle_hero_v1；属性按 CQ.HERO_TUNE；元宝显示 —；战力显示职业名；暴击读全局 CRIT；首领条副行显示战斗用时+波次；立绘按 key 哈希；冷却按 spend 时刻'},
+    {api: 'CQ_SKCD 冷却登记（职业 Bot）', why: 'skillCooldown 未登记时 placeholder:true', fallback: '冷却圈按 spend(id) 施放时刻 + max(ST.castT,1s)'},
+    {api: 'CQ_MONART 未覆盖的怪', why: 'monArt(key) 返回 null', fallback: '首领 mdl_mst_2001，其余按 key 哈希到 4 张立绘'},
+    {api: 'CQ_BAL.hero 数值确认', why: 'heroStats 公式是占位（待职业/数值侧确认）', fallback: 'CQ.HERO_TUNE.statAtkK/statHpK/defK 可调系数'},
+    {api: '英雄等级成长 / 英雄经验', why: 'S.hero.lvl 目前随角色等级', fallback: '面板只显示'}
   ];
 
   // 技能 → 传奇之旅序列帧（按技能名关键字；系统开发换成传奇技能后同样按名字匹配，例如 火球术/雷电术/半月弯刀/烈火剑法/灵魂火符/施毒术/治愈术）
@@ -33,32 +31,49 @@
   CQ.SKILL_FX = SKILL_FX;
   var castAt = {};      // 技能施放时刻（冷却圈兜底）
   var ART = ['mdl_mst_1015', 'mdl_mst_1014', 'mdl_mst_1017', 'mdl_mst_1013'];
+  var PCLS = {1: 'zs', 2: 'fs', 3: 'ds'}, PPROF = {zs: 1, fs: 2, ds: 3};
+  // 冷却圈：CQSys.skillCooldown 已登记（placeholder:false）就用正式冷却
+  function cdFix(o){ var C = sysFn('skillCooldown'); if (!C) return o; try { var c = C.skillCooldown(o.id); if (c && !c.placeholder && c.cd > 0) { o.cdMax = c.cd; o.cdLeft = c.left; o.sys = 1; } } catch (e) {} return o; }
   function hash(s){ s = String(s || ''); var x = 0; for (var i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) | 0; return Math.abs(x); }
   var memStore = (function(){ var m = {}; return {getItem: function(k){ return k in m ? m[k] : null; }, setItem: function(k, v){ m[k] = String(v); }}; })();
 
   var Host = CQ.Host = {
     store: function(){ try { return window.localStorage || memStore; } catch (e) { return memStore; } },
+    // 英雄存档：有 CQSys 时存 S.hero（随角色进云存档），并把旧 localStorage 存档一次性迁移进来后删掉
+    heroStore: function(){ var C = sysFn('hero'), ls = Host.store(); if (!C) return ls;
+      try { var old = ls.getItem('cq_battle_hero_v1'); if (old) { var o = JSON.parse(old) || {}, H = C.hero();
+        if (!H.cls && o.prof && C.heroCreate) { C.heroCreate(PCLS[o.prof] || 'ds', o.name || ''); C.heroSet({rage: o.rage || 0, autoHeji: o.autoHeji === false ? 0 : 1}); }
+        if (ls.removeItem) ls.removeItem('cq_battle_hero_v1'); } } catch (e) { console.warn('[CQ] 英雄存档迁移', e); }
+      return {load: function(){ var H = C.hero(), cls = H.cls || (C.heroProfs ? C.heroProfs()[0] : 'ds');
+          return {prof: PPROF[cls] || 3, cls: H.cls, name: H.name || '', rage: +H.rage || 0, autoHeji: !!H.autoHeji, exists: !!H.cls, lvl: H.lvl, eq: H.eq || {}}; },
+        save: function(h){ if (h.exists && C.heroSet) C.heroSet({name: h.name, rage: Math.floor(h.rage || 0), autoHeji: h.autoHeji ? 1 : 0}); }}; },
+    heroSys: function(){ return SYS(); },
+    heroStats: function(){ var C = sysFn('heroStats'); if (!C) return null; try { var s = C.heroStats(); return s && s.cls ? s : null; } catch (e) { return null; } },
+    heroBag: function(){ var S = G('S') || {}, B = G('BASEM') || {}; return (S.bag || []).filter(function(it){ return it && !it.k && B[it.b]; }).slice(0, 16); },
     role: function(){ var S = G('S') || {}, ST = G('ST') || {}, H = G('H') || {}, cls = (has('curCls') ? G('curCls')() : S.cls) || 'zs';
       var lv = S.lvl || 1, xn = has('xpNeed') ? G('xpNeed') : null, xp = 0;
       if (xn) { var a = xn(lv), b = xn(lv + 1); xp = b > a ? (S.xp - a) / (b - a) * 100 : 0; }
-      return {name: S.name || (has('clsName') ? G('clsName')() : '勇士'), clsName: has('clsName') ? G('clsName')() : '', cls: cls, lvl: lv, hp: H.life || 0, maxhp: ST.life || 1, mp: H.mana || 0, maxmp: ST.mana || 1,
-        xpPct: xp, gold: S.gold || 0, yb: null, power: null}; },
+      var r = {name: S.name || (has('clsName') ? G('clsName')() : '勇士'), clsName: has('clsName') ? G('clsName')() : '', cls: cls, lvl: lv, hp: H.life || 0, maxhp: ST.life || 1, mp: H.mana || 0, maxmp: ST.mana || 1,
+        xpPct: xp, gold: S.gold || 0, yb: null, power: null};
+      var C = SYS(); if (C) { try { if (C.currency) { var cu = C.currency(); r.gold = cu.gold; r.yb = cu.yb; } if (C.power) r.power = C.power(); } catch (e) {} }
+      return r; },
     mons: function(){ var M = G('MON') || []; return M.filter(function(m){ return m && m.hp > 0; }).slice(0, 12); },
     zone: function(){ var S = G('S') || {}, z = has('zoneData') ? G('zoneData')() : null; if (!z) return {name: '', sub: ''};
       var w = Math.min(S.wave || 0, z.w || 0); return {name: z.n, sub: z.boss && w >= (z.w || 0) ? '首领' : '第' + w + '/' + (z.w || 0) + '波'}; },
     logs: function(n){ var L = G('LOGS') || []; return L.slice(-n); },
     skills: function(){ var S = G('S') || {}, SKM = G('SKM') || {}, ST = G('ST') || {}, now = performance.now() / 1000, cls = Host.role().cls;
       if (has('acLearned')) { var L = G('acLearned')() || [], cfg = has('acCfg') ? G('acCfg') : null, cm = Math.max(1, +ST.castT || 1);
-        return L.slice(0, 4).map(function(id){ var s = SKM[id] || {}, t = castAt[id] || 0; return {id: id, n: s.n, ic: s.ic, img: null, off: cfg ? !cfg(id).on : false, cdMax: cm, cdLeft: t ? Math.max(0, cm - (now - t)) : 0, fired: t}; }); }
+        return L.slice(0, 4).map(function(id){ var s = SKM[id] || {}, t = castAt[id] || 0; return cdFix({id: id, n: s.n, ic: s.ic, img: null, off: cfg ? !cfg(id).on : false, cdMax: cm, cdLeft: t ? Math.max(0, cm - (now - t)) : 0, fired: t}); }); }
       var ids = Object.keys(S.sk || {}).filter(function(id){ var s = SKM[id]; return s && s.kind !== 'passive' && (S.sk[id] || 0) > 0 && (!s.cls || s.cls === cls || s.ccls === cls); });
       ids.sort(function(a, b){ return (castAt[b] || 0) - (castAt[a] || 0) || (SKM[a].r || 0) - (SKM[b].r || 0); });
       ids = ids.slice(0, 4).sort(function(a, b){ return (SKM[a].r || 0) - (SKM[b].r || 0) || (a < b ? -1 : 1); });
       var cdMax = Math.max(1, +ST.castT || 1);
-      return ids.map(function(id){ var s = SKM[id], t = castAt[id] || 0; return {id: id, n: s.n, ic: s.ic, img: null, cdMax: cdMax, cdLeft: t ? Math.max(0, cdMax - (now - t)) : 0, fired: t}; }); },
+      return ids.map(function(id){ var s = SKM[id], t = castAt[id] || 0; return cdFix({id: id, n: s.n, ic: s.ic, img: null, cdMax: cdMax, cdLeft: t ? Math.max(0, cdMax - (now - t)) : 0, fired: t}); }); },
+    bossInfo: function(){ var C = sysFn('bossInfo'); try { return C ? C.bossInfo() : null; } catch (e) { return null; } },
     range: function(){ var ST = G('ST') || {}; return ST.ranged || /fs|ds/.test(Host.role().cls) ? 3 : 1; },
-    atkMax: function(){ var ST = G('ST') || {}; return Math.max(1, (+ST.wmax || 0) + (+ST.fire || 0) + (+ST.cold || 0), Host.role().lvl * 3); },
+    atkMax: function(){ var ST = G('ST') || {}; return Math.max(1, (+ST.wmax || 0) + (+ST.fire || 0) + (+ST.cold || 0)); },   // 去掉了 等级×3 下限
     lvl: function(){ return Host.role().lvl; },
-    heroK: function(){ return (CQ.HERO_TUNE || {}).atkK || 0.35; },
+    heroK: function(){ var hs = Host.heroStats(); return hs && hs.heroK != null ? hs.heroK : (CQ.HERO_TUNE || {}).atkK || 0.35; },
     maxhp: function(){ return Host.role().maxhp; },
     pots: function(){ var S = G('S') || {}; return S.pot || {}; },
     // 自动吃药已在 game.js step() 内（阈值 CQSys.autoPot，默认开），战斗侧不重复吃
@@ -76,7 +91,7 @@
     skillFx: function(id){ var SKM = G('SKM') || {}, n = (SKM[id] || {}).n || ''; for (var i = 0; i < SKILL_FX.length; i++) if (SKILL_FX[i][0].test(n)) return SKILL_FX[i][1]; return null; },
     skillPop: function(id){ if (has('acPop')) G('acPop')(id); },
     toast: function(t){ if (has('toast')) G('toast')(t); },
-    monArt: function(m){ if (m.boss) return 'assets/cq/ui/mdl_mst_2001.png'; return 'assets/cq/ui/' + ART[hash(m.key || m.n) % ART.length] + '.png'; },
+    monArt: function(m){ var C = sysFn('monArt'); if (C) { try { var a = C.monArt(m.key); if (a && a.src) return a.src; } catch (e) {} } if (m.boss) return 'assets/cq/ui/mdl_mst_2001.png'; return 'assets/cq/ui/' + ART[hash(m.key || m.n) % ART.length] + '.png'; },
     itemInfo: function(it){ if (!it) return null; var name = has('itemName') ? G('itemName')(it) : (it.name || '物品'), color = has('itemColor') ? G('itemColor')(it) : '#e8e0cc';
       var t = has('tgTier') ? G('tgTier')(it) : null, TG = G('TG'), tier = null;
       if (t && TG) tier = {key: t, rank: TG.RANK[t] || 1, color: TG.COL[t], tag: TG.TAG[t] || '极品', top: !!TG.TOP[t] || (TG.RANK[t] || 0) >= 3};
@@ -84,16 +99,51 @@
       return {name: name, color: color, tier: tier, good: it.q >= 3 || !!it.k, img: img, ic: it.k === 'rune' ? '☉' : it.k === 'gem' ? '◆' : '⚔'}; }
   };
 
+  // ---------- 英雄核心：在 game.js step() 里出手（包装 step，不在战斗页/后台定时器也算；离线按 S.kpm 结算，kpm 已含英雄击杀） ----------
+  // 玩家近期 DPS：hitMon 返回值中 src 不是 cqhero/cqheji 的部分（含持续伤害），按 1 秒桶滑动 TUNE.dpsWin 秒
+  var DPS = {b: [0], t: 0, age: 0};
+  function dpsAdd(v){ if (v > 0) DPS.b[DPS.b.length - 1] += v; }
+  function dpsTick(dt){ DPS.t += dt; DPS.age += dt; while (DPS.t >= 1) { DPS.t -= 1; DPS.b.push(0); var W = (CQ.HERO_TUNE || {}).dpsWin || 30; if (DPS.b.length > W + 1) DPS.b.shift(); } }
+  function dpsNow(){ var T = CQ.HERO_TUNE || {}; if (DPS.age < (T.dpsMin || 8)) return 0; var n = DPS.b.length - 1, sum = 0; for (var i = 0; i < n; i++) sum += DPS.b[i]; return n > 0 ? sum / n : 0; }
+  var core = null, hurtT = 0, saveT = 0, dots = [];
+  function heroCore(){ if (!core && CQ.Hero) { var prof = (CQ.HEJI.PROF[Host.role().cls] || 1); core = new CQ.Hero(prof, Host.heroStore()); } return core; }
+  var coreHost = {now: function(){ var gt = G('GT'); return typeof gt === 'number' ? gt * 1000 : Date.now(); },   /* 游戏时间（随 SPEED/后台定时器推进） */ targets: function(){ return Host.mons(); }, pick: function(ts){ return ts.filter(function(m){ return m.boss; })[0] || ts[0]; },
+    hit: function(m, d, src){ return Host.hit(m, d, src); }, atkMax: function(){ return Host.atkMax(); }, lvl: function(){ return Host.lvl(); }, heroK: function(){ return Host.heroK(); },
+    maxhp: function(){ return Host.maxhp(); }, heroStats: function(){ return Host.heroStats(); }, dps: dpsNow};
+  CQ.heroCore = heroCore; CQ.heroHost = coreHost; CQ.dps = dpsNow;
+  function emit(name, ev){ try { if (on() && CQ.Scene[name]) CQ.Scene[name](ev); } catch (e) {} }
+  // 合击结算（伤害/眩晕/持续/回血都在这里真实发生；战斗页只播演出）
+  function applyHeji(ev){ ev.hits.forEach(function(x){ x.got = Host.hit(x.m, x.d, 'cqheji') || 0; if (ev.combo.stun) Host.stun(x.m, ev.combo.stun); if (ev.combo.dot) dots.push({m: x.m, d: Math.round(x.d * ev.combo.dot), n: 5, t: 1}); });
+    if (ev.combo.heal) { Host.healPct(ev.combo.heal); core.unit.hp = Math.min(core.unit.maxhp, core.unit.hp + core.unit.maxhp * ev.combo.heal); }
+    ev.applied = true; emit('playHeji', ev); }
+  function coreStep(dt){ var hc = heroCore(); if (!hc) return; dpsTick(dt);
+    dots = dots.filter(function(o){ o.t -= dt; if (o.t > 0) return true; o.t = 1; if (!(o.m.hp > 0)) return false; Host.hit(o.m, o.d, 'cqheji'); emit('onDot', o); return --o.n > 0; });
+    var ev = hc.tick(dt, coreHost);
+    if (ev) { if (ev.type === 'heji') applyHeji(ev); else emit('onHeroEvent', ev); }
+    // 英雄受伤：有怪时每 hurtT 秒，hurtP 概率被一只活怪打一下（战斗页的格子站位只做表现）
+    var T = CQ.HERO_TUNE; hurtT -= dt; if (hurtT <= 0) { hurtT = T.hurtT * (0.85 + Math.random() * 0.3); var ms = Host.mons();
+      if (ms.length && Math.random() < T.hurtP) { var m = ms[Math.floor(Math.random() * ms.length)], d = m.dmg ? m.dmg[0] + Math.random() * (m.dmg[1] - m.dmg[0]) : 3; var r = hc.hurt(d, coreHost); if (r) emit('onHeroEvent', {type: 'herohurt', m: m, dmg: r.dmg, dead: r.dead}); } }
+    saveT += dt; if (saveT > 15) { saveT = 0; hc.persist(); } }
+  CQ._coreStep = coreStep;
+  CQ.heroHejiNow = function(){ var hc = heroCore(); var r = hc.doHeji(coreHost, true); if (r.ok) applyHeji(r); return r; };
+
   // ---------- 运行时包装（最外层，最后加载） ----------
-  var curSrc = null;
+  var curSrc = null, curMon = null;
   function wrap(name, mk){ if (!has(name)) return false; var f = G(name); if (typeof f !== 'function' || f._cq) return false; var g = mk(f); g._cq = 1; window[name] = g;
     try { eval(name + '=g'); } catch (e) {} return true; }
   function install(){
-    wrap('hitMon', function(f){ return function(m, d, src, fxc){ var prev = curSrc; curSrc = src; try { return f.apply(this, arguments); } finally { curSrc = prev; } }; });
+    wrap('hitMon', function(f){ return function(m, d, src, fxc){ var prev = curSrc, pm = curMon; curSrc = src; curMon = m; try { var r = f.apply(this, arguments); if (src !== 'cqhero' && src !== 'cqheji') dpsAdd(+r || 0);
+        if (src === 'hero' && core) core.addRage(window.CQSys && CQSys.critNow ? 4 : 2); return r; } finally { curSrc = prev; curMon = pm; } }; });
+    wrap('step', function(f){ return function(dt){ var r = f.apply(this, arguments); try { coreStep(+dt || 0); } catch (e) { console.error('[CQ] hero step', e); } return r; }; });
+    // 暴击：有 CQSys 时按 crit 事件出大字（替代全局 CRIT）；暴击那一下的普通飘字跳过，由事件补成暴击大字
+    var C = sysFn('on'); if (C && !install._crit) { install._crit = 1;
+      C.on('crit', function(d){ try { if (on() && curMon) CQ.Scene.onMonDamage(curMon, d && d.dmg || 0, d && d.src || curSrc, true); } catch (e) {} });
+      C.on('hero', function(){ try { if (CQ.Scene.mounted()) CQ.Scene.onHeroChange(); } catch (e) {} });
+      C.on('bossEnrage', function(d){ try { if (on()) CQ.Scene.onBossEnrage(d); } catch (e) {} }); }
     wrap('floatNum', function(f){ return function(id, v, c){ var r = f.apply(this, arguments);
-      try { if (on() && typeof id === 'number') { var m = (G('MON') || []).filter(function(x){ return x.uid === id; })[0]; if (m) CQ.Scene.onMonDamage(m, v, curSrc, !!G('CRIT') && curSrc === 'hero'); } } catch (e) {}
+      try { if (on() && typeof id === 'number') { var m = (G('MON') || []).filter(function(x){ return x.uid === id; })[0]; if (m) { var S2 = SYS(); if (S2) { if (!S2.critNow) CQ.Scene.onMonDamage(m, v, curSrc, false); } else CQ.Scene.onMonDamage(m, v, curSrc, !!G('CRIT') && curSrc === 'hero'); } } } catch (e) {}
       return r; }; });
-    wrap('floatHero', function(f){ return function(t, c){ var r = f.apply(this, arguments); try { if (on()) CQ.Scene.onRoleHurt(String(t), c); } catch (e) {} return r; }; });
+    wrap('floatHero', function(f){ return function(t, c){ var r = f.apply(this, arguments); if (core && /^-\d/.test(String(t))) core.addRage(3); try { if (on()) CQ.Scene.onRoleHurt(String(t), c); } catch (e) {} return r; }; });
     wrap('killMon', function(f){ return function(m){ try { if (on()) CQ.Scene.onKill(m); } catch (e) {} return f.apply(this, arguments); }; });
     wrap('groundLoot', function(f){ return function(it){ if (on()) { try { CQ.Scene.onLoot(it); } catch (e) {} return; } return f.apply(this, arguments); }; });
     wrap('spawnFloat', function(f){ return function(){ if (on()) return; return f.apply(this, arguments); }; });

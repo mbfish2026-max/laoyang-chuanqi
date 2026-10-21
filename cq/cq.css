@@ -46,8 +46,8 @@ body.cq-on #cqStage{top:0;background:#120a06}
 .cqb .card .in{position:absolute;inset:0;transform-origin:50% 100%}
 .cqb .card .bd{position:absolute;inset:0;background:url(../assets/cq/ui/card.png) center/100% 100%;border-radius:4px;box-shadow:0 6px 10px rgba(0,0,0,.55)}
 .cqb .card .fig{position:absolute;left:50%;bottom:16px;height:92px;transform:translateX(-50%);filter:drop-shadow(0 2px 2px rgba(0,0,0,.5));animation:cqBreath 2.6s ease-in-out infinite}
-.cqb .card .clv{position:absolute;left:0;right:0;top:2px;text-align:center;font-size:10px;font-weight:700;color:#fff;text-shadow:0 0 2px #000,0 1px 1px #000}
-.cqb .card .cnm{position:absolute;left:2px;right:2px;bottom:9px;text-align:center;font-size:10.5px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-shadow:0 0 2px #000,0 0 3px #000,0 1px 1px #000}
+.cqb .card .clv{position:absolute;left:0;right:0;top:2px;text-align:center;font-size:11px;font-weight:700;color:#fff;text-shadow:0 0 2px #000,0 1px 1px #000}
+.cqb .card .cnm{position:absolute;left:2px;right:2px;bottom:9px;text-align:center;font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-shadow:0 0 2px #000,0 0 3px #000,0 1px 1px #000}
 .cqb .card .hb{position:absolute;left:5px;right:5px;bottom:3px;height:5px;background:#1a0a06;border:1px solid #000;border-radius:3px;overflow:hidden}
 .cqb .card .hb i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(180deg,#ff6a50,#c0120c);transition:width .15s}
 .cqb .card .hb s{position:absolute;left:0;top:0;bottom:0;background:#ffe9c0;transition:width .6s .25s}
@@ -217,3 +217,12 @@ body.cq-on #cqStage{top:0;background:#120a06}
 .cqb .hpanel .hb2 button{flex:1;height:30px;font-size:13px;font-weight:700;color:#ffe9c0;border:1px solid #8a6a30;border-radius:6px;background:linear-gradient(180deg,#5a3418,#26130a)}
 .cqb .hpanel .hn2{margin-top:8px;font-size:11px;color:#9a8466}
 .cqb .ticker .cq-quest{color:#f2c94a}
+.cqb .hpanel .heq{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:6px}
+.cqb .hpanel .heq b{flex:0 0 100%;font-size:12px;color:#c9a46a}
+.cqb .hpanel .heq button{height:24px;padding:0 6px;font-size:11px;border:1px solid #5a3a1a;border-radius:4px;background:#1e0f06;white-space:nowrap;max-width:48%;overflow:hidden;text-overflow:ellipsis}
+.cqb .hpanel .heq i{font-size:11px;color:#8a7a5a}
+.cqb .hpanel .hn2 a{color:#7dc4ff;text-decoration:underline;cursor:pointer}
+.cqb .hpanel .hpick{display:block;width:100%;margin:6px 0;padding:6px 8px;text-align:left;color:#ffe9c0;border:1px solid #8a6a30;border-radius:6px;background:linear-gradient(180deg,#4a2a14,#1e0f06)}
+.cqb .hpanel .hpick b{font-size:15px;color:#7dff8a;margin-right:6px}
+.cqb .hpanel .hpick small{font-size:11px;color:#d8c290}
+.cqb.enraged .bossbar .csub b{color:#ff2a1a}

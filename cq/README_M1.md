@@ -28,15 +28,38 @@ game.js `step()` 仍是唯一战斗结算：伤害/击杀/掉落（rollTC→addB
 ## M1.1 补充
 
 ### 英雄数值常量 `CQ.HERO_TUNE`（cq/cq_hero.js）
+英雄伤害跟着「玩家近期 DPS」走（玩家对怪的 hitMon 伤害，含持续伤害，1 秒一桶，滑动 dpsWin 秒），不再用 等级×3 下限，也去掉了合击的 (1+等级/50)。
 | 键 | 默认 | 含义 |
 |---|---|---|
 | atkT | 1.6 | 英雄普攻间隔（秒） |
-| atkK | 0.35 | 普攻伤害 = 玩家武器上限 × atkK |
-| hpK | 0.8 | 英雄生命上限 = 玩家生命上限 × hpK |
-| hurtK | 1.0 | 怪物打英雄的伤害倍率 |
-| regen | 0.005 | 每秒回复生命上限的比例 |
-| reviveSec | 30 | 阵亡后复活秒数 |
-改这个对象即可调平衡，`cq_bridge.js` 的 heroK 也从这里读。系统开发接管英雄属性后（docs/systems_api.md），Host.maxhp/heroStats 换成真实接口。
+| dpsK | 0.095 | 普攻 DPS = 玩家近期 DPS × dpsK（实测约 8.9%，因为玩家 DPS 窗口包含刷怪空档） |
+| hejiSec / hejiRef | 6.5 / 3.2 | 合击总伤 = 玩家 DPS × hejiSec × 组合倍率/hejiRef 秒… |
+| hejiSecMin / hejiSecMax | 6 / 6.8 | …再夹在 6–6.8 秒 DPS 之间（群体合击把总伤平分到各目标） |
+| hejiCd | 45 | 合击冷却（秒）；满 100 怒气才能放 |
+| dpsWin / dpsMin | 30 / 8 | DPS 统计窗口；开局不到 dpsMin 秒时用兜底：玩家武器上限 × atkK |
+| atkK | 0.35 | 兜底系数（无 DPS 数据时；也是 heroStats 不在时的 heroK） |
+| hpK | 0.8 | 兜底英雄生命 = 玩家生命 × hpK；有 heroStats 时用 heroStats.hp × statHpK |
+| statHpK / defK | 1 / 0.5 | heroStats 生命系数 / 受伤减 def×defK；heroStats.takesDmg=0 时不受伤 |
+| hurtK / hurtT / hurtP | 1 / 2.3 / 0.35 | 受伤倍率；每 hurtT 秒以 hurtP 概率被一只活怪打一下 |
+| regen / reviveSec | 0.005 / 30 | 每秒回复比例 / 阵亡复活秒数（按游戏时间 GT） |
+实测（`node cq/cq_hero_balance_sim.js 120 <zs|fs|ds>`，跑 2 小时）：普攻约等于玩家伤害的 8.8–9.1%，合击约 6.5–7 秒 DPS，普攻+合击占总伤害 18.7–19.97%（zs 最高，贴近 20% 上限）。和 tests/cq_hero_sim.js 的口径一样，都是 hitMon 返回值。
+
+### 英雄在 step() 里出手（不在战斗页也算）
+- cq_bridge 在运行时包装 `step(dt)`，和 sysapi_cq 的 bossTick 用同一种方式，game.js 没改。每次 step 后跑 `coreStep(dt)`：统计 DPS、英雄普攻、自动合击（伤害、眩晕、持续伤害、回血都在这里结算）、英雄受伤/阵亡/复活，每 15 秒存一次档。
+- 非战斗页由 game.js 的 4 次/秒定时器驱动 step，英雄一样出手。离线收益按 `S.kpm`（近 2 分钟击杀数）结算，kpm 已经算进英雄贡献，所以不需要改离线公式，也不需要新钩子。
+- 战斗页只做表现：`CQ.Scene.onHeroEvent / playHeji(ev.applied) / onDot`。
+- 怒气在 hitMon 包装里加：玩家命中 +2，有 CQSys.critNow 时 +4；floatHero('-N') 也就是玩家受伤 +3；英雄命中 +1。
+
+### CQSys 接入（docs/systems_api.md，api===1；接口不存在时保留兜底）
+- 英雄存档：`Host.heroStore()` 读 `CQSys.hero()`，写 `CQSys.heroSet({name,rage,autoHeji})`，存进 S.hero，随角色进云存档。旧的 `localStorage cq_battle_hero_v1` 第一次读取时迁移：没有英雄就 heroCreate + heroSet，然后删掉旧 key。
+- 英雄面板：没有英雄时显示「召唤英雄」，按 heroProfs 选职业，并显示对应合击。有英雄时可以改名（heroSet）、看/卸英雄装备（heroUnequip）、穿背包装备（heroEquip）。监听 `hero` 事件后刷新。
+- 英雄属性：heroStats 给生命/防御/takesDmg；伤害按上面的 DPS 规则（总控平衡），heroStats.heroK 只在兜底公式里用。
+- 顶栏：`CQSys.currency()` 显示金币/元宝，`CQSys.power()` 显示战力。
+- 暴击大字：监听 `crit` 事件（替代全局 CRIT）；暴击那一下的普通飘字在 critNow 时跳过，由事件补成大字。
+- 首领条第二行：`bossInfo()` 显示「狂暴倒计时 mm:ss」或「已狂暴 ×1.5」；`bossEnrage` 事件出警示条。
+- 怪物立绘：`CQSys.monArt(m.key)`，返回 null 时退回哈希立绘。
+- 冷却圈：`skillCooldown(id)` 不是 placeholder 时用正式 cd/left，否则按 spend 时刻兜底。
+- 剩余兜底见 `CQ.MISSING`。
 
 ### 战斗页布局
 - `body.cq-on` 下隐藏 #hud（药水栏）、#fquest（任务行）、#fzone（区域栏），只写在 cq/cq.css，没有改 index.html。
