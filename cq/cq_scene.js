@@ -175,7 +175,7 @@
       '<div class="hr"><span>生命</span><div class="cbar hp"><i style="width:' + (u.maxhp ? u.hp / u.maxhp * 100 : 0).toFixed(1) + '%"></i></div><em>' + fmt(u.hp) + '/' + fmt(u.maxhp) + '</em></div>' +
       '<div class="hr"><span>怒气</span><div class="cbar rage"><i style="width:' + Math.floor(H.rage || 0) + '%"></i></div><em>' + Math.floor(H.rage || 0) + '/100</em></div>' +
       '<div class="hr"><span>状态</span><em class="l">' + stt + '</em></div>' +
-      '<div class="hr"><span>普攻</span><em class="l">每 ' + T.atkT + ' 秒 · 玩家近期秒伤×' + Math.round(T.dpsK * 100) + '%' + (CQ.dps ? '（当前 ' + fmt(CQ.dps()) + '/秒）' : '') + '</em></div>' +
+      '<div class="hr"><span>普攻</span><em class="l">每 ' + T.atkT + ' 秒 · 玩家近期秒伤×' + Math.round((CQ.heroDpsK ? CQ.heroDpsK({cls: function(){ return CQ.Host.role().cls; }}) : T.dpsK) * 100) + '%' + (CQ.dps ? '（当前 ' + fmt(CQ.dps()) + '/秒）' : '') + '</em></div>' +
       '<div class="hc"><b>合击【' + esc(cb.name) + '】</b><p>' + esc(cb.desc) + '</p><p>已施放 ' + (H.hejiCount || 0) + ' 次' + (H.hejiCd > 0 ? ' · 冷却 ' + Math.ceil(H.hejiCd) + ' 秒' : '') + '</p></div>' +
       '<div class="hb2"><button data-a="auto">' + (H.autoHeji ? '自动合击：开' : '自动合击：关') + '</button><button data-a="heji">立即合击</button></div>' +
       heroSysHTML();

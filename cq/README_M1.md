@@ -87,3 +87,9 @@ game.js `step()` 仍是唯一战斗结算：伤害/击杀/掉落（rollTC→addB
 - 地图接缝：ground.jpg 本身不可无缝平铺（首尾行差 19.8 vs 相邻行 ~6），且旧 CSS 居中平铺产生 441.5px 非整数周期。改用上下镜像拼接 ground_mirror.jpg（1040×1766），repeat-y 从顶部对齐。待美术2出可无缝平铺底图后替换。
 - monArt：sysapi_cq.js CQ_MONART 把 chick/deer 等误映射到 1013（骷髅）；在 cq_bridge 加 ART_BY_NAME 名字兜底（仅当 CQSys.monArt 返回空时），并拷入 17 张 mdl_mst 图。
 - 封顶实测：裸装/满强化 statMul≤1.79，英雄/合击 1000 伤→1000，capLast.capped=false，无双重削减；heroCapped 事件来自 m2 英雄占比预算（20%/30s），非 cap。
+
+## M1.5
+- 卡片 = 原版格子卡（卡:格 1:1）缩到 60.5×63，相邻 ≈2.9px；首领占 1 格、立绘上探；英雄/角色/召唤物同尺寸；字号 ≥11。
+- 地面：美术2 bb141a6 无缝 ground.jpg，整数 390×520 从左上平铺；撤 ground_mirror.jpg。
+- 召唤物：走 cls pet:* 事件（合并验证 fallback 计数 0）；pet_kl 缺图退回原版 mdl_mst_1014；pet_ss/pet_ss_gold 待美术2。
+- HERO_TUNE.dpsKBy {zs .24, fs .43, ds .17}（按玩家职业）：120 分钟 cap 生效模拟 普攻 8.1/8.4/8.6%，合计 15.6/13.4/17.9%。

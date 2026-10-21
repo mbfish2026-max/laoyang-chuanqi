@@ -124,7 +124,7 @@
   function dpsNow(){ var T = CQ.HERO_TUNE || {}; if (DPS.age < (T.dpsMin || 8)) return 0; var n = DPS.b.length - 1, sum = 0; for (var i = 0; i < n; i++) sum += DPS.b[i]; return n > 0 ? sum / n : 0; }
   var core = null, hurtT = 0, saveT = 0, dots = [];
   function heroCore(){ if (!core && CQ.Hero) { var prof = (CQ.HEJI.PROF[Host.role().cls] || 1); core = new CQ.Hero(prof, Host.heroStore()); } return core; }
-  var coreHost = {now: function(){ var gt = G('GT'); return typeof gt === 'number' ? gt * 1000 : Date.now(); },   /* 游戏时间（随 SPEED/后台定时器推进） */ targets: function(){ return Host.mons(); }, pick: function(ts){ return ts.filter(function(m){ return m.boss; })[0] || ts[0]; },
+  var coreHost = {cls: function(){ try { return Host.role().cls; } catch (e) { return null; } }, now: function(){ var gt = G('GT'); return typeof gt === 'number' ? gt * 1000 : Date.now(); },   /* 游戏时间（随 SPEED/后台定时器推进） */ targets: function(){ return Host.mons(); }, pick: function(ts){ return ts.filter(function(m){ return m.boss; })[0] || ts[0]; },
     hit: function(m, d, src){ return Host.hit(m, d, src); }, atkMax: function(){ return Host.atkMax(); }, lvl: function(){ return Host.lvl(); }, heroK: function(){ return Host.heroK(); },
     maxhp: function(){ return Host.maxhp(); }, heroStats: function(){ return Host.heroStats(); }, dps: dpsNow};
   // 伤害封顶：系统入口 CQ_BAL.cap(dmg, ctx)，ctx={src:'player'|'hero'|'combo'|'summon', base?, mul?}，上限 CQ_BAL.capMul=1.8。
