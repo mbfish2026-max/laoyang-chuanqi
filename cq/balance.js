@@ -19,3 +19,8 @@ function cqBudgetProduct(){let p=1;for(const k in CQ_BAL.budget)p*=1+CQ_BAL.budg
 // 强化累计加成百分比（+n）
 function cqEnhPct(n){let s=0;for(let i=0;i<Math.min(n||0,CQ_BAL.enh.max);i++)s+=CQ_BAL.enh.pct[i];return s}
 function cqCapMul(p){return Math.min(CQ_BAL.cap,p)}
+
+// M1 系统接口数值（docs/systems_api.md）：英雄占位系数、暴击倍率、首领刷新/狂暴（秒）
+CQ_BAL.hero={k:0.35,hp0:40,takesDmg:0,cls:{zs:{atk:1.2,def:0.8,hp:14},fs:{atk:1.5,def:0.4,hp:8},ds:{atk:1.0,def:0.6,hp:10}}};
+CQ_BAL.critMul=1.5;
+CQ_BAL.boss={respawn:60,enrage:90,enrMul:1.5};

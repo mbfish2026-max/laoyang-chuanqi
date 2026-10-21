@@ -1,0 +1,4 @@
+/* 老羊传奇 M1：390 宽下设置按钮行不换行；<11px 文字提到 11px */
+#setM .setsec .btns,#setM .mdset .btns,.mdset .btns,#modal .ipanel .btns.c{display:flex;flex-wrap:nowrap!important;gap:3px}
+#setM .setsec .btns>.btn,#setM .mdset .btns>.btn,.mdset .btns>.btn,#modal .ipanel .btns.c>.btn{flex:1 1 0;min-width:0;padding-left:2px;padding-right:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ftop .xpb span,.cell small,.btn.xs,span.tag,#fzone small,#fzone span small,#cqver,#clsync,.cq-ph-v{font-size:11px!important}

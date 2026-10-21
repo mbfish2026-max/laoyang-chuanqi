@@ -66,7 +66,7 @@ function clName2Email(n){return 'u'+Array.from(new TextEncoder().encode(n.toLowe
 function clEmail2Name(e){const m=/^u([0-9a-f]+)@laoyang-game\.local$/i.exec(e||'');if(!m)return e||'';try{return new TextDecoder().decode(new Uint8Array(m[1].match(/../g).map(h=>parseInt(h,16))))}catch(x){return e}}
 function clCheckName(n){if(!/^[A-Za-z0-9_\u4e00-\u9fff]+$/.test(n))throw new Error('账号只能包含字母、数字、下划线或中文');if([...n].length<6)throw new Error('账号至少 6 位');if(clName2Email(n).split('@')[0].length>64)throw new Error('账号过长（中文最多 21 字，英文数字最多 31 位）')}
 function clAcctName(){return CU?clEmail2Name(CU.email):''}
-function clFriendlyErr(e){const m=(e&&e.message)||String(e);if(/already registered|already exists/i.test(m))return '账号已存在';if(/invalid login credentials/i.test(m))return '账号或密码错误';if(/password/i.test(m)&&/6/.test(m))return '密码至少 6 位';if(/fetch|network/i.test(m))return '网络错误，请检查网络';return m}
+function clFriendlyErr(e){const m=(e&&e.message)||String(e);if(/already registered|already exists/i.test(m))return '账号已存在';if(/invalid login credentials/i.test(m))return '账号或密码错误';if(/password/i.test(m)&&/6/.test(m))return '密码至少 6 位';if(/fetch|network/i.test(m))return '网络错误，请检查网络';if(/schema cache|cq_saves|relation .* does not exist|PGRST20[0-9]|42P01/i.test(m))return '云存档表尚未开通（管理员需执行 sql/laoyang_saves.sql），请稍后再试';if(/JWT|401|403|permission denied|row-level security/i.test(m))return '登录已失效或无权限，请重新登录';if(/timeout|timed out/i.test(m))return '连接超时，请稍后重试';/* 老羊传奇：不向玩家展示英文原始报错 */if(!/[\u4e00-\u9fa5]/.test(m)){console.warn('[cloud]',m);return '云服务暂不可用，请稍后重试'}return m}
 async function clSignUp(email,pw,nick){const sb=await sbReady();if(!sb)throw new Error(CL_ERR);const{data,error}=await sb.auth.signUp({email,password:pw,options:{data:{nickname:nick,account:clEmail2Name(email)}}});if(error)throw error;
  if(!data.session){const r=await sb.auth.signInWithPassword({email,password:pw});if(r.error)throw r.error}await afterLogin(nick);return CU}
 async function clSignIn(email,pw){const sb=await sbReady();if(!sb)throw new Error(CL_ERR);const{error}=await sb.auth.signInWithPassword({email,password:pw});if(error)throw error;await afterLogin();return CU}
@@ -103,7 +103,7 @@ function clSyncSoon(){if(!CL.ready)return;clearTimeout(CL._soon);CL._soon=setTim
 // 关页面兜底：keepalive 直接写 REST（体积 <60KB 时）
 function clBeacon(){if(!CU||!CL.ready||CL.kicked)return;try{save();if(!CL.dirty)return;const d=exportAccount();const at=new Date().toISOString();const body=JSON.stringify({user_id:CU.id,data:d,version:(CLOUD.ver||0)+1,updated_at:at});
  const tok=CL.token;if(!tok||!CLOUD.remoteAt||body.length>60000){syncNow();return}
- fetch(SB_URL+'/rest/v1/cq_saves?user_id=eq.'+CU.id+'&updated_at=eq.'+encodeURIComponent(CLOUD.remoteAt),{method:'PATCH',keepalive:true,headers:{apikey:SB_KEY,Authorization:'Bearer '+tok,'Content-Type':'application/json',Prefer:'return=minimal'},body});CLOUD.remoteAt=at;CLOUD.ver++;CL.dirty=0}catch(e){}}
+ fetch(SB_URL+'/rest/v1/cq_saves?user_id=eq.'+CU.id+'&updated_at=eq.'+encodeURIComponent(CLOUD.remoteAt),{method:'PATCH',keepalive:true,headers:{apikey:SB_KEY,Authorization:'Bearer '+tok,'Content-Type':'application/json',Prefer:'return=minimal'},body}).catch(()=>{});CLOUD.remoteAt=at;CLOUD.ver++;CL.dirty=0}catch(e){}}
 // ---------- 界面 ----------
 let CL_GATE=0;
 function loginUI(tab){tab=tab||'in';CL_GATE=1;modal(`<div class="mtitle">老羊传奇 · 账号</div><div class="gp login">

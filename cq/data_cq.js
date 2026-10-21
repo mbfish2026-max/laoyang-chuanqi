@@ -99,6 +99,8 @@ SUFFIX.length=0;SUFFIX.push(
  AF('之攻击',2,1,'jmaxd',J,{maxdmg:[1,2]}),AF('之防御',4,3,'jdef',J,{def:[1,2]}),AF('之幸运',8,6,'luck',WJ,{luck:[1,1]}),
  AF('之寻宝',5,4,'mf',ALL,{mf:[5,15]}),AF('之财富',3,2,'gf',ALL,{gf:[10,25]}),AF('之暴击',12,10,'crit',WJ,{crit:[1,3]}),
  AF('之生命',1,1,'slife',ALL,{life:[5,12]}),AF('之法力',1,1,'smana',ALL,{mana:[5,12]}),AF('之准确',6,5,'sar',ALL,{ar:[2,5]}));
+// 命名：items.js 用 (dn||n)+前缀+底材，后缀显示为「X之」→ 生命之坚固的布衣
+for(const x of SUFFIX)x.dn=x.n.replace(/^之/,'')+'之';
 Object.assign(MODT,{mag:'魔法 +{v}',tao:'道术 +{v}',mdef:'魔防 +{v}',luck:'幸运 +{v}',crit:'暴击 +{v}%',mindmg:'攻击下限 +{v}',maxdmg:'攻击上限 +{v}',
  def:'防御 +{v}',ar:'准确 +{v}',dex:'敏捷 +{v}',life:'生命 +{v}',mana:'魔法值 +{v}',ias:'攻速 +{v}%',ll:'吸血 {v}%',mf:'寻宝 +{v}%',gf:'金币 +{v}%',
  para:'麻痹 {v}%',prot:'护身（伤害转魔）{v}%',revive:'复活（每 5 分钟一次）'});
