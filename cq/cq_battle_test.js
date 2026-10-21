@@ -211,4 +211,9 @@ G('TAB="map"');ok(G('cqPg.travel(0,2,0)')===true&&G('S.zone')===2&&G('TAB')==='f
  G(`CQ.Scene=CQ.Scene||{};var _g0=CQ.Scene.grid;var GB={b:{roleIdx:26},hero:{idx:8},view:m=>m._v};MON=[mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10)];MON[0]._v={idx:9};MON[1]._v={idx:20};MON[2]._v={idx:27};CQ.Scene.grid=()=>GB;var at=CQ._heroAttackers();CQ.Scene.grid=_g0`);
  ok(G('at.length')===1&&G('at[0]===MON[0]'),'只有贴身英雄（且没贴主角）的怪打英雄');
  G(`ALLY.push({kind:'merc',uid:991,hp:50,max:50});S.merc=S.merc||{t:'archer',lvl:1,eq:{}};mercTick(1);step(.1)`);ok(G("ALLY.every(a=>a.kind!=='merc')")&&G('mercTick._cq')===1,'旧佣兵不再参战');}
+{const fs2=require('fs');const C=G('JSON.stringify(Object.entries(CQ.HEJI.COMBO).map(([k,v])=>[k,v.fx]))');const M={'1+2':'pixingzhan','1+3':'leitingyiji','2+3':'shihunzhaoze','1+1':'pohunzhan','2+2':'huolongqiyan','3+3':'morishenpan'};
+ ok(JSON.parse(C).every(([k,f])=>f==='heji_'+M[k]&&fs2.existsSync(root+'/assets/cq/ui/'+f+'.png')),'6 种合击组合 → heji_<名>.png 图标都在');
+ ok(['zs','fs','ds'].every(c=>fs2.existsSync(root+'/assets/cq/ui/hero_head_'+c+'.png')),'英雄头像 hero_head_zs/fs/ds 都在');
+ const sc=fs2.readFileSync(root+'/cq/cq_scene.js','utf8');ok(/function hejiIcon\(cb\)\{ return UI \+ \(cb && cb\.fx/.test(sc)&&/btn_heji\.png'; \}/.test(sc),'合击按钮按组合换图，缺图退回 btn_heji');
+ ok(/'hero_head_' \+ \(PCLS\[p\]/.test(sc)&&/data-a="hero" data-r="hbtn"/.test(sc),'战斗页英雄按钮按英雄职业显示头像');ok(/class="hjic"/.test(sc),'合击演出大字带组合图标');}
 T.done();

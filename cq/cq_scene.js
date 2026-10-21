@@ -48,7 +48,7 @@
         '<div class="csub"><span><i data-r="blab">战斗用时</i> <b data-r="btime">00:00</b></span><span data-r="bwave"></span></div></div>' +
       '<div class="plaque metal" data-r="plaque" data-a="plaque" title="切换区域"></div>' +
       '<div class="ticker glass"><div class="rows" data-r="ticker"></div></div>' +
-      '<div class="side" data-r="side"><div class="chip glass" data-a="auto"></div><div class="chip glass" data-a="zauto" data-r="zauto"></div></div>' +
+      '<div class="side" data-r="side"><div class="hbtn" data-a="hero" data-r="hbtn" title="英雄"><img alt="" src="' + UI + 'hero_head_ds.png"></div><div class="chip glass" data-a="auto"></div><div class="chip glass" data-a="zauto" data-r="zauto"></div></div>' +
       '<div class="pick" data-a="pick" data-r="pick"></div>' +
       '<div class="zpop metal" data-r="zpop"><button data-a="zprev">◀</button><span data-r="zname"></span><button data-a="znext">▶</button><button data-a="zmap">地图</button></div>' +
       '<div class="hpanel metal" data-r="hpanel"></div>' +
@@ -58,7 +58,7 @@
     // 技能栏：2 技能 + 合击 + 2 技能（样稿 bottom()）
     var C = 2 * Math.PI * 48;
     var sk = function(i){ return '<div class="csk cempty" data-a="sk" data-sk="' + i + '"><div class="ic"></div><div class="cd" style="--p:100%"></div><div class="cdt"></div><div class="key"></div></div>'; };
-    R.skills.innerHTML = sk(0) + sk(1) + '<div class="heji" data-a="heji"><svg viewBox="0 0 104 104"><circle cx="52" cy="52" r="48" fill="none" stroke="rgba(0,0,0,.6)" stroke-width="5"/><circle data-ring cx="52" cy="52" r="48" fill="none" stroke="#ff7a2a" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 ' + C + '"/></svg><img src="' + UI + 'btn_heji.png" alt=""><div class="t">合击</div><div class="rg"></div></div>' + sk(2) + sk(3);
+    R.skills.innerHTML = sk(0) + sk(1) + '<div class="heji" data-a="heji"><svg viewBox="0 0 104 104"><circle cx="52" cy="52" r="48" fill="none" stroke="rgba(0,0,0,.6)" stroke-width="5"/><circle data-ring cx="52" cy="52" r="48" fill="none" stroke="#ff7a2a" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 ' + C + '"/></svg><img src="' + UI + 'btn_heji.png" alt="" onerror="this.onerror=null;this.src=\'' + UI + 'btn_heji.png\'"><div class="t">合击</div><div class="rg"></div></div>' + sk(2) + sk(3);
     R.sk = [].slice.call(R.skills.querySelectorAll('.csk')); R.heji = R.skills.querySelector('.heji'); R.ring = R.heji.querySelector('[data-ring]'); R.ringC = C;
     R.root = root; R.world = root.querySelector('.world'); R.canvas = root.querySelector('canvas.cqfx'); R.ava = root.querySelector('.ava');
     root.addEventListener('click', onClick);
@@ -171,7 +171,14 @@
     onHeroChange(); }
   function roleArt(c){ return c === 'ds' ? 'hero_ds' : c === 'fs' ? 'hero_fs' : 'hero_zs'; }
   function heroArt(p){ return p === 3 ? 'hero_ds' : p === 2 ? 'hero_fs' : 'hero_zs'; }
-  function onHeroChange(){ if (!st) return; st.hero.reload(); var nm = st.heroEl.querySelector('.hn'); if (nm) txt(nm, st.hero.h.name); var img = st.heroEl.querySelector('img'); if (img) { var src = UI + (heroArt(st.hero.h.prof)) + '.png'; if (img.getAttribute('src') !== src) img.setAttribute('src', src); }
+  // 美术 UI 图标（不是 CQ.FX 的 HEJI_DIRS 帧序列）：合击按钮 = heji_<组合>.png（名同 COMBO.fx），缺图退回 btn_heji；英雄按钮 = hero_head_<英雄职业>.png
+  var PCLS = {1: 'zs', 2: 'fs', 3: 'ds'};
+  function hejiIcon(cb){ return UI + (cb && cb.fx ? cb.fx : 'btn_heji') + '.png'; }
+  function heroHead(p){ return UI + 'hero_head_' + (PCLS[p] || 'ds') + '.png'; }
+  CQ.hejiIcon = hejiIcon; CQ.heroHead = heroHead;
+  function artSync(){ var R = st.R, hi = R.heji && R.heji.querySelector('img'), src = hejiIcon(st.hero.combo()); if (hi && hi.getAttribute('src') !== src) { hi.onerror = function(){ hi.onerror = null; hi.src = UI + 'btn_heji.png'; }; hi.setAttribute('src', src); }
+    var hb = R.hbtn && R.hbtn.querySelector('img'), hs = heroHead(st.hero.h.prof); if (hb && hb.getAttribute('src') !== hs) hb.setAttribute('src', hs); if (R.hbtn) R.hbtn.classList.toggle('none', !st.hero.present()); }
+  function onHeroChange(){ if (!st) return; st.hero.reload(); artSync(); var nm = st.heroEl.querySelector('.hn'); if (nm) txt(nm, st.hero.h.name); var img = st.heroEl.querySelector('img'); if (img) { var src = UI + (heroArt(st.hero.h.prof)) + '.png'; if (img.getAttribute('src') !== src) img.setAttribute('src', src); }
     st._pres = null; if (st.R.hpanel) { st.R.hpanel._h = ''; renderHeroPanel(); } renderSide(); }
   function onBossEnrage(d){ if (!st) return; var w = h('div', 'warn', '<span>首领狂暴 · 伤害 ×' + ((d && d.mul) || 1.5) + '</span>'); st.R.root.appendChild(w); CQ.FX.once(w, null, true, 3000); }
   function renderHeroPanel(){ var p = st.R.hpanel; if (!p.classList.contains('on')) return;
@@ -307,7 +314,7 @@
       if (!k) { shake(); flash(); } });
     // 冲击时：大字 + 连击 + 光环（一次性）
     setTimeout(function(){ if (!st) return;
-      var cy = tPos[0] ? tPos[0].y : st.g.H / 2, big = h('div', 'critw', '<span class="w">合击·' + esc(ev.name) + '</span><span class="n">' + fmt(ev.total) + '</span>');
+      var cy = tPos[0] ? tPos[0].y : st.g.H / 2, big = h('div', 'critw', '<img class="hjic" alt="" src="' + hejiIcon(ev.combo) + '" onerror="this.remove()"><span class="w">合击·' + esc(ev.name) + '</span><span class="n">' + fmt(ev.total) + '</span>');
       big.style.top = Math.max(TOPH + 8, (st.bossOn ? 150 : 90)) + 'px'; R.fx.appendChild(big); CQ.FX.once(big, null, true, 1500);
       if (ev.hits.length > 1) { var cb = h('div', 'combo', '<b>×' + ev.hits.length + '</b><span>连 击</span>'); cb.style.top = Math.round(cy) + 'px'; R.fx.appendChild(cb); CQ.FX.once(cb, null, true, 1400); }
       tPos.slice(0, 3).forEach(function(c){ var rg = h('div', 'ring'); rg.style.cssText = 'left:' + (c.x - 70) + 'px;top:' + (c.y - 70) + 'px;width:140px;height:140px'; R.fx.appendChild(rg); CQ.FX.once(rg, null, true, 800); });
