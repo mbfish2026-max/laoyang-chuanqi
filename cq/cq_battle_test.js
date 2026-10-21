@@ -89,7 +89,7 @@ ok(JSON.parse(fs.readFileSync(path.join(root,'assets/cq/fx/diyuhuo/fx.json'),'ut
 ok(/an\.line/.test(fs.readFileSync(path.join(root,'cq/cq_fx.js'),'utf8'))&&/ctx\.rotate\(ang\)/.test(fs.readFileSync(path.join(root,'cq/cq_fx.js'),'utf8')),'cq_fx 支持 line 类型（根部锚定、旋转、朝左翻转）');
 ok(G('CQ.capDmg(1000,{src:"hero",base:100})')===180&&G('CQ.capDmg(500,{src:"combo",mul:3.6})')===250&&G('CQ.capDmg(50,{src:"hero",base:100})')===50,'英雄/合击伤害走 CQ_BAL.cap 1.8 倍封顶');
 G('var hc3=new CQ.Hero(1,localStorage);var host3=Object.assign({},host,{dps:()=>1000,cap:CQ.capDmg});hc3.h.rage=100;hc3.h.hejiCd=0;var r3=hc3.doHeji(host3,true)');ok(G('r3.total')<=1000*6.5*1.8+2&&G('r3.total')>=1000*6*.9-2,'合击 6–6.8 秒 DPS 且经封顶');
-ok(CQ_T('dpsWin')===120&&CQ_T('hejiCd')===45,'有效 DPS 窗口 120 秒、合击冷却 45 秒');
+ok(CQ_T('dpsWin')===120&&CQ_T('hejiCd')===30,'有效 DPS 窗口 120 秒、合击冷却 30 秒（原版）');
 G('var mo=mkMon(Object.keys(MONS)[0],1);mo.hp=10;mo.max=10;MON=[mo];var DS=CQ._dpsState,b0=DS.b[DS.b.length-1];hitMon(mo,{phys:5000},"hero","#fff");var b1=DS.b[DS.b.length-1]');ok(G('b1-b0')>0&&G('b1-b0')<=20,'有效 DPS：秒怪溢出不计（5000 伤害打 10 血只记剩余血量；测试里 hitMon 被包了两层）');
 // ---------- M1.4 格子走位 / 地图接缝 / 立绘 ----------
 ok(/\.cqb \.card,\.cqb \.hero\{[^}]*transition:transform \.2s/.test(css),'逐格移动 0.2 秒一步（原版 MoveBy .2）');
@@ -228,10 +228,17 @@ if(G("typeof heroSkPick")==='function'){// 职业开发 cls_hero.js 接入（分
  ok(n===19&&all,'19 张区域缩略图 zone_<章>_<区>.webp 与 ACTS[0..2] 一一对应（从 1 起）');
  ok(/zThumb\(a,i,'zth'\)/.test(src)&&/zThumb\(a,i,'zhead'\)/.test(src)&&/onerror="this\.style\.display='none'"/.test(src),'区域行与传送弹窗用同一张缩略图，缺图隐藏');
  ok(/c\.a>=2\?`assets\/cq\/map\/chapter_\$\{c\.a\+1\}\.webp`/.test(src)&&/chapter_4\.webp/.test(src)&&fs3.existsSync(root+'/assets/cq/map/chapter_3.webp')&&fs3.existsSync(root+'/assets/cq/map/chapter_4.webp'),'第 3/4 章卡片用 chapter_3/4.webp，1/2 章保留 stage_1001/1002');
- ok(!/b==='skelspirit'\?'1017':b/.test(src)&&/mdl_mst_\$\{b\}\.png/.test(src),'骷髅精灵优先 mdl_mst_skelspirit.png（1017 仅作缺图兜底）');}
+ ok(!/1017/.test(src)&&/mdl_mst_\$\{b\}\.png/.test(src),'首领头像直接 mdl_mst_<key>.png，无 skelspirit→1017 兜底');}
 {const fs4=require('fs'),css=fs4.readFileSync(root+'/cq/pages_cq.css','utf8'),js=fs4.readFileSync(root+'/cq/pages_cq.js','utf8');
  ok(['prof_bar_9s','prof_bar_fill_9s','sign_cell_9s','stamp_ok'].every(f=>fs4.existsSync(root+'/assets/ui/'+f+'.png')),'UI 美术 d851afb 4 张图都在');
- ok(/prof_bar_9s\.png\) 6 fill/.test(css)&&/prof_bar_fill_9s\.png\) 5 fill/.test(css),'技能熟练度条：底 slice 6、填充 slice 5');
+ ok(/--cq-prof-bar,url\(\.\.\/assets\/ui\/prof_bar_9s\.png\)\) 6 fill/.test(css)&&/--cq-prof-bar-fill,url\(\.\.\/assets\/ui\/prof_bar_fill_9s\.png\)\) 5 fill/.test(css),'技能熟练度条：底 slice 6、填充 slice 5');
  ok(/Lv\.\$\{b\}\/\$\{SKMX\(\)\}/.test(js)&&/CLS_SKMAX/.test(js),'等级标签 Lv.x/上限（CLS_SKMAX，缺省 20）');
- ok(/sign_cell_9s\.png\) 12 fill/.test(css)&&/\.dy\.ok::after\{content:"";[^}]*stamp_ok\.png/.test(css),'签到格 sign_cell_9s slice 12，已签用 stamp_ok 印章替换 ✔');}
+ ok(/sign_cell_9s\.png\)\) 12 fill/.test(css)&&/\.dy\.ok::after\{content:"";[^}]*stamp_ok\.png/.test(css),'签到格 sign_cell_9s slice 12，已签用 stamp_ok 印章替换 ✔');}
+{const fs5=require('fs'),js=fs5.readFileSync(root+'/cq/pages_cq.js','utf8'),sc=fs5.readFileSync(root+'/cq/cq_scene.js','utf8');
+ ok(/CQSys\.uiIcon\(k\)/.test(js)&&/'--cq-'\+k/.test(js)&&/C\.uiIcon\(k\)/.test(sc),'UI 杂项图/英雄头像优先 CQSys.uiIcon，原路径兜底');
+ ok(/r\.reward\.icon\)SIGNIC\[r\.day\]=r\.reward\.icon/.test(js),'签到用 claim() 返回的技能书图标');
+ ok(/data-a="hjoff"/.test(sc)&&/skToggle\('heji'/.test(sc),'英雄面板有合击开关（skOff.heji / CQSys.hero.skToggle）');
+ G(`var hk=new CQ.Hero(1,localStorage);hk.h.exists=true;hk.h.autoHeji=true;hk.h.rage=100;hk.h.hejiCd=0;hk.unit.hp=hk.unit.maxhp=100;MON=[mkMon(Object.keys(MONS)[0],10)];MON[0].hp=1e7;var hkh={now:()=>Date.now(),targets:()=>MON.filter(m=>m.hp>0),hit:(m,d)=>d,atkMax:()=>100,lvl:()=>12,heroK:()=>.35};hk.unit.atkT=9;var ka=hk.autoHeji(hkh)`);
+ ok(G('ka&&ka.type')==='heji'&&G('hk.h.hejiCd')===30,'合击开：自动合击，冷却 30 秒');
+ G(`hk.h.skOff={heji:1};hk.h.rage=100;hk.h.hejiCd=0;var kb=hk.autoHeji(hkh)`);ok(G('kb')===null,'合击关：不自动合击');}
 T.done();

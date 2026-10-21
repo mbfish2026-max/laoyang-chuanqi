@@ -72,6 +72,7 @@
     else if (k === 'sk') { var id = a._id; if (id && CQ.Host.skillPop) CQ.Host.skillPop(id); }
     else if (k === 'menu' || k === 'hero') toggleHeroPanel();
     else if (k === 'hclose') toggleHeroPanel(false);
+    else if (k === 'hjoff') { heroHejiToggle(!st.hero.skOff('heji')); }
     else if (/^h(create|equip|unequip|rename)$/.test(k)) heroAct(k, a);
     else if (k === 'plaque') { st.R.zpop.style.top = (st.bossOn ? 154 : 100) + 'px'; st.R.zpop.classList.toggle('on'); }
     else if (k === 'zprev' || k === 'znext') { CQ.Host.zoneNav(k === 'zprev' ? -1 : 1); st.R.zpop.classList.remove('on'); }
@@ -174,10 +175,15 @@
   // 美术 UI 图标（不是 CQ.FX 的 HEJI_DIRS 帧序列）：合击按钮 = heji_<组合>.png（名同 COMBO.fx），缺图退回 btn_heji；英雄按钮 = hero_head_<英雄职业>.png
   var PCLS = {1: 'zs', 2: 'fs', 3: 'ds'};
   function hejiIcon(cb){ return UI + (cb && cb.fx ? cb.fx : 'btn_heji') + '.png'; }
-  function heroHead(p){ return UI + 'hero_head_' + (PCLS[p] || 'ds') + '.png'; }
+  function heroHead(p){ var k = 'hero_head_' + (PCLS[p] || 'ds'), C = W0.CQSys, u = null; try { u = C && C.uiIcon ? C.uiIcon(k) : null; } catch (e) {} return u || UI + k + '.png'; }   /* 优先 CQSys.uiIcon */
   CQ.hejiIcon = hejiIcon; CQ.heroHead = heroHead;
   function artSync(){ var R = st.R, hi = R.heji && R.heji.querySelector('img'), src = hejiIcon(st.hero.combo()); if (hi && hi.getAttribute('src') !== src) { hi.onerror = function(){ hi.onerror = null; hi.src = UI + 'btn_heji.png'; }; hi.setAttribute('src', src); }
     var hb = R.hbtn && R.hbtn.querySelector('img'), hs = heroHead(st.hero.h.prof); if (hb && hb.getAttribute('src') !== hs) hb.setAttribute('src', hs); if (R.hbtn) R.hbtn.classList.toggle('none', !st.hero.present()); }
+  // 合击开关（S.hero.skOff.heji；有 CQSys.hero.skToggle 时走系统接口）：关 = 不自动合击
+  function heroHejiToggle(off){ var C = W0.CQSys, done = false; try { if (C && C.hero && typeof C.hero.skToggle === 'function') { C.hero.skToggle('heji', !off); done = true; } } catch (e) {}
+    if (!done) { var H = C && C.hero ? C.hero() : null; if (H) { H.skOff = H.skOff || {}; if (off) H.skOff.heji = 1; else delete H.skOff.heji; } else { st.hero.h.skOff = st.hero.h.skOff || {}; if (off) st.hero.h.skOff.heji = 1; else delete st.hero.h.skOff.heji; } try { if (typeof save === 'function') save(); } catch (e) {} }
+    onHeroChange(); }
+  CQ.heroHejiToggle = function(off){ if (st) heroHejiToggle(off); };
   function onHeroChange(){ if (!st) return; st.hero.reload(); artSync(); var nm = st.heroEl.querySelector('.hn'); if (nm) txt(nm, st.hero.h.name); var img = st.heroEl.querySelector('img'); if (img) { var src = UI + (heroArt(st.hero.h.prof)) + '.png'; if (img.getAttribute('src') !== src) img.setAttribute('src', src); }
     st._pres = null; if (st.R.hpanel) { st.R.hpanel._h = ''; renderHeroPanel(); } renderSide(); }
   function onBossEnrage(d){ if (!st) return; var w = h('div', 'warn', '<span>首领狂暴 · 伤害 ×' + ((d && d.mul) || 1.5) + '</span>'); st.R.root.appendChild(w); CQ.FX.once(w, null, true, 3000); }
@@ -190,7 +196,7 @@
       '<div class="hr"><span>状态</span><em class="l">' + stt + '</em></div>' +
       '<div class="hr"><span>普攻</span><em class="l">每 ' + T.atkT + ' 秒 · 玩家近期秒伤×' + Math.round((CQ.heroDpsK ? CQ.heroDpsK({cls: function(){ return CQ.Host.role().cls; }}) : T.dpsK) * 100) + '%' + (CQ.dps ? '（当前 ' + fmt(CQ.dps()) + '/秒）' : '') + '</em></div>' +
       '<div class="hc"><b>合击【' + esc(cb.name) + '】</b><p>' + esc(cb.desc) + '</p><p>已施放 ' + (H.hejiCount || 0) + ' 次' + (H.hejiCd > 0 ? ' · 冷却 ' + Math.ceil(H.hejiCd) + ' 秒' : '') + '</p></div>' +
-      '<div class="hb2"><button data-a="auto">' + (H.autoHeji ? '自动合击：开' : '自动合击：关') + '</button><button data-a="heji">立即合击</button></div>' +
+      '<div class="hb2"><button data-a="auto">' + (H.autoHeji ? '自动合击：开' : '自动合击：关') + '</button><button data-a="heji">立即合击</button><button data-a="hjoff" class="' + (st.hero.skOff('heji') ? 'off' : '') + '">' + (st.hero.skOff('heji') ? '合击：关' : '合击：开') + '</button></div>' +
       heroSysHTML();
     if (p._h !== html) { p._h = html; p.innerHTML = html; } }
   function renderPots(){ if (!st.R.pots) return;  var P = CQ.Host.pots(), R = st.R; R.pots.querySelectorAll('button[data-k]').forEach(function(b){ var n = P[b.getAttribute('data-k')] || 0; txt(b.querySelector('b'), n); b.classList.toggle('none', n <= 0); });
