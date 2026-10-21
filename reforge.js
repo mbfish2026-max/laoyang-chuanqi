@@ -13,7 +13,9 @@ function rfKind(it){if(!it||it.k||it.rw!=null)return null;if(it.anc&&it.ax&&Obje
 function rfLines(it){const k=rfKind(it);if(!k)return[];if(k==='anc')return Object.keys(it.ax).filter(x=>x in it.m);return Object.keys(it.m).filter(x=>x!=='sockp'&&typeof it.m[x]==='number')}
 function rfTxt(k,v){return(MODT[k]||k+' {v}').replace('{v}',v).replace('+-','-')}
 function rfCands(it,key){const b=BASEM[it.b],kind=rfKind(it),al=kind==='anc'?99:alvlOf(it.il||it.ilvl||S.lvl||1,b.q||1);const out=[],seen=new Set([key]);
- for(let i=0;i<120&&out.length<3;i++){const used=new Set();const a=rollAff(rnd()<0.5?PREFIX:SUFFIX,b,al,used);if(!a||!a.m)continue;const ks=Object.keys(a.m);if(ks.length!==1)continue;const k=ks[0];
+ // 修（RF_SEED=8）：部位词缀池太小（头盔只有 8 种属性），物品已占 7 种时只能出 1 个候选 → 本部位池凑不满 3 个时，依次用全等级池、护甲/戒指底材的词缀池补足，保证 3 个互不相同且不与现有词缀重复
+ const fb=[b,b,b,Object.values(BASEM).find(x=>x.s==='armor'),Object.values(BASEM).find(x=>x.s==='ring'||x.s==='amulet')].filter(Boolean);
+ for(let i=0;i<600&&out.length<3;i++){const used=new Set();const st=Math.min(fb.length-1,Math.floor(i/120));const a=rollAff(rnd()<0.5?PREFIX:SUFFIX,fb[st],st?99:al,used);if(!a||!a.m)continue;const ks=Object.keys(a.m);if(ks.length!==1)continue;const k=ks[0];
   if(seen.has(k)||(k in it.m)||k==='sockp'||!Array.isArray(a.m[k]))continue;if(kind==='anc'&&typeof ANC_XSKIP!=='undefined'&&ANC_XSKIP.test(k))continue;
   let[lo,hi]=a.m[k];if(kind==='anc'){[lo,hi]=ancShift(lo,hi)}const v=kind==='anc'&&it.anc===2?hi:R(lo,hi);seen.add(k);out.push([k,v,lo,hi])}
  return out}
