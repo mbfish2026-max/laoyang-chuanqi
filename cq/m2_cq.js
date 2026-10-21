@@ -64,7 +64,7 @@ const clsSk=c=>(typeof CLS_SKILLS!=='undefined'?CLS_SKILLS:[]).filter(x=>x&&x.cl
 for(const[c,L]of BK){const real=clsSk(c);for(const[id0,n,lv0]of L){const r=real.find(x=>x.n===n);const id=r?r.id:id0,k=c+'_'+id;
  if(!window.CQ_BOOKS[k])window.CQ_BOOKS[k]=r?{id:k,sk:id,n,cls:c,lv:r.r||lv0}:{id:k,sk:id,n,cls:c,lv:lv0,placeholder:1}}
  for(const r of real)if(!/^x/.test(r.id)&&!window.CQ_BOOKS[c+'_'+r.id]&&r.ty!=='passive_hidden')window.CQ_BOOKS[c+'_'+r.id]={id:c+'_'+r.id,sk:r.id,n:r.n,cls:c,lv:r.r||1}}
-function bookMat(b){const k='book_'+b.id;if(!MATS[k])MATS[k]={n:'技能书·'+b.n,c:'#e8c070',d:`${({zs:'战士',fs:'法师',ds:'道士'})[b.cls]}技能书，需要等级 ${b.lv}。在背包中使用即可学会（职业 Bot 实现技能效果）。`};return k}
+function bookMat(b){const k='book_'+b.id;if(!MATS[k])MATS[k]={n:'技能书·'+b.n,c:'#e8c070',d:`${({zs:'战士',fs:'法师',ds:'道士'})[b.cls]}技能书，需要等级 ${b.lv}。使用：未学会则学会，已学会则技能 +1 级（最高 20 级，不耗技能点）；挂机时自动使用。`};return k}
 for(const b of Object.values(window.CQ_BOOKS))bookMat(b);
 CS.books=cls=>Object.values(window.CQ_BOOKS).filter(b=>!cls||b.cls===cls);
 CS.bookDef=(id,o)=>{const b=window.CQ_BOOKS[id]=Object.assign(window.CQ_BOOKS[id]||{id},o||{},{id});delete b.placeholder;if(o&&o.n&&MATS['book_'+id])MATS['book_'+id].n='技能书·'+o.n;bookMat(b);return b};
@@ -72,10 +72,18 @@ CS.bookKnown=id=>!!(S.cqBooks&&S.cqBooks[id]);
 CS.bookCount=id=>CS.matCount?CS.matCount('book_'+id):((S.mats||{})['book_'+id]|0);
 const LH=[];CS.onBookLearn=fn=>{LH.push(fn)};
 CS.bookLearn=id=>{const b=window.CQ_BOOKS[id];if(!b)return{err:'未知技能书'};if(b.cls!==CS.curCls())return{err:'职业不符'};if((S.lvl|0)<b.lv)return{err:`需要等级 ${b.lv}`};
- if(CS.bookKnown(id))return{err:'已学会'};if(CS.bookCount(id)<1)return{err:'没有这本书'};CS.takeMat('book_'+id,1);(S.cqBooks=S.cqBooks||{})[id]=1;
- for(const f of LH)try{f(b)}catch(e){console.error(e)}emit('bookLearn',b);save();return{ok:1,book:b}};
+ if(CS.bookMaxed(id))return{err:'技能已满级'};if(CS.bookCount(id)<1)return{err:'没有这本书'};CS.takeMat('book_'+id,1);(S.cqBooks=S.cqBooks||{})[id]=(S.cqBooks[id]|0)+1;
+ // 系统侧效果：未学会 → 学会（1 级）；已学会 → +1 级（上限 CQ_BAL.book.maxLv=20，不耗技能点）。职业 Bot 的 onBookLearn 回调在此之后执行，可再覆盖
+ let from=0,to=0;if(typeof SKM!=='undefined'&&SKM[b.sk]){S.sk=S.sk||{};from=S.sk[b.sk]|0;to=Math.min(CQ_BAL.book.maxLv||20,from+1);S.sk[b.sk]=to;if(typeof calc==='function')calc()}b.from=from;b.to=to;
+ for(const f of LH)try{f(b)}catch(e){console.error(e)}emit('bookLearn',b);save();return{ok:1,book:b,from,to}};
+CS.bookMaxed=id=>{const b=window.CQ_BOOKS[id];return !!b&&!!(S.sk&&(S.sk[b.sk]|0)>=(CQ_BAL.book.maxLv||20))};
+// 挂机（S.autoSk 开）时，本职业、等级够的书掉落即自动使用
+CS.on&&CS.on('bookDrop',e=>{try{if(!S.autoSk)return;const b=window.CQ_BOOKS[e.id];if(!b||b.cls!==CS.curCls()||(S.lvl|0)<b.lv)return;CS._bookQ=(CS._bookQ||[]).concat(e.id)}catch(x){}});
+CS.bookAutoUse=()=>{let n=0;const q=CS._bookQ||[];CS._bookQ=[];for(const id of q){if(CS.bookCount(id)>0&&CS.bookLearn(id).ok)n++}
+ if(S.autoSk)for(const b of CS.books(CS.curCls()))while((S.lvl|0)>=b.lv&&CS.bookCount(b.id)>0&&CS.bookLearn(b.id).ok)n++;return n};
+{const f=autoTick;autoTick=function(){const r=f.apply(this,arguments);try{if(S.autoSk)CS.bookAutoUse()}catch(e){}return r}}
 CS.bookDropFor=(m)=>{const B=CQ_BAL.book;const p=m.actboss?B.actboss:m.boss?B.boss:(m.fl||m.champ||m.elite)?B.elite:B.normal;if(rnd()>=p)return null;
- const ml=m.lv||1,c=CS.curCls();const ok=b=>b.lv<=ml+3;let pool=Object.values(window.CQ_BOOKS).filter(b=>ok(b)&&!CS.bookKnown(b.id));if(!pool.length)return null;
+ const ml=m.lv||1,c=CS.curCls();const ok=b=>b.lv<=ml+3;let pool=Object.values(window.CQ_BOOKS).filter(b=>ok(b)&&!CS.bookMaxed(b.id));if(!pool.length)return null;
  const own=pool.filter(b=>b.cls===c);if(own.length&&rnd()<B.ownCls)pool=own;const w=b=>1/(1+b.lv/10);return wpick(pool,w)};
 {const f=rollTC;rollTC=function(m){const out=f.apply(this,arguments)||[];try{const b=m&&CS.bookDropFor(m);if(b){const k=bookMat(b);out.push({uid:S.uid++,k:'mat',id:k,n:1});emit('bookDrop',{id:b.id,n:b.n,mon:m.key})}}catch(e){}return out}}
 // ============ 4) 召唤物框架（系统侧：存档、属性、伤害预算） ============

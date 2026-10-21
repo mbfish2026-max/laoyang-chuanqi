@@ -41,7 +41,7 @@ G(`S.cls='zs';S.lvl=30;S.bag=[];CQSys.addMat('book_zs_gsjs',1)`);ok(G(`CQSys.boo
 G(`window._lh=[];CQSys.onBookLearn(b=>_lh.push(b.id))`);
 G(`S.lvl=10`);ok(G(`CQSys.bookLearn('fs_hqs').err`)==='职业不符'&&G(`CQSys.bookLearn('zs_lhjf').err`)==='需要等级 16','学习校验');G(`S.lvl=30`);
 ok(G(`CQSys.bookLearn('zs_gsjs').ok`)===1&&G(`CQSys.bookKnown('zs_gsjs')`)&&G('_lh[0]')==='zs_gsjs'&&G(`CQSys.bookCount('zs_gsjs')`)===0,'学习：消耗书、记 S.cqBooks、回调职业 Bot');
-ok(G(`CQSys.bookLearn('zs_gsjs').err`)==='已学会','不能重复学');
+ok(G(`CQSys.bookLearn('zs_gsjs').err`)==='没有这本书','已学会可再用书升级，但要有书');
 G(`CQSys.bookDef('zs_gsjs',{n:'攻杀剑术',lv:7,sk:'gs'})`);ok(G(`CQ_BOOKS.zs_gsjs.sk`)==='gs'&&!G(`CQ_BOOKS.zs_gsjs.placeholder`),'职业 Bot 可覆盖书定义');
 let bd=0;G(`window._b=0;CQSys.on('bookDrop',()=>_b++)`);G(`for(let i=0;i<300;i++){const m=mkMon('zombieking',22);rollTC(m)}`);bd=G('_b');ok(bd>40&&bd<140,'章节首领爆书率≈30% 实测 '+bd+'/300');
 // ---- 召唤物
