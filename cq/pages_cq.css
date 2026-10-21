@@ -149,10 +149,10 @@
 
 /* UI 美术 d851afb：熟练度条 / 签到格 / 领取印章 */
 .cqskill .sk2 .lvw{display:flex;align-items:center;gap:6px;margin-top:3px}
-.cqskill .sk2 .lv{flex:1;height:14px;margin:0;background:none;border:0;border-radius:0;overflow:visible;position:relative;border-style:solid;border-width:6px;border-image:url(../assets/ui/prof_bar_9s.png) 6 fill stretch;box-sizing:border-box}
-.cqskill .sk2 .lv i{position:absolute;left:-2px;top:-3px;bottom:-3px;max-width:calc(100% + 4px);height:auto;background:none;border-style:solid;border-width:5px 5px;border-image:url(../assets/ui/prof_bar_fill_9s.png) 5 fill stretch;box-sizing:border-box;min-width:0}
+.cqskill .sk2 .lv{flex:1;height:14px;margin:0;background:none;border:0;border-radius:0;overflow:visible;position:relative;border-style:solid;border-width:6px;border-image:var(--cq-prof-bar,url(../assets/ui/prof_bar_9s.png)) 6 fill stretch;box-sizing:border-box}
+.cqskill .sk2 .lv i{position:absolute;left:-2px;top:-3px;bottom:-3px;max-width:calc(100% + 4px);height:auto;background:none;border-style:solid;border-width:5px 5px;border-image:var(--cq-prof-bar-fill,url(../assets/ui/prof_bar_fill_9s.png)) 5 fill stretch;box-sizing:border-box;min-width:0}
 .cqskill .sk2 .lv i[style*="width:0%"]{display:none}
 .cqskill .sk2 .lvt{flex:none;font-size:10px;color:#ffcf6a;white-space:nowrap}
-.cqfuli .dy{background:none;box-shadow:none;border-style:solid;border-width:6px;border-image:url(../assets/ui/sign_cell_9s.png) 12 fill stretch;box-sizing:border-box;padding:0;overflow:hidden}
-.cqfuli .dy.ok::after{content:"";top:50%;left:50%;width:44px;height:44px;transform:translate(-50%,-50%) rotate(-12deg);background:url(../assets/ui/stamp_ok.png) center/contain no-repeat;text-shadow:none}
+.cqfuli .dy{background:none;box-shadow:none;border-style:solid;border-width:6px;border-image:var(--cq-sign-cell,url(../assets/ui/sign_cell_9s.png)) 12 fill stretch;box-sizing:border-box;padding:0;overflow:hidden}
+.cqfuli .dy.ok::after{content:"";top:50%;left:50%;width:44px;height:44px;transform:translate(-50%,-50%) rotate(-12deg);background:var(--cq-stamp-ok,url(../assets/ui/stamp_ok.png)) center/contain no-repeat;text-shadow:none}
 .cqfuli .dy.ok{opacity:1}.cqfuli .dy.ok>*{opacity:.5}

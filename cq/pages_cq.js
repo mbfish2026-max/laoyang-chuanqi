@@ -52,10 +52,15 @@ function skTabs(){const c=cls();return `<div class="stabs cqsktabs">${[['list',(
 let FLT='sign';const FLN=[['sign','签到'],['off','离线收益'],['bounty','悬赏'],['ach','功业'],['event','事件'],['more','更多']];
 // 签到 / 离线收益：系统接口 CQSys.signin / CQSys.offline（逻辑、奖励、存档都在 cq/fuli_cq.js）
 const SG=()=>window.CQSys&&CQSys.signin,OF=()=>window.CQSys&&CQSys.offline;
-const rwIc=ic=>ic?`${UI}pg/${ic}.png`:'';
+const rwIc=ic=>ic?(/[\/.]/.test(ic)?ic:`${UI}pg/${ic}.png`):'';
+// UI 杂项图：优先 CQSys.uiIcon(key)（cq/icons_cq.js），缺则用当前路径；以 CSS 变量交给 pages_cq.css
+const UIC=(k,fb)=>{try{const u=window.CQSys&&CQSys.uiIcon&&CQSys.uiIcon(k);if(u)return u}catch(e){}return fb};
+function uiVars(){const r=document.documentElement&&document.documentElement.style;if(!r)return;for(const[k,fb]of[['prof_bar','assets/ui/prof_bar_9s.png'],['prof_bar_fill','assets/ui/prof_bar_fill_9s.png'],['sign_cell','assets/ui/sign_cell_9s.png'],['stamp_ok','assets/ui/stamp_ok.png']])r.setProperty('--cq-'+k.replace(/_/g,'-'),`url(${UIC(k,fb)})`)}
+try{uiVars()}catch(e){}
+const SIGNIC={};// 签到 claim() 返回的奖励图标（技能书随机，按实际抽到的书显示）
 function signState(){try{return SG()&&SG().state()}catch(e){return null}}
 function signPanel(){const st=signState();if(!st||!st.ok)return `<div class="cqpanel"><div class="cqttl">七日签到</div><div class="dim">签到系统未就绪</div></div>`;
- const D=(st.days||[]).map((d,i)=>`<div class="dy ${d.state||''}${d.big&&!d.state?' big':''}"><span>第${d.day||i+1}天</span>${d.ic?`<img src="${rwIc(d.ic)}" alt="">`:''}<span>${esc(d.name)}</span></div>`).join('');
+ const D=(st.days||[]).map((d,i)=>`<div class="dy ${d.state||''}${d.big&&!d.state?' big':''}"><span>第${d.day||i+1}天</span>${(SIGNIC[d.day||i+1]||d.ic)?`<img src="${SIGNIC[d.day||i+1]||rwIc(d.ic)}" alt="">`:''}<span>${esc(d.name)}</span></div>`).join('');
  return `<div class="cqpanel"><div class="cqttl">七日签到<span class="r">已签 ${st.signed|0}/7 · 断签不清零</span></div><div class="days">${D}</div>
  <div class="row c"><button class="cqbtn ${st.canClaim?'gold':'dis'}" onclick="cqPg.sign()">${st.canClaim?'签到领取':'今日已签到'}</button></div></div>`}
 function offPanelPg(){let st=null;try{st=OF()&&OF().state()}catch(e){}
@@ -107,7 +112,7 @@ function zoneRow(a,z,i,d){const s=zState(a,i,d),b=z.boss,B=b&&BOSSES[b],r=b?boss
  const btn=s==='lk'?'<button class="cqbtn xs dis">未解锁</button>':s==='here'?`<button class="cqbtn xs gold" onclick="cqPg.mapFight()">挂机中</button>`:`<button class="cqbtn xs" onclick="cqPg.mapGo(${a},${i})">前往</button>`;
  return `<div class="z ${s}" data-a="${a}" data-i="${i}"${s!=='lk'&&s!=='here'?` onclick="if(event.target.tagName!=='BUTTON')cqPg.mapGo(${a},${i})"`:''}><div class="pin">${s==='done'?'✔':s==='lk'?'🔒':i+1}</div>${zThumb(a,i,'zth')}<div class="i"><div class="n">${esc(z.n)}<small>Lv.${mlv(z,d)}</small>${z.dun?'<span class="tag dun">副本</span>':''}${TAG}</div>
  <div class="m">怪物：${esc(mons)}</div><div class="m">${B?`首领：<b>${esc(B.n)}</b> · ${r&&r.actboss?'章节首领 ':''}${per} 分钟${tm?` · <span class="${tm==='可挑战'?'rdy':'cd'}">${tm}</span>`:''}`:'首领：—'}</div></div>
- <div class="rt">${b?`<div class="bh"><img src="${UI}mdl_mst_${b}.png" alt="" onerror="${b==='skelspirit'?`if(!this.dataset.f){this.dataset.f=1;this.src='${UI}mdl_mst_1017.png';return}`:''}this.style.display='none'"></div>`:''}${btn}</div></div>`}
+ <div class="rt">${b?`<div class="bh"><img src="${UI}mdl_mst_${b}.png" alt="" onerror="this.style.display='none'"></div>`:''}${btn}</div></div>`}
 function chapCard(c,d){const [bg,bo]=CHB[c.a]||[];const st=c.done?'<span class="tag ok">已通关</span>':c.open?'<span class="tag new">进行中</span>':`<span class="tag lk">${c.a?'击败'+esc(ACTS[c.a-1].boss)+'解锁':'未解锁'}</span>`;
  return `<div class="chc ${c.open?'':'lk'}" id="cqch_${c.a}"><div class="bg" style="background-image:url(${c.a>=2?`assets/cq/map/chapter_${c.a+1}.webp`:UI+'pg/'+bg})"></div><img class="boss" src="${UI}mdl_mst_${bo}.png" alt="">
  <div class="tx"><div class="no">${esc(c.no)} · CHAPTER</div><div class="t">${esc(c.n)}</div><div class="m">Lv.${c.lv} · 营地 ${esc(c.camp)}</div><div class="m">章节首领 <b class="bn">${esc(c.boss)}</b> · 区域 ${ACTS[c.a].zones.length}</div></div>
@@ -153,7 +158,7 @@ function hook(){
 window.cqPg={autoEquip,smith(){TAB='shop';try{SHT='enh'}catch(e){}render()},toAttr(){const a=document.querySelector('#panel .attr');if(a)a.scrollIntoView({block:'center'})},
  mapGo,travel,mqToggle,mqText,bossPop,mapJump,mapScroll,mapFight(){TAB='fight';render()},_mapOpen(o){MAPOPEN=!!o},
  menu(){try{if(typeof setUI==='function')return setUI()}catch(e){}TAB='eg';FLT='more';render()},topSync,topData,
- sk(k){SKV=k;if(k==='ac')SKT=4;render()},fl(k){FLT=k;render()},sign(){const G=SG();if(!G)return null;const r=G.claim();if(ok('toast'))toast(r&&r.ok?'签到成功：'+((r.reward&&r.reward.name)||''):(r&&r.reason)||'签到失败');render();return r},
+ sk(k){SKV=k;if(k==='ac')SKT=4;render()},fl(k){FLT=k;render()},sign(){const G=SG();if(!G)return null;const r=G.claim();if(r&&r.ok&&r.reward&&r.reward.icon)SIGNIC[r.day]=r.reward.icon;if(ok('toast'))toast(r&&r.ok?'签到成功：'+((r.reward&&r.reward.name)||''):(r&&r.reason)||'签到失败');render();return r},
  offClaim(d){const O=OF();if(!O)return null;const r=O.claim(!!d);if(ok('toast'))toast(r&&r.ok?(d?'已双倍领取':'已领取'):(r&&r.reason)||'领取失败');render();return r},
  _offDot(){try{const o=OF()&&OF().state();return !!(o&&o.has&&!o.claimed)}catch(e){return false}},
  _t:{zState,chInfo,mapPage,MAPN,TOPT,attrs,skList,FLN,EQL,EQR,roleTop,skillPage,signPanel,offPanelPg,flTabs,skTabs,get SKV(){return SKV},get FLT(){return FLT}}};
