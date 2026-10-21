@@ -26,7 +26,7 @@ ok(G(`typeof CQSys.hit==='object'&&CQSys.critNow===false`),'暴击标记结构')
 ok(G(`CQSys.potions().hp`)>=0&&G('typeof usePot')==='function'&&G('usePot.length')===1,'吃药接口 usePot(k)');
 // 自动吃药阈值 / 挂机开关
 ok(G('JSON.stringify(CQSys.autoPot())')==='{"on":1,"hp":40,"rej":20,"mp":15}','自动吃药默认阈值');
-G(`MON.length=0;calc();S.pot.hp=5;S.pot.rej=0;H.potT=0;CQSys.autoPot({hp:60});H.life=ST.life*0.5;step(0.01)`);ok(G('S.pot.hp')===4,'阈值 60% 时 50% 血自动喝红药');
+G(`MON.length=0;calc();S.pot.hp=5;S.pot.rej=0;H.potT=0;CQSys.autoPot({hp:60});H.life=ST.life*0.5;step(0.01)`);ok(G('S.pot.hp')===5,'阈值 60% 封顶 40%：50% 血不喝');G(`H.potT=0;H.life=ST.life*0.3;step(0.01)`);ok(G('S.pot.hp')===4,'30% 血自动喝红药');
 G(`CQSys.autoPot({on:0});H.potT=0;H.life=ST.life*0.1;step(0.01)`);ok(G('S.pot.hp')===4,'关闭后不自动吃');
 G(`CQSys.autoPot({on:1,hp:0});H.potT=0;step(0.01)`);ok(G('S.pot.hp')===4,'阈值 0 = 该药不自动');
 ok(G('CQSys.autoPot({hp:200}).hp')===95,'阈值上限 95');

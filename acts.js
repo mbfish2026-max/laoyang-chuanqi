@@ -4,7 +4,8 @@
 const ACX={};const HSOFT=0.008,DSOFT=0.018;// 高等级怪物生命/伤害成长软化(近似调校)
 const GATE=4;let MAPD=null;
 // 地狱后期章节收紧等级宽限：第3/4章 2 级，第5章 0 级(世界之心/毁灭王座需≈84–85级)，让地狱曲线平滑、终章稳定通关
-function gateOf(a,d){return d===2?HELL_GATE[a]:GATE}
+const GATE_N=6;// 普通难度挂机推进宽限 6 级（噩梦仍 GATE=4，地狱见 HELL_GATE）
+function gateOf(a,d){return d===2?HELL_GATE[a]:d===0?GATE_N:GATE}
 const MSLOT=['weapon','helm','armor'];
 const ELK=['fire','cold','light','pois'],ELN={phys:'物',fire:'火',cold:'冰',light:'电',pois:'毒',magic:'魔'};
 function curPen(){return DIFFS[S.diff].pen}
@@ -155,7 +156,7 @@ function reviveCost(){return 50+S.lvl*20}
 function hireMerc(t,v,free){if(!free){const c=hireCost();if(S.gold<c)return toast('金币不足');S.gold-=c}
  const old=S.merc;if(old)for(const k of MSLOT)if(old.eq[k])addBag(old.eq[k]);
  S.merc={t,v:v||MERCS[t].vd,eq:{},dead:0};S.mercU=1;ALLY=ALLY.filter(a=>a.kind!=='merc');if(ST)calc();if(!free)log(`雇佣了 <b>${MERCS[t].n}</b>（${MERCS[t].vars[S.merc.v]}）`);if(typeof TAB!=='undefined'&&TAB!=='fight')render()}
-function mercRevive(auto){if(!mercDead())return;const c=reviveCost();if(S.gold<c){if(!auto)toast('金币不足');return}S.gold-=c;S.merc.dead=0;calc();log(`花费 ${c} 金币复活随从 ${MERCS[S.merc.t].n}`);if(!auto)render()}
+function mercRevive(auto){if(!mercDead())return;const c=reviveCost();if(S.gold<c){if(!auto)toast('金币不足');return}if(auto){if(!cqSpend(c))return}else S.gold-=c;S.merc.dead=0;calc();log(`花费 ${c} 金币复活随从 ${MERCS[S.merc.t].n}`);if(!auto)render()}
 function mercStats(){const T=MERCS[S.merc.t],L=S.lvl,M={};let wmn=0,wmx=0,idef=0;
  for(const k of MSLOT){const it=S.merc.eq[k];if(!it)continue;const m=allMods(it),l=itemLocal(it);for(const x in m)M[x]=(M[x]||0)+m[x];if(l.def)idef+=l.def;if(k==='weapon'&&l.min){wmn=l.min;wmx=l.max}}
  const str=Math.floor(T.str[0]+T.str[1]*L)+(M.str||0),dex=Math.floor(T.dex[0]+T.dex[1]*L)+(M.dex||0);

@@ -5,7 +5,7 @@ ok(G('JSON.stringify(CQ_BAL.enh.rate)')==='[100,90,80,65,50,40,30,20,12]','成�
 ok(G('[0,1,2,3,4,5,6,7,8].map(cqEnhFail).join()')==='0,1,2,2,3,4,6,6,6','失败结果：+1~3 无损 / +4~6 掉 1 / +7~9 回 +6');
 const g0=G('S.gold'),o0=G("matCount('heitie')");
 let r=JSON.parse(G(`JSON.stringify(cqEnhance(w.uid,{roll:0}))`));ok(r.ok&&r.to===1&&G('w.en')===1,'+0→+1 成功');
-ok(g0-G('S.gold')===500&&o0-G("matCount('heitie')")===1,'花费 500 金 + 1 黑铁矿');
+ok(g0-G('S.gold')===250&&o0-G("matCount('heitie')")===1,'花费 250 金 + 1 黑铁矿');
 ok(G("itemName(w)").endsWith(' +1'),'名称显示 +1');
 G('w.en=3');r=JSON.parse(G(`JSON.stringify(cqEnhance(w.uid,{roll:99}))`));ok(!r.ok&&r.to===2&&r.res==='fail','+3→+4 失败掉到 +2');
 G('w.en=7');r=JSON.parse(G(`JSON.stringify(cqEnhance(w.uid,{roll:99}))`));ok(r.to===6&&G('!!S.eq.weapon'),'+7→+8 失败回 +6，装备仍在（不碎）');

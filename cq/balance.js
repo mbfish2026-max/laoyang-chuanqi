@@ -7,7 +7,7 @@ const CQ_BAL={
  // hero = 英雄普攻 + 合击 占总伤害的上限比例（不参与连乘；战斗侧按 cqHeroShareOk 校验 / cqHeroDmgCap 截断）
  budget:{enh:0.35,anc:0.15,soul:0.10,rf:0.05,reb:0.10,title:0.05,hero:0.20},
  // 强化（§5.4）
- enh:{max:9,rate:[100,90,80,65,50,40,30,20,12],pct:[4,4,4,6,6,6,8,8,8],gold:n=>500*(n+1)*(n+1),ore:n=>n+1},
+ enh:{max:9,rate:[100,90,80,65,50,40,30,20,12],pct:[4,4,4,6,6,6,8,8,8],gold:n=>250*(n+1)**2,ore:n=>n+1},
  // 掉落节奏目标（地狱）：每小时极品/套装 1–2、每 10 小时上古 1、每 100 小时至臻 1
  dropTarget:{eliteSetPerH:[1,2],ancPerH:0.1,myPerH:0.01},
  // 通关时长目标（小时）
@@ -15,6 +15,16 @@ const CQ_BAL={
  // 仓库（§5.8）
  stash:{p0:2,pMax:6,s0:2,sMax:8,sFree:2,pCost:p=>100000*p*p,sCost:p=>500000*p},
 };
+// 自动消耗节流（挂机自动买药 / 自动复活随从）：只动玩家侧花费，不削怪物/首领。
+// 自动吃红药/瞬回仅在 HP 低于 hpMax% 时；花费后金币不低于 floor(lvl)；近期自动花费 ≤ 近期收入 × share
+CQ_BAL.spend={hpMax:40,share:0.3,floor:lv=>300+(lv|0)*60,win:lv=>20000+(lv|0)*2000};
+function cqSpL(){if(typeof S==='undefined'||!S)return{inc:0,sp:0};if(!S.cqSp||typeof S.cqSp!=='object')S.cqSp={inc:0,sp:0};return S.cqSp}
+// 记录收入；累计超过窗口时收入/花费同比减半 → 近似“近期”滑动窗口
+function cqInc(g){g=+g||0;if(g<=0)return;const L=cqSpL();L.inc+=g;const W=CQ_BAL.spend.win(S.lvl);while(L.inc>W){L.inc/=2;L.sp/=2}}
+// 自动花费 c 金是否允许（不扣钱）；cqSpend 允许则记账并扣钱，返回 true/false
+function cqSpendOk(c){c=+c||0;if(typeof S==='undefined'||!S)return true;const B=CQ_BAL.spend,L=cqSpL();
+ if(S.gold-c<B.floor(S.lvl))return false;return L.sp+c<=L.inc*B.share}
+function cqSpend(c){if(!cqSpendOk(c))return false;S.gold-=c;cqSpL().sp+=c;return true}
 // 乘法叠满的总倍率（用于测试与调参自检）
 function cqBudgetProduct(){let p=1;for(const k in CQ_BAL.budget)if(k!=='hero')p*=1+CQ_BAL.budget[k];return p}
 // 强化累计加成百分比（+n）

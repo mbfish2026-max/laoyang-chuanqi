@@ -18,7 +18,7 @@ xpNeed=function(l){if(l<XPT.length)return XPT[l];const b=XPT[XPT.length-1];if(l<
 const DENSITY={n:1.75,cap:12,hp:0.52,dmg:0.6,exp:0.62,drop:0.6};
 // 普通难度第1章怪物(含首领)伤害微降，压低开局死亡次数的波动
 const NORM_EARLY={dmg:0.8};
-// 地狱各章自动推进等级宽限(普通/噩梦均为 GATE=4)
+// 地狱各章自动推进等级宽限(普通 GATE_N=6、噩梦 GATE=4)
 const HELL_GATE=[4,4,2,2,0];
 // 地狱各章经验系数(乘在 DIFFS[2].exp 上)：第3章 0.68 使该章≈10–12h，后两章放慢；地狱段≈50–66h
 const HELL_ACT_EXP=[1,1,0.68,0.36,0.4];

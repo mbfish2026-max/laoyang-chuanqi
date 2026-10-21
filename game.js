@@ -175,7 +175,7 @@ function gainXp(x){S.xp+=x;while(S.lvl<99&&S.xp>=xpNeed(S.lvl+1)){S.lvl++;S.sp+=
 // --- TC 掉落 ---
 function rollTC(m){const t=m.actboss?{p:7,nd:0}:m.boss?{p:5,nd:15}:m.fl==='uniq'?{p:3,nd:40}:m.fl==='champ'?{p:2,nd:60}:{p:1,nd:100};
  const out=[],bm=m.boss?983:0;for(let i=0;i<t.p;i++){const e=wpick([['nd',t.nd],['gold',30],['junk',25],['eq',22],['good',4+(m.boss?8:0)]],x=>x[1])[0];
-  if(e==='gold'){const g=Math.round(R(m.lv,4*m.lv+8)*(1+ST.gf/100));S.gold+=g}
+  if(e==='gold'){const g=Math.round(R(m.lv,4*m.lv+8)*(1+ST.gf/100));S.gold+=g;cqInc(g)}
   else if(e==='junk'){const k=wpick([['hp',5],['mp',3],['rej',1],['tp',1]],x=>x[1])[0];S.pot[k]++}
   else if(e==='eq')out.push(genItem(m.lv,{mf:ST.mf,bossMod:bm}));
   else if(e==='good')out.push(rnd()<0.5?rollRune(m.lv):rollGem(m.lv))}
@@ -183,8 +183,8 @@ function rollTC(m){const t=m.actboss?{p:7,nd:0}:m.boss?{p:5,nd:15}:m.fl==='uniq'
 function rollRune(ml){const mx=Math.min(RUNES.length-1,Math.floor(ml/3));const r=wpick([...Array(mx+1).keys()],i=>1/Math.pow(1.6,i));return{uid:S.uid++,k:'rune',r}}
 function rollGem(ml){const g=ml>=36?R(0,3):ml>=24?R(0,2):ml>=12?R(0,1):0;return{uid:S.uid++,k:'gem',g:pick(Object.keys(GEMS)),lv:g}}
 function addBag(it){if(it.k==='rune')S.found[it.r]=1;
- if(!it.k&&it.sock===0&&S.sell[it.q]&&it.q<3){S.gold+=sellPrice(it);return}
- if(S.bag.length>=40){S.gold+=sellPrice(it);log('背包已满，自动出售 '+itemName(it));return}S.bag.push(it)}
+ if(!it.k&&it.sock===0&&S.sell[it.q]&&it.q<3){const g=sellPrice(it);S.gold+=g;cqInc(g);return}
+ if(S.bag.length>=40){const g=sellPrice(it);S.gold+=g;cqInc(g);log('背包已满，自动出售 '+itemName(it));return}S.bag.push(it)}
 function sellPrice(it){if(it.k==='rune')return 50*(it.r+1);if(it.k==='gem')return 20*(it.lv+1);return Math.round((5+BASEM[it.b].q*3)*[0.5,1,1.5,3,6,10,8,8,10][it.q])+power(it)}
 function bossKilled(m){const z=zoneData();if(z.quest&&!S.q[z.quest])questDone(z.quest)}
 function questDone(q){S.q[q]=1;const Q=QUESTS[q];log(`<b class="quest">任务完成【${Q.n}】奖励：${Q.rw}</b>`);toast('任务完成：'+Q.n);
@@ -277,7 +277,7 @@ log(`<b style="color:#f44">你倒下了……回到营地</b>`);toast('死亡：
 function goZone(i){if(i>S.unl)return;S.zone=i;S.wave=0;MON=[];CORPSE=[];spawnT=1;log(`前往 <b>${zoneData().n}</b>`);render()}
 function townPortal(){if(S.pot.tp<=0)return toast('没有回城卷轴');S.pot.tp--;MON=[];S.wave=0;H.life=ST.life;H.mana=ST.mana;spawnT=2;log('使用回城卷轴：在营地恢复后返回 '+zoneData().n)}
 // 老羊传奇：自动吃药阈值（S.apot，百分比；on=0 关闭；0=该药不自动）。接口见 docs/systems_api.md
-const CQ_APD={on:1,hp:40,rej:20,mp:15};function cqAP(k){const a=(S&&S.apot)||CQ_APD;if(a.on===0)return 0;const v=a[k]!=null?a[k]:CQ_APD[k];return Math.max(0,Math.min(95,+v||0))/100}
+const CQ_APD={on:1,hp:40,rej:20,mp:15};function cqAP(k){const a=(S&&S.apot)||CQ_APD;if(a.on===0)return 0;const v=a[k]!=null?a[k]:CQ_APD[k];const mx=k==='mp'?95:CQ_BAL.spend.hpMax;return Math.max(0,Math.min(mx,+v||0))/100}
 function usePot(k){if(S.pot[k]<=0)return;if(k==='tp')return townPortal();S.pot[k]--;if(k==='hp'){H.potT=7;H.potHeal=ST.life*0.5/7}if(k==='mp'){H.mpT=5;H.mpHeal=ST.mana*0.6/5}if(k==='rej'){H.life=Math.min(ST.life,H.life+ST.life*.35);H.mana=Math.min(ST.mana,H.mana+ST.mana*.35)}}
 
 // ===== UI：战斗页 =====
@@ -475,7 +475,7 @@ function offline(){const sec=(Date.now()-S.last)/1000;if(sec<60)return;const t=M
 const SK_ORDER=['rs','rs','rs','sm','te','ce','rs','sm','cg','ad','rm','bs','bs','bs','sm','rs','bs','bs','bs','bs','bs','wk'];
 // 列表走完后：骨矛加满(20) → 骨铠/骨墙/骨牢(前置各 1) → 骨魂加满 → 骨巫/骨仆精通/骨仆
 const SK_FILL=()=>bl('bs')<20?['bs','sm','rs','te']:[...['ba','bw','bp'].filter(x=>!bl(x)),'bx','rm','sm','rs','cg','te'];
-function autoTick(){let ch={};ch=0;const learned=[];for(const[k,c]of[['hp',30],['mp',30]])while(S.pot[k]<8&&S.gold>=c*4){S.gold-=c;S.pot[k]++}
+function autoTick(){let ch={};ch=0;const learned=[];for(const[k,c]of[['hp',30],['mp',30]])while(S.pot[k]<8&&S.gold>=c*4&&cqSpend(c))S.pot[k]++
  const PL=(typeof clsSkPlan==='function'&&clsSkPlan())||{order:SK_ORDER,fill:SK_FILL};
  if(S.autoSk)while(S.kp>0){const done={};const id=PL.order.find(x=>{done[x]=(done[x]||0)+1;return bl(x)<done[x]&&canLearn(x)})||PL.fill().find(canLearn);if(!id)break;S.sk[id]=bl(id)+1;S.kp--;ch=1;learned.push(SKM[id].n)}if(learned.length)log('自动加点：'+learned.join('、'));
  if(S.autoAt&&S.sp>0){const ns=needStr();while(S.sp>0){if(ST.attr.str<ns)S.at.str++;else if(clsBase().autoEne?clsBase().autoEne():(ST.attr.ene<S.lvl+25&&S.at.ene<S.lvl+15))S.at.ene++;else S.at.vit++;S.sp--;calc()}ch=1}
