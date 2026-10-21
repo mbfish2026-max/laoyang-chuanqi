@@ -29,6 +29,8 @@
     [/灵魂|火符|骨矛|骨魂|噬骨|念力/, 'linghunhuofu'], [/半月|旋风|双重挥击/, 'banyue'], [/烈火/, 'liehuo'], [/冲撞|跃/, 'yemanchongzhuang'], [/攻杀|刺杀|猛击|斩|震晕|狂乱|投掷|狂暴|专注/, 'gongsha'],
     [/治|愈|复生/, 'zhiliaoshu'], [/召唤|唤起|魔像/, 'zhaohuan'], [/神圣|战甲|壁垒/, 'shenshengzhanjia'], [/盾|甲|护|吼|号令|指挥|嚎|呐|吶|图腾|挑衅|炎附|闪移/, 'mofadun']];
   CQ.SKILL_FX = SKILL_FX;
+  // 美术专属序列帧（77305ba，按技能名精确匹配，优先于 SKILL_FX 与职业 cqfx 的通用映射）
+  var SKILL_FX_ART = CQ.SKILL_FX_ART = {'抗拒火环': 'kangjuhuohuan', '地狱火': 'diyuhuo', '诱惑之光': 'youhuozhiguang', '隐身术': 'yinshenshu'};
   var castAt = {};      // 技能施放时刻（冷却圈兜底）
   var ART = ['mdl_mst_1015', 'mdl_mst_1014', 'mdl_mst_1017', 'mdl_mst_1013'];
   var PCLS = {1: 'zs', 2: 'fs', 3: 'ds'}, PPROF = {zs: 1, fs: 2, ds: 3};
@@ -48,6 +50,15 @@
           return {prof: PPROF[cls] || 3, cls: H.cls, name: H.name || '', rage: +H.rage || 0, autoHeji: !!H.autoHeji, exists: !!H.cls, lvl: H.lvl, eq: H.eq || {}}; },
         save: function(h){ if (h.exists && C.heroSet) C.heroSet({name: h.name, rage: Math.floor(h.rage || 0), autoHeji: h.autoHeji ? 1 : 0}); }}; },
     heroSys: function(){ return SYS(); },
+    // 召唤物（职业开发：ALLY.kind==='cqpet'，sub=技能 id，死后移出 ALLY）。战场只显示同主人最多 2 只
+    pets: function(){ var A = G('ALLY') || []; return A.filter(function(a){ return a && a.kind === 'cqpet' && a.hp > 0; }).slice(0, CQ.PET_MAX || 2); },
+    petLvl: function(a){ try { return has('slvl') ? G('slvl')(a.sub) || 0 : 0; } catch (e) { return 0; } },
+    // 立绘：a.art（宝宝=原怪 monArt key；pet_kl/pet_ss/pet_ss_gold=assets/cq/ui/<art>.png）→ 兜底按名字/子类推断 → 都没有时由卡片退回 a.ic emoji
+    petArt: function(a){ var art = a.art;
+      if (!art) { if (a.sub === 'zhkl') art = 'pet_kl'; else if (a.sub === 'zhss') art = /金色/.test(a.n || '') ? 'pet_ss_gold' : 'pet_ss';
+        else { var nm = String(a.n || '').replace(/^宝宝·/, ''), M = G('MONS') || {}; for (var k in M) if (M[k] && M[k].n === nm) { art = k; break; } } }
+      if (!art) return null; if (/^pet_/.test(art)) return 'assets/cq/ui/' + art + '.png';
+      var src = Host.monArt({key: art}); return /mdl_mst_2001/.test(src) ? null : src; },
     heroStats: function(){ var C = sysFn('heroStats'); if (!C) return null; try { var s = C.heroStats(); return s && s.cls ? s : null; } catch (e) { return null; } },
     heroBag: function(){ var S = G('S') || {}, B = G('BASEM') || {}; return (S.bag || []).filter(function(it){ return it && !it.k && B[it.b]; }).slice(0, 16); },
     role: function(){ var S = G('S') || {}, ST = G('ST') || {}, H = G('H') || {}, cls = (has('curCls') ? G('curCls')() : S.cls) || 'zs';
@@ -88,7 +99,7 @@
     stun: function(m, s){ if (m && m.hp > 0) m.stun = Math.max(m.stun || 0, s); },
     healPct: function(p){ var H = G('H'), ST = G('ST'); if (H && ST) H.life = Math.min(ST.life, H.life + ST.life * p); },
     log: function(html){ if (has('log')) G('log')(html); },
-    skillFx: function(id){ var SKM = G('SKM') || {}, n = (SKM[id] || {}).n || ''; for (var i = 0; i < SKILL_FX.length; i++) if (SKILL_FX[i][0].test(n)) return SKILL_FX[i][1]; return null; },
+    skillFx: function(id){ var SKM = G('SKM') || {}, n = (SKM[id] || {}).n || ''; if (SKILL_FX_ART[n]) return SKILL_FX_ART[n]; for (var i = 0; i < SKILL_FX.length; i++) if (SKILL_FX[i][0].test(n)) return SKILL_FX[i][1]; return null; },
     skillPop: function(id){ if (has('acPop')) G('acPop')(id); },
     toast: function(t){ if (has('toast')) G('toast')(t); },
     monArt: function(m){ var C = sysFn('monArt'); if (C) { try { var a = C.monArt(m.key); if (a && a.src) return a.src; } catch (e) {} } if (m.boss) return 'assets/cq/ui/mdl_mst_2001.png'; return 'assets/cq/ui/' + ART[hash(m.key || m.n) % ART.length] + '.png'; },
@@ -100,17 +111,26 @@
   };
 
   // ---------- 英雄核心：在 game.js step() 里出手（包装 step，不在战斗页/后台定时器也算；离线按 S.kpm 结算，kpm 已含英雄击杀） ----------
-  // 玩家近期 DPS：hitMon 返回值中 src 不是 cqhero/cqheji 的部分（含持续伤害），按 1 秒桶滑动 TUNE.dpsWin 秒
+  // 玩家近期「有效」DPS：hitMon 中 src 不是 cqhero/cqheji 的伤害（含持续伤害、召唤物），只算到怪物剩余血量为止（秒怪溢出不算），1 秒一桶，滑动 TUNE.dpsWin(≈120) 秒
   var DPS = {b: [0], t: 0, age: 0};
   function dpsAdd(v){ if (v > 0) DPS.b[DPS.b.length - 1] += v; }
-  function dpsTick(dt){ DPS.t += dt; DPS.age += dt; while (DPS.t >= 1) { DPS.t -= 1; DPS.b.push(0); var W = (CQ.HERO_TUNE || {}).dpsWin || 30; if (DPS.b.length > W + 1) DPS.b.shift(); } }
+  function dpsTick(dt){ DPS.t += dt; DPS.age += dt; while (DPS.t >= 1) { DPS.t -= 1; DPS.b.push(0); var W = (CQ.HERO_TUNE || {}).dpsWin || 120; if (DPS.b.length > W + 1) DPS.b.shift(); } }
   function dpsNow(){ var T = CQ.HERO_TUNE || {}; if (DPS.age < (T.dpsMin || 8)) return 0; var n = DPS.b.length - 1, sum = 0; for (var i = 0; i < n; i++) sum += DPS.b[i]; return n > 0 ? sum / n : 0; }
   var core = null, hurtT = 0, saveT = 0, dots = [];
   function heroCore(){ if (!core && CQ.Hero) { var prof = (CQ.HEJI.PROF[Host.role().cls] || 1); core = new CQ.Hero(prof, Host.heroStore()); } return core; }
   var coreHost = {now: function(){ var gt = G('GT'); return typeof gt === 'number' ? gt * 1000 : Date.now(); },   /* 游戏时间（随 SPEED/后台定时器推进） */ targets: function(){ return Host.mons(); }, pick: function(ts){ return ts.filter(function(m){ return m.boss; })[0] || ts[0]; },
     hit: function(m, d, src){ return Host.hit(m, d, src); }, atkMax: function(){ return Host.atkMax(); }, lvl: function(){ return Host.lvl(); }, heroK: function(){ return Host.heroK(); },
     maxhp: function(){ return Host.maxhp(); }, heroStats: function(){ return Host.heroStats(); }, dps: dpsNow};
-  CQ.heroCore = heroCore; CQ.heroHost = coreHost; CQ.dps = dpsNow;
+  // 伤害封顶：系统入口 CQ_BAL.cap(dmg, ctx)，ctx={src:'player'|'hero'|'combo'|'summon', base?, mul?}，上限 CQ_BAL.capMul=1.8。
+  // 系统实现没到时用下面的兜底（待替换）。注意：当前 cq/balance.js 里 CQ_BAL.cap 还是数字 1.8（cqCapMul 在用），这种情况下不覆盖它，只在本地用兜底。
+  function capFallback(dmg, ctx){ var B = G('CQ_BAL') || window.CQ_BAL || {}, M = +B.capMul || (typeof B.cap === 'number' ? B.cap : 1.8); ctx = ctx || {};
+    if (ctx.base > 0) return Math.min(dmg, ctx.base * M); if (ctx.mul > M) return dmg * M / ctx.mul; return dmg; }
+  function capDmg(dmg, ctx){ var B = G('CQ_BAL'); if (!B) { B = window.CQ_BAL = window.CQ_BAL || {}; }
+    if (typeof B.cap === 'function') { try { return B.cap(dmg, ctx); } catch (e) { return capFallback(dmg, ctx); } }
+    if (B.cap == null) B.cap = B.cap || capFallback;   // CQ_BAL.cap = CQ_BAL.cap || 兜底（待替换）
+    return capFallback(dmg, ctx); }
+  coreHost.cap = capDmg; CQ.capDmg = capDmg;
+  CQ.heroCore = heroCore; CQ.heroHost = coreHost; CQ.dps = dpsNow; CQ._dpsState = DPS;
   function emit(name, ev){ try { if (on() && CQ.Scene[name]) CQ.Scene[name](ev); } catch (e) {} }
   // 合击结算（伤害/眩晕/持续/回血都在这里真实发生；战斗页只播演出）
   function applyHeji(ev){ ev.hits.forEach(function(x){ x.got = Host.hit(x.m, x.d, 'cqheji') || 0; if (ev.combo.stun) Host.stun(x.m, ev.combo.stun); if (ev.combo.dot) dots.push({m: x.m, d: Math.round(x.d * ev.combo.dot), n: 5, t: 1}); });
@@ -129,16 +149,21 @@
 
   // ---------- 运行时包装（最外层，最后加载） ----------
   var curSrc = null, curMon = null;
+  // 召唤物事件：CQSys pet:spawn/pet:hit/pet:atk/pet:die {uid,dmg?,tgt?} 一旦出现就以事件为准，否则场景每帧按 uid 对比 ALLY 兜底
+  var petEv = false; CQ.petEvents = function(){ return petEv; };
+  function emitPet(k, d, fallback){ try { if (on() && CQ.Scene.onPet) CQ.Scene.onPet(k, d || {}, !!fallback); } catch (e) {} }
   function wrap(name, mk){ if (!has(name)) return false; var f = G(name); if (typeof f !== 'function' || f._cq) return false; var g = mk(f); g._cq = 1; window[name] = g;
     try { eval(name + '=g'); } catch (e) {} return true; }
   function install(){
-    wrap('hitMon', function(f){ return function(m, d, src, fxc){ var prev = curSrc, pm = curMon; curSrc = src; curMon = m; try { var r = f.apply(this, arguments); if (src !== 'cqhero' && src !== 'cqheji') dpsAdd(+r || 0);
+    wrap('hitMon', function(f){ return function(m, d, src, fxc){ var prev = curSrc, pm = curMon; curSrc = src; curMon = m; var hp0 = m && m.hp > 0 ? m.hp : 0; try { var r = f.apply(this, arguments); if (src !== 'cqhero' && src !== 'cqheji') dpsAdd(Math.min(+r || 0, hp0));
+        if (src && typeof src === 'object' && src.kind === 'cqpet' && !petEv) emitPet('atk', {uid: src.uid, tgt: m, dmg: +r || 0}, true);
         if (src === 'hero' && core) core.addRage(window.CQSys && CQSys.critNow ? 4 : 2); return r; } finally { curSrc = prev; curMon = pm; } }; });
     wrap('step', function(f){ return function(dt){ var r = f.apply(this, arguments); try { coreStep(+dt || 0); } catch (e) { console.error('[CQ] hero step', e); } return r; }; });
     // 暴击：有 CQSys 时按 crit 事件出大字（替代全局 CRIT）；暴击那一下的普通飘字跳过，由事件补成暴击大字
     var C = sysFn('on'); if (C && !install._crit) { install._crit = 1;
       C.on('crit', function(d){ try { if (on() && curMon) CQ.Scene.onMonDamage(curMon, d && d.dmg || 0, d && d.src || curSrc, true); } catch (e) {} });
       C.on('hero', function(){ try { if (CQ.Scene.mounted()) CQ.Scene.onHeroChange(); } catch (e) {} });
+      ['spawn', 'hit', 'atk', 'die'].forEach(function(k){ C.on('pet:' + k, function(d){ petEv = true; emitPet(k, d, false); }); });
       C.on('bossEnrage', function(d){ try { if (on()) CQ.Scene.onBossEnrage(d); } catch (e) {} }); }
     wrap('floatNum', function(f){ return function(id, v, c){ var r = f.apply(this, arguments);
       try { if (on() && typeof id === 'number') { var m = (G('MON') || []).filter(function(x){ return x.uid === id; })[0]; if (m) { var S2 = SYS(); if (S2) { if (!S2.critNow) CQ.Scene.onMonDamage(m, v, curSrc, false); } else CQ.Scene.onMonDamage(m, v, curSrc, !!G('CRIT') && curSrc === 'hero'); } } } catch (e) {}

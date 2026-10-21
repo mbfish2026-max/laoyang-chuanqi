@@ -22,7 +22,7 @@
   function cellBox(idx, kind){ var M = CQ.MOVE, p = M.xy(idx), G = geom();
     var cx = 8 + p[0] * G.colStep + CW / 2, by = G.top + p[1] * G.rowStep + CH;   // 格子中心 x、卡片底边 y
     var w = CW, hh = CH;
-    if (kind === 'boss') { w = BW; hh = BH; } else if (kind === 'role') { hh = 150; w = Math.round(hh * .675); } else if (kind === 'hero') { hh = 124; w = Math.round(hh * .695); }
+    if (kind === 'boss') { w = BW; hh = BH; } else if (kind === 'role') { hh = 150; w = Math.round(hh * .675); } else if (kind === 'hero') { hh = 124; w = Math.round(hh * .695); } else if (kind === 'pet') { w = 60; hh = 76; }
     var x = Math.max(2, Math.min(DW - w - 2, cx - w / 2)), y = by - hh;
     return {x: x, y: y, w: w, h: hh, cx: x + w / 2, cy: y + hh * .45, row: p[1]}; }
   function place(el, box, z){ var t = 'translate(' + Math.round(box.x) + 'px,' + Math.round(box.y) + 'px)'; if (el.style.transform !== t) el.style.transform = t; if (z != null && el.style.zIndex != z) el.style.zIndex = z; if (el.classList.contains('hero')) el.style.height = box.h + 'px'; }
@@ -111,6 +111,29 @@
     st.raf = requestAnimationFrame(frame);
   }
   function kindOf(v){ return v.boss ? 'boss' : 'mon'; }
+  // ---------- 召唤物小卡（M1.3）：只做表现，伤害归职业开发（game.js step 的 ALLY） ----------
+  function petCard(a){ var art = CQ.Host.petArt(a), lv = CQ.Host.petLvl(a);
+    var e = h('div', 'card cpet spawn', '<div class="in"><div class="bd"></div>' + (art ? '<img class="fig" alt="" src="' + esc(art) + '">' : '') + '<span class="pic"' + (art ? ' style="display:none"' : '') + '>' + esc(a.ic || '🐾') + '</span>' +
+      '<div class="clv">' + (lv ? 'Lv.' + lv : '') + '</div><div class="cnm">' + esc(a.n || '召唤物') + '</div><div class="hb"><i></i></div></div>');
+    var img = e.querySelector('img'); if (img) img.onerror = function(){ img.remove(); e.querySelector('.pic').style.display = ''; };   // 没图退回 emoji
+    e.style.transform = 'translate(-200px,-200px)'; st.R.units.appendChild(e); CQ.FX.once(e, 'spawn', false, 600); return e; }
+  function syncPets(){ var live = CQ.Host.pets(), seen = {}, P = st.pets || (st.pets = {}), ev = CQ.petEvents && CQ.petEvents();
+    live.forEach(function(a){ seen[a.uid] = 1; var pv = P[a.uid];
+      if (!pv) { pv = P[a.uid] = {uid: a.uid, ref: a, unit: {isPet: true, hp: 1, idx: null}, lastHp: a.hp}; pv.el = petCard(a); pv.hb = pv.el.querySelector('.hb i'); petFx(pv, 'zhaohuan'); }
+      pv.ref = a; if (!ev && a.hp < pv.lastHp - .5) petHurt(pv, Math.round(pv.lastHp - a.hp)); pv.lastHp = a.hp; });
+    Object.keys(P).forEach(function(k){ if (!seen[k]) petDie(P[k]); });
+    var units = st.hero.present() ? [st.hero.unit] : []; Object.keys(P).forEach(function(k){ units.push(P[k].unit); }); st.b._pets = units;
+    Object.keys(P).forEach(function(k){ var pv = P[k], u = pv.unit; if (u.idx == null) return; var key = u.idx + (st.bossOn ? 'b' : ''); if (pv._pos === key) return; pv._pos = key; pv.box = cellBox(u.idx, 'pet'); place(pv.el, pv.box, 11 + pv.box.row * 3); }); }
+  function petFx(pv, dir){ var b = pv.box; setTimeout(function(){ if (!st) return; b = pv.box || b; if (b) CQ.FX.sprite(dir, b.cx, b.cy, {scale: .5}); }, 60); }
+  function petHurt(pv, d){ var b = pv.box; if (b && d > 0) float(b.cx + (Math.random() - .5) * 12, b.y + 10, '-' + fmt(d), 'me'); CQ.FX.once(pv.el, 'hit', false, 600); }
+  function petDie(pv){ if (!pv || pv.dead) return; pv.dead = true; delete st.pets[pv.uid]; var b = pv.box; if (b) CQ.FX.burst(b.cx, b.cy, 12, ['#9effa0', '#3a8a3a', '#ffffff'], 160, 4, .5); CQ.FX.once(pv.el, 'die', true, 800); }
+  function petsHP(){ var P = st.pets || {}; Object.keys(P).forEach(function(k){ var pv = P[k], a = pv.ref; wpct(pv.hb, a.max ? a.hp / a.max * 100 : 0); }); }
+  // 事件（CQSys pet:spawn/hit/atk/die 优先；fallback=true 来自桥接的 hitMon 兜底）
+  function onPet(k, d, fallback){ if (!st || st.paused) return; var pv = (st.pets || {})[d.uid];
+    if (k === 'spawn') { syncPets(); return; } if (!pv) return;
+    if (k === 'hit') petHurt(pv, Math.round(d.dmg || 0));
+    else if (k === 'atk') { var t = d.tgt && typeof d.tgt === 'object' ? d.tgt : (CQ.Host.mons().filter(function(m){ return m.uid === d.tgt; })[0]); if (t) { lunge(pv.el, pv.unit.idx, t); hitFlash(t); } }
+    else if (k === 'die') petDie(pv); }
   // 英雄事件（来自 cq_bridge 的 step 内英雄核心）：普攻前冲、受伤飘字、阵亡变灰、复活
   function onHeroEvent(ev){ if (!st || st.paused || !ev) return; var u = st.hero.unit;
     if (ev.type === 'heji') { playHeji(ev); return; }
@@ -165,7 +188,8 @@
     if (bossLive !== st.bossOn) { st.bossOn = bossLive; st.R.root.classList.toggle('boss', bossLive); b.mons.forEach(function(v){ v._pos = null; }); st._rolePos = st._heroPos = null; }
     // 英雄
     if (!CQ.heroCore) { var ev = st.hero.tick(dt, hostForHero()); if (ev) onHeroEvent(ev); }
-    var pres = st.hero.present(); if (st._pres !== pres) { st._pres = pres; st.heroEl.style.display = pres ? '' : 'none'; st.b._pets = pres ? [st.hero.unit] : []; if (!pres) st.hero.unit.idx = null; st._heroPos = null; }
+    syncPets();
+    var pres = st.hero.present(); if (st._pres !== pres) { st._pres = pres; st.heroEl.style.display = pres ? '' : 'none'; if (!pres) st.hero.unit.idx = null; st._heroPos = null; }
     // 走位（传奇原规则）
     CQ.MOVE.update(b, dt);
     b.mons.forEach(function(v){ if (v.dead || v.idx == null) return; var key = v.idx + (st.bossOn ? 'b' : ''); if (v._pos === key) return; v._pos = key;
@@ -218,9 +242,10 @@
     var H = st.hero.h, rage = Math.floor(H.rage || 0), full = rage >= CQ.HEJI.RAGE_MAX;
     R.ring.setAttribute('stroke-dasharray', (R.ringC * rage / 100).toFixed(1) + ' ' + R.ringC); R.ring.setAttribute('stroke', full ? '#ffcf4a' : '#ff7a2a');
     R.heji.classList.toggle('cd', H.hejiCd > 0); R.heji.classList.toggle('full', full && !(H.hejiCd > 0));
+    var ht = R.heji.querySelector('.t'); if (ht) txt(ht, H.hejiCd > 0 ? Math.ceil(H.hejiCd) + '秒' : '合击');   // 冷却直接显示在合击按钮上
     txt(R.heji.querySelector('.rg'), H.hejiCd > 0 ? '冷却 ' + Math.ceil(H.hejiCd) + '秒' : full ? '怒气已满' : '怒气 ' + rage + '%');
     renderZpop(); if (CQ.Host.autoAdv() !== st._aa) { st._aa = CQ.Host.autoAdv(); renderSide(); } renderHeroPanel();
-    var hu = st.hero.unit; wpct(st.heroHb.querySelector('i'), hu.maxhp ? hu.hp / hu.maxhp * 100 : 0); st.heroEl.classList.toggle('dead', !!hu.deadUntil); txt(st.heroRv, hu.deadUntil ? st.hero.reviveLeft(Date.now()) + '秒' : '');
+    petsHP(); var hu = st.hero.unit; wpct(st.heroHb.querySelector('i'), hu.maxhp ? hu.hp / hu.maxhp * 100 : 0); st.heroEl.classList.toggle('dead', !!hu.deadUntil); txt(st.heroRv, hu.deadUntil ? st.hero.reviveLeft(Date.now()) + '秒' : '');
     // 掉落滚动条（首行主线任务，原任务行收起后放这里）
     var L = CQ.Host.logs(4), lk = L.join('\u0001'); if (lk !== st.logKey) { st.logKey = lk; R.ticker.innerHTML = L.map(function(x){ return '<div class="crow">' + x + '</div>'; }).join(''); CQ.FX.once(R.ticker, 'tick', false, 700); }
   }
@@ -312,7 +337,7 @@
     pick: function(ts){ var b = ts.filter(function(m){ return m.boss; })[0]; return b || ts[0]; },
     hit: function(m, d, src){ return H.hit(m, d, src); }, atkMax: H.atkMax, lvl: H.lvl, heroK: H.heroK, maxhp: H.maxhp, heroStats: H.heroStats}; }
 
-  CQ.Scene = {mount: mount, unmount: unmount, pause: pause, resume: resume, onMonDamage: onMonDamage, onRoleHurt: onRoleHurt, onKill: onKill, onLoot: onLoot, onSkill: onSkill, playHeji: playHeji, onHeroChange: onHeroChange, onHeroEvent: onHeroEvent, onDot: onDot, onBossEnrage: onBossEnrage,
+  CQ.Scene = {mount: mount, unmount: unmount, pause: pause, resume: resume, onMonDamage: onMonDamage, onRoleHurt: onRoleHurt, onKill: onKill, onLoot: onLoot, onSkill: onSkill, playHeji: playHeji, onHeroChange: onHeroChange, onPet: onPet, pets: function(){ return st && st.pets; }, onHeroEvent: onHeroEvent, onDot: onDot, onBossEnrage: onBossEnrage,
     doHeji: function(){ if (!st) return {ok: false}; return doHejiNow(); },
     state: function(){ return st; }, mounted: function(){ return !!st; }};
 })();

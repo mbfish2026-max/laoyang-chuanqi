@@ -11,7 +11,7 @@
   // 伤害按「玩家近期 DPS」定（总控平衡）：普攻 DPS = 玩家 DPS × dpsK；合击总伤 = 玩家 DPS × clamp(hejiSec × 组合倍率/hejiRef, hejiSecMin, hejiSecMax) 秒；合击冷却 hejiCd。
   // 普攻+合击目标占总伤害 ≤ 20%：普攻 ~9% + 合击 ~6.7s/46s ≈ 0.24 倍玩家伤害 → 约 19.5%（cq/cq_hero_balance_sim.js 验证）。DPS 未知（刚开局 <dpsMin 秒）时用 atkK × 玩家武器上限兜底。
   // 有 CQSys.heroStats 时：生命 = heroStats.hp × statHpK，受伤减 def × defK，takesDmg=0 不受伤；hpK 只作兜底。
-  var TUNE = CQ.HERO_TUNE = CQ.HERO_TUNE || {atkT: 1.6, dpsK: 0.095, hejiSec: 6.5, hejiSecMin: 6, hejiSecMax: 6.8, hejiRef: 3.2, hejiCd: 45, dpsWin: 30, dpsMin: 8,
+  var TUNE = CQ.HERO_TUNE = CQ.HERO_TUNE || {atkT: 1.6, dpsK: 0.095, hejiSec: 6.5, hejiSecMin: 6, hejiSecMax: 6.8, hejiRef: 3.2, hejiCd: 45, dpsWin: 120, dpsMin: 8,
     atkK: 0.35, hpK: 0.8, hurtK: 1.0, hurtT: 2.3, hurtP: 0.35, regen: 0.005, reviveSec: 30, statHpK: 1.0, defK: 0.5};
   // 职业：1 战士 2 法师 3 道士（与传奇之旅 prof 一致）；老羊传奇 S.cls：zs/fs/ds
   var PROF = {zs: 1, fs: 2, ds: 3}, PNAME = {1: '战士', 2: '法师', 3: '道士'};
@@ -23,6 +23,8 @@
     '2+3': {name: '噬魂沼泽', fx: 'heji_shihunzhaoze', mult: 2.6, aoe: true,  desc: '法+道: 群体伤害, 之后 5 秒每秒追加 20% 伤害', dot: .2},
     '3+3': {name: '末日审判', fx: 'heji_morishenpan',  mult: 2.8, aoe: true,  desc: '道+道: 群体伤害并为玩家和英雄回复 20% 生命', heal: .2}
   };
+  // 伤害封顶：host.cap = CQ_BAL.cap(dmg, ctx)（cq_bridge 接入，系统实现缺时兜底）
+  function capOf(host, d, ctx){ return host && host.cap ? host.cap(d, ctx) : d; }
   function comboKey(a, b){ return Math.min(a, b) + '+' + Math.max(a, b); }
   function defaultHeroProf(p){ return p === 1 ? 3 : 1; }   // 战士带道士，法师/道士带战士（样稿：战神 + 英雄·道士）
 
@@ -54,8 +56,8 @@
   // 合击伤害：(玩家攻击上限 + 英雄攻击上限) * 倍率 * (1 + 主角等级/50)，原版公式；英雄攻击上限 = 玩家 * heroK
   // 合击总伤：玩家 DPS 已知 → dps × hejiSec × mult/hejiRef；否则 (玩家上限 + 玩家上限×heroK) × mult（去掉了 1+等级/50）
   Hero.prototype.hejiTotal = function(cb, host){ var dps = host.dps ? host.dps() : 0, r = 0.9 + Math.random() * 0.2;
-    if (dps > 0) { var sec = Math.max(TUNE.hejiSecMin, Math.min(TUNE.hejiSecMax, TUNE.hejiSec * cb.mult / TUNE.hejiRef)); return Math.max(1, Math.round(dps * sec * r)); }
-    var a = host.atkMax(); return Math.max(1, Math.round((a + a * (host.heroK ? host.heroK() : TUNE.atkK)) * cb.mult * r)); };
+    if (dps > 0) { var sec = Math.max(TUNE.hejiSecMin, Math.min(TUNE.hejiSecMax, TUNE.hejiSec * cb.mult / TUNE.hejiRef)), base = dps * TUNE.hejiSec; return Math.max(1, Math.round(capOf(host, dps * sec * r, {src: 'combo', base: base, mul: sec / TUNE.hejiSec * r}))); }
+    var a = host.atkMax(), b0 = a + a * (host.heroK ? host.heroK() : TUNE.atkK); return Math.max(1, Math.round(capOf(host, b0 * cb.mult * r, {src: 'combo', base: b0 * TUNE.hejiRef, mul: cb.mult / TUNE.hejiRef * r}))); };
   // 旧接口（兜底公式，无等级加成）
   Hero.prototype.hejiDamage = function(cb, atkMax, lvl, heroK){ return Math.max(1, Math.round((atkMax + atkMax * (heroK != null ? heroK : TUNE.atkK)) * cb.mult * (0.9 + Math.random() * 0.2))); };
   // 每帧：冷却、复活、英雄普攻、自动合击。host: {targets(), hit(m,d,src), atkMax(), lvl(), heroK(), now()}
@@ -72,7 +74,7 @@
     u.atkT -= dt;
     if (u.atkT <= 0) { u.atkT = TUNE.atkT;
       var ts = host.targets(); if (ts.length) { var t = host.pick ? host.pick(ts) : ts[0];
-        var dps = host.dps ? host.dps() : 0, d = dps > 0 ? this.carry(dps * TUNE.dpsK * TUNE.atkT * (0.9 + Math.random() * 0.2)) : Math.max(1, Math.round(host.atkMax() * TUNE.atkK * (0.8 + Math.random() * 0.4)));
+        var dps = host.dps ? host.dps() : 0, d = dps > 0 ? this.carry(capOf(host, dps * TUNE.dpsK * TUNE.atkT * (0.9 + Math.random() * 0.2), {src: 'hero', base: dps * TUNE.dpsK * TUNE.atkT})) : Math.max(1, Math.round(host.atkMax() * TUNE.atkK * (0.8 + Math.random() * 0.4)));
         if (d > 0) host.hit(t, d, 'cqhero'); this.addRage(1); ev = {type: 'heroatk', target: t, dmg: d}; } }
     if (h.autoHeji && this.ready() && host.targets().length) { var r = this.doHeji(host, false); if (r && r.ok) ev = r; }
     return ev;

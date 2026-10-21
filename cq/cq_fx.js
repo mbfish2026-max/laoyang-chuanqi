@@ -31,7 +31,7 @@
     for (var i = 0; i < n; i++) { var a = Math.random() * Math.PI * 2, v = spd * (.3 + Math.random()); P({x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - (up || 0), s: size * (.5 + Math.random()), c: col[i % col.length], life: life * (.6 + Math.random() * .6)}); } }
   function ring(x, y, r0, r1, col, life, w){ rings.push({x: x, y: y, r0: r0, r1: r1, c: col, life: life, max: life, w: w || 6}); kick(); }
   function sprite(dir, x, y, o){ var s = loadSheet(dir); if (!s.ok) return false; o = o || {};
-    anims.push({s: s, x: x, y: y, t: 0, scale: o.scale || 1, done: o.done, tx: o.tx, ty: o.ty, dur: o.dur}); kick(); return true; }
+    anims.push({s: s, x: x, y: y, t: 0, scale: o.scale || 1, done: o.done, tx: o.tx, ty: o.ty, dur: o.dur, line: !!o.line}); kick(); return true; }
   // 能量流：从 s 飞向 t 的拖尾粒子（原 trailFollow）
   function trail(s, t, dur, cols){ var n = low ? 6 : 16; for (var i = 0; i < n; i++) (function(i){ setTimeout(function(){
       var f = i / n; P({x: s.x + (t.x - s.x) * f, y: s.y + (t.y - s.y) * f - Math.sin(f * Math.PI) * 40, vx: (Math.random() - .5) * 40, vy: (Math.random() - .5) * 40, s: 7, c: cols[i % cols.length], life: .35}); }, dur * 1000 * i / n); })(i); }
@@ -49,11 +49,13 @@
     return HEJI_WIND + imp;
   }
   // 普通技能序列帧（传奇之旅 assets/fx，只播一次）：projectile 从施法者飞向目标、onTarget 落在目标、onSelf 落在施法者
-  var SKILL_DIRS = ['huoqiu', 'leidianshu', 'banyue', 'liehuo', 'gongsha', 'bingpaoxiao', 'huoqiang', 'linghunhuofu', 'shidu', 'zhiliaoshu', 'yemanchongzhuang', 'mofadun', 'zhaohuan', 'shenshengzhanjia'];
+  var SKILL_DIRS = ['kangjuhuohuan', 'diyuhuo', 'youhuozhiguang', 'yinshenshu', 'huoqiu', 'leidianshu', 'banyue', 'liehuo', 'gongsha', 'bingpaoxiao', 'huoqiang', 'linghunhuofu', 'shidu', 'zhiliaoshu', 'yemanchongzhuang', 'mofadun', 'zhaohuan', 'shenshengzhanjia'];
   var lastSkill = 0;
   function playSkill(dir, s, t){ if (!dir) return false; var now = performance.now(); if (now - lastSkill < (low ? 900 : 320)) return false;
     var sh = loadSheet(dir); if (!sh.ok) return false; lastSkill = now; var ty = sh.meta.type, sc = .62;
     if (ty === 'projectile' && s && t) return sprite(dir, s.x, s.y, {tx: t.x, ty: t.y, dur: .38, scale: .5, done: function(){ burst(t.x, t.y, 14, ['#fff2a8', '#ffb300', '#ff4d00'], 220, 5, .4); ring(t.x, t.y, 6, 50, 'rgba(255,200,120,.9)', .3, 5); }});
+    if (ty === 'line' && s) { var tt = t || {x: s.x + 1, y: s.y}, dx = tt.x - s.x, dy = tt.y - s.y, L = Math.hypot(dx, dy) || 1; // 身前 18px 起
+      return sprite(dir, s.x + dx / L * 18, s.y + dy / L * 18, {tx: tt.x, ty: tt.y, line: true, scale: Math.max(.6, Math.min(1.2, (L + 20) / 192))}); }
     var p = ty === 'onSelf' ? s : (t || s); return p ? sprite(dir, p.x, p.y, {scale: sc}) : false; }
   function loop(now){
     if (!canvas) { running = false; return; }
@@ -70,7 +72,11 @@
       else if (fr >= me.frames) { anims.splice(i, 1); if (an.done) an.done(); continue; }
       var sw = me.frameW, sh = me.frameH, c = fr % s.cols, row = Math.floor(fr / s.cols), dw = sw * an.scale, dh = sh * an.scale;
       ctx.globalAlpha = 1; ctx.globalCompositeOperation = me.blend === 'lighter' ? 'lighter' : 'source-over';
-      ctx.drawImage(s.img, c * sw, row * sh, sw, sh, ax - dw / 2, ay - dh / 2, dw, dh); ctx.globalCompositeOperation = 'lighter'; }
+      if (an.line) { // line：帧左缘中点=火柱根部，锚在施法者身前；按朝向目标旋转，面朝左时水平翻转
+        var ldx = (an.tx != null ? an.tx : an.x + 1) - an.x, ldy = (an.ty != null ? an.ty : an.y) - an.y, flip = ldx < 0, ang = Math.atan2(ldy, Math.abs(ldx) || 1e-6);
+        ctx.save(); ctx.translate(an.x, an.y); if (flip) ctx.scale(-1, 1); ctx.rotate(ang); ctx.drawImage(s.img, c * sw, row * sh, sw, sh, 0, -dh / 2, dw, dh); ctx.restore(); }
+      else ctx.drawImage(s.img, c * sw, row * sh, sw, sh, ax - dw / 2, ay - dh / 2, dw, dh);
+      ctx.globalCompositeOperation = 'lighter'; }
     ctx.globalAlpha = 1;
     if (parts.length || anims.length || rings.length) requestAnimationFrame(loop);
     else { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); running = false; }

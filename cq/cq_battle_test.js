@@ -74,6 +74,23 @@ if(G('!!(window.CQSys&&CQSys.api===1)')){
   G(`var heroDmg=0;var _hw=hitMon;hitMon=function(m,d,src){var t=_hw.apply(this,arguments);if(src==='cqhero')heroDmg+=t;return t};for(var i=0;i<200;i++){step(.05)}`);
   ok(G('heroDmg')>0||G('HC.unit.atkT')<CQ_T('atkT'),'英雄在 step() 内出手（离开战斗页也算）');
 }
+// ---------- M1.3 召唤物 / 新序列帧 / 封顶 / 有效 DPS ----------
+G(`ALLY=[];addAlly('cqpet',{sub:'zhss',n:'神兽',ic:'🐕',hp:100,dmg:[3,5],el:'fire',th:10});addAlly('cqpet',{sub:'yhzg',n:'宝宝·'+MONS[Object.keys(MONS)[0]].n,ic:'🐔',hp:50,dmg:[1,2]});addAlly('cqpet',{sub:'yhzg',n:'宝宝·x',ic:'🐔',hp:50,dmg:[1,2]});addAlly('golem',{hp:10,dmg:[1,1]})`);
+ok(G('CQ.Host.pets().length')===2&&G('CQ.Host.pets().every(a=>a.kind==="cqpet")'),'召唤物：只取 cqpet，同主人最多 2 只');
+ok(G('CQ.Host.petArt(ALLY[0])')==='assets/cq/ui/pet_ss.png','神兽立绘 pet_ss（无图时卡片退回 emoji）');
+ok(/assets\/cq\/ui\//.test(G('CQ.Host.petArt(ALLY[1])')||'')||G('CQ.Host.petArt(ALLY[1])')===null,'宝宝立绘按原怪 monArt');
+G('ALLY[0].art="pet_ss_gold"');ok(G('CQ.Host.petArt(ALLY[0])')==='assets/cq/ui/pet_ss_gold.png','有 art 字段优先');
+G('ALLY[0].hp=0');ok(G('CQ.Host.pets().length')===2&&!G('CQ.Host.pets().includes(ALLY[0])'),'hp=0 的召唤物不显示');
+G('ALLY=[]');
+ok(G('(function(){var S0=SKM;return Object.keys(CQ.SKILL_FX_ART).length})()')===4&&G('CQ.SKILL_FX_ART["地狱火"]')==='diyuhuo'&&G('CQ.SKILL_FX_ART["抗拒火环"]')==='kangjuhuohuan'&&G('CQ.SKILL_FX_ART["诱惑之光"]')==='youhuozhiguang'&&G('CQ.SKILL_FX_ART["隐身术"]')==='yinshenshu','4 套美术序列帧按技能名接入');
+{const ids=JSON.parse(G('JSON.stringify(Object.keys(SKM).filter(k=>CQ.SKILL_FX_ART[SKM[k].n]))'));ok(ids.length===0||ids.every(id=>G(`CQ.Host.skillFx("${id}")`)===G(`CQ.SKILL_FX_ART[SKM["${id}"].n]`)),'skillFx 专属帧优先于职业 cqfx 通用映射');}
+for(const d of['kangjuhuohuan','diyuhuo','youhuozhiguang','yinshenshu']){const m=JSON.parse(fs.readFileSync(path.join(root,'assets/cq/fx',d,'fx.json'),'utf8'));ok(m.frameW===192&&fs.existsSync(path.join(root,'assets/cq/fx',d,'sheet.png'))&&m.loop!==true,'序列帧 '+d+' 存在且不循环');}
+ok(JSON.parse(fs.readFileSync(path.join(root,'assets/cq/fx/diyuhuo/fx.json'),'utf8')).type==='line','地狱火 fx.json type=line');
+ok(/an\.line/.test(fs.readFileSync(path.join(root,'cq/cq_fx.js'),'utf8'))&&/ctx\.rotate\(ang\)/.test(fs.readFileSync(path.join(root,'cq/cq_fx.js'),'utf8')),'cq_fx 支持 line 类型（根部锚定、旋转、朝左翻转）');
+ok(G('CQ.capDmg(1000,{src:"hero",base:100})')===180&&G('CQ.capDmg(500,{src:"combo",mul:3.6})')===250&&G('CQ.capDmg(50,{src:"hero",base:100})')===50,'英雄/合击伤害走 CQ_BAL.cap 1.8 倍封顶');
+G('var hc3=new CQ.Hero(1,localStorage);var host3=Object.assign({},host,{dps:()=>1000,cap:CQ.capDmg});hc3.h.rage=100;hc3.h.hejiCd=0;var r3=hc3.doHeji(host3,true)');ok(G('r3.total')<=1000*6.5*1.8+2&&G('r3.total')>=1000*6*.9-2,'合击 6–6.8 秒 DPS 且经封顶');
+ok(CQ_T('dpsWin')===120&&CQ_T('hejiCd')===45,'有效 DPS 窗口 120 秒、合击冷却 45 秒');
+G('var mo=mkMon(Object.keys(MONS)[0],1);mo.hp=10;mo.max=10;MON=[mo];var DS=CQ._dpsState,b0=DS.b[DS.b.length-1];hitMon(mo,{phys:5000},"hero","#fff");var b1=DS.b[DS.b.length-1]');ok(G('b1-b0')>0&&G('b1-b0')<=20,'有效 DPS：秒怪溢出不计（5000 伤害打 10 血只记剩余血量；测试里 hitMon 被包了两层）');
 ok(/body\.cq-on #hud[^{]*#fquest[^{]*#fzone\{display:none/.test(css)||/#fzone\{display:none/.test(css),'战斗页隐藏药水栏/任务行/区域栏（仅 body.cq-on）');
 ok(inf.length===1&&inf[0]==='cqBreath','CSS 只有怪物卡片呼吸是 infinite：'+inf.join(','));
 ok(/\.cqb \.card \.fig\{[^}]*animation:cqBreath/.test(css),'呼吸挂在 .card .fig');

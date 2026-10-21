@@ -226,3 +226,15 @@ body.cq-on #cqStage{top:0;background:#120a06}
 .cqb .hpanel .hpick b{font-size:15px;color:#7dff8a;margin-right:6px}
 .cqb .hpanel .hpick small{font-size:11px;color:#d8c290}
 .cqb.enraged .bossbar .csub b{color:#ff2a1a}
+.cqb .heji.cd .t{font-size:22px;color:#ffd9a0}
+.cqb .card.cpet{width:60px;height:76px}
+.cqb .card.cpet .bd{box-shadow:0 0 0 2px #3fbf4a,0 0 8px 1px rgba(80,220,90,.45),0 5px 8px rgba(0,0,0,.55)}
+.cqb .card.cpet .fig{height:58px;bottom:14px}
+.cqb .card.cpet .pic{position:absolute;left:0;right:0;top:16px;text-align:center;font-size:30px;line-height:36px}
+.cqb .card.cpet .cnm{color:#9effa0;font-size:11px;bottom:8px}
+.cqb .card.cpet .clv{font-size:11px}
+.cqb .card.cpet .hb{height:4px;bottom:2px}
+.cqb .card.cpet .hb i{background:linear-gradient(180deg,#7dff8a,#1f9a2e)}
+.cqb .card.cpet .hb{top:-7px;bottom:auto;left:4px;right:4px}
+.cqb .card.cpet .cnm{top:-22px;bottom:auto;left:-14px;right:-14px}
+.cqb .card.cpet .fig{bottom:6px;height:64px}
