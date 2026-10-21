@@ -1,0 +1,7 @@
+/* 战斗挂载点：#cqStage 等比缩放区（设计 750 → 壳 390） */
+#cqStage{position:absolute;left:0;right:0;top:28px;bottom:0;overflow:hidden;z-index:2;background:#1a120c}
+#cqStage .cq-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#c9a14a;text-align:center;gap:6px;padding:12px}
+#cqStage .cq-ph-t{font-size:15px;letter-spacing:2px}
+#cqStage .cq-ph-s{font-size:11px;color:#8a7a5a}
+#cqStage .cq-ph-v{font-size:10px;color:#666;margin-top:8px}
+.cq-legacy-hide{display:none!important;visibility:hidden!important}
