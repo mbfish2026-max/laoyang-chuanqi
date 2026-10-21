@@ -8,12 +8,15 @@
 // ===================================================================================
 let ACCT_KEY='cq_acct',CH_PRE='cq_ch_',ACCT_NS=null;const PST_PAGES=20,SH_PAGES=20,PAGE_SZ=48,BAG_SZ=400,BAG_PG=48;
 let ACCT=null,STV='bag',STP=0,SHP=0,STMOVE=1,ST_RESET=0,BGP=0,STF={q:'all',t:'all',s:''};
+// 老羊传奇：已解锁页数（PST_PAGES/SH_PAGES 仅作历史上限；实际页数 = 解锁数，见 cq/stash_cq.js 与 CQ_BAL.stash）
+function pstN(){return(typeof S!=='undefined'&&S&&S.pstN)||(typeof CQ_BAL!=='undefined'?CQ_BAL.stash.p0:20)}
+function shN(){return(typeof ACCT!=='undefined'&&ACCT&&ACCT.shN)||(typeof CQ_BAL!=='undefined'?CQ_BAL.stash.s0:20)}
 function mkPages(n){return Array.from({length:n},()=>[])}
 function acctSave(){try{ACCT.t=Date.now();GS.setItem(ACCT_KEY,JSON.stringify(ACCT))}catch(e){}}
 function acctLoad(){try{ACCT=JSON.parse(GS.getItem(ACCT_KEY))}catch(e){ACCT=null}
- if(!ACCT||ACCT.v!==1){ACCT={v:1,cur:1,nid:2,suid:1e9,chars:[{id:1,name:'战士',cls:'战士',lvl:1,t:Date.now()}],shared:mkPages(SH_PAGES)};
+ if(!ACCT||ACCT.v!==1){ACCT={v:1,cur:1,nid:2,suid:1e9,chars:[{id:1,name:'战士',cls:'战士',lvl:1,t:Date.now()}],shared:mkPages(shN())};
   const old=ACCT_NS?null:GS.getItem(KEY);if(old){GS.setItem(CH_PRE+1,old);try{const o=JSON.parse(old);ACCT.chars[0].lvl=o.lvl||1}catch(e){}}acctSave()}
- while(ACCT.shared.length<SH_PAGES)ACCT.shared.push([]);if(!ACCT.chars.length)ACCT.chars.push({id:ACCT.nid++,name:'战士',cls:'战士',lvl:1,t:Date.now()});
+ while(ACCT.shared.length<shN())ACCT.shared.push([]);if(!ACCT.chars.length)ACCT.chars.push({id:ACCT.nid++,name:'战士',cls:'战士',lvl:1,t:Date.now()});
  for(const p of ACCT.shared)mergeMats(p)}
 // 存档命名空间：游客 = 默认 key；登录账号 = key 带 user_id（数据按账号隔离）
 function setNS(uid){ACCT_NS=uid||null;ACCT_KEY=uid?'cq_acct@'+uid:'cq_acct';CH_PRE=uid?'cq_ch@'+uid+'_':'cq_ch_'}
@@ -31,8 +34,8 @@ function bagFits(it){return fits(S.bag,it,BAG_SZ)}
 // ---------- 账号 / 角色：load/save 包装 ----------
 const _st_load=load;load=function(){acctLoad();const c=curChar()||ACCT.chars[0];ACCT.cur=c.id;const d=GS.getItem(CH_PRE+c.id);
  if(d)GS.setItem(KEY,d);else GS.removeItem(KEY);_st_load();migrateChar(c)};
-function migrateChar(c){if(!S.pst){S.pst=mkPages(PST_PAGES);let p=0;for(const it of (S.stash||[])){while(p<PST_PAGES-1&&!fits(S.pst[p],it,PAGE_SZ))p++;S.pst[p].push(it)}S.stash=[]}
- while(S.pst.length<PST_PAGES)S.pst.push([]);if(!S.stash)S.stash=[];drainOld();for(const p of S.pst)mergeMats(p);mergeMats(S.bag);
+function migrateChar(c){if(!S.pst){S.pst=mkPages(pstN());let p=0;for(const it of (S.stash||[])){while(p<pstN()-1&&!fits(S.pst[p],it,PAGE_SZ))p++;S.pst[p].push(it)}S.stash=[]}
+ while(S.pst.length<pstN())S.pst.push([]);if(!S.stash)S.stash=[];drainOld();for(const p of S.pst)mergeMats(p);mergeMats(S.bag);
  S.name=S.name||c.name;S.cid=c.id;S.cls=S.cls||c.cid||'zs';S.mode=S.mode||c.mode||'normal';if(S.eg&&S.eg.season&&S.mode!=='season')S.mode='season';if(S.mode==='season')c.mode='season';if(!S.ci&&typeof clsInit==='function')clsInit();if(!S.ast)S.ast={on:0,dest:'p',t:{gem:1,rune:1,mat:1,jewel:0,charm:0,unique:0,set:0,rare:0,sock:0}}}
 function drainOld(){if(S.stash&&S.stash.length){for(const it of S.stash.splice(0)){const p=S.pst.findIndex(pg=>fits(pg,it,PAGE_SZ));(S.pst[p<0?0:p]).push(it)}}}
 const _st_save=save;save=function(){if(ST_RESET)return;if(S.pst)drainOld();_st_save();try{const raw=GS.getItem(KEY);if(raw)GS.setItem(CH_PRE+ACCT.cur,raw);const c=curChar();if(c){c.lvl=S.lvl;c.t=Date.now();c.name=S.name||c.name}acctSave()}catch(e){}};
@@ -54,7 +57,7 @@ function deleteChar(id,force){if(ACCT.chars.length<=1){if(!window.__NOUI)toast('
 function charUI(){const L=ACCT.chars.map(c=>`<div class="chrow ${c.id===ACCT.cur?'cur':''}"><div class="chic">${(CLASSES.find(x=>x.id===(c.cid||'zs'))||CLASSES[0]).ic}</div><div class="chi"><b>${c.name}</b><div class="dim">${c.cls}${c.mode==='season'?' · 赛季':''} · Lv.${c.id===ACCT.cur?S.lvl:c.lvl} · ${new Date(c.t).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div></div>
  ${c.id===ACCT.cur?'<span class="tag ok">当前</span>':`<button class="btn xs gold" onclick="switchChar(${c.id})">进入</button>`}<button class="btn xs" onclick="deleteChar(${c.id})" ${ACCT.chars.length<=1?'disabled':''}>删除</button></div>`).join('');
  modal(`<div class="mtitle">角色选择</div><div class="gp chsel">${L}<div class="btns c"><button class="btn gold" onclick="newCharUI()">＋ 新建角色</button></div>
- <div class="dim">所有角色共用共享仓库（${SH_PAGES}页×${PAGE_SZ}格）；个人仓库/背包/装备/进度各自独立。${ACCT_NS?'当前为账号存档':'当前为游客存档（仅本机）'}</div><div class="btns c"><button class="btn" onclick="closeM()">关闭</button></div></div>`)}
+ <div class="dim">所有角色共用共享仓库（${shN()}页×${PAGE_SZ}格）；个人仓库/背包/装备/进度各自独立。${ACCT_NS?'当前为账号存档':'当前为游客存档（仅本机）'}</div><div class="btns c"><button class="btn" onclick="closeM()">关闭</button></div></div>`)}
 function newCharUI(){modal(`<div class="mtitle">新建角色</div><div class="gp newcu"><h4>选择职业</h4><div class="clsgrid">${CLASSES.map(c=>`<div class="clsc ${c.open?'':'lock'} ${NEWCLS===c.id?'on':''}" onclick="${c.open?`NEWCLS='${c.id}';newCharUI()`:"toast('敬请期待')"}"><i>${c.ic}</i><b>${c.n}</b><small>${c.open?c.d:'敬请期待'}</small></div>`).join('')}</div>
  <h4>角色名</h4><div class="newch"><input id="chname" maxlength="12" placeholder="最多 12 字"></div>
  <h4>模式</h4><div class="btns"><button class="btn sm ${NEWMODE==='normal'?'on':''}" onclick="NEWMODE='normal';newCharUI()">普通</button><button class="btn sm ${NEWMODE==='season'?'on':''}" onclick="NEWMODE='season';newCharUI()">纪元</button></div><div class="dim">${NEWMODE==='season'?'纪元角色从 1 级开始，享受纪元加成并完成纪元旅程获得专属奖励与称号（共享仓库仍可使用）。':'普通角色：没有纪元加成与旅程。'}</div>
@@ -126,7 +129,7 @@ const _st_rb=renderBag;renderBag=function(){if(!S.pst)migrateChar(curChar()||{na
  const tabs=`<div class="stabs sm bagv"><button class="${STV==='bag'?'on':''}" onclick="STV='bag';render()">背包</button><button class="${STV==='pst'?'on':''}" onclick="STV='pst';render()">个人仓库 ${stashTotal(S.pst)}/${PST_PAGES*PAGE_SZ}</button><button class="${STV==='shared'?'on':''}" onclick="STV='shared';render()">共享仓库 ${stashTotal(ACCT.shared)}/${SH_PAGES*PAGE_SZ}</button></div>`;
  if(!inSt){bagGp.insertAdjacentHTML('beforebegin',tabs);return}
  if(gps[0]&&gps[0]!==bagGp)gps[0].remove();
- const sh=STV==='shared',Pg=sh?ACCT.shared:S.pst,pi=sh?SHP:STP,page=Pg[pi],flt=STF.q!=='all'||STF.t!=='all'||STF.s,gs=flt?groups(Pg.flat()).filter(stMatch).slice(0,PAGE_SZ*2):groups(page);
+ const sh=STV==='shared',Pg=sh?ACCT.shared:S.pst,pi=sh?SHP:STP,page=Pg[pi],flt=STF.q!=='all'||STF.t!=='all'||STF.s||(sh&&STF.c&&STF.c!=='all'),gs=flt?groups(Pg.flat()).filter(stMatch).slice(0,PAGE_SZ*2):groups(page);
  const V=sh?'SHP':'STP';const ptabs=flt?`<span class="dim">筛选结果 ${gs.length} 组（跨全部页，最多显示 ${PAGE_SZ*2}）</span>`:pager(V,pi,Pg.length,i=>slotsUsed(Pg[i]));
  const cells=gs.map(g=>cellG(g,`stTap(${g.it.uid})`)).join('')+(flt?'':'<div class="cell void"></div>'.repeat(Math.max(0,PAGE_SZ-gs.length)));
  bagGp.insertAdjacentHTML('beforebegin',tabs+`<div class="gp stash2 ${sh?'shared':''}"><h3>${sh?'共享仓库 <span class="dim">（所有角色可存取）</span>':`个人仓库 <span class="dim">（${S.name}）</span>`}</h3>
