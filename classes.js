@@ -121,7 +121,7 @@ Object.assign(CLS_TY,{
 });
 Object.assign(CLS_PRI,{heal:0,pet:1,pois:2});
 function clsPetPick(g){let b=null,r=-1;for(const s of CLS_SKILLS)if(s.g===g&&skOfCls(s)&&bl(s.id)&&acCfg(s.id).on&&s.r>r){r=s.r;b=s.id}return b}// 召唤同组：已学高阶优先（神兽 > 骷髅）
-const clsPetN=id=>ALLY.filter(a=>a.kind==='cqpet'&&a.sub===id&&a.hp>0).length;
+const clsPetN=id=>ALLY.filter(a=>a.kind==='cqpet'&&a.sub===id&&a.hp>0&&a.owner!=='hero').length;
 // ---------- 自动施法 ----------
 for(const k of['melee','spell','cbuff','warcry'])if(!AC_KINDS.includes(k))AC_KINDS.push(k);
 function clsEst(s,ms){const v=SV(s.id,slvl(s.id)),n=ms.length;const tn=CLS_SINGLE.has(s.ty)?Math.min(n,s.ty==='hit'?1:(v.n||1)):Math.min(n,v.n||8);
