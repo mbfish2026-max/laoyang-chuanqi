@@ -35,7 +35,6 @@ const AURAS={
  vigor:{n:'活力',f:a=>({heal:Math.round(1+a*0.6)}),t:e=>`角色/全队每秒回复 ${e.heal}`},
 };
 // 符文之语附带光环（原版对应：洞见=冥想、无尽=信念、骄傲=专注、信仰/凶兽=狂热、天谴(末日)=神圣冰冻、裁决之手/龙吟=圣火、梦魇(梦境)=神圣冲击、荆冠=荆棘、遗愿=力量、和弦=活力）
-const RW_AURA={'洞见':['medi',14],'无尽':['conv',12],'骄傲':['conc',18],'信仰':['fana',13],'凶兽':['fana',9],'天谴':['hfz',12],'裁决之手':['hfire',16],'龙吟':['hfire',14],'梦魇':['hshock',15],'荆冠':['thorns',18],'遗愿':['might',17],'和弦':['vigor',10]};
 // 版本：按类型与难度（原版：沙漠卫兵 普通/地狱=战斗(祈祷)/防御(反抗)/攻击(力量)，噩梦=战斗(神圣冰冻)/防御(荆棘)/攻击(祝福瞄准)）
 const MERC_VARS={
  archer:{all:{fire:{n:'火焰箭',sk:['火焰箭','内视'],d:'火焰箭附加火焰伤害；内视降低目标防御 40%'},cold:{n:'冰霜箭',sk:['冰霜箭','缓速投射'],d:'冰霜箭附加冰冷伤害并减速目标'}}},
@@ -77,7 +76,6 @@ function mercK(t,L){if(L<=t[0][0])return t[0][1];for(let i=1;i<t.length;i++)if(L
 function mercSets(eq){const c={};for(const k of MERC_SLOTS){const it=eq[k];if(it&&it.set)c[it.set]=(c[it.set]||0)+1}return c}
 function mercAuraList(ms){const out={};const add=(id,lv,src)=>{if(!AURAS[id]||lv<=0)return;if(!out[id]||out[id].lv<lv)out[id]={id,lv,src}};
  const V=mercVarDef(S.merc.t,S.merc.v);if(V&&V.au)add(V.au,ms.skl,'自身');
- for(const k of MERC_SLOTS){const it=S.merc.eq[k];if(it&&it.rw!=null&&RUNEWORDS[it.rw]){const a=RW_AURA[RUNEWORDS[it.rw].n];if(a)add(a[0],a[1],'符文之语「'+RUNEWORDS[it.rw].n+'」')}}
  return Object.values(out).map(x=>Object.assign(x,{e:AURAS[x.id].f(x.lv,ms.L)}))}
 mercStats=function(eqOverride){mercNorm();const m=S.merc,T=MERCS[m.t],L=m.lvl,eq=eqOverride||m.eq,M={};let wmn=0,wmx=0,idef=0;
  for(const k of MERC_SLOTS){const it=eq[k];if(!it)continue;const mm=allMods(it),l=itemLocal(it);for(const x in mm)if(typeof mm[x]==='number')M[x]=(M[x]||0)+mm[x];if(l.def)idef+=l.def;if(k==='weapon'&&l.min){wmn=l.min;wmx=l.max}}
@@ -228,7 +226,7 @@ function mercDelta(k,it){const a=mercStats(),eq=Object.assign({},S.merc.eq);if(i
  return[f('生命',a.life,b.life),f('防御',a.def,b.def),f('伤害',(a.dmg[0]+a.dmg[1])/2,(b.dmg[0]+b.dmg[1])/2),f('偷取',a.ll,b.ll,'%'),f('格挡',a.block,b.block,'%'),f('技能',a.allsk,b.allsk),f('火抗',a.res.fire,b.res.fire),f('冰抗',a.res.cold,b.res.cold),f('电抗',a.res.light,b.res.light),f('毒抗',a.res.pois,b.res.pois),
   b.auras.length!==a.auras.length||b.auras.some(x=>!a.auras.find(y=>y.id===x.id))?`<span class="g">光环:${b.auras.map(x=>AURAS[x.id].n).join('/')||'无'}</span>`:''].filter(Boolean).join(' ')||'<span class="dim">无变化</span>'}
 function mercSlotUI(k){if(!mercUp())return;MX.slot=k;const cur=S.merc.eq[k],cs=mercCands(k);
- const desc=it=>`${it.rw!=null?`<div class="g">符文之语「${RUNEWORDS[it.rw].n}」${RW_AURA[RUNEWORDS[it.rw].n]?' · 光环 '+AURAS[RW_AURA[RUNEWORDS[it.rw].n][0]].n:''}</div>`:''}<div class="dim small">${modsTxt(allMods(it))}</div>`;
+ const desc=it=>`<div class="dim small">${modsTxt(allMods(it))}</div>`;
  modal(`<div class="mtitle">佣兵 · ${SLOTN[k]}</div><div class="gp mslotm">${cur?`<div class="mcur">${cell(cur,`showItem(${cur.uid})`)}<div><b style="color:${itemColor(cur)}">${itemName(cur)}</b>${desc(cur)}<div>${mercDelta(k,null)}</div><button class="btn sm" onclick="mercUnequip('${k}')">卸下到背包</button> <button class="btn sm ${cur.lk?'gold':''}" onclick="toggleLock&&toggleLock(${cur.uid})">${cur.lk?'🔓 解锁':'🔒 锁定'}</button></div></div>`:'<div class="dim">未装备</div>'}
  <h4>可用物品（${cs.length}）</h4>${cs.length?cs.map(({it,src})=>{const why=canMercEquip(it,k)?'':mercWhyNot(it,k);return`<div class="mcand">${cell(it,`showItem(${it.uid})`)}<div><b style="color:${itemColor(it)}">${itemName(it)}</b> <small class="dim">[${src}]</small>${desc(it)}<div>${mercDelta(k,it)}</div>${why?`<span class="bad">${why}</span>`:`<button class="btn sm gold" onclick="mercEquip(${it.uid},'${k}')">穿戴</button>`}</div></div>`}).join(''):'<div class="dim">背包和仓库中没有可用物品</div>'}
  <div class="btns c"><button class="btn" onclick="closeM()">关闭</button></div></div>`)}

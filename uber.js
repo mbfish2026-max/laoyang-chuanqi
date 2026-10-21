@@ -50,7 +50,7 @@ function ubMake(id,o={}){const D=UB.ITEMS[id];const b=ubBase(D);const it=makeBas
 if(typeof ancDef==='function'){const f=ancDef;ancDef=function(it){return ubRanges(it)||f(it)}}
 function ubPickItem(){const T=Object.entries(UB.ITEMS),W=T.reduce((a,[,d])=>a+d.w,0);let r=rnd()*W;for(const[k,d]of T){r-=d.w;if(r<0)return k}return'torch'}
 // 每角色限 1：同 ub 的 uniq1 护身符只算第一件
-if(typeof charmMods==='function'){const f=charmMods;charmMods=function(){const bag=S.bag,seen={},keep=[];for(const it of bag||[]){if(it&&it.uniq1&&it.ub){if(seen[it.ub])continue;seen[it.ub]=1}keep.push(it)}S.bag=keep;try{return f.apply(this,arguments)}finally{S.bag=bag}}}
+// charmMods 包装已删除（护身符已移除，legacy_prune）
 // 经验加成（灭魂碎片）
 function ubXp(){let v=0,seen=0;for(const it of (S&&S.bag)||[])if(it&&it.ub==='shard'&&!seen){seen=1;v+=it.m.ub_xp||0}return v}
 egOn('xp',x=>{const v=ubXp();return v?x*(1+v/100):x});
@@ -98,7 +98,7 @@ function ubFail(run,why){if(run.end)return;const U=egUb();let back='';
 function ubPrisonDone(run){const U=egUb(),c=UB.GATE[run.g].c;U.o[c]++;U.prw++;log(`<b class="quest">击败守魂者，获得 ${UB.CORES[c].n}</b>`);ubEnd(run,{core:c,ex:[]})}
 function ubLoot(run){const ex=[],U=egUb();const id=ubPickItem();const it=ubMake(id);ex.push(it);if(rnd()<0.25)ex.push(ubMake('shard'));
  const m=run.souls[0]||{lv:EG_MJ.ml(UB.L),boss:1,actboss:1,fl:'boss',key:'eldron'};for(let i=0;i<2;i++){const mm=Object.assign({},m,{actboss:1,boss:1,fl:'boss',uber:false,ubS:null});for(const x of rollTC(mm))ex.push(x)}
- const rn={k:'rune',r:Math.min(32,19+Math.floor(Math.pow(rnd(),2)*14))};ex.push(rn);
+ ex.push(oreItem(5));
  for(const x of ex){if(x.ub){U.got[x.ub]=1;if(x.ub==='torch'){const q=typeof ancQual==='function'?ancQual(x):0;U.best.torch=Math.max(U.best.torch||0,Math.round((q||0)*100))}}addBag(x)}
  if(typeof tgFire==='function'&&!window.__NOUI)tgFire(ex);return ex}
 function ubAbyssDone(run){const U=egUb();U.wins++;const ex=ubLoot(run);log(`<b class="quest">暗渊三魂已灭！用时 ${egTime(run.t)}</b>`);egStat('uber');ubEnd(run,{ok:1,ex})}
@@ -118,7 +118,7 @@ function ubPage(){const U=egUb(),c=ubCan(),in_=EGM&&(EGM.k==='uba'||EGM.k==='ubp
  <div class="dim">三把不同魂钥开启魂狱（随机守魂者：${Object.values(UB.GATE).map(g=>g.n).join(' / ')}，掉对应魂核）；三枚魂核开启暗渊。阵亡 ${UB.maxDie} 次或 3 分钟超时失败，返还 1 件。推荐：秘境 30 层能稳定通关。</div></div>
  <div class="gp ubsoul"><h3>三魂</h3>${Object.entries(UB.SOUL).map(([k,s])=>`<div class="ubsr"><img src="assets/boss/${k}.webp" alt=""><div><b class="bossn">${s.t}·${s.n}</b><div class="dim">${s.mech}</div></div></div>`).join('')}
  <div class="dim">每只陨落后其余两只伤害 +20%。</div></div>
- <div class="gp ubtab"><h3>暗渊掉落 <span class="r dim">必掉 1 件终极 + 2 次首领掉落 + 20 号以上符文</span></h3>${Object.entries(UB.ITEMS).map(([k,D])=>`<div class="row"><span>${ubIcon(D.ic,1)}<b style="color:${D.myth?'#b05cff':'#c8a060'}">${D.n}</b>${D.myth?' <small class="ubmy">神话</small>':''}</span><span>${U.got[k]?'<b class="ok">✔</b>':'<span class="dim">—</span>'} <small class="dim">${D.w}</small></span></div>`).join('')}
+ <div class="gp ubtab"><h3>暗渊掉落 <span class="r dim">必掉 1 件终极 + 2 次首领掉落 + 黑铁矿×5</span></h3>${Object.entries(UB.ITEMS).map(([k,D])=>`<div class="row"><span>${ubIcon(D.ic,1)}<b style="color:${D.myth?'#b05cff':'#c8a060'}">${D.n}</b>${D.myth?' <small class="ubmy">神话</small>':''}</span><span>${U.got[k]?'<b class="ok">✔</b>':'<span class="dim">—</span>'} <small class="dim">${D.w}</small></span></div>`).join('')}
  <div class="row"><span>战绩</span><b>魂狱 ${U.prw}/${U.pr} · 暗渊 ${U.wins}/${U.runs} · 最好火炬 ${U.best.torch||0}%</b></div></div>`}
 egPage({k:'uber',n:UB.n,hide:1,parent:'rift',lock:ubLock,render:ubPage,intro:'地狱与秘境的尽头，三道魂魄在暗渊中等待。'});
 {const P=EG_PAGES.find(p=>p.k==='rift');if(P){const f=P.render;P.render=function(){const lk=ubLock(),U=egUb();return`<div class="gp mjent ubent"><div class="row"><span>☠ <b>${UB.n}</b><br><small class="dim">${lk?'🔒 '+lk:`魂钥 ${U.k.t}/${U.k.h}/${U.k.d} · 魂核 ${U.o.horn}/${U.o.eye}/${U.o.brain}`}</small></span><button class="btn sm ${lk?'':'gold'}" onclick="EGT='uber';render()">${lk?'查看':'进入'}</button></div></div>`+f.apply(this,arguments)}}}

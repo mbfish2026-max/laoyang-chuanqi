@@ -178,8 +178,8 @@ function rollTC(m){const t=m.actboss?{p:7,nd:0}:m.boss?{p:5,nd:15}:m.fl==='uniq'
   else if(e==='eq')out.push(genItem(m.lv,{mf:ST.mf,bossMod:bm}));
   else if(e==='good')out.push(rollGood(m))}
  return out}
-// 符文/宝石已删除：rollRune/rollGem 只保留名字（cq/sys_cq.js 与 eg_* 仍调用/赋值），产出 1 个黑铁矿
-function rollRune(){return{uid:S.uid++,k:'mat',id:'heitie',n:1}}function rollGem(){return rollRune()}
+// 符文/宝石已删除（legacy_prune）：原来出符文的奖励改出黑铁矿（强化材料）
+function oreItem(n){return{uid:S.uid++,k:'mat',id:'heitie',n:n||1}}
 function addBag(it){
  if(!it.k&&it.sock===0&&S.sell[it.q]&&it.q<3){const g=sellPrice(it);S.gold+=g;cqInc(g);return}
  if(S.bag.length>=40){const g=sellPrice(it);S.gold+=g;cqInc(g);log('背包已满，自动出售 '+itemName(it));return}S.bag.push(it)}
@@ -420,8 +420,6 @@ function unequip(k){if(S.bag.length>=40)return toast('背包已满');S.bag.push(
 function sell(uid){const f=findItem(uid);if(!f||f.slot)return;S.gold+=sellPrice(f.it);S.bag.splice(f.i,1);closeM();render()}
 function sellJunk(){let g=0;S.bag=S.bag.filter(it=>{if(!it.k&&it.q<=3&&!it.sock&&it.rw==null){g+=sellPrice(it);return false}return true});S.gold+=g;toast('出售获得 '+g+' 金币');render()}
 function imbue(uid){const f=findItem(uid);const it=f.it;const n=genItem(Math.max(S.lvl,it.il),{base:BASEM[it.b],q:4});n.uid=it.uid;S.bag[f.i]=n;S.imbue=0;log(`灌注成功：<span style="color:${QC[4]}">${n.name}</span>`);showItem(n.uid);render()}
-// 炼金匣已删除（legacy_prune 批次2）；cubeUI 仅保留空壳，因 cq/sys_cq.js 仍对它赋值（战斗开发删掉那行后可去掉）
-function cubeUI(){}
 function takeBag(f,n){for(let i=0;i<n;i++){const j=S.bag.findIndex(f);if(j>=0)S.bag.splice(j,1)}}
 
 // ===== 地图页 =====
@@ -485,6 +483,6 @@ function init(){load();calc();H.life=ST.life;H.mana=ST.mana;loadAssets();
  if(S.lvl===1&&!S.kills){log('欢迎来到暮土。'+clsName()+'，从<b>荒血原野</b>开始你的旅程。');}
  offline();render();requestAnimationFrame(loop);document.addEventListener('visibilitychange',save)}
 const dbg={speed:n=>SPEED=n,lvl:n=>{while(S.lvl<n)gainXp(xpNeed(S.lvl+1)-S.xp)},zone:i=>{S.unl=Math.max(S.unl,i);goZone(i)},loot:(n,ml=12,mf=300)=>{for(let i=0;i<n;i++)addBag(genItem(ml,{mf}))},
- give:it=>addBag(it),rune:r=>addBag({uid:S.uid++,k:'rune',r}),gem:(g,lv)=>addBag({uid:S.uid++,k:'gem',g,lv}),offline:h=>{S.last=Date.now()-h*3600e3;offline()}};
+ give:it=>addBag(it),offline:h=>{S.last=Date.now()-h*3600e3;offline()}};
 // 延迟到 DOMContentLoaded，让后续脚本(acts.js)先完成扩展
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();

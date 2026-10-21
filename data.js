@@ -115,7 +115,7 @@ const QUESTS={
  q1:{n:'净化洞窟',d:'清空邪秽洞窟全部怪物',rw:'技能点 +1'},
  q2:{n:'堕落女猎手',d:'击败 鸦血猎手·伊芙',rw:'经验与金币(随从系统第二阶段)'},
  q3:{n:'寻找长老',d:'击败坍颓村的 铸匠亡魂 救出长老',rw:'魔法戒指'},
- q4:{n:'烛塔女主人',d:'击败 烛塔女主人·薇欧拉',rw:'必掉符文'},
+ q4:{n:'烛塔女主人',d:'击败 烛塔女主人·薇欧拉',rw:'金币 600'},
  q5:{n:'匠魂之锤',d:'击败 熔锤屠夫',rw:'灌注：白色物品→稀有'},
  q6:{n:'荆棘之母',d:'击败 荆棘之母·瑟拉维',rw:'解锁第二章(第二阶段开放)'},
 };
@@ -202,8 +202,6 @@ const MODT={str:'+{v} 力量',dex:'+{v} 敏捷',vit:'+{v} 体力',ene:'+{v} 精�
 for(const s of SKILLS)MODT['sk_'+s.id]='+{v} '+s.n+'（亡灵术士专属）';
 const HIDDEN_KEYS=new Set(['allsk','t0sk','t1sk','t2sk','ll','ml','mf','gf','fcr','ias','mpk','undead','tdef','dmgmana','thorns','sumlife','sumdmg','regen','mregen','dr','mdr','fhr'].concat(SKILLS.map(s=>'sk_'+s.id)));
 
-// 已删除（legacy_prune 批次2：符文/宝石/护身符/珠宝/炼金匣）：GEMS/GEMG/符文表/符文之语。RUNES/RUNEWORDS 仅保留空数组，因 cq/data_cq.js 仍执行 .length=0（战斗开发删掉那行后可去掉）
-const RUNES=[],RUNEWORDS=[];
 // ===== 暗金 =====
 const UNIQUES=[
  {n:'腐根之咏',b:'wand1',lv:2,m:{t0sk:1,sk_rs:2,mana:10,edmg:[30,50],ll:3}},

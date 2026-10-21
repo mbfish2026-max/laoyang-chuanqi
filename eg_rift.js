@@ -40,7 +40,7 @@ egOn('calc',o=>{if(EGM&&EGM.k==='rift'){o.mf+=EG_RIFT.mf(EGM.T);o.gf+=EG_RIFT.gf
 function egRiftDone(run){const R0=EG().rift,T=run.T,ok=!T||!run.over;const ml=run.ml;let up=0;
  const g=run.guard,ex=[];for(let i=0;i<1+Math.floor(T/5);i++)for(const it of rollTC(g)){ex.push(it);addBag(it)}
  if(T>=1&&rnd()<Math.min(0.6,0.1+T*0.02))ex.push(egGive(genItem(Math.min(99,ml+3),{q:5})));
- const rr=rollRune(ml+Math.min(30,T*1.5));ex.push(egGive(rr));
+ const rr=oreItem(1+Math.floor(T/10));ex.push(egGive(rr));
  let keys=T?(ok?1:0):1;if(T&&ok&&rnd()<0.25)keys++;R0.keys+=keys;
  if(T&&ok){const left=EG_RIFT.limit-run.t;up=left>EG_RIFT.limit*0.5?3:left>EG_RIFT.limit*0.25?2:1;R0.max=Math.max(R0.max,T+up);R0.ok++;R0.best=Math.max(R0.best,T);
   egRankAdd({t:T,s:Math.round(run.t),lv:S.lvl,d:egDay(),se:EG().season?EG().season.n:'',nm:EG().title||''})}

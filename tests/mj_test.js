@@ -15,5 +15,5 @@ t('1层不再下降',egMjNext({cur:1,wall:0,farm:0},1,'fail').cur===1);
 t('等级封顶99',EG_MJ.ml(1)===85&&EG_MJ.ml(70)===99&&EG_MJ.ml(200)===99);
 t('倍率',Math.abs(EG_MJ.hp(10)-2.1589)<1e-3&&Math.abs(EG_MJ.dmg(10)-1.4106)<1e-3);
 t('暗金套装概率封顶',Math.abs(EG_MJ.leg(1)-0.12)<1e-9&&EG_MJ.leg(100)===0.6);
-t('秘晶',EG_MJ.crys(9)===1&&EG_MJ.crys(10)===2&&EG_MJ.gemCost(0)===5&&EG_MJ.gemCost(3)===20);
+t('秘晶',EG_MJ.crys(9)===1&&EG_MJ.crys(10)===2&&EG_MJ.gemCost===undefined);
 console.log(`\n结果：通过 ${ok}，失败 ${bad}`);process.exit(bad?1:0);

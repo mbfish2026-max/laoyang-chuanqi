@@ -3,8 +3,8 @@ const T=require('./cq_harness')('cq_prune2_test');const{G,ok}=T;
 ok(!T.loadErr.filter(e=>!/MutationObserver/.test(e)).length,'载入无错 '+T.loadErr.join(';'));
 for(const n of['cubeRecipes','cubeGem','cubeRune','craft','craft2','cubeJewel','cubeUpgrade','cubeRepair','cubeSocket','cubeUnsock','cubeMagSock','cubeReroll','cubePot','essReroll','sockUI','doSock','doSockJewel','jewelUI','isCharm','isJewel','charmMods','genJC','rollRuneTC','stashCube','GEMS','GEMG','CRAFTS','SOCKET_RECIPES','UPGRADE_RECIPES','REPAIR_RECIPES','RUNE_UP','NEW_RUNES','GOODT'])
  ok(G(`typeof ${n}`)==='undefined',n+' 已删除');
-ok(G('RUNES.length===0&&RUNEWORDS.length===0'),'RUNES/RUNEWORDS 只剩空表（cq/data_cq.js 仍引用）');
-ok(G("S=newSave(),rollRune(5).k==='mat'&&rollGem(5).k==='mat'"),'rollRune/rollGem 只产黑铁矿');
+for(const n of['RUNES','RUNEWORDS','rollRune','rollGem','cubeUI','egRuneName','egMjGems','egMjGemUp','RW_AURA'])ok(G(`typeof ${n}`)==='undefined',n+' 已删除');
+ok(G("Object.values(TCS).every(t=>!t.runes)"),'TCS 无 runes');
 ok(G("!BASES.some(b=>b.s==='charm'||b.s==='jewel')&&!BASEM.cha_s&&!BASEM.jew"),'无护身符/珠宝底材');
 G(`S=newSave();load();S.cls='zs';S.ci=0;clsInit();ensureLoot();calc();S.gold=1000;
  const keep=genItem(10,{q:4});S.bag.push(keep);window.__keep=JSON.stringify(keep);

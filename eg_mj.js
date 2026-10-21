@@ -6,7 +6,7 @@
 const EG_MJ={n:'秘境',boss:'秘境之主',cur:'秘晶',ic:'◆',limit:300,goal:100,pts:{n:1,champ:3,uniq:6},maxDie:3,bossIdle:90,retry:10,
  ml:L=>Math.min(99,85+Math.floor(L/5)),hp:L=>Math.pow(1.08,L),dmg:L=>Math.pow(1.035,L),bossHP:1.5,
  xp:L=>1.4*(1+0.12*L),mf:L=>40+3*L,gf:L=>30+10*L,rolls:L=>1+Math.floor(L/5),leg:L=>Math.min(0.6,0.1+0.02*L),
- crys:L=>1+Math.floor(L/10),gemCost:lv=>5*(lv+1)};
+ crys:L=>1+Math.floor(L/10)};
 const EG_MJ_DEF=()=>({cur:1,best:0,bestT:0,bestD:'',cr:0,runs:0,ok:0,fail:0,auto:1,wall:0,farm:0});
 function egMj(){const e=EG();if(!e.mj||typeof e.mj!=='object')e.mj=EG_MJ_DEF();else egFill(e.mj,EG_MJ_DEF());return e.mj}
 function egMjLock(){return egHellDone()?null:'击败地狱第五章首领（毁灭领主·艾尔德隆）后开放'}
@@ -54,7 +54,7 @@ function egMjDone(run){const M=egMj(),L=run.L,ml=run.ml,ok=!run.over&&run.t<=EG_
  for(let i=0;i<EG_MJ.rolls(L);i++)for(const it of rollTC(run.guard)){ex.push(it);addBag(it)}
  if(rnd()<EG_MJ.leg(L)){const il=Math.min(99,ml+3),six=rnd()<0.5,P=(six?SETITEMS:UNIQUES).filter(x=>x.lv<=il&&BASEM[x.b]);
   if(P.length){const it=genItem(il,{base:BASEM[pick(P).b],q:six?6:5});ex.push(it);addBag(it)}}
- const rr=rollRune(ml+Math.min(30,L*1.5));ex.push(rr);addBag(rr);
+ const rr=oreItem(1+Math.floor(L/10));ex.push(rr);addBag(rr);
  const cr=EG_MJ.crys(L);M.cr+=cr;M.ok++;
  if(L>M.best||(L===M.best&&ok&&(!M.bestT||run.t<M.bestT))){if(ok||L>M.best){M.best=Math.max(M.best,L);M.bestT=Math.round(run.t);M.bestD=egDay()}}
  const gx=Math.round((xpNeed(Math.min(99,S.lvl+1))-xpNeed(S.lvl))*Math.min(0.2,0.02+0.01*L));if(S.lvl<99&&gx>0)gainXp(gx);
@@ -67,16 +67,12 @@ function egMjResult(run){const r=run.res;if(!r||window.__NOUI)return;const fail=
 // 后台 / 息屏：秘境不做离线推进，直接退出（回来后按普通离线公式在原区域结算）
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&EGM&&EGM.k==='mj'){log('<span class="dim">切到后台，已退出秘境（秘境内不做离线结算）</span>');egLeave(1)}});
 EG_BOOT.push(()=>{if(typeof sleepOn==='function'){const f=sleepOn;window.sleepOn=sleepOn=function(){if(EGM&&EGM.k==='mj')egLeave(1);return f.apply(this,arguments)}}});
-// ---------- 宝石升阶（秘晶唯一用途）：背包宝石 +1 阶 ----------
-function egMjGems(){const g={};for(const x of S.bag)if(x&&x.k==='gem'&&x.lv<4){const k=x.g+x.lv;(g[k]=g[k]||{g:x.g,lv:x.lv,n:0}).n++}return Object.values(g).sort((a,b)=>b.lv-a.lv||a.g.localeCompare(b.g))}
-function egMjGemUp(g,lv){const M=egMj(),c=EG_MJ.gemCost(lv);if(lv>=4)return;if(M.cr<c)return toast(`需要 ${c} ${EG_MJ.cur}`);const it=S.bag.find(x=>x&&x.k==='gem'&&x.g===g&&x.lv===lv);if(!it)return;
- M.cr-=c;it.lv++;log(`${EG_MJ.cur}升阶：<span style="color:${GEMS[g].c}">${itemName(it)}</span>`);toast('升阶成功：'+itemName(it));save();egRefresh()}
 // ---------- 各角色对比（读本账号各角色存档，当前角色取实时数据） ----------
 function egMjChars(){const out=[];if(typeof ACCT==='undefined'||!ACCT||!ACCT.chars)return out;
  for(const c of ACCT.chars){let s=null;if(c.id===ACCT.cur)s=S;else try{s=JSON.parse(GS.getItem(CH_PRE+c.id))}catch(e){}
   const m=s&&s.eg&&s.eg.mj||{};out.push({nm:c.name||c.cls,cls:c.cls,lv:(s&&s.lvl)||c.lvl||1,best:m.best||0,t:m.bestT||0,d:m.bestD||'',cur:c.id===ACCT.cur})}
  return out.sort((a,b)=>b.best-a.best||a.t-b.t)}
-function egMjPage(){const M=egMj(),L=M.cur,ml=EG_MJ.ml(L),in_=EGM&&EGM.k==='mj';const gs=egMjGems(),ch=egMjChars();
+function egMjPage(){const M=egMj(),L=M.cur,ml=EG_MJ.ml(L),in_=EGM&&EGM.k==='mj';ch=egMjChars();
  return`<div class="gp mjp"><h3>🌀 ${EG_MJ.n} <span class="r">${EG_MJ.ic}${EG_MJ.cur} ×${M.cr}</span></h3>
   <div class="dim">免费进入。击杀积累进度，满 100% 后${EG_MJ.boss}现身。5 分钟内通关升 1 层；阵亡 ${EG_MJ.maxDie} 次或首领 ${EG_MJ.bossIdle} 秒无进展退 1 层。</div>
   <div class="row"><span>当前层 · 最高通关</span><b>${L} · ${M.best}</b></div>
@@ -87,7 +83,6 @@ function egMjPage(){const M=egMj(),L=M.cur,ml=EG_MJ.ml(L),in_=EGM&&EGM.k==='mj';
   ${M.wall?`<div class="dim">卡在 ${M.wall} 层：已刷 ${M.farm}/${EG_MJ.retry} 次</div>`:''}
   <div class="btns">${in_?`<button class="btn" onclick="egLeave()">离开秘境</button>`:`<button class="btn gold" onclick="egMjStart(egMjAutoL(egMj()))" ${EGM?'disabled':''}>进入 ${egMjAutoL(M)} 层</button>`}<button class="btn sm" onclick="EGT='rift';render()">← 虚隙</button></div>
   <div class="dim">完成 ${M.ok} · 失败 ${M.fail} · 进入 ${M.runs}</div></div>
- <div class="gp"><h3>${EG_MJ.cur}升阶 <span class="r dim">背包宝石 +1 阶</span></h3>${gs.length?gs.map(x=>{const c=EG_MJ.gemCost(x.lv);return`<div class="row"><span style="color:${GEMS[x.g].c}">${itemName({k:'gem',g:x.g,lv:x.lv})} ×${x.n}</span><button class="btn sm" onclick="egMjGemUp('${x.g}',${x.lv})" ${M.cr<c?'disabled':''}>升阶 ${c}${EG_MJ.ic}</button></div>`}).join(''):'<div class="dim">背包里没有可升阶的宝石（完美宝石已满阶）</div>'}</div>
  <div class="gp"><h3>秘境碑 <span class="r dim">本账号各角色</span></h3><table class="egrank"><tr><th>#</th><th>角色</th><th>等级</th><th>最高层</th><th>用时</th><th>日期</th></tr>${ch.map((r,i)=>`<tr${r.cur?' class="mjcur"':''}><td>${i+1}</td><td>${r.nm}</td><td>${r.lv}</td><td><b>${r.best||'-'}</b></td><td>${r.best?egTime(r.t):'-'}</td><td>${r.d||'-'}</td></tr>`).join('')}</table></div>`}
 egPage({k:'mj',n:EG_MJ.n,hide:1,parent:'rift',lock:egMjLock,render:egMjPage,intro:'通关地狱后，虚隙尽头会裂开一道通往秘境的门：层数无限，越深越强，奖励越好。'});
 // 虚隙页顶部入口（不新增页签行）
