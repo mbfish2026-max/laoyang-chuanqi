@@ -23,6 +23,7 @@ body.cq-on #cqStage{top:0;background:#120a06}
 .cqb .top{position:absolute;left:0;top:0;width:390px;height:62px;display:flex;align-items:center;gap:8px;padding:0 10px;z-index:30;background:linear-gradient(180deg,#24170f 0,#120a06 100%);border-bottom:2px solid #8a6230;box-shadow:0 2px 0 #2b1a0c,0 6px 14px rgba(0,0,0,.6)}
 .cqb .ava{width:46px;height:46px;border-radius:50%;flex:none;overflow:hidden;border:2px solid #c99648;box-shadow:0 0 0 2px #2b1a0c,0 0 8px rgba(255,190,90,.35);background:#3b2616 url(../assets/cq/ui/hero_zs.png) 50% 6%/170% auto no-repeat}
 .cqb .ava.ds{background-image:url(../assets/cq/ui/hero_ds.png)}
+.cqb .ava.fs{background-image:url(../assets/cq/ui/hero_fs.png)}
 .cqb .pinfo{flex:1;min-width:0}
 .cqb .pinfo .clv{font-size:14px;font-weight:700;color:#ffe3a3;text-shadow:0 1px 0 #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cqb .pinfo .clv small{font-size:11px;color:#c9b48a;font-weight:400;margin-left:6px}
