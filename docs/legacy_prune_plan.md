@@ -95,3 +95,7 @@ B1 eg_power（+「更多」入口；eg_secret/eg_events 的 egLpApply 改为直�
   - skills.js:93 自动施法页的「符文图鉴」SKT=3 按钮未动（不确定归属；按钮已被 cq/ui_cq.js 移除，点了也只是空树）。
 - 守卫：bloodmoon.js / uber.js 的 charmMods 包装加 `typeof` 判断（C6/C3 本身未删）。
 - 旧存档：新文件 prune_mig.js 包装 load（每次载入、幂等，只处理 S.sv≥1 的存档；更早的交给 sys_cq v1）。背包/S.stash/S.pst/ACCT.shared/S.eq/S.merc.eq 中的符文、宝石、护身符、珠宝整件移除折金币（符文 50×(号+1)、宝石 20×(级+1)、护身符/珠宝 200）；已镶嵌物拆掉同价折金币，凹槽清零；**符文之语：保留物品本体，删 it.rw/it.rwm**，白/灰/普通底材名恢复底材名。金币加到当前角色，累计 `S.cqPruneG`。测试 tests/cq_prune2_test.js。
+
+### C10 后续：combat_guard.js（总控批准重建，系统侧）
+- 排查结论：老羊传奇第 1 章起，噩梦/地狱的头目（uniq）免疫词缀即可让火/冰/电有效抗性到 100（如 deer/tigersnake/scarecrow 头目 d1）；第 4/5 章还有物理/魔法 100。故恢复有效抗性封顶 80。
+- 原地挂机（S.auto=0）45 秒无击杀且怪物血量无下降 → 清波，0.5 秒后刷新；自动推进仍走 acts.js 300 秒撤退；终局模式不处理。测试 tests/cq_guard_test.js。
