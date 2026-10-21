@@ -138,3 +138,21 @@
 .cqmap .cqmqrow i{flex:none;font-style:normal;color:#c99648}
 .cqmap .cqmqrow.open{border-color:#ffcf6a}
 .cqmap .cqmqbox{margin:4px 8px 0;max-height:46vh;overflow-y:auto}.cqmap .cqmqbox.hide{display:none}
+
+/* 地图缩略图 / 章节背景（美术2 0a58e56、df2d26b） */
+.cqmap .z .zth{width:120px;height:70px;flex:none;object-fit:cover;border-radius:4px;border:1px solid rgba(201,164,90,.45);box-shadow:0 1px 3px rgba(0,0,0,.6)}
+.cqmap .z .i{min-width:0}
+:is(#panel,#modal) .cqgo .zhead{display:block;width:100%;height:120px;object-fit:cover;border-radius:6px;margin:6px 0 8px;border:1px solid rgba(201,164,90,.5)}
+.cqmap .chc .bg{background-position:center;background-size:cover}
+.cqmap .z .i{flex:1;overflow:hidden}
+.cqmap .z .i .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* UI 美术 d851afb：熟练度条 / 签到格 / 领取印章 */
+.cqskill .sk2 .lvw{display:flex;align-items:center;gap:6px;margin-top:3px}
+.cqskill .sk2 .lv{flex:1;height:14px;margin:0;background:none;border:0;border-radius:0;overflow:visible;position:relative;border-style:solid;border-width:6px;border-image:url(../assets/ui/prof_bar_9s.png) 6 fill stretch;box-sizing:border-box}
+.cqskill .sk2 .lv i{position:absolute;left:-2px;top:-3px;bottom:-3px;max-width:calc(100% + 4px);height:auto;background:none;border-style:solid;border-width:5px 5px;border-image:url(../assets/ui/prof_bar_fill_9s.png) 5 fill stretch;box-sizing:border-box;min-width:0}
+.cqskill .sk2 .lv i[style*="width:0%"]{display:none}
+.cqskill .sk2 .lvt{flex:none;font-size:10px;color:#ffcf6a;white-space:nowrap}
+.cqfuli .dy{background:none;box-shadow:none;border-style:solid;border-width:6px;border-image:url(../assets/ui/sign_cell_9s.png) 12 fill stretch;box-sizing:border-box;padding:0;overflow:hidden}
+.cqfuli .dy.ok::after{content:"";top:50%;left:50%;width:44px;height:44px;transform:translate(-50%,-50%) rotate(-12deg);background:url(../assets/ui/stamp_ok.png) center/contain no-repeat;text-shadow:none}
+.cqfuli .dy.ok{opacity:1}.cqfuli .dy.ok>*{opacity:.5}

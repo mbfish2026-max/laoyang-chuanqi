@@ -15,7 +15,7 @@ ok(G(`CQSys.heroUnequip('weapon').ok`)===1&&!G('S.hero.eq.weapon'),'英雄卸下
 // 按角色区分：切回另一角色无此英雄
 const c2=G(`CQSys.createChar('二号','ds')`);ok(!G('S.hero&&S.hero.cls'),'新角色英雄独立');G(`switchChar(${id})`);ok(G('S.hero&&S.hero.cls')==='zs','切回原角色英雄还在（随角色存档）');
 ok(G(`CQSys.skillCooldown('x').placeholder`)===true,'冷却占位');G(`CQ_SKCD.lhjf=10;CQSys.skillCast('lhjf')`);const cd=JSON.parse(G(`JSON.stringify(CQSys.skillCooldown('lhjf'))`));ok(cd.cd===10&&cd.left>9&&!cd.ready,'冷却剩余');
-ok(G(`CQSys.monArt('skelspirit').id`)==='mdl_mst_2001'&&G(`CQSys.monArt('nope')`)===null,'立绘映射');
+ok(G(`CQSys.monArt('skelspirit').id`)==='mdl_mst_skelspirit'&&G(`CQSys.monArt('nope')`)===null,'立绘映射');
 ok(G('CQSys.currency().yb')===0&&G(`CQSys.ybAdd(50,'测试')`)===50&&G(`CQSys.ybSpend(20)`)===true&&G(`CQSys.ybSpend(999)`)===false&&G('ACCT.yb')===30,'元宝增减');
 ok(G('CQSys.power()')>0,'战力 '+G('CQSys.power()'));
 G(`window._ev=[];CQSys.on('bossSpawn',e=>_ev.push('s'));CQSys.on('bossEnrage',e=>_ev.push('e'));CQSys.on('bossDead',e=>_ev.push('d'))`);
