@@ -41,12 +41,21 @@ CS.ybSpend=(n,why)=>{n=Math.floor(+n||0);if(n<=0||(ACCT.yb|0)<n)return false;ACC
 // ---------- 战力 ----------
 CS.power=()=>{let p=0;for(const it of Object.values(S.eq||{}))if(it)p+=power(it);for(const it of Object.values(CS.hero().eq))p+=Math.round(power(it)*0.5);
   return Math.round((p+(S.lvl||1)*20)*cqCapMul(1+(S.reb||0)*CQ_BAL.budget.reb))};
+// ---------- 英雄伤害占比上限（CQ_BAL.budget.hero：英雄普攻 cqhero + 合击 cqheji ≤ 总伤害 20%，滑动 30 秒窗口） ----------
+const SH={win:30,b:[]};// [秒桶, 本体, 英雄]
+function shBucket(){const t=Math.floor(now()/1e3);let b=SH.b[SH.b.length-1];if(!b||b[0]!==t){b=[t,0,0];SH.b.push(b);while(SH.b.length&&SH.b[0][0]<=t-SH.win)SH.b.shift()}return b}
+function shAdd(h,v){if(!(v>0))return;shBucket()[h?2:1]+=v}
+CS.heroShare=()=>{let p=0,h=0;shBucket();for(const b of SH.b){p+=b[1];h+=b[2]}return{player:p,hero:h,share:p+h>0?h/(p+h):0,cap:CQ_BAL.budget.hero,win:SH.win}};
+function heroCap(d){const st=CS.heroShare();if(!(st.player>0))return d;/* 窗口内本体尚无伤害（开战瞬间/测试）不截断 */const room=Math.max(0,cqHeroDmgCap(st.player)-st.hero);let tot=0;for(const k in d)tot+=+d[k]||0;
+ if(tot<=room)return d;const k2=tot>0?room/tot:0,o={};for(const k in d)o[k]=(+d[k]||0)*k2;CS.emit('heroCapped',{want:tot,got:room});return o}
+CS._heroReset=()=>{SH.b.length=0};
 // ---------- 正式暴击标记（替代全局 CRIT） ----------
 // CQSys.hit = 最近一次 hitMon 的 {crit,src,dmg,t}；hitMon 执行期间 CQSys.critNow===true 表示本次为暴击。
 CS.hit={crit:false,src:null,dmg:0,t:0};CS.critNow=false;
 {const f=hitMon;hitMon=function(m,d,src,fxc){let crit=(typeof CRIT!=='undefined'&&!!CRIT);
-  if(!crit&&src!=='hero'&&src!=='dot'&&d&&typeof d==='object'){const c=(CS.equipAttrs?CS.equipAttrs().crit:0)||0;if(c>0&&rnd()*100<c){crit=true;const d2={};for(const k in d)d2[k]=d[k]*CQ_BAL.critMul;d=d2}}
-  CS.critNow=crit;try{const r=f.call(this,m,d,src,fxc);CS.hit={crit,src:src||null,dmg:r||0,t:now()};if(crit)CS.emit('crit',CS.hit);return r}finally{CS.critNow=false}}}
+  const isH=src==='cqhero'||src==='cqheji';if(isH&&d&&typeof d==='object')d=heroCap(d);
+  if(!crit&&!isH&&src!=='hero'&&src!=='dot'&&d&&typeof d==='object'){const c=(CS.equipAttrs?CS.equipAttrs().crit:0)||0;if(c>0&&rnd()*100<c){crit=true;const d2={};for(const k in d)d2[k]=d[k]*CQ_BAL.critMul;d=d2}}
+  CS.critNow=crit;try{const r=f.call(this,m,d,src,fxc);if(src!=='dot')shAdd(isH,+r||0);CS.hit={crit,src:src||null,dmg:r||0,t:now()};if(crit)CS.emit('crit',CS.hit);return r}finally{CS.critNow=false}}}
 // ---------- 首领刷新 / 狂暴 ----------
 const BS={on:null,spawnAt:0,killAt:0,enr:false};
 CS.bossInfo=()=>{const B=CQ_BAL.boss,t=now(),m=BS.on;if(m&&m.hp>0)return{alive:true,key:m.key,spawnAt:BS.spawnAt,enrageAt:BS.spawnAt+B.enrage*1e3,enrageLeft:Math.max(0,B.enrage-(t-BS.spawnAt)/1e3),enraged:BS.enr};

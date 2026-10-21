@@ -8,3 +8,6 @@
 #dsbtn.cqtop+.menu{margin-left:4px}
 #cqver,.cq-ph-v{display:none!important}
 #setM .cqverrow b{color:#c9a14a;font-size:12px}
+/* M1.3：390 宽实测剩余 <11px：地图/弹窗内 small（10.83px「5波」）、战场卡片等级/名字（10/10.5px） */
+small{font-size:max(11px,.84em)!important}
+#cqStage .cqb .clv,#cqStage .cqb .cnm{font-size:11px!important}

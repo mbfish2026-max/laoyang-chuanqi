@@ -25,6 +25,7 @@
 - `CQSys.curCls() → 'zs'|'fs'|'ds'`
 
 ## 英雄（存在角色存档 `S.hero` 中 → 自动进云存档、按角色区分）
+> 已确认（M1，commit 9d01957 起）：`S.hero` 是角色存档 S 的普通字段，随 `save()` → `exportAccount()` 进 `public.cq_saves`；`switchChar` 换角色即换英雄。tests/cq_sysapi_test.js「新角色英雄独立 / 切回原角色英雄还在」覆盖。cq_bridge 的 `localStorage cq_battle_hero_v1` 兜底可换成 `CQSys.hero()/heroSet()`。
 - `CQSys.hero() → {cls, name, lvl, rage(0–100), autoHeji(0/1), eq:{部位:物品}, t}`，缺字段自动补默认值
 - `CQSys.heroProfs() → [cls…]`：推荐英雄职业（战士 → 法/道，其余 → 战士优先）
 - `CQSys.heroCreate(cls, name?) → {ok, hero} | {err:'已有英雄'|'职业无效'}`：每个角色只能建一个
@@ -55,6 +56,12 @@
 - `CQ_BAL.boss = {respawn:60, enrage:90, enrMul:1.5}`（秒）
 - `CQSys.bossInfo()`：存活时 `{alive:true, key, spawnAt, enrageAt, enrageLeft, enraged}`；死亡后 `{alive:false, killAt, respawnAt, respawnLeft}`
 - 每次 step() 之后执行 `bossTick()`：检测首领出现/死亡，90 秒后狂暴（`m.dmg×1.5`，`m.cqEnr=1`）
+
+## 英雄伤害预算（CQ_BAL.budget.hero = 0.20）
+- 规则：英雄普攻（hitMon src `'cqhero'`）+ 合击（src `'cqheji'`）≤ 总伤害 20%；`hero` 项不参与 `cqBudgetProduct()` 连乘
+- 系统侧强制：hitMon 包装按 30 秒滑动窗口记账，`cqhero/cqheji` 本次伤害超出余量时等比截断，派发 `heroCapped {want, got}`
+- `CQSys.heroShare() → {player, hero, share, cap, win}`；工具函数 `cqHeroShare(h,j,t)`、`cqHeroShareOk(h,j,t)`、`cqHeroDmgCap(本体伤害)`
+- 现状：按 CQ.HERO_TUNE（普攻 1.6s、武器上限 35%）估算英雄普攻单项约占 25%，会被截断；建议战斗侧下调到 ≈28% 武器上限
 
 ## 吃药（函数不变，战斗侧只调用）
 - **吃药函数 `usePot(k)`**（game.js），`k ∈ 'hp'|'mp'|'rej'|'tp'`（红药/蓝药/瞬回/回城；`tp` 走 `townPortal()`）；数量为 0 时不做任何事。也可用 `CQSys.usePot(k)`；`CQSys.potions() → {hp, mp, rej, tp}`（库存在 `S.pot`）
