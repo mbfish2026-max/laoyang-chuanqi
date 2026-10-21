@@ -55,7 +55,9 @@ const SG=()=>window.CQSys&&CQSys.signin,OF=()=>window.CQSys&&CQSys.offline;
 const rwIc=ic=>ic?(/[\/.]/.test(ic)?ic:`${UI}pg/${ic}.png`):'';
 // UI 杂项图：优先 CQSys.uiIcon(key)（cq/icons_cq.js），缺则用当前路径；以 CSS 变量交给 pages_cq.css
 const UIC=(k,fb)=>{try{const u=window.CQSys&&CQSys.uiIcon&&CQSys.uiIcon(k);if(u)return u}catch(e){}return fb};
-function uiVars(){const r=document.documentElement&&document.documentElement.style;if(!r)return;for(const[k,fb]of[['prof_bar','assets/ui/prof_bar_9s.png'],['prof_bar_fill','assets/ui/prof_bar_fill_9s.png'],['sign_cell','assets/ui/sign_cell_9s.png'],['stamp_ok','assets/ui/stamp_ok.png']])r.setProperty('--cq-'+k.replace(/_/g,'-'),`url(${UIC(k,fb)})`)}
+// CSS 变量里的 url() 按引用它的样式表（cq/pages_cq.css）解析 → 一律转成绝对地址
+const ABS=u=>{try{return new URL(u,document.baseURI).href}catch(e){return u}};
+function uiVars(){const r=document.documentElement&&document.documentElement.style;if(!r)return;for(const[k,fb]of[['prof_bar','assets/ui/prof_bar_9s.png'],['prof_bar_fill','assets/ui/prof_bar_fill_9s.png'],['sign_cell','assets/ui/sign_cell_9s.png'],['stamp_ok','assets/ui/stamp_ok.png']])r.setProperty('--cq-'+k.replace(/_/g,'-'),`url("${ABS(UIC(k,fb))}")`)}
 try{uiVars()}catch(e){}
 const SIGNIC={};// 签到 claim() 返回的奖励图标（技能书随机，按实际抽到的书显示）
 function signState(){try{return SG()&&SG().state()}catch(e){return null}}
