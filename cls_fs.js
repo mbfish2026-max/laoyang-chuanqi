@@ -1,7 +1,7 @@
 'use strict';
 // ===================================================================================
 // cls_fs.js — 法师（热血传奇 1.76 技能）。M1 流派：雷电爆发（设计方案 §4.2）
-// 核心 雷电术、冰咆哮；辅助 火球术（协同）；抗拒火环（击退控场）、地狱火（直线群伤）、诱惑之光（宝宝，后续「宝宝流」核心）。
+// 核心 雷电术、冰咆哮；生存 魔法盾（减伤 40%→65%，web-replica 为 50% 分担）；辅助 火球术（协同）；抗拒火环（击退控场）、地狱火（直线群伤）、诱惑之光（宝宝，后续「宝宝流」核心）。
 // 技能等级 1–20，每级 1 技能点。数值参考 web-replica skill.txt（雷电 150%→285%、冰咆哮 240%+173 → 330%+1333、5→6 目标）。
 // ===================================================================================
 const clsFsTx=(d,el)=>`${d[0]}-${d[1]} ${({fire:'火焰',cold:'冰冷',light:'雷电',magic:'魔法'})[el]}`;
@@ -16,6 +16,8 @@ clsDef('fs',[
   v:(L,sy)=>{const d=CLS_DR(8,14,3.5,5,L,sy);return{dmg:d,n:3,txt:`直线火焰贯穿前排 3 个敌人：${clsFsTx(d,'fire')}`}}},
  {id:'ldsh',t:2,n:'雷电术',r:11,col:1,ty:'bolt',el:'light',ic:'⚡',fx:'bolt',cqfx:'leidianshu',mana:L=>3+0.15*(L-1),syn:[['hqs'],5],
   v:(L,sy)=>{const d=CLS_DR(10,26,5,9,L,sy);return{dmg:d,txt:`天雷劈击单体：${clsFsTx(d,'light')}`}}},
+ {id:'mfd',t:2,n:'魔法盾',r:5,col:2,ty:'buff',g:'mfd',ic:'🛡',fx:'shield',cqfx:'mofadun',cd:12,mana:L=>6+0.3*(L-1),
+  v:L=>{const d=Math.min(65,40+1.5*(L-1)),t=Math.round(30+3*(L-1));return{dr:d,dur:t,txt:`魔法盾护身：受到的伤害减少 ${d}%，持续 ${t} 秒，冷却 12 秒`}}},
  {id:'bpx',t:1,n:'冰咆哮',r:14,col:1,pre:['ldsh'],ty:'aoe',el:'cold',ic:'❄',fx:'ring',cqfx:'bingpaoxiao',cd:3,sm:2,mana:L=>8+0.3*(L-1),syn:[['hqs','ldsh'],4],
   v:(L,sy)=>{const d=CLS_DR(18,28,6,9,L,sy),n=L>=15?6:5;return{dmg:d,n,slow:3,txt:`冰暴轰击最多 ${n} 个敌人：${clsFsTx(d,'cold')}，减速 3 秒，冷却 3 秒`}}},
 ]);
@@ -27,9 +29,9 @@ CLS_TY.charm.ok=function(s,ms){const v=SV(s.id,slvl(s.id)),n=clsPetN(s.id);if(n<
  return n<v.max&&GT-(H.charmDeadT??-1e9)>=60&&ms.some(m=>!m.boss&&!m.fl&&m.lv<=S.lvl+v.lv)};
 CLS_PRI.charm=1;
 {const f=resetRuntime;resetRuntime=function(){f();H.charmN=0}}
-CLS_DEF.fs.sk={hqs:1};
+CLS_DEF.fs.sk={hqs:1};CLS_DEF.fs.life0=55;CLS_DEF.fs.lpl=2.5;CLS_DEF.fs.lpv=2.5;// 生存：基础生命 40→55、每级 1.5→2.5、每点体力 2→2.5
 CLS_DEF.fs.elMul=el=>el==='light'&&bl('ldsh')?Math.min(30,bl('hqs')*1.5):0;// 雷电爆发协同：火球术每级 +1.5% 雷电伤害（上限 30%）
 CLS_BAL.fs={dk:[[1,1.5],[12,1.35],[30,1.25],[60,1.2]],ek:[[1,1.2],[12,1.3],[30,1.3],[60,1.3]]};
-CLS_SKPLAN.fs={order:['hqs','hqs','kjhh','hqs','hqs','yhzg','hqs','dyh','hqs','ldsh','ldsh','hqs','ldsh','bpx','ldsh','bpx','ldsh','bpx','ldsh','bpx','ldsh','bpx'],
- fill:()=>bl('ldsh')<20?['ldsh','bpx']:bl('bpx')<20?['bpx','hqs']:bl('hqs')<20?['hqs']:['dyh','kjhh','yhzg']};
+CLS_SKPLAN.fs={order:['hqs','hqs','kjhh','hqs','mfd','hqs','yhzg','hqs','dyh','hqs','ldsh','ldsh','hqs','ldsh','bpx','ldsh','bpx','ldsh','bpx','ldsh','bpx','ldsh','bpx'],
+ fill:()=>bl('ldsh')<20?['ldsh','bpx']:bl('bpx')<20?['bpx','hqs']:bl('hqs')<20?['hqs']:['mfd','dyh','kjhh','yhzg']};
 clsRegister();
