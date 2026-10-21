@@ -246,7 +246,7 @@ body.cq-on #cqStage{top:0;background:#120a06}
 .cqb .card .clv{top:1px;font-size:11px;line-height:12px}
 .cqb .card .cnm{bottom:7px;font-size:11px;line-height:12px;left:1px;right:1px;text-overflow:clip}
 .cqb .card .hb{left:3px;right:3px;bottom:2px;height:4px}
-.cqb .card.boss .fig{height:150%;bottom:8px}          /* 首领只占 1 格，立绘向上探出（原版 _popFig） */
+.cqb .card.boss .fig{height:auto;width:auto;max-height:150%;max-width:140%;bottom:8px}          /* 首领只占 1 格，立绘向上探出（原版 _popFig） */
 .cqb .card.boss .clv,.cqb .card.boss .cnm{font-size:11px}
 .cqb .card.boss .cnm{bottom:7px}
 .cqb .card.boss .hb{height:5px;bottom:2px}

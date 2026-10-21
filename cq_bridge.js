@@ -38,6 +38,8 @@
     '半兽战士': 'mdl_mst_1008', '毒蜘蛛': 'mdl_mst_1009', '食人花': 'mdl_mst_1011', '山洞蝙蝠': 'mdl_mst_1012', '骷髅': 'mdl_mst_1013', '掷斧骷髅': 'mdl_mst_1014', '骷髅战士': 'mdl_mst_1015',
     '洞蛆': 'mdl_mst_1022', '僵尸': 'mdl_mst_1023', '爬行僵尸': 'mdl_mst_1024', '红蛇': 'mdl_mst_1025', '虎蛇': 'mdl_mst_1025', '盔甲虫': 'mdl_mst_1034', '电僵尸': 'mdl_mst_2002'};
   CQ.ART_BY_NAME = ART_BY_NAME;
+  // 美术2 按怪物 key 出的立绘 assets/cq/ui/mdl_mst_<key>.png（6db3e84…9661a04）。CQSys.monArt 没给图时先按 key 找同名文件，再按怪名，最后才用旧的随机池
+  var ART_KEYS = {}; ['ape','archer','bat','beetle','corrupt','cowbeast','cowbrute','cqskelelite','fiend','flayer','flshaman','fly','frog','ghost','hopper','horror','hound','hulk','husk','imp','jackal','knight','leaper','mauler','minion','mosq','orclord','pitlord','priest','rakecatking','rat','redsnakeking','rogue','serpent','shaman','shroom','siren','skel','spider','sporer','storm','tombmage','vamp','venom','vulture','wolf','wraith','yeti','zealot','zombie'].forEach(function(k){ ART_KEYS[k] = 1; }); CQ.ART_KEYS = ART_KEYS;
   var PCLS = {1: 'zs', 2: 'fs', 3: 'ds'}, PPROF = {zs: 1, fs: 2, ds: 3};
   // 冷却圈：CQSys.skillCooldown 已登记（placeholder:false）就用正式冷却
   function cdFix(o){ var C = sysFn('skillCooldown'); if (!C) return o; try { var c = C.skillCooldown(o.id); if (c && !c.placeholder && c.cd > 0) { o.cdMax = c.cd; o.cdLeft = c.left; o.sys = 1; } } catch (e) {} return o; }
@@ -108,7 +110,7 @@
     skillFx: function(id){ var SKM = G('SKM') || {}, n = (SKM[id] || {}).n || ''; if (SKILL_FX_ART[n]) return SKILL_FX_ART[n]; for (var i = 0; i < SKILL_FX.length; i++) if (SKILL_FX[i][0].test(n)) return SKILL_FX[i][1]; return null; },
     skillPop: function(id){ if (has('acPop')) G('acPop')(id); },
     toast: function(t){ if (has('toast')) G('toast')(t); },
-    monArt: function(m){ var C = sysFn('monArt'); if (C) { try { var a = C.monArt(m.key); if (a && a.src) return a.src; } catch (e) {} } var bn = ART_BY_NAME[m.n || ((G('MONS') || {})[m.key] || {}).n]; if (bn) return 'assets/cq/ui/' + bn + '.png'; if (m.boss) return 'assets/cq/ui/mdl_mst_2001.png'; return 'assets/cq/ui/' + ART[hash(m.key || m.n) % ART.length] + '.png'; },
+    monArt: function(m){ var C = sysFn('monArt'); if (C) { try { var a = C.monArt(m.key); if (a && a.src) return a.src; } catch (e) {} } if (m.key && ART_KEYS[m.key]) return 'assets/cq/ui/mdl_mst_' + m.key + '.png'; var bn = ART_BY_NAME[m.n || ((G('MONS') || {})[m.key] || {}).n]; if (bn) return 'assets/cq/ui/' + bn + '.png'; if (m.boss) return 'assets/cq/ui/mdl_mst_2001.png'; return 'assets/cq/ui/' + ART[hash(m.key || m.n) % ART.length] + '.png'; },
     itemInfo: function(it){ if (!it) return null; var name = has('itemName') ? G('itemName')(it) : (it.name || '物品'), color = has('itemColor') ? G('itemColor')(it) : '#e8e0cc';
       var t = has('tgTier') ? G('tgTier')(it) : null, TG = G('TG'), tier = null;
       if (t && TG) tier = {key: t, rank: TG.RANK[t] || 1, color: TG.COL[t], tag: TG.TAG[t] || '极品', top: !!TG.TOP[t] || (TG.RANK[t] || 0) >= 3};
@@ -157,7 +159,7 @@
   var curSrc = null, curMon = null;
   // 召唤物事件：CQSys pet:spawn/pet:hit/pet:atk/pet:die {uid,dmg?,tgt?} 一旦出现就以事件为准，否则场景每帧按 uid 对比 ALLY 兜底
   // 召唤物立绘兜底：pet_kl 用原版变异骷髅模型 mdl_mst_1014（web-replica monster.txt 300101）；神兽原版无专用模型（1091 用的是占位 1001），保持 emoji，待美术2出 pet_ss/pet_ss_gold
-  CQ.PET_ART_FB = {pet_kl: 'mdl_mst_1014'};
+  CQ.PET_ART_FB = {};   /* 美术2 9661a04 已出 pet_kl/pet_ss/pet_ss_gold，不再退回 1014 */
   var petEv = false; CQ.petEvents = function(){ return petEv; };
   function emitPet(k, d, fallback){ try { if (on() && CQ.Scene.onPet) CQ.Scene.onPet(k, d || {}, !!fallback); } catch (e) {} }
   function wrap(name, mk){ if (!has(name)) return false; var f = G(name); if (typeof f !== 'function' || f._cq) return false; var g = mk(f); g._cq = 1; window[name] = g;

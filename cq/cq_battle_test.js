@@ -101,7 +101,12 @@ ok(/ground\.jpg\) 0 0\/390px 520px repeat/.test(css)&&!/ground_mirror/.test(css.
  ok(Math.abs(cw/chh-120/125)<0.01,'卡片宽高比 = 原版 120:125');
  ok(!/kind === 'boss'\) \{ w = BW/.test(sc),'首领卡同原版只占 1 格');}
 ok(!/font-size:(?:[0-9]|10)(?:\.\d+)?px/.test(css),'全部字号 ≥11px');
-ok(G('CQ.Host.petArtFb({art:"pet_kl"})')==='assets/cq/ui/mdl_mst_1014.png'&&G('CQ.Host.petArtFb({art:"pet_ss"})')===null,'骷髅缺图退回原版变异骷髅模型 1014');
+ok(G('CQ.Host.petArt({art:"pet_kl"})')==='assets/cq/ui/pet_kl.png'&&G('CQ.Host.petArt({sub:"zhss",n:"金色神兽"})')==='assets/cq/ui/pet_ss_gold.png'&&G('CQ.Host.petArtFb({art:"pet_kl"})')===null,'召唤物优先 pet_*.png，骷髅不再退回 1014');
+for(const k of['pet_kl','pet_ss','pet_ss_gold','mdl_mst_orclord','mdl_mst_imp'])ok(fs.existsSync(path.join(root,'assets/cq/ui/'+k+'.png')),'立绘文件 '+k);
+ok(G('CQ.Host.monArt({key:"orclord",boss:1,n:"zz"})').indexOf('mdl_mst_orclord.png')>=0||G('!!(CQSys&&CQSys.monArt("orclord"))'),'首领按 key 找 mdl_mst_orclord.png');
+ok(G('CQ.ART_KEYS.imp===1')&&/ART_KEYS\[m\.key\]/.test(fs.readFileSync(path.join(root,'cq_bridge.js'),'utf8')),'monArt 兜底先按 key 找同名文件、不再随机分到骷髅');
+ok(/\.card\.boss \.fig\{[^}]*max-height:150%[^}]*max-width:140%/.test(css),'首领 400 高立绘按卡尺寸等比缩放（不横向压邻格过多）');
+ok(G('CQ.heroDpsK({cls:()=>"fs"})')===0.43&&G('CQ.heroDpsK({cls:()=>"zs"})')===0.24&&G('CQ.heroDpsK({cls:()=>"ds"})')===0.17&&G('CQ.heroDpsK({})')===CQ_T('dpsK'),'英雄普攻系数按玩家职业 dpsKBy（缺省 dpsK）');
 ok(/mdl_mst_1001/.test(G('CQ.Host.monArt({key:"zz_none",n:"鸡"})'))&&/mdl_mst_1002/.test(G('CQ.Host.monArt({key:"zz_none",n:"鹿"})')),'monArt 兜底按怪名取传奇之旅立绘');
 for(const n of[1001,1002,1003,1004,1005,1006,1007,1008,1009,1011,1012,1022,1023,1024,1025,1034,2002])ok(fs.existsSync(path.join(root,'assets/cq/ui/mdl_mst_'+n+'.png')),'立绘 mdl_mst_'+n);
 ok(/body\.cq-on #hud[^{]*#fquest[^{]*#fzone\{display:none/.test(css)||/#fzone\{display:none/.test(css),'战斗页隐藏药水栏/任务行/区域栏（仅 body.cq-on）');
