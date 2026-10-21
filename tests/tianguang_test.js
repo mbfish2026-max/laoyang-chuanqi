@@ -24,7 +24,7 @@ G(`AUDIO=undefined`);ok(G("(()=>{try{tgFire([{q:5,anc:2,m:{}}]);return true}catc
 G(`_snd=[];AUDIO={playLootTier:t=>{_snd.push(t)}};TG.busy=1;__NOUI=0;`);G(`try{rollTC({lv:80,boss:1,actboss:1})}catch(e){}`);ok(G("_snd.length")===0,'离线期间不发声');G(`TG.busy=0;__NOUI=1`);
 // 拾取过滤
 G(`ensureLoot();S.rcy.on=1;for(const k in S.rcy.c)S.rcy.c[k]=1;S.rcy.runeMax=33;S.rcy.keepHR=1;S.rcy.hrMin=20`);
-ok(G("shouldRecycle({k:'rune',r:19},false)")===false&&G("shouldRecycle({k:'rune',r:18},false)")===true,'符文≥20 保留，19 号回收');
-G(`S.rcy.keepHR=0`);ok(G("shouldRecycle({k:'rune',r:25},false)")===true,'关闭后高符文可回收');
+// 符文回收阈值两条已删（legacy_prune 批次2：符文已移除，回收类型里不再有 rune）
+G(`S.rcy.keepHR=0`);
 ok(G("S.rcy.keepAnc!==0")&&!('keepHR' in G("rcyDefault()")),'旧存档默认：上古保留、符文过滤关');
 console.log(`tianguang_test: ${pass} pass, ${fail} fail`);process.exit(fail?1:0);

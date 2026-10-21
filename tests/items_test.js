@@ -21,7 +21,7 @@ const Q=['破旧','普通','精良','魔法','稀有','暗金','套装'];
 
 sec('数据规模');
 console.log(`  底材 ${BASES.length}  前缀 ${PREFIX.length}  后缀 ${SUFFIX.length}  符文 ${RUNES.length}  符文之语 ${RUNEWORDS.length}  暗金 ${UNIQUES.length}  套装 ${Object.keys(SETS).length}/${SETITEMS.length}件`);
-ok(RUNES.length===33,'符文应为33');ok(RUNEWORDS.length>=30,'符文之语≥30');ok(UNIQUES.length>=40,'暗金≥40');ok(Object.keys(SETS).length>=8,'套装≥8');
+ok(RUNES.length===0&&RUNEWORDS.length===0,'符文/符文之语已删除（legacy_prune 批次2）');ok(UNIQUES.length>=40,'暗金≥40');ok(Object.keys(SETS).length>=8,'套装≥8');
 for(const u of [...UNIQUES,...SETITEMS])ok(BASEM[u.b],'暗金/套装底材不存在: '+u.n);
 const slots=new Set(BASES.filter(b=>!b.jew).map(b=>b.s)),uslots=new Set(UNIQUES.map(u=>BASEM[u.b]&&BASEM[u.b].s));
 for(const s of slots)ok(uslots.has(s),'暗金未覆盖部位 '+s);
@@ -61,19 +61,7 @@ sec('凹槽上限');
 let sb=0;for(let i=0;i<20000;i++){const il=1+(i%99);const it=genItem(il);if((it.sock||0)>maxSock(BASEM[it.b],il))sb++}
 ok(sb===0,'凹槽超上限 '+sb);console.log('  超上限 '+sb);
 
-sec('符文之语配方');
-const D2={'精钢':[2,0]};const NAMES=new Set();let rb=0;
-for(const w of RUNEWORDS){if(NAMES.has(w.n))rb++;NAMES.add(w.n);
- if(!w.r.every(i=>i>=0&&i<33))rb++;
- const cap=Math.max(0,...BASES.filter(b=>w.cats.includes(b.cat)).map(b=>maxSock(b,99)));if(w.r.length>cap){rb++;console.log('  孔不够',w.n,w.r.length,cap)}
- const rq=Math.max(...w.r.map(i=>RUNES[i][1]));if(w.lv<rq){rb++;console.log('  需求低于符文',w.n)}}
-const keys=RUNEWORDS.map(w=>w.r.join(',')+'|'+w.cats.join(','));ok(new Set(keys).size===keys.length,'配方重复');
-ok(rb===0,'符文之语配方错误 '+rb);
-// 实际镶嵌验证：用 doSock 流程拼一个
-const w0=RUNEWORDS[0];const b0=BASES.find(b=>w0.cats.includes(b.cat)&&maxSock(b,99)>=w0.r.length);
-const it0=genItem(60,{base:b0,q:1});it0.sock=w0.r.length;it0.soc=[];
-G('S').bag=[it0];for(const r of w0.r){const ru={uid:G('S.uid++'),k:'rune',r};G('S').bag.push(ru);try{G('doSock')(it0.uid,ru.uid)}catch(e){}}
-console.log(`  ${w0.n}：镶嵌后 rw=${it0.rw} soc=${it0.soc.length}`);ok(it0.rw===0,'按配方镶嵌应生成符文之语（doSock 签名不同时可能失败）');
+// 「符文之语配方」一节已删（符文/符文之语已移除，legacy_prune 批次2）
 
 sec('物品强度曲线（按部位，各等级 2000 件稀有平均 power）');
 for(const slot of ['weapon','armor','helm','shield']){const curve=[];for(let l=5;l<=95;l+=10){let s=0;for(let i=0;i<2000;i++)s+=power(genItem(l,{q:4,slot}));curve.push(s/2000)}
@@ -84,28 +72,22 @@ for(const slot of ['weapon','armor','helm','shield']){const curve=[];for(let l=5
 
 // ======================= 第四阶段：装备扩充 / 仓库 / 多角色 / 商店 / 回收 / 堆叠 =======================
 sec('第四阶段数据');
-const CATS=new Set(BASES.map(b=>b.cat));for(const c of ['bow','xbow','polearm','spear','jav','throw','axe','mace','staff','jewel','scha','mcha','lcha'])ok(CATS.has(c),'缺少底材类型 '+c);
+const CATS=new Set(BASES.map(b=>b.cat));for(const c of ['bow','xbow','polearm','spear','jav','throw','axe','mace','staff'])ok(CATS.has(c),'缺少底材类型 '+c);
 for(const b of BASES){if(b.dmg)ok(b.dmg[0]<=b.dmg[1]&&b.dmg[0]>0,'底材伤害非法 '+b.id);if(b.def)ok(b.def[0]<=b.def[1],'底材防御非法 '+b.id);ok(b.q>=1&&b.q<=99,'底材等级 '+b.id);ok(b.tier>=0&&b.tier<=2,'档位 '+b.id)}
 ok(new Set(BASES.map(b=>b.id)).size===BASES.length,'底材 id 重复');
-ok(UNIQUES.length>=58+60,'暗金至少 118（现 '+UNIQUES.length+'）');ok(Object.keys(SETS).length>=30,'套装≥30');ok(RUNEWORDS.length>=78,'符文之语≥78');
-ok(new Set(UNIQUES.map(u=>u.n)).size===UNIQUES.length,'暗金重名');ok(new Set(SETITEMS.map(u=>u.n)).size===SETITEMS.length,'套装件重名');ok(new Set(RUNEWORDS.map(u=>u.n)).size===RUNEWORDS.length,'符文之语重名');
+ok(UNIQUES.length>=58+60,'暗金至少 118（现 '+UNIQUES.length+'）');ok(Object.keys(SETS).length>=30,'套装≥30');
+ok(new Set(UNIQUES.map(u=>u.n)).size===UNIQUES.length,'暗金重名');ok(new Set(SETITEMS.map(u=>u.n)).size===SETITEMS.length,'套装件重名');
 for(const u of [...UNIQUES,...SETITEMS]){for(const k in u.m){const v=u.m[k];ok(Array.isArray(v)?v[0]<=v[1]:typeof v==='number','数值非法 '+u.n+'.'+k)}ok(u.rq<=99&&u.lv<=99,'等级 '+u.n)}
 for(const k in SETS){const n=SETITEMS.filter(x=>x.set===k).length;ok(n>=2,'套装件数<2 '+k);for(const t in SETS[k].bonus)ok(+t<=n,'套装奖励阈值超件数 '+k+t)}
-const UPK=G('UPGRADE_RECIPES').map(r=>r.slice(1).join(','));ok(new Set(UPK).size===UPK.length,'升级配方重复');
 ok(G("BASEM.bow1.th===1&&BASEM.pole1.th===1&&!BASEM.jav1.th"),'双手标记');ok(G("MERCS.archer.wcats.includes('bow')&&MERCS.guard.wcats.includes('polearm')"),'随从可用弓/长柄');
 console.log(`  底材 ${BASES.length}  暗金 ${UNIQUES.length}  套装 ${Object.keys(SETS).length}/${SETITEMS.length}件  符文之语 ${RUNEWORDS.length}`);
 
-sec('护身符 / 珠宝 / 战斗属性');
+sec('战斗属性');
 G('GS.clear()');G('load();calc()');
-let cq=0;for(let i=0;i<3000;i++){const it=G(`genItem(60,{base:BASEM.cha_l})`);if(it.q!==3&&it.q!==5)cq++}ok(cq===0,'护身符只能是魔法/暗金 '+cq);
-G(`S.bag=[];calc();window._l0=ST.life;const c=genItem(60,{base:BASEM.cha_l,q:3});c.m={life:40};S.bag.push(c);calc();window._l1=ST.life;S.pst[0].push(S.bag.pop());calc();window._l2=ST.life`);
-ok(G('_l1')===G('_l0')+40&&G('_l2')===G('_l0'),'护身符背包生效/仓库不生效 '+G('[_l0,_l1,_l2]'));
-G(`window._w=genItem(40,{base:BASEM.swd4,q:1});_w.sock=2;_w.soc=[];S.bag=[_w];const j=genItem(40,{base:BASEM.jew,q:3});j.m={edmg:20,str:5};S.bag.push(j);doSockJewel(_w.uid,j.uid)`);
-ok(G('allMods(_w).str===5&&S.bag.length===1'),'珠宝镶嵌生效');
+// 护身符/珠宝 用例已删（legacy_prune 批次2）
 G(`calc();ST.M.cb=100;ST.M.ow=100;ST.M.ds=0;window._m=mkMon(Object.keys(MONS)[0],10);_m.hp=_m.max=1000;hitMon(_m,{phys:1},'hero','#fff')`);ok(G('_m.hp<=750&&_m.ow&&_m.ow.left===8'),'压碎性打击/撕裂伤口生效 hp='+G('_m.hp'));
 G(`calc();ST.M.ds=100;window._m2=mkMon(Object.keys(MONS)[0],10);_m2.res.phys=0;_m2.hp=_m2.max=1e6;hitMon(_m2,{phys:100},'hero','#fff')`);ok(G('1e6-_m2.hp>=190'),'致命一击翻倍');
-G(`calc();window._u=genItem(30,{base:BASES.find(b=>b.s==='weapon'&&b.tier===0&&nextTierBase(b)),q:4});_u.q=5;_u.name='测试暗金';S.bag=[_u,{uid:S.uid++,k:'rune',r:7},{uid:S.uid++,k:'rune',r:11},{uid:S.uid++,k:'gem',g:'eme',lv:4}]`);
-const un=G('_u.name');ok(G('cubeUpgrade(0,_u.uid)')&&G('BASEM[_u.b].tier===1&&_u.name')===un&&G('S.bag.length')===1,'暗金升级配方');
+// 暗金升级配方（炼金匣）用例已删
 
 sec('堆叠 / 仓库存取守恒');
 G('GS.clear()');G('load();calc()');
@@ -143,8 +125,7 @@ G(`S.bag=[];S.rcy=rcyDefault();S.rcy.on=1;S.rcy.q={0:1,1:1,2:1,3:1,4:0,5:0,6:0};
 let rc=0,kept=0;for(let i=0;i<500;i++){const r=G(`addBag(genItem(40,{q:${1+(i%3)}}))`);r?kept++:rc++}
 ok(G(`S.bag.filter(x=>!x.k).every(it=>(it.sock&&it.q<=2)||BASEM[it.b].tier>=2||hasNecroSkill(it))`),'只保留受保护物品');ok(G('matCount("ess")')>0,'回收成精华');
 G(`S.rcy.mode='gold';window._g0=S.gold;window._ri=genItem(10,{q:1,base:BASEM.arm1});_ri.sock=0;addBag(_ri)`);ok(G('S.gold>_g0'),'回收得金币');
-G(`S.rcy.on=0;S.ast={on:1,dest:'s',t:{gem:1,rune:1}};window._n0=ACCT.shared.flat().length;addBag({uid:S.uid++,k:'rune',r:2});addBag({uid:S.uid++,k:'gem',g:'top',lv:1})`);ok(G('ACCT.shared.flat().length-_n0')===2,'自动存仓');
-G(`S.rcy.on=1;S.rcy.c.rune=1;S.rcy.runeMax=5;window._n1=ACCT.shared.flat().length;addBag({uid:S.uid++,k:'rune',r:1})`);ok(G('ACCT.shared.flat().length')===G('_n1'),'回收优先于存仓');
+// 符文/宝石的自动存仓、回收优先用例已删（legacy_prune 批次2：符文/宝石已移除）
 G('S.rcy.on=0;S.ast.on=0');
 
 sec('商店 / 赌博');
