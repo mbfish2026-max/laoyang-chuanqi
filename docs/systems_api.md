@@ -62,3 +62,11 @@ This replaces the fallbacks in `CQ.MISSING` in cq_bridge.js. Detection: `window.
 ## Other
 - `CQSys.rollDrops(m)`, `addItem(it)`, `addMat/matCount/takeMat`, `acts()/zone()/monDef(id)` are listed in docs/systems_m1.md.
 - `cqEnhance(uid,{oil})` enhancement; `cqStashExpand('p'|'s')` warehouse.
+
+## Bottom-bar takeover (cq/hud_cq.js, M1 addendum)
+The battle side hides `#pots` (red/blue orbs + potion bar), `#fquest` (main quest row), `#fzone` (zone switcher + 原地挂机 button) in cq/. **Their id/structure is unchanged**; game.js still writes to them, they just aren't shown.
+- **Auto-potion (configurable)**: `CQSys.autoPot() → {on, hp, rej, mp}` (percent, defaults 1/40/20/15). `CQSys.autoPot({on?, hp?, rej?, mp?})` changes and saves to `S.apot` (per character, cloud save), range 0–95, `0` = this potion is never auto-used, `on:0` = off entirely; emits event `autoPot`. Logic is still in game.js `step(dt)`, now reading `cqAP(k)` (returns 0–0.95).
+- **Potion display**: Bag page (`renderBag`) gets a "药水" panel `.cqpot` appended at the bottom: red/blue/instant/town-portal counts + "使用" + threshold ± + auto-potion toggle. `CQSys.potHTML()` returns the same HTML, can be reused.
+- **Main quest**: Map page (`renderMap`) gets a "主线任务" panel `.cqmq` at the top (`questLine()` + auto-advance pause reason) plus an auto-advance / idle-in-place toggle. `CQSys.questLine()` returns the text.
+- **Idle toggle**: `CQSys.idle() → bool` (true = idle in place, i.e. `S.auto=0`); `CQSys.setAuto(0|1)` saves and re-renders, emits event `auto`.
+- **Potion function**: `usePot(k)` / `CQSys.usePot(k)`, `k ∈ hp|mp|rej|tp`, signature unchanged.

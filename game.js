@@ -234,9 +234,9 @@ function hitChance(ar,def,al,dl){const c=clamp(200*ar/(ar+Math.max(1,def))*al/(a
 // --- 主循环 ---
 function step(dt){GT+=dt;for(const a of ALLY)if(a.hitT>0)a.hitT=Math.max(0,a.hitT-dt);const ms=liveMon();
  H.mana=Math.min(ST.mana,H.mana+ST.mana/120*(1+ST.mregen/100)*dt);H.life=Math.min(ST.life,H.life+ST.regen*dt);
- if(H.life<ST.life*0.4&&S.pot.hp>0&&!H.potT){S.pot.hp--;H.potT=7;H.potHeal=ST.life*0.5/7}
- if(H.life<ST.life*0.2&&S.pot.rej>0){S.pot.rej--;H.life=Math.min(ST.life,H.life+ST.life*0.35);H.mana=Math.min(ST.mana,H.mana+ST.mana*0.35);floatHero('瞬回','#d0f')}
- if(H.mana<ST.mana*0.15&&S.pot.mp>0&&!H.mpT){S.pot.mp--;H.mpT=5;H.mpHeal=ST.mana*0.6/5}
+ if(cqAP('hp')&&H.life<ST.life*cqAP('hp')&&S.pot.hp>0&&!H.potT){S.pot.hp--;H.potT=7;H.potHeal=ST.life*0.5/7}
+ if(cqAP('rej')&&H.life<ST.life*cqAP('rej')&&S.pot.rej>0){S.pot.rej--;H.life=Math.min(ST.life,H.life+ST.life*0.35);H.mana=Math.min(ST.mana,H.mana+ST.mana*0.35);floatHero('瞬回','#d0f')}
+ if(cqAP('mp')&&H.mana<ST.mana*cqAP('mp')&&S.pot.mp>0&&!H.mpT){S.pot.mp--;H.mpT=5;H.mpHeal=ST.mana*0.6/5}
  if(H.potT>0){H.potT=Math.max(0,H.potT-dt);H.life=Math.min(ST.life,H.life+H.potHeal*dt)}if(H.mpT>0){H.mpT=Math.max(0,H.mpT-dt);H.mana=Math.min(ST.mana,H.mana+H.mpHeal*dt)}
  // 英雄
  H.castT-=dt;if(H.castT<=0){const r=heroAct();H.castT=r===2?ST.atkT:r?ST.castT:0.3}
@@ -276,6 +276,8 @@ log(`<b style="color:#f44">你倒下了……回到营地</b>`);toast('死亡：
  MON=[];ALLY=[];CORPSE=[];S.wave=0;calc();H.life=ST.life;H.mana=ST.mana;H.abs=0;spawnT=3}
 function goZone(i){if(i>S.unl)return;S.zone=i;S.wave=0;MON=[];CORPSE=[];spawnT=1;log(`前往 <b>${zoneData().n}</b>`);render()}
 function townPortal(){if(S.pot.tp<=0)return toast('没有回城卷轴');S.pot.tp--;MON=[];S.wave=0;H.life=ST.life;H.mana=ST.mana;spawnT=2;log('使用回城卷轴：在营地恢复后返回 '+zoneData().n)}
+// 老羊传奇：自动吃药阈值（S.apot，百分比；on=0 关闭；0=该药不自动）。接口见 docs/systems_api.md
+const CQ_APD={on:1,hp:40,rej:20,mp:15};function cqAP(k){const a=(S&&S.apot)||CQ_APD;if(a.on===0)return 0;const v=a[k]!=null?a[k]:CQ_APD[k];return Math.max(0,Math.min(95,+v||0))/100}
 function usePot(k){if(S.pot[k]<=0)return;if(k==='tp')return townPortal();S.pot[k]--;if(k==='hp'){H.potT=7;H.potHeal=ST.life*0.5/7}if(k==='mp'){H.mpT=5;H.mpHeal=ST.mana*0.6/5}if(k==='rej'){H.life=Math.min(ST.life,H.life+ST.life*.35);H.mana=Math.min(ST.mana,H.mana+ST.mana*.35)}}
 
 // ===== UI：战斗页 =====
