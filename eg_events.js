@@ -23,7 +23,7 @@ function egWbStart(){if(EGM)return toast('正在其他挑战中');const ph=egWbP
  const ml=Math.min(99,Math.max(S.lvl,egMaxMl())+3),end=EG().clock+(EG_WB.dur-ph);
  const run={k:'wboss',name:EG_WB.n,bg:'bg_act4',boss:null,
   start(){},spawn(){if(this.boss){if(this.boss.hp<=0){egLeave(1);return}if(!MON.includes(this.boss)){this.boss.cur=null;MON.push(this.boss);log(`${EG_WB.n} 仍在等待你的归来（剩余 ${Math.ceil(this.boss.hp/this.boss.max*100)}%）`)}return}const m=mkMon('wb_mogos',ml);const k=pick(EG_BOSSAFF);EG_AFF[k].f(m);m.aff=[EG_AFF[k].n];m.n=EG_WB.ic+m.n;m.max=m.hp=Math.round(m.max*(1+S.diff*0.5));m.egWb=1;this.boss=m;MON.push(m);log(`<b class="bossn">${EG_WB.n}</b> [${m.aff.join('/')}] 从灰烬中站起！`)},
-  onKill(m){if(!m.egWb)return;egStat('wboss');const got=[genItem(ml,{q:5}),genItem(ml,{q:5}),genItem(ml,{q:4}),rollRune(ml+9),rollRune(ml+6)];for(const it of got)addBag(it);const g=5000+ml*200;S.gold+=g;EG().rift.keys+=2;
+  onKill(m){if(!m.egWb)return;egStat('wboss');const got=[genItem(ml,{q:5}),genItem(ml,{q:5}),genItem(ml,{q:4}),oreItem(3)];for(const it of got)addBag(it);const g=5000+ml*200;S.gold+=g;EG().rift.keys+=2;
    log(`<b class="quest">${EG_WB.n} 倒下了！获得 ◈${fmt(g)}、🔮钥石×2、${got.map(it=>`<span style="color:${itemColor(it)}">${itemName(it)}</span>`).join('、')}</b>`);toast('世界首领已击败')},
   onDie(){},
   wave(){return`剩余 ${egTime(end-EG().clock)}`},quest(){return`【世界首领】击败 ${EG_WB.n}（限时 ${egTime(end-EG().clock)}）`},

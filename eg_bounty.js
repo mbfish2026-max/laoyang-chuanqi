@@ -12,18 +12,18 @@ function egBountyReset(){const B=EG().bounty,day=egDay(),wk=egWeek();
  if(B.week!==wk){B.week=wk;B.w=EG_BOUNTY.weekly.map(x=>({t:x.t,p:0,goal:x.goal,done:0}))}}
 function egBountyDesc(b){const T=EG_BOUNTY.types[b.t];const zn=`${DIFFS[b.d].n}·${ACTS[b.a].n.split('·')[1].trim()}·${b.zn}`;return b.t==='kill'?T.d(zn,b.goal):b.t==='boss'?T.d(zn,b.bn):T.d(zn)}
 function egBountyRw(b){const ml=b.ml;return{gold:Math.round((150+ml*30)*(b.t==='kill'?1:1.4)),xp:Math.round((xpNeed(S.lvl+1)-xpNeed(S.lvl))*(S.lvl<99?0.04:0)),rune:b.t!=='kill'}}
-function egBountyFinish(b){b.done=1;const r=egBountyRw(b);S.gold+=r.gold;if(r.xp)gainXp(r.xp);let rn='';if(r.rune){const it=rollRune(b.ml);addBag(it);rn='、'+itemName(it)}
+function egBountyFinish(b){b.done=1;const r=egBountyRw(b);S.gold+=r.gold;if(r.xp)gainXp(r.xp);let rn='';if(r.rune){const it=oreItem(1);addBag(it);rn='、'+itemName(it)}
  egStat('bounty');log(`<b class="quest">悬赏完成【${EG_BOUNTY.types[b.t].n}·${b.zn}】◈${fmt(r.gold)}${r.xp?' 经验+'+fmt(r.xp):''}${rn}</b>`);toast('悬赏完成');
  const B=EG().bounty;if(!B.dall&&B.d.every(x=>x.done)){B.dall=1;B.caches++;log(`<b class="quest">今日悬赏全部完成！获得 ${EG_BOUNTY.cache.ic}${EG_BOUNTY.cache.n}</b>`)}egRefresh()}
 function egWeekProg(t,n=1){const B=EG().bounty;if(!B.w)return;for(const w of B.w)if(w.t===t&&!w.done){w.p=Math.min(w.goal,w.p+n);if(w.p>=w.goal){w.done=1;B.wcaches++;const W=EG_BOUNTY.weekly.find(x=>x.t===t);log(`<b class="quest">周誓【${W.n}】达成！获得 ${EG_BOUNTY.wcache.ic}${EG_BOUNTY.wcache.n}</b>`);toast('周誓达成');egRefresh()}}}
 egOn('kill',(m,c)=>{const B=EG().bounty;if(!B.d)return;egWeekProg('wkill');if(m.boss)egWeekProg('wboss');if(c.mode)return;
  for(const b of B.d){if(b.done||b.d!==c.d||b.a!==c.a||b.i!==c.z)continue;if(b.t==='kill'){b.p++;if(b.p>=b.goal)egBountyFinish(b)}else if(b.t==='boss'&&m.key===b.bk){b.p=1;egBountyFinish(b)}}});
 egOn('clear',c=>{const B=EG().bounty;if(!B.d)return;egWeekProg('wclear');for(const b of B.d)if(!b.done&&b.t==='clear'&&b.d===c.d&&b.a===c.a&&b.i===c.z){b.p=1;egBountyFinish(b)}});
-// 宝匣：装备(魔法以上，必出 1 件稀有+)、符文、宝石、金币
+// 宝匣：装备(魔法以上，必出 1 件稀有+)、黑铁矿、金币
 function egOpenCache(w){const B=EG().bounty;const k=w?'wcaches':'caches';if(B[k]<=0)return;B[k]--;const ml=Math.min(99,egMaxMl()+(w?3:1)),got=[];
  const n=w?R(4,5):R(2,3);for(let i=0;i<n;i++)got.push(genItem(ml,{q:rnd()<0.7?3:4}));
  got.push(genItem(ml,{q:4}));if(w&&rnd()<0.35)got.push(genItem(ml,{q:5}));
- for(let i=0;i<(w?2:1);i++)got.push(rollRune(ml+(w?9:3)));got.push(rollGem(ml));
+ got.push(oreItem(w?3:1));
  const g=Math.round((w?2500:800)+ml*(w?60:25));S.gold+=g;for(const it of got)addBag(it);egStat('cache');
  modal(`<div class="mtitle">${w?EG_BOUNTY.wcache.ic+EG_BOUNTY.wcache.n:EG_BOUNTY.cache.ic+EG_BOUNTY.cache.n}</div><div class="gp"><div>金币 +${fmt(g)}</div><div class="grid">${got.map(it=>cell(it,'')).join('')}</div><div class="btns c"><button class="btn gold" onclick="closeM();egRefresh()">收下</button></div></div>`)}
 // 自动悬赏：前往第一条未完成的日常，原地挂机；全部完成后回到原位置并恢复自动推进

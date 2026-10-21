@@ -52,7 +52,6 @@ function bxSets(){const sc=typeof setCount==='function'?setCount():{},ks=Object.
 // 其他：流派 / 符文之语
 function bxOther(){const o=[];const b=typeof nbOn==='function'?nbOn():null;
  if(b){const B=NB.builds[b];o.push(`<div class="bxr"><span>流派 <b>${bxEsc(B.n)}</b><small class="dim">${bxEsc(B.pas||'')}</small></span></div>`)}
- for(const s of SLOTS){const it=S.eq[s];if(it&&it.rw!=null&&RUNEWORDS[it.rw])o.push(`<div class="bxr"><span>符文之语 <b style="color:#da6">「${bxEsc(RUNEWORDS[it.rw].n)}」</b></span><small class="dim bxw">${bxEsc(SLOTN[s]||s)}</small></div>`)}
  return o.join('')}
 function bxSig(){const e=SLOTS.map(s=>{const it=S.eq[s];return it?it.uid+':'+(it.lp||'')+':'+(it.soc||[]).length:''}).join(',');const ch=(S.bag||[]).filter(it=>typeof isCharm==='function'&&isCharm(it)).map(it=>it.uid).join(',');
  return[e,ch,S.build||'',S.cls||'',typeof EG_LPS!=='undefined'?[...EG_LPS].join(','):'',ST?ST.allsk:'',ST&&ST.pbr?ST.pbr.lv+'/'+ST.pbr.n:''].join('|')}

@@ -20,9 +20,9 @@ function cowGo(d){if(!cowOpen(d))return toast('尚未解锁');if(S.act!==4||S.di
 {const f=spawnWave;spawnWave=function(){const n0=MON.length;f();if(!inCow()||MON.some(m=>m.boss))return;const add=Math.round((MON.length-n0)*(COW.dens-1));const z=zoneData();for(let i=0;i<add&&MON.length<DENSITY.cap;i++)MON.push(mkMon(pick(z.mons),z.ml))}}
 // 经验加成
 {const f=mkMon;mkMon=function(k,lv,fl){const m=f(k,lv,fl);if(inCow())m.exp*=COW.xp;return m}}
-// 掉落：MF +60，额外符文几率
+// 掉落：MF +60，额外黑铁矿几率
 {const f=rollTC;rollTC=function(m){if(!inCow())return f(m);const mf=ST.mf;ST.mf=mf+COW.mf;let o;try{o=f(m)}finally{ST.mf=mf}
- if(rnd()<(m.boss?1:COW.rune))o=(o||[]).concat([rollRune(m.lv)]);return o}}
+ if(rnd()<(m.boss?1:COW.rune))o=(o||[]).concat([oreItem(1)]);return o}}
 // 清图：留在牧场循环
 {const f=zoneClear;zoneClear=function(){if(!inCow())return f();S.dz=0;if(mercDead())mercRevive(1);S.cowN=(S.cowN||0)+1;log(`<b class="quest">${COWZ.n} 已肃清（第${S.cowN}轮）</b>${S.auto?' · 牛群再度聚集':''}`);S.wave=0}}
 // 连续阵亡：退回第五章最后已解锁区域

@@ -15,13 +15,13 @@ const G=s=>vm.runInContext(s,ctx);
 G('S=newSave();if(!S.stash)S.stash=[];calc()');
 let fails=0,passes=0;const ok=(c,msg)=>{if(c)passes++;else{fails++;console.log('  ✗ '+msg)}};
 const sec=t=>console.log('\n== '+t);
-const BASES=G('BASES'),BASEM=G('BASEM'),PREFIX=G('PREFIX'),SUFFIX=G('SUFFIX'),RUNES=G('RUNES'),RUNEWORDS=G('RUNEWORDS'),UNIQUES=G('UNIQUES'),SETITEMS=G('SETITEMS'),SETS=G('SETS');
+const BASES=G('BASES'),BASEM=G('BASEM'),PREFIX=G('PREFIX'),SUFFIX=G('SUFFIX'),UNIQUES=G('UNIQUES'),SETITEMS=G('SETITEMS'),SETS=G('SETS');
 const genItem=G('genItem'),qualityChance=G('qualityChance'),power=G('power'),maxSock=G('maxSock');
 const Q=['破旧','普通','精良','魔法','稀有','暗金','套装'];
 
 sec('数据规模');
-console.log(`  底材 ${BASES.length}  前缀 ${PREFIX.length}  后缀 ${SUFFIX.length}  符文 ${RUNES.length}  符文之语 ${RUNEWORDS.length}  暗金 ${UNIQUES.length}  套装 ${Object.keys(SETS).length}/${SETITEMS.length}件`);
-ok(RUNES.length===0&&RUNEWORDS.length===0,'符文/符文之语已删除（legacy_prune 批次2）');ok(UNIQUES.length>=40,'暗金≥40');ok(Object.keys(SETS).length>=8,'套装≥8');
+console.log(`  底材 ${BASES.length}  前缀 ${PREFIX.length}  后缀 ${SUFFIX.length}  暗金 ${UNIQUES.length}  套装 ${Object.keys(SETS).length}/${SETITEMS.length}件`);
+ok(G('typeof RUNES')==='undefined','符文/符文之语已删除（legacy_prune）');ok(UNIQUES.length>=40,'暗金≥40');ok(Object.keys(SETS).length>=8,'套装≥8');
 for(const u of [...UNIQUES,...SETITEMS])ok(BASEM[u.b],'暗金/套装底材不存在: '+u.n);
 const slots=new Set(BASES.filter(b=>!b.jew).map(b=>b.s)),uslots=new Set(UNIQUES.map(u=>BASEM[u.b]&&BASEM[u.b].s));
 for(const s of slots)ok(uslots.has(s),'暗金未覆盖部位 '+s);
@@ -80,7 +80,7 @@ ok(new Set(UNIQUES.map(u=>u.n)).size===UNIQUES.length,'暗金重名');ok(new Set
 for(const u of [...UNIQUES,...SETITEMS]){for(const k in u.m){const v=u.m[k];ok(Array.isArray(v)?v[0]<=v[1]:typeof v==='number','数值非法 '+u.n+'.'+k)}ok(u.rq<=99&&u.lv<=99,'等级 '+u.n)}
 for(const k in SETS){const n=SETITEMS.filter(x=>x.set===k).length;ok(n>=2,'套装件数<2 '+k);for(const t in SETS[k].bonus)ok(+t<=n,'套装奖励阈值超件数 '+k+t)}
 ok(G("BASEM.bow1.th===1&&BASEM.pole1.th===1&&!BASEM.jav1.th"),'双手标记');ok(G("MERCS.archer.wcats.includes('bow')&&MERCS.guard.wcats.includes('polearm')"),'随从可用弓/长柄');
-console.log(`  底材 ${BASES.length}  暗金 ${UNIQUES.length}  套装 ${Object.keys(SETS).length}/${SETITEMS.length}件  符文之语 ${RUNEWORDS.length}`);
+console.log(`  底材 ${BASES.length}  暗金 ${UNIQUES.length}  套装 ${Object.keys(SETS).length}/${SETITEMS.length}件`);
 
 sec('战斗属性');
 G('GS.clear()');G('load();calc()');

@@ -155,7 +155,7 @@ const TCS={
  champ:{pk:1,nd:0,gold:60,eq:37,junk:0,good:3,f:{u:800,s:800,r:800,m:1024},pots:2},
  uniq:{pk:1,nd:0,gold:0,eq:58,junk:0,good:4,f:{u:800,s:800,r:800,m:1024},extra:'normal',extraPk:2},
  boss:{pk:5,nd:19,gold:14,eq:19,junk:5,good:3,f:{u:800,s:800,r:972,m:1024},gmul:1.25},
- countess:{pk:5,nd:19,gold:11,eq:19,junk:15,good:3,f:{u:883,s:883,r:883,m:1024},gmul:1.25,gb:1,runes:3},
+ countess:{pk:5,nd:19,gold:11,eq:19,junk:15,good:3,f:{u:883,s:883,r:883,m:1024},gmul:1.25,gb:1},
  actboss:{pk:7,nd:19,gold:11,eq:19,junk:15,good:3,f:{u:983,s:983,r:983,m:1024},gmul:1.25,gb:1},
 };
 // 已删除（legacy_prune 批次2：符文/宝石/护身符/珠宝/炼金匣）：GOODT/JEWEL_SCALE/RUNE_FALL/COUNTESS_RTC、宝石数值、NEW_RUNES/RUNE_UP、符文之语 NEW_RW

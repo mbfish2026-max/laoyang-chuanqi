@@ -4,10 +4,10 @@ const T=require('./cq_harness')('cq_m1_test');const{G,ok}=T;
 ok(T.loadErr.filter(e=>!/bagux|power/.test(e)).length===0,'脚本载入无错误：'+T.loadErr.join(' | '));
 G(`S=newSave();load();S.lvl=12;calc()`);
 // ---------- 数据层清理 ----------
-ok(G('RUNES.length')===0&&G('RUNEWORDS.length')===0,'符文/符文之语数据已清空');
+ok(G('typeof RUNES')==='undefined'&&G('typeof RUNEWORDS')==='undefined','符文/符文之语数据已删除');
 ok(G('BASES.every(b=>!b.sock||!b.sock.some(x=>x))'),'底材无凹槽');
-ok(G("rollRune(10).k==='mat'&&rollRune(10).id==='heitie'"),'符文掉落改为黑铁矿');
-ok(G("rollGem(10).id==='heitie'"),'宝石掉落改为黑铁矿');
+ok(G("typeof rollRune")==='undefined'&&G("(S=S||newSave(),oreItem(2).id==='heitie'&&oreItem(2).n===2)"),'符文掉落已删除，原奖励改黑铁矿 oreItem');
+ok(G("typeof rollGem")==='undefined','宝石掉落已删除');
 ok(G("Object.values(TCS).every(t=>!t.runes)"),'TC 无符文必掉');
 ok(G("BASES.every(b=>!['orb','bhelm','head','charm','jewel'].includes(b.cat))"),'无 D2 职业底材/护身符/珠宝');
 // ---------- 10 部位 ----------

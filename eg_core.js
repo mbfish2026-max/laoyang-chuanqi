@@ -67,7 +67,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 function egDay(t=Date.now()){const d=new Date(t);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
 function egWeek(t=Date.now()){const d=new Date(t);d.setHours(0,0,0,0);const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return 'W'+egDay(d.getTime())}
 function egTime(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
-function egRuneName(r){return itemName({k:'rune',r})}
 function egMaxMl(){let mx=1;const d=S.diff;for(let a=0;a<ACTS.length;a++){if(!actOpen(a,d))continue;const un=(a===S.act?S.unl:(S.UN[pkey(a,d)]||0));for(let i=0;i<=un&&i<ACTS[a].zones.length;i++)mx=Math.max(mx,ACTS[a].zones[i].ml)}return mx}
 // 测试/调试
 const egdbg={beatNormal(){S.Q[0]=S.Q[0]||{};for(const A of ACTS)S.Q[0][A.fq]=1;S.actU[0]=4;S.diffU=Math.max(S.diffU,1);S.actU[1]=S.actU[1]||0},

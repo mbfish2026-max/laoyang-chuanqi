@@ -4,7 +4,7 @@ const T=require('./cq_harness')('cq_ui_test');const{G,ok}=T;
 ok(!T.loadErr.some(e=>e.startsWith('cq/')),'cq/ 脚本载入无错 '+T.loadErr.join(';'));
 G(`S=newSave();load();S.lvl=20;calc()`);
 const b0=G('S.bag.filter(x=>x.k==="rune"||x.k==="gem").length'),o0=G('matCount("heitie")');
-G(`addBag({uid:S.uid++,k:'rune',r:9});addBag({uid:S.uid++,k:'gem',g:'rub',lv:2});addBag(rollRune(30))`);
+G(`addBag({uid:S.uid++,k:'rune',r:9});addBag({uid:S.uid++,k:'gem',g:'rub',lv:2});addBag(oreItem(1))`);
 ok(G('S.bag.filter(x=>x.k==="rune"||x.k==="gem").length')===b0,'直接造出的符文/宝石不进背包');
 ok(G('matCount("heitie")')-o0>=3,'符文/宝石入包时换成黑铁矿');
 ok(!G(`Object.values(QUESTS).some(q=>/符文|宝石/.test(q.rw||''))`),'任务奖励文字无符文/宝石');

@@ -17,7 +17,7 @@ function wardMake(k){const W=BM.WARD[k];if(!W||!BASEM.cha_s)return null;/* 老�
  try{const el=m.fl==='champ'||m.fl==='uniq'||m.boss;if(el&&!o.some(it=>it&&!it.k&&it.q>=3))o.push(genItem(m.lv,{q:3}));
   const p=m.boss?BM.P.boss:m.fl==='uniq'?BM.P.uniq:m.fl==='champ'?BM.P.champ:BM.P.n;if(rnd()<p){const ks=Object.keys(BM.WARD);const w=wardMake(ks[Math.floor(rnd()*ks.length)]);if(w)o.push(w)}}catch(e){console.warn(e)}return o}}
 // 背包破障：同类只算一件
-if(typeof charmMods==='function'){const f=charmMods;charmMods=function(){const bag=S.bag;const seen={},keep=[];for(const it of bag||[]){if(it&&it.ward){if(seen[it.ward])continue;seen[it.ward]=1}keep.push(it)}S.bag=keep;try{return f.apply(this,arguments)}finally{S.bag=bag}}}
+// charmMods 包装已删除（护身符已移除，legacy_prune）
 function bmWards(){const w={};for(const it of (S&&S.bag)||[])if(it&&it.ward&&BM.WARD[it.ward])w[it.ward]=1;return w}
 {const f=calc;calc=function(){const r=f.apply(this,arguments);try{if(ST)ST.ward=bmWards()}catch(e){}return r}}
 {const f=resOf;resOf=function(m,k){const r=f(m,k);return ST&&ST.ward&&ST.ward[k]&&r>BM.CAP?BM.CAP:r}}
