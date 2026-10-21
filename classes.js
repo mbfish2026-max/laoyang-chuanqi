@@ -111,7 +111,7 @@ function clsCast(id,ms){const s=SKM[id],v=SV(id,slvl(id));clsCqFx();spend(id);AC
 // ---------- 通用新类型：治愈 heal / 召唤 pet / 施毒 pois ----------
 Object.assign(CLS_TY,{
  heal(s,v){const h=v.heal*(1+(ST.sdmg||0)/200);H.life=Math.min(ST.life,H.life+h);for(const a of ALLY)if(a.hp>0&&a.kind==='cqpet')a.hp=Math.min(a.max,a.hp+h*1.5);floatHero('+'+Math.round(h),'#6f6');return[]},
- pet(s,v){for(const a of ALLY)if(a.kind==='cqpet'&&(a.sub===s.id||(s.g&&SKM[a.sub]&&SKM[a.sub].g===s.g)))a.hp=0;ALLY=ALLY.filter(a=>a.hp>0);
+ pet(s,v){for(const a of ALLY)if(a.kind==='cqpet'&&(a.sub===s.id||(s.g&&SKM[a.sub]&&SKM[a.sub].g===s.g)))a.hp=0;ALLY=ALLY.filter(a=>a.hp>0);if(typeof clsPetSweep==='function')clsPetSweep();
   for(let i=0;i<(v.max||1);i++)addAlly('cqpet',{sub:s.id,n:v.pn||s.n,ic:s.ic,hp:v.hp,dmg:v.pd,el:v.el||'phys',th:v.th||0});floatHero(s.n,'#ffd76a');return[]},
  pois(s,v,ms,tg){const L=clsOthers(ms,tg).filter(m=>!(m.pois&&m.pois.left>1)).slice(0,v.n||1);for(const m of L){m.pois={dps:v.dps*elMul('pois')*clsEK(m)*(typeof lateMul==='function'?lateMul():1),left:v.dur};
   if(v.dd)m.dbf={id:s.id,until:GT+v.dur,dmg:0,def:v.dd}}return L},
@@ -201,3 +201,18 @@ const baseCls=b=>b&&b.ccls||null;
 // 法杖类技能词缀只出本职业技能（底材有 ccls 用其职业，否则用当前角色职业）
 if(typeof staffMods==='function'){STAFFMOD_CATS.add('orb');STAFFMOD_CATS.add('bhelm');const f=staffMods;staffMods=function(it,b,ilvl){const c=(b&&b.ccls)||curCls();const all=SKILLS.slice();
  SKILLS.length=0;for(const s of all)if(s.cls===c)SKILLS.push(s);try{return f(it,b,ilvl)}finally{SKILLS.length=0;for(const s of all)SKILLS.push(s)}}}
+// ===================================================================================
+// 召唤物接口（战斗开发用）：ALLY 里 kind==='cqpet' 的召唤物带 art（骷髅 pet_kl / 神兽 pet_ss / 金色神兽 pet_ss_gold / 诱惑宝宝 = 原怪 key，查 CQSys.monArt(key)）
+// 事件 CQSys.emit：pet:spawn {uid} / pet:hit {uid,dmg} / pet:atk {uid,dmg,tgt:怪物 uid} / pet:die {uid}（死亡、重召、换图清场都算，每只只发一次）
+// 攻击/受伤结算仍在 game.js step()：攻击包装 hitMon（src 为召唤物），受伤按 step 前后生命对比，不改 game.js。
+// ===================================================================================
+const CLS_PETS=new Map();// uid → 召唤物（已发 spawn、未发 die）
+function clsPetEmit(ev,d){try{if(typeof window!=='undefined'&&window.CQSys&&typeof CQSys.emit==='function')CQSys.emit(ev,d)}catch(e){}}
+function clsPetSpawned(a){if(!a||CLS_PETS.has(a.uid))return;CLS_PETS.set(a.uid,a);clsPetEmit('pet:spawn',{uid:a.uid})}
+function clsPetSweep(){if(!CLS_PETS.size)return;const live=new Set(ALLY.filter(a=>a.hp>0).map(a=>a.uid));for(const[u]of CLS_PETS)if(!live.has(u)){CLS_PETS.delete(u);clsPetEmit('pet:die',{uid:u})}}
+{const f=addAlly;addAlly=function(kind,o){const a=f(kind,o);if(kind==='cqpet'){if(!a.art){a.art=a.sub==='zhss'?(/金色/.test(a.n)?'pet_ss_gold':'pet_ss'):a.sub==='zhkl'?'pet_kl':(o.mkey||null)}clsPetSpawned(a)}return a}}
+{const f=hitMon;hitMon=function(m,d,src,c){const r=f.apply(this,arguments);if(src&&typeof src==='object'&&src.kind==='cqpet'&&r)clsPetEmit('pet:atk',{uid:src.uid,dmg:r,tgt:m&&m.uid});return r}}
+{const f=step;step=function(dt){const h0=new Map();for(const a of ALLY)if(a.kind==='cqpet'&&a.hp>0)h0.set(a.uid,a.hp);const r=f(dt);
+ for(const a of ALLY)if(a.kind==='cqpet'&&h0.has(a.uid)&&a.hp<h0.get(a.uid))clsPetEmit('pet:hit',{uid:a.uid,dmg:Math.round(h0.get(a.uid)-Math.max(0,a.hp))});
+ clsPetSweep();return r}}
+{const f=resetRuntime;resetRuntime=function(){const r=f.apply(this,arguments);clsPetSweep();return r}}

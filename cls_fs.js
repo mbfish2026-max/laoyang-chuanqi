@@ -24,7 +24,7 @@ clsDef('fs',[
 // 诱惑之光：宝宝 = 被诱惑怪物本身（种类随地图），ALLY.kind='cqpet'；最多 v.max 只；宝宝死亡后 60 秒内不能再诱惑
 CLS_TY.charm=function(s,v,ms){const c=ms.filter(m=>!m.boss&&!m.fl&&m.lv<=S.lvl+v.lv&&!(m.uniq||m.champ));if(!c.length)return[];const m=c[0];
  if(rnd()*100>=v.p){floatHero('诱惑失败','#aaa');return[m]}
- const k=v.k*(1+(ST.sdmg||0)/200);m.hp=0;m.fade=0.3;addAlly('cqpet',{sub:s.id,n:'宝宝·'+m.n,ic:m.ic,hp:m.max*k*2,dmg:m.dmg.map(x=>x*k),el:'phys'});H.charmN=clsPetN(s.id);floatHero('诱惑成功','#e0c0ff');return[m]};
+ const k=v.k*(1+(ST.sdmg||0)/200);m.hp=0;m.fade=0.3;addAlly('cqpet',{sub:s.id,mkey:m.key,art:m.key,n:'宝宝·'+m.n,ic:m.ic,hp:m.max*k*2,dmg:m.dmg.map(x=>x*k),el:'phys'});H.charmN=clsPetN(s.id);floatHero('诱惑成功','#e0c0ff');return[m]};
 CLS_TY.charm.ok=function(s,ms){const v=SV(s.id,slvl(s.id)),n=clsPetN(s.id);if(n<(H.charmN||0))H.charmDeadT=GT;H.charmN=n;
  return n<v.max&&GT-(H.charmDeadT??-1e9)>=60&&ms.some(m=>!m.boss&&!m.fl&&m.lv<=S.lvl+v.lv)};
 CLS_PRI.charm=1;
