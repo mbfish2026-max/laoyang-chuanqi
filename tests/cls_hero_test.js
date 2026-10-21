@@ -24,7 +24,9 @@ G(`S.sk.zhkl=1;CLS_TY.pet(SKM.zhkl,SV('zhkl',1))`);ok(G(`ALLY.filter(a=>a.owner=
 // 伤害：base × mul，host.hit 接收
 G(`window._hits=[];const host={targets:()=>MON,hit:(t,d,src)=>_hits.push([d,src])};HERO_CD.lhhf=0;window._r=heroCast('lhhf',100,host)`);
 ok(G('_hits.length')===1&&G('_hits[0][1]')==='cqhero'&&G('_hits[0][0]')===Math.round(100*G(`heroMul('lhhf',1)`)),'heroCast 伤害走 host.hit');
-ok(G(`heroMul('lhjf',9)`)>G(`heroMul('lhjf',1)`)*2,'9 级倍率 ≈ 旧 20 级');
+ok(Math.abs(G(`heroMul('lhjf',9)`)/G(`heroMul('lhjf',1)`)-1.57)<0.01,'9 级总伤倍率 ×1.57');
+G(`window._hits=[];MON=[0,1,2,3].map(()=>mkMon(ACTS[0].zones[1].mons[0],1));S.hero.sk.sds={lv:1,exp:0};HERO_CD.sds=0;heroCast('sds',100,{targets:()=>MON,hit:(t,d)=>_hits.push(d)})`);ok(G('_hits.length')===4&&Math.abs(G('_hits.reduce((a,b)=>a+b,0)')-100*G(`heroMul('sds',1)`))<3,'群体技能总伤平分，不随目标数放大');
+G(`CQSys.heroShare=()=>({player:100,hero:20,share:0.15});MON=[mkMon(ACTS[0].zones[1].mons[0],1)]`);ok(G('heroSkPick()')===null||G('heroSkPick()')==='zys'||G('heroSkPick()')==='zhkl','英雄占比 ≥12% 不放攻击技能（留合击预算）');
 // 旧存档 S.hero 无 sk / skOff 不报错
 G(`delete S.hero.sk;delete S.hero.skOff`);ok(G(`heroSkLv('lhhf')`)===1&&G(`heroSkOn('lhhf')`)===true,'旧英雄存档补初始技能、默认全开');
 T.done();

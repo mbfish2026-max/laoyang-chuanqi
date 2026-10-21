@@ -27,7 +27,7 @@ G('var r=hero.doHeji(host,true)');
 ok(G('r.ok')&&G('r.hits.length')===2,'群体合击命中全部目标');
 ok(G('hero.h.rage')===0&&G('hero.h.hejiCd')===CQ_T('hejiCd'),'合击后怒气清零、冷却 HERO_TUNE.hejiCd 秒');
 ok(G('r.total')>=Math.round(135*3.2*.9)-2&&G('r.total')<=Math.round(135*3.2*1.1)+2,'无 DPS 兜底：合击总伤=(玩家上限+英雄上限)×倍率，去掉等级加成');
-G('host.dps=()=>1000;hero.h.rage=100;hero.h.hejiCd=0;var r2=hero.doHeji(host,true)');ok(G('r2.total')>=1000*6*.9-2&&G('r2.total')<=1000*6.8*1.1+2,'合击总伤 ≈ 玩家 6–6.8 秒 DPS');
+G('host.dps=()=>1000;hero.h.rage=100;hero.h.hejiCd=0;var r2=hero.doHeji(host,true)');ok(G('r2.total')>=1000*3.2*.9-2&&G('r2.total')<=1000*3.6*1.1+2,'合击总伤 ≈ 玩家 3.2–3.6 秒 DPS（冷却 30 秒，cls-hero 调整）');
 G('hits.length=0;hero._fr=0;hero.unit.atkT=0;hero.h.skOff={zys:1,lhhf:1,sds:1};hero.tick(.01,host);hero.h.skOff={}');ok(G('hits[0][1]')>=Math.floor(1000*CQ_T('dpsK')*1.6*.9)-1&&G('hits[0][1]')<=Math.ceil(1000*CQ_T('dpsK')*1.6*1.1),'英雄普攻 = 玩家 DPS×dpsK×1.6 秒');
 G('delete host.dps;hero.h.hejiCd=0');
 ok(!G('hero.doHeji(host,true).ok'),'冷却中不能再次合击');
@@ -88,8 +88,8 @@ for(const d of['kangjuhuohuan','diyuhuo','youhuozhiguang','yinshenshu']){const m
 ok(JSON.parse(fs.readFileSync(path.join(root,'assets/cq/fx/diyuhuo/fx.json'),'utf8')).type==='line','地狱火 fx.json type=line');
 ok(/an\.line/.test(fs.readFileSync(path.join(root,'cq/cq_fx.js'),'utf8'))&&/ctx\.rotate\(ang\)/.test(fs.readFileSync(path.join(root,'cq/cq_fx.js'),'utf8')),'cq_fx 支持 line 类型（根部锚定、旋转、朝左翻转）');
 ok(G('CQ.capDmg(1000,{src:"hero",base:100})')===180&&G('CQ.capDmg(500,{src:"combo",mul:3.6})')===250&&G('CQ.capDmg(50,{src:"hero",base:100})')===50,'英雄/合击伤害走 CQ_BAL.cap 1.8 倍封顶');
-G('var hc3=new CQ.Hero(1,localStorage);var host3=Object.assign({},host,{dps:()=>1000,cap:CQ.capDmg});hc3.h.rage=100;hc3.h.hejiCd=0;var r3=hc3.doHeji(host3,true)');ok(G('r3.total')<=1000*6.5*1.8+2&&G('r3.total')>=1000*6*.9-2,'合击 6–6.8 秒 DPS 且经封顶');
-ok(CQ_T('dpsWin')===120&&CQ_T('hejiCd')===45,'有效 DPS 窗口 120 秒、合击冷却 45 秒');
+G('var hc3=new CQ.Hero(1,localStorage);var host3=Object.assign({},host,{dps:()=>1000,cap:CQ.capDmg});hc3.h.rage=100;hc3.h.hejiCd=0;var r3=hc3.doHeji(host3,true)');ok(G('r3.total')<=1000*3.4*1.8+2&&G('r3.total')>=1000*3.2*.9-2,'合击 6–6.8 秒 DPS 且经封顶');
+ok(CQ_T('dpsWin')===120&&CQ_T('hejiCd')===30,'有效 DPS 窗口 120 秒、合击冷却 30 秒（原版传奇之旅 HEJI_CD）');
 G('var mo=mkMon(Object.keys(MONS)[0],1);mo.hp=10;mo.max=10;MON=[mo];var DS=CQ._dpsState,b0=DS.b[DS.b.length-1];hitMon(mo,{phys:5000},"hero","#fff");var b1=DS.b[DS.b.length-1]');ok(G('b1-b0')>0&&G('b1-b0')<=20,'有效 DPS：秒怪溢出不计（5000 伤害打 10 血只记剩余血量；测试里 hitMon 被包了两层）');
 // ---------- M1.4 格子走位 / 地图接缝 / 立绘 ----------
 ok(/\.cqb \.card,\.cqb \.hero\{[^}]*transition:transform \.2s/.test(css),'逐格移动 0.2 秒一步（原版 MoveBy .2）');
@@ -111,7 +111,7 @@ G('CQ.artBad("assets/cq/ui/mdl_mst_zz_new.png")');ok(G('CQ.Host.monArt({key:"zz_
 for(const k of['treedemon','zombieking','elezombieking','stonezombieking'])ok(fs.existsSync(path.join(root,'assets/cq/ui/mdl_mst_'+k+'.png'))&&G('CQ.Host.monArt({key:"'+k+'",boss:1})').indexOf('mdl_mst_'+k)>=0,'首领立绘 '+k);
 {const sc=fs.readFileSync(path.join(root,'cq/cq_scene.js'),'utf8');ok(/CQ\.artBad\(u\)/.test(sc),'卡片 img onerror 逐级兜底');ok(/\.cqb \.plaque\{top:70px;[^}]*writing-mode:horizontal-tb/.test(css)&&/\.cqb\.boss \.plaque\{display:none\}/.test(css)&&!/plaque\.style\.top = Math\.round\(H/.test(sc),'区域牌移到网格上方，不压第 6 列');}
 ok(/\.card\.boss \.fig\{[^}]*max-height:150%[^}]*max-width:140%/.test(css),'首领 400 高立绘按卡尺寸等比缩放（不横向压邻格过多）');
-ok(G('CQ.heroDpsK({cls:()=>"fs"})')===0.43&&G('CQ.heroDpsK({cls:()=>"zs"})')===0.24&&G('CQ.heroDpsK({cls:()=>"ds"})')===0.17&&G('CQ.heroDpsK({})')===CQ_T('dpsK'),'英雄普攻系数按玩家职业 dpsKBy（缺省 dpsK）');
+ok(G('CQ.heroDpsK({cls:()=>"fs"})')===0.11&&G('CQ.heroDpsK({cls:()=>"zs"})')===0.12&&G('CQ.heroDpsK({cls:()=>"ds"})')===0.10&&G('CQ.heroDpsK({})')===CQ_T('dpsK'),'英雄普攻系数按玩家职业 dpsKBy（缺省 dpsK）');
 G('CQ.artBad("assets/cq/ui/mdl_mst_zz_none.png")');ok(/mdl_mst_1001/.test(G('CQ.Host.monArt({key:"zz_none",n:"鸡"})'))&&/mdl_mst_1002/.test(G('CQ.Host.monArt({key:"zz_none",n:"鹿"})')),'monArt 兜底按怪名取传奇之旅立绘');
 for(const n of[1001,1002,1003,1004,1005,1006,1007,1008,1009,1011,1012,1022,1023,1024,1025,1034,2002])ok(fs.existsSync(path.join(root,'assets/cq/ui/mdl_mst_'+n+'.png')),'立绘 mdl_mst_'+n);
 ok(/body\.cq-on #hud[^{]*#fquest[^{]*#fzone\{display:none/.test(css)||/#fzone\{display:none/.test(css),'战斗页隐藏药水栏/任务行/区域栏（仅 body.cq-on）');

@@ -6,14 +6,14 @@
 // 数值落地：本游戏唯一真相源是 game.js 的 hitMon/MON，英雄与合击伤害通过 Host.hit() 打进去（见 cq_bridge.js）。
 (function(){
   var W = typeof window !== 'undefined' ? window : globalThis, CQ = W.CQ = W.CQ || {};
-  var RAGE_MAX = 100, HEJI_CD = 45;   // HEJI_CD 只是导出值，实际读 TUNE.hejiCd
+  var RAGE_MAX = 100, HEJI_CD = 30;   // HEJI_CD 只是导出值，实际读 TUNE.hejiCd
   // 英雄可调常量 CQ.HERO_TUNE（README_M1.md 有说明）
   // 伤害按「玩家近期 DPS」定（总控平衡）：普攻 DPS = 玩家 DPS × dpsK；合击总伤 = 玩家 DPS × clamp(hejiSec × 组合倍率/hejiRef, hejiSecMin, hejiSecMax) 秒；合击冷却 hejiCd。
   // 普攻+合击目标占总伤害 ≤ 20%：普攻 ~9% + 合击 ~6.7s/46s ≈ 0.24 倍玩家伤害 → 约 19.5%（cq/cq_hero_balance_sim.js 验证）。DPS 未知（刚开局 <dpsMin 秒）时用 atkK × 玩家武器上限兜底。
   // 有 CQSys.heroStats 时：生命 = heroStats.hp × statHpK，受伤减 def × defK，takesDmg=0 不受伤；hpK 只作兜底。
-  var TUNE = CQ.HERO_TUNE = CQ.HERO_TUNE || {atkT: 1.6, dpsK: 0.095, hejiSec: 6.5, hejiSecMin: 6, hejiSecMax: 6.8, hejiRef: 3.2, hejiCd: 45, dpsWin: 120, dpsMin: 8,
+  var TUNE = CQ.HERO_TUNE = CQ.HERO_TUNE || {atkT: 1.6, dpsK: 0.095, hejiSec: 3.4, hejiSecMin: 3.2, hejiSecMax: 3.6, hejiRef: 3.2, hejiCd: 30, dpsWin: 120, dpsMin: 8,
     atkK: 0.35, hpK: 0.8, hurtK: 1.0, takesDmg: 1, skNorm: 1.25, healAt: 0.7, hurtT: 2.3, hurtP: 0.35, regen: 0.005, reviveSec: 30, statHpK: 1.0, defK: 0.5,
-    /* 普攻系数按玩家职业分设（参考的是玩家有效 DPS，三职业输出形态不同，单一 dpsK 做不到都 8–10%）；缺省回落 dpsK */ dpsKBy: {zs: 0.24, fs: 0.43, ds: 0.17}};
+    /* 普攻系数按玩家职业分设（参考的是玩家有效 DPS，三职业输出形态不同，单一 dpsK 做不到都 8–10%）；缺省回落 dpsK */ dpsKBy: {zs: 0.12, fs: 0.11, ds: 0.10}};
   CQ.heroDpsK = function(host){ var c = host && host.cls ? host.cls() : null, B = TUNE.dpsKBy || {}; return +B[c] || TUNE.dpsK; };
   // 职业：1 战士 2 法师 3 道士（与传奇之旅 prof 一致）；老羊传奇 S.cls：zs/fs/ds
   var PROF = {zs: 1, fs: 2, ds: 3}, PNAME = {1: '战士', 2: '法师', 3: '道士'};

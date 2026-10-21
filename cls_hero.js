@@ -9,8 +9,11 @@
 // ===================================================================================
 const HERO_SK={zs:['gsjs','csjs','bywd','ymcz','lhjf'],fs:['hqs','kjhh','dyh','ldsh','bpx'],ds:['zys','lhhf','sds','zhkl','zhss']};
 const HERO_SK0={zs:'gsjs',fs:'hqs',ds:'lhhf'};// 创建英雄时的初始技能（1 级）
-// 英雄技能伤害 = 英雄普攻伤害 base × mul(L)，n = 目标数（0 = 全体）；cd 秒。效果按技能类型统一，L 为新 1–9 级
-const HERO_FX={hit:{m:1.6,n:1,cd:2},mhit:{m:1.3,n:2,cd:2.5},mall:{m:0.9,n:5,cd:3},bolt:{m:1.8,n:1,cd:2},cone:{m:1.2,n:3,cd:3},aoe:{m:0.8,n:0,cd:4},pois:{m:0.25,n:0,cd:6,dot:5},heal:{cd:4},pet:{cd:3}};
+// 英雄技能伤害：一次施放「总伤」= base × m × 等级成长，群体技能把总伤平分给 n 个目标（n=0 全体）——群体不再按目标数放大，给合击留预算。
+// base 由 cq_hero 传入 = 普攻/skNorm(1.25)，所以 m=1.25 ≈ 一次普攻。等级成长 ×(1+0.03×(旧级-1))，9 级 ×1.57。cd 秒。
+const HERO_FX={hit:{m:1.3,n:1,cd:2},bolt:{m:1.3,n:1,cd:2},mhit:{m:1.3,n:2,cd:2.5},cone:{m:1.25,n:3,cd:3},mall:{m:1.15,n:5,cd:3},aoe:{m:1.1,n:0,cd:4},pois:{m:1.0,n:0,cd:6,dot:5},heal:{cd:4},pet:{cd:3}};
+// 预算：英雄普攻+技能+合击共享 CQ_BAL.budget.hero=20%（cq/sysapi_cq.js heroCap，30 秒窗口）。英雄占比 ≥ HERO_SHARE_MAX 时不放技能（改普攻），给合击留 ≥8%
+const HERO_SHARE_MAX=0.12;
 const heroH=()=>(typeof S!=='undefined'&&S&&S.hero&&typeof S.hero==='object')?S.hero:null;
 const heroCls=()=>{const h=heroH();return h&&CLS_DEF[h.cls]?h.cls:null};
 const heroLv=()=>{const h=heroH();return Math.max(1,(h&&h.lvl)|0||((typeof S!=='undefined'&&S&&S.lvl)|0)||1)};
@@ -35,7 +38,7 @@ function heroSkInfo(id){const s=SKM[id];if(!s)return null;const L=heroSkLv(id),q
  return{id,n:s.n,ty:s.ty,lv:L,max:CLS_SKMAX,exp:heroSkExp(id),need:q?q.exp:0,reqLvl:q?q.lvl:0,books:q?q.books:0,have:clsBookCount(id),bookId:clsBookId(id),bookName:B.on||s.n,
   on:heroSkOn(id),mul:F.m?heroMul(id,L||1):0,n_tgt:F.n,cd:F.cd||0,can:heroCanLearn(id)}}
 function heroSkills(){return heroSkList().map(heroSkInfo)}
-const heroMul=(id,L)=>{const F=HERO_FX[SKM[id].ty]||{};return F.m?+(F.m*(1+0.06*(clsOldL(L)-1))).toFixed(3):0};// 新 9 级 ≈ 旧 20 级 → ×2.14
+const heroMul=(id,L)=>{const F=HERO_FX[SKM[id].ty]||{};return F.m?+(F.m*(1+0.03*(clsOldL(L)-1))).toFixed(3):0};// 总伤倍率；新 9 级 ≈ 旧 20 级 → ×1.57
 // ---------- 施法 AI ----------
 const HERO_CD={};// 运行时冷却（游戏时间 GT 秒），不存档
 const heroNow=()=>typeof GT!=='undefined'?GT:Date.now()/1000;
@@ -45,9 +48,9 @@ function heroSkPick(ctx){const c=heroCls();if(!c)return null;ctx=ctx||{};const n
  const pp=ctx.playerHpPct!=null?ctx.playerHpPct:(typeof H!=='undefined'&&ST&&ST.life?H.life/ST.life:1),hp=ctx.heroHpPct!=null?ctx.heroHpPct:1;
  const ok=id=>heroSkLv(id)>0&&heroSkOn(id)&&!((HERO_CD[id]||0)>now);
  if(c==='ds'){if(ok('zys')&&Math.min(pp,hp)<0.6)return'zys';const pet=['zhss','zhkl'].find(ok);if(pet&&!heroPets().length)return pet}
- if(!ms.length)return null;let best=null,bv=0;
+ if(!ms.length)return null;try{if(typeof CQSys!=='undefined'&&CQSys.heroShare){const st=CQSys.heroShare();if(st.player>0&&st.share>=HERO_SHARE_MAX)return null}}catch(e){}let best=null,bv=0;
  for(const id of heroSkList(c)){const s=SKM[id];if(!ok(id)||s.ty==='heal'||s.ty==='pet')continue;const F=HERO_FX[s.ty];if(!F||!F.m)continue;
-  const n=F.n===0?ms.length:Math.min(F.n,ms.length),v=heroMul(id,heroSkLv(id))*n*(F.dot||1);if(v>bv){bv=v;best=id}}
+  const v=heroMul(id,heroSkLv(id))*(F.n===1?1:1+0.02*Math.min(ms.length,5));if(v>bv){bv=v;best=id}}
  return best}
 // 执行：base = 英雄本次普攻伤害（cq_hero 算好、已受预算约束的口径）；host = cq_hero 的 host（host.hit(t,d,src)、host.targets()），缺省用 hitMon
 function heroCast(id,base,host){const s=SKM[id];if(!s||!heroSkLv(id)||!heroSkOn(id))return null;const L=heroSkLv(id),F=HERO_FX[s.ty]||{},out={id,n:s.n,lv:L,hits:[],total:0};
@@ -55,7 +58,7 @@ function heroCast(id,base,host){const s=SKM[id];if(!s||!heroSkLv(id)||!heroSkOn(
  if(s.ty==='heal'){const v=clsSV(id,L);const h=v.heal||0;if(typeof H!=='undefined'&&ST)H.life=Math.min(ST.life,H.life+h);out.heal=h;if(host&&host.healHero)try{host.healHero(h)}catch(e){}}
  else if(s.ty==='pet'){const v=clsSV(id,L);for(const a of ALLY)if(a.kind==='cqpet'&&a.owner==='hero')a.hp=0;ALLY=ALLY.filter(a=>a.hp>0);if(typeof clsPetSweep==='function')clsPetSweep();
   for(let i=0;i<(v.max||1);i++){const a=addAlly('cqpet',{sub:id,n:'英雄·'+(v.pn||s.n),ic:s.ic,hp:v.hp,dmg:v.pd,el:v.el||'phys',th:v.th||0,owner:'hero'});out.pet=a.uid}}
- else{const ts=host&&host.targets?host.targets():(typeof liveMon==='function'?liveMon():[]);const L2=F.n===0?ts:ts.slice(0,F.n||1);const d=Math.max(1,Math.round((base||1)*heroMul(id,L)));
+ else{const ts=host&&host.targets?host.targets():(typeof liveMon==='function'?liveMon():[]);const L2=F.n===0?ts:ts.slice(0,F.n||1);const d=Math.max(1,Math.round((base||1)*heroMul(id,L)/Math.max(1,L2.length)));
   for(const t of L2){if(host&&host.hit)host.hit(t,d,'cqhero');else if(typeof hitMon==='function')hitMon(t,{[s.el||'phys']:d},'cqhero');out.hits.push({t,d});out.total+=d}
   if(F.dot)out.dot={sec:F.dot,per:d}}
  try{if(typeof CQSys!=='undefined'&&CQSys.emit)CQSys.emit('heroCast',{id,lv:L,total:out.total})}catch(e){}return out}
