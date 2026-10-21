@@ -135,7 +135,7 @@
       var t = has('tgTier') ? G('tgTier')(it) : null, TG = G('TG'), tier = null;
       if (t && TG) tier = {key: t, rank: TG.RANK[t] || 1, color: TG.COL[t], tag: TG.TAG[t] || '极品', top: !!TG.TOP[t] || (TG.RANK[t] || 0) >= 3};
       var img = has('icon2Url') ? G('icon2Url')(it) : null;
-      return {name: name, color: color, tier: tier, good: it.q >= 3 || !!it.k, img: img, ic: it.k === 'rune' ? '☉' : it.k === 'gem' ? '◆' : '⚔'}; }
+      return {name: name, color: color, tier: tier, good: it.q >= 3 || !!it.k, img: img, ic: '⚔'}; }
   };
 
   // ---------- 英雄核心：在 game.js step() 里出手（包装 step，不在战斗页/后台定时器也算；离线按 S.kpm 结算，kpm 已含英雄击杀） ----------
