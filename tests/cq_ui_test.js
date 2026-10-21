@@ -11,7 +11,7 @@ ok(!G(`Object.values(QUESTS).some(q=>/符文|宝石/.test(q.rw||''))`),'任务�
 ok(!G(`Object.values(TCS).some(t=>t&&t.runes)`),'掉落表不再带符文');
 let nm='';for(let i=0;i<400&&!/之/.test(nm);i++){const it=G('JSON.stringify(genItem(10,{q:3}))');const o=JSON.parse(it);nm=o.name||''}
 ok(/^[^之]+之/.test(nm)&&!/^之/.test(nm),'后缀名为「X之…」：'+nm);
-ok(fs.existsSync(__dirname+'/../cq/ui_cq.js')&&/SKT=3/.test(fs.readFileSync(__dirname+'/../cq/ui_cq.js','utf8')),'界面清理脚本存在');
+ok(fs.existsSync(__dirname+'/../cq/ui_cq.js')&&/BAD_BTN/.test(fs.readFileSync(__dirname+'/../cq/ui_cq.js','utf8')),'界面清理脚本存在');
 const html=fs.readFileSync(__dirname+'/../index.html','utf8');
 ok(/cq\/balance\.js/.test(html)&&html.indexOf('cq/balance.js')<html.indexOf('"stash.js'),'index.html 在 stash.js 前引入 cq/balance.js');
 ok(/cq\/ui_cq\.css/.test(html)&&/cq\/ui_cq\.js/.test(html),'index.html 引入 ui_cq');

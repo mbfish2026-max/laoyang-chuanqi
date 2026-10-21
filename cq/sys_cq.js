@@ -22,19 +22,13 @@ function cqTakeMat(id,n){if(matCount(id)<n)return false;for(let i=S.bag.length-1
  if(it&&!it.k){const b=BASEM[it.b];it.sock=0;it.soc=[];delete it.rw;if(it.q===1)it.name=b.n;
   if(b&&b.bm&&!it.bmd){it.bmd=1;for(const k in b.bm){const v=Array.isArray(b.bm[k])?R(b.bm[k][0],b.bm[k][1]):b.bm[k];if(v)it.m[k]=(it.m[k]||0)+v}}}
  return it}}
-// ---------- 符文 / 宝石 → 黑铁矿 ----------
+// ---------- 黑铁矿（原符文/宝石掉落位） ----------
 const cqOre=n=>({uid:S.uid++,k:'mat',id:'heitie',n:n||1});
-rollRune=function(){return cqOre(1)};
-rollGem=function(){return cqOre(1)};
 function cqJewBase(lv){const c=BASES.filter(b=>b.jew&&b.q<=Math.max(3,lv));return c.length?pick(c):BASEM.rin}
 rollGood=function(m){return rnd()<0.7?genItem(m.lv,{base:cqJewBase(m.lv),mf:ST.mf,fac:m._fac}):cqOre(1+(m.boss?R(1,2):0))};
-if(typeof TCS!=='undefined')for(const k in TCS)if(TCS[k].runes)TCS[k].runes=0;
 // 首领 / 精英额外：黑铁矿、祝福油、仓库扩充券
 {const f=rollTC;rollTC=function(m){const out=f(m)||[];try{if(m.boss||m.actboss){if(rnd()<0.5)out.push(cqOre(R(1,3)));if(rnd()<0.08)out.push({uid:S.uid++,k:'mat',id:'zhufu',n:1});if(rnd()<0.02)out.push({uid:S.uid++,k:'mat',id:'ckq',n:1})}
  else if(m.fl==='uniq'||m.fl==='champ'){if(rnd()<0.15)out.push(cqOre(1))}else if(rnd()<0.03)out.push(cqOre(1))}catch(e){}return out}}
-// 炼金匣 / 熔炼匣：关闭（Q4 待定，暂不回归）
-if(typeof genJC==='function')genJC=function(){return null};// D2 护身符/珠宝不产出
-cubeUI=function(){if(!window.__NOUI)toast('炼金匣已关闭')};
 // ---------- 等级上限 ----------
 {const f=xpNeed;xpNeed=function(l){return l>=CQ_BAL.lvlCap?9e15:f(l)}}
 // ---------- 存档迁移 ----------
@@ -78,7 +72,7 @@ function cqAtFix(){try{if(!S||typeof CLS_DEF==='undefined'||typeof curCls!=='fun
 // ---------- 对外接口 ----------
 function cqItemCls(it){if(!it||it.k)return null;const b=BASEM[it.b];return(b&&b.ccls)||null}
 function cqEquipAttrs(){const o={};for(const k of SLOTS){const it=S.eq[k];if(!it)continue;const m=allMods(it),l=itemLocal(it);for(const x in m)o[x]=(o[x]||0)+m[x];if(l.min)o.atkMin=(o.atkMin||0)+l.min;if(l.max)o.atkMax=(o.atkMax||0)+l.max;if(l.def)o.def=(o.def||0)+l.def}return o}
-// M1：任何直接造出的符文/宝石（任务奖励、秘境、悬赏、首领 runes 字段等）在入包时统一换成黑铁矿
+// 守卫（基础游戏仍有 TCS.runes / 任务奖励文字 / 个别 k:'rune'|'gem' 直造路径）：统一换成黑铁矿
 {const f=addBag;addBag=function(it){if(it&&(it.k==='rune'||it.k==='gem')){const o=cqOre(it.k==='rune'?1+Math.floor((it.r|0)/8):1);return f.call(this,o)}return f.apply(this,arguments)}}
 for(const q of Object.values(QUESTS))if(q&&typeof q.rw==='string')q.rw=q.rw.replace(/高阶符文|符文|宝石/g,'黑铁矿');
 if(typeof TCS!=='undefined')for(const k in TCS)if(TCS[k]&&TCS[k].runes)TCS[k].runes=0;

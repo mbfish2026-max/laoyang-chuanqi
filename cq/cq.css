@@ -273,3 +273,11 @@ body.cq-on #cqStage{top:0;background:#120a06}
 .cqb .csk.lock .ic{filter:grayscale(.6) brightness(.72)}
 .cqb .csk.lock .key{color:#8a7a5a}
 .cqb .csk.lock::after{content:"";position:absolute;right:-2px;bottom:-2px;width:16px;height:16px;border-radius:50%;background:#2b1a0c url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='4' y='7' width='8' height='6' rx='1' fill='%23b8873f'/%3E%3Cpath d='M5.5 7V5.5a2.5 2.5 0 0 1 5 0V7' fill='none' stroke='%23b8873f' stroke-width='1.5'/%3E%3C/svg%3E") center/12px no-repeat;box-shadow:0 0 0 1px #b8873f}
+
+/* 合击组合图标 / 英雄头像按钮（美术 e82d54d、d851afb） */
+.cqb .heji .t{inset:auto 0 6px 0;font-size:17px}
+.cqb .heji.cd .t{font-size:20px;inset:0}
+.cqb .hbtn{width:48px;height:48px;border-radius:50%;cursor:pointer;filter:drop-shadow(0 2px 3px rgba(0,0,0,.7))}
+.cqb .hbtn img{width:100%;height:100%;display:block;border-radius:50%}
+.cqb .hbtn.none img{filter:grayscale(1) brightness(.6)}
+.cqb .critw .hjic{display:block;width:72px;height:72px;margin:0 auto 4px;filter:drop-shadow(0 0 12px rgba(255,190,60,.9))}

@@ -2,7 +2,7 @@
 // ===================================================================================
 // cq/data_cq.js — 老羊传奇 M1 数据层（在 data_acts.js 之后、game.js 之前加载）
 // 原地替换暗夜 D2 数据表：部位名、品质名、底材 BASES/BASEM、词缀 PREFIX/SUFFIX、极品 UNIQUES、套装 SETS/SETITEMS、
-// 第 1 章地图链 ACTS[0] + 怪物/首领；清空符文 RUNES / 符文之语 RUNEWORDS（数据层遗留，掉落改出黑铁矿，见 cq/sys_cq.js）。
+// 第 1 章地图链 ACTS[0] + 怪物/首领。
 // 所有名字为传奇风格原创命名或 1.76 通用名。数值为 M1 占位，按 docs/balance.md 的框架后续校准。
 // ===================================================================================
 window.CQ_DATA=1;
@@ -126,7 +126,6 @@ SETITEMS.length=0;SETITEMS.push(
  {n:'祖玛手镯',set:'zuma',b:'shd5',lv:38,rq:38,m:{maxdmg:2,def:1}},
  {n:'祖玛戒指',set:'zuma',b:'rin5',lv:38,rq:38,m:{maxdmg:3}});
 // ---------- 符文 / 符文之语 / 宝石：数据层清空（M1 已定不做；旧存档中的符文由迁移折算，见 cq/sys_cq.js） ----------
-RUNES.length=0;RUNEWORDS.length=0;
 // ---------- 第 1 章：新手村（银杏村） ----------
 Object.assign(MONS,{
  chick:{n:'鸡',ic:'🐔',hp:6,dmg:[1,2],ar:12,def:1,exp:6},

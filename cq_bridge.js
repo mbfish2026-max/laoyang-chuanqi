@@ -67,7 +67,7 @@
         if (!H.cls && o.prof && C.heroCreate) { C.heroCreate(PCLS[o.prof] || 'ds', o.name || ''); C.heroSet({rage: o.rage || 0, autoHeji: o.autoHeji === false ? 0 : 1}); }
         if (ls.removeItem) ls.removeItem('cq_battle_hero_v1'); } } catch (e) { console.warn('[CQ] 英雄存档迁移', e); }
       return {load: function(){ var H = C.hero(), cls = H.cls || (C.heroProfs ? C.heroProfs()[0] : 'ds');
-          return {prof: PPROF[cls] || 3, cls: H.cls, name: H.name || '', rage: +H.rage || 0, autoHeji: !!H.autoHeji, exists: !!H.cls, lvl: H.lvl, eq: H.eq || {}}; },
+          return {prof: PPROF[cls] || 3, cls: H.cls, name: H.name || '', rage: +H.rage || 0, autoHeji: !!H.autoHeji, exists: !!H.cls, lvl: H.lvl, eq: H.eq || {}, skOff: H.skOff, sk: H.sk, mode: H.mode}; },   /* skOff/sk/mode：系统侧英雄技能开关/技能书/模式（缺字段 = 全开/不限/攻击） */
         save: function(h){ if (h.exists && C.heroSet) C.heroSet({name: h.name, rage: Math.floor(h.rage || 0), autoHeji: h.autoHeji ? 1 : 0}); }}; },
     heroSys: function(){ return SYS(); },
     // 召唤物（职业开发：ALLY.kind==='cqpet'，sub=技能 id，死后移出 ALLY）。战场只显示同主人最多 2 只
@@ -135,7 +135,7 @@
       var t = has('tgTier') ? G('tgTier')(it) : null, TG = G('TG'), tier = null;
       if (t && TG) tier = {key: t, rank: TG.RANK[t] || 1, color: TG.COL[t], tag: TG.TAG[t] || '极品', top: !!TG.TOP[t] || (TG.RANK[t] || 0) >= 3};
       var img = has('icon2Url') ? G('icon2Url')(it) : null;
-      return {name: name, color: color, tier: tier, good: it.q >= 3 || !!it.k, img: img, ic: it.k === 'rune' ? '☉' : it.k === 'gem' ? '◆' : '⚔'}; }
+      return {name: name, color: color, tier: tier, good: it.q >= 3 || !!it.k, img: img, ic: '⚔'}; }
   };
 
   // ---------- 英雄核心：在 game.js step() 里出手（包装 step，不在战斗页/后台定时器也算；离线按 S.kpm 结算，kpm 已含英雄击杀） ----------
@@ -145,10 +145,18 @@
   function dpsTick(dt){ DPS.t += dt; DPS.age += dt; while (DPS.t >= 1) { DPS.t -= 1; DPS.b.push(0); var W = (CQ.HERO_TUNE || {}).dpsWin || 120; if (DPS.b.length > W + 1) DPS.b.shift(); } }
   function dpsNow(){ var T = CQ.HERO_TUNE || {}; if (DPS.age < (T.dpsMin || 8)) return 0; var n = DPS.b.length - 1, sum = 0; for (var i = 0; i < n; i++) sum += DPS.b[i]; return n > 0 ? sum / n : 0; }
   var core = null, hurtT = 0, saveT = 0, dots = [];
-  function heroCore(){ if (!core && CQ.Hero) { var prof = (CQ.HEJI.PROF[Host.role().cls] || 1); core = new CQ.Hero(prof, Host.heroStore()); } return core; }
+  function heroCore(){ if (!core && CQ.Hero) { var prof = (CQ.HEJI.PROF[Host.role().cls] || 1); core = new CQ.Hero(prof, Host.heroStore()); } if (core) { var pp = CQ.HEJI.PROF[Host.role().cls] || 1; if (core.playerProf !== pp) { core.playerProf = pp; core.reload(); } } return core; }   /* 切角色/职业后合击组合跟着变 */
   var coreHost = {cls: function(){ try { return Host.role().cls; } catch (e) { return null; } }, now: function(){ var gt = G('GT'); return typeof gt === 'number' ? gt * 1000 : Date.now(); },   /* 游戏时间（随 SPEED/后台定时器推进） */ targets: function(){ return Host.mons(); }, pick: function(ts){ return ts.filter(function(m){ return m.boss; })[0] || ts[0]; },
     hit: function(m, d, src){ return Host.hit(m, d, src); }, atkMax: function(){ return Host.atkMax(); }, lvl: function(){ return Host.lvl(); }, heroK: function(){ return Host.heroK(); },
-    maxhp: function(){ return Host.maxhp(); }, heroStats: function(){ return Host.heroStats(); }, dps: dpsNow};
+    maxhp: function(){ return Host.maxhp(); }, heroStats: function(){ return Host.heroStats(); }, dps: dpsNow,
+    healPct: function(p){ Host.healPct(p); }, hpPct: function(){ var H = G('H'), ST = G('ST'); return H && ST && ST.life ? H.life / ST.life : 1; }, cast: function(id){ var C = sysFn('skillCast'); if (C) try { C.skillCast('hero:' + id); } catch (e) {} },
+    // 格子站位（战斗页挂载时由 CQ.Scene.grid() 提供；后台/离线无格子 → 不限射程）。原版：英雄射程内（切比雪夫）才出手
+    inRange: function(m, rg){ var g = gridNow(); if (!g || g.hero.idx == null) return true; var v = g.view(m); return !v || v.idx == null || CQ.MOVE.cheb(g.hero.idx, v.idx) <= rg; }};
+  function gridNow(){ try { return CQ.Scene && CQ.Scene.grid ? CQ.Scene.grid() : null; } catch (e) { return null; } }
+  // 打英雄的怪：有格子时 = 贴身英雄（切比雪夫 1）且没贴身主角的怪（原版 monCanAttack 先打主角）；无格子时按 hurtP 概率随机一只
+  function heroAttackers(){ var ms = Host.mons(), g = gridNow(); if (!g || g.hero.idx == null) return Math.random() < CQ.HERO_TUNE.hurtP ? ms : [];
+    return ms.filter(function(m){ var v = g.view(m); return v && v.idx != null && CQ.MOVE.cheb(v.idx, g.hero.idx) <= 1 && !(g.b.roleIdx != null && CQ.MOVE.cheb(v.idx, g.b.roleIdx) <= 1); }); }
+  CQ._heroAttackers = heroAttackers;
   // 伤害封顶：系统入口 CQ_BAL.cap(dmg, ctx)，ctx={src:'player'|'hero'|'combo'|'summon', base?, mul?}，上限 CQ_BAL.capMul=1.8。
   // 系统实现没到时用下面的兜底（待替换）。注意：当前 cq/balance.js 里 CQ_BAL.cap 还是数字 1.8（cqCapMul 在用），这种情况下不覆盖它，只在本地用兜底。
   function capFallback(dmg, ctx){ var B = G('CQ_BAL') || window.CQ_BAL || {}, M = +B.capMul || (typeof B.cap === 'number' ? B.cap : 1.8); ctx = ctx || {};
@@ -169,8 +177,8 @@
     var ev = hc.tick(dt, coreHost);
     if (ev) { if (ev.type === 'heji') applyHeji(ev); else emit('onHeroEvent', ev); }
     // 英雄受伤：有怪时每 hurtT 秒，hurtP 概率被一只活怪打一下（战斗页的格子站位只做表现）
-    var T = CQ.HERO_TUNE; hurtT -= dt; if (hurtT <= 0) { hurtT = T.hurtT * (0.85 + Math.random() * 0.3); var ms = Host.mons();
-      if (ms.length && Math.random() < T.hurtP) { var m = ms[Math.floor(Math.random() * ms.length)], d = m.dmg ? m.dmg[0] + Math.random() * (m.dmg[1] - m.dmg[0]) : 3; var r = hc.hurt(d, coreHost); if (r) emit('onHeroEvent', {type: 'herohurt', m: m, dmg: r.dmg, dead: r.dead}); } }
+    var T = CQ.HERO_TUNE; hurtT -= dt; if (hurtT <= 0) { hurtT = T.hurtT * (0.85 + Math.random() * 0.3);
+      var ms = heroAttackers(); if (ms.length) { var m = ms[Math.floor(Math.random() * ms.length)], d = m.dmg ? m.dmg[0] + Math.random() * (m.dmg[1] - m.dmg[0]) : 3; var r = hc.hurt(d, coreHost); if (r) emit('onHeroEvent', {type: 'herohurt', m: m, dmg: r.dmg, dead: r.dead}); } }
     saveT += dt; if (saveT > 15) { saveT = 0; hc.persist(); } }
   CQ._coreStep = coreStep;
   CQ.heroHejiNow = function(){ var hc = heroCore(); var r = hc.doHeji(coreHost, true); if (r.ok) applyHeji(r); return r; };
@@ -188,6 +196,9 @@
     wrap('hitMon', function(f){ return function(m, d, src, fxc){ var prev = curSrc, pm = curMon; curSrc = src; curMon = m; var hp0 = m && m.hp > 0 ? m.hp : 0; try { var r = f.apply(this, arguments); if (src !== 'cqhero' && src !== 'cqheji') dpsAdd(Math.min(+r || 0, hp0));
         if (src && typeof src === 'object' && src.kind === 'cqpet' && !petEv) emitPet('atk', {uid: src.uid, tgt: m, dmg: +r || 0}, true);
         if (src === 'hero' && core) core.addRage(window.CQSys && CQSys.critNow ? 4 : 2); return r; } finally { curSrc = prev; curMon = pm; } }; });
+    // 旧「佣兵」不再参战（英雄接管同场作战，docs/merc_to_hero_plan.md）：mercTick 不再召出佣兵，场上已有的 kind==='merc' 立刻移除。佣兵存档/装备由系统侧迁移处理。
+    if (has('mercTick') && !install._merc) { install._merc = 1; var noMerc = function(){ try { var A = G('ALLY'); if (A && A.some(function(a){ return a && a.kind === 'merc'; })) eval("ALLY = ALLY.filter(function(a){ return !a || a.kind !== 'merc'; })"); } catch (e) {} };
+      noMerc._cq = 1; window.mercTick = noMerc; try { eval('mercTick = noMerc'); } catch (e) {} noMerc(); }
     wrap('step', function(f){ return function(dt){ var r = f.apply(this, arguments); try { coreStep(+dt || 0); } catch (e) { console.error('[CQ] hero step', e); } return r; }; });
     // 暴击：有 CQSys 时按 crit 事件出大字（替代全局 CRIT）；暴击那一下的普通飘字跳过，由事件补成暴击大字
     var C = sysFn('on'); if (C && !install._crit) { install._crit = 1;
@@ -198,7 +209,7 @@
     wrap('floatNum', function(f){ return function(id, v, c){ var r = f.apply(this, arguments);
       try { if (on() && typeof id === 'number') { var m = (G('MON') || []).filter(function(x){ return x.uid === id; })[0]; if (m) { var S2 = SYS(); if (S2) { if (!S2.critNow) CQ.Scene.onMonDamage(m, v, curSrc, false); } else CQ.Scene.onMonDamage(m, v, curSrc, !!G('CRIT') && curSrc === 'hero'); } } } catch (e) {}
       return r; }; });
-    wrap('floatHero', function(f){ return function(t, c){ var r = f.apply(this, arguments); if (core && /^-\d/.test(String(t))) core.addRage(3); try { if (on()) CQ.Scene.onRoleHurt(String(t), c); } catch (e) {} return r; }; });
+    wrap('floatHero', function(f){ return function(t, c){ var r = f.apply(this, arguments); if (core && /^-\d/.test(String(t))) core.addRage(1);   /* 原版 roleHurt +1 */ try { if (on()) CQ.Scene.onRoleHurt(String(t), c); } catch (e) {} return r; }; });
     wrap('killMon', function(f){ return function(m){ try { if (on()) CQ.Scene.onKill(m); } catch (e) {} return f.apply(this, arguments); }; });
     wrap('groundLoot', function(f){ return function(it){ if (on()) { try { CQ.Scene.onLoot(it); } catch (e) {} return; } return f.apply(this, arguments); }; });
     wrap('spawnFloat', function(f){ return function(){ if (on()) return; return f.apply(this, arguments); }; });
