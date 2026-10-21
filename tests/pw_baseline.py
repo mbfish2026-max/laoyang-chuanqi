@@ -14,7 +14,7 @@ from playwright.sync_api import sync_playwright
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT = REPO  # 被测站点根目录；--ref 时为 git archive 导出的干净快照
 ART = os.path.join(REPO, 'test-artifacts')
-VERSION = 'cq-20261021a'
+VERSION = 'cq-20261021a'  # 默认值；main() 会改为被测快照 sw.js 里的 V
 # 已知缺失素材（M0 基线 17 张）
 KNOWN_404 = sorted([
  'assets/bg/moor.png','assets/bg/cave.png','assets/bg/graveyard.png','assets/bg/forest.png','assets/bg/ruined_village.png',
@@ -248,6 +248,10 @@ def main():
         ROOT = tempfile.mkdtemp(prefix='cq_ref_')
         data = subprocess.run(['git', '-C', REPO, 'archive', a.ref], check=True, capture_output=True).stdout
         tarfile.open(fileobj=io.BytesIO(data)).extractall(ROOT, filter="data")
+        pass
+    try: VERSION_ = re.search(r"V='(cq-[0-9a-z]+)'", open(os.path.join(ROOT,'sw.js'),encoding='utf-8').read()).group(1); globals()['VERSION'] = VERSION_
+    except Exception: pass
+    if a.ref:
         print('测试快照', a.ref, subprocess.run(['git','-C',REPO,'rev-parse','--short',a.ref],capture_output=True,text=True).stdout.strip(), '->', ROOT)
     srv, base = start_server(); out = []
     with sync_playwright() as pw:
