@@ -131,3 +131,10 @@
 #modal .cqgo,#modal .cqpg{min-width:300px;max-width:340px}
 #modal .cqpg .kv.one div{gap:12px}#modal .cqpg .kv.one b{text-align:right;white-space:normal}
 #modal .cqpanel{background:#140c08;background-clip:padding-box;margin:0}
+/* 地图页 主线任务行（章节页签下方，单行省略；点开显示原 .cqmq 面板） */
+.cqmap .cqmqrow{display:flex;align-items:center;gap:6px;height:30px;margin:2px 8px 0;padding:0 10px;border-radius:4px;background:rgba(0,0,0,.55);border:1px solid #6b4a24;font-size:12px;white-space:nowrap;overflow:hidden;cursor:pointer}
+.cqmap .cqmqrow b{flex:none;color:#ffcf6a;font-weight:800}
+.cqmap .cqmqrow .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f2dca6}
+.cqmap .cqmqrow i{flex:none;font-style:normal;color:#c99648}
+.cqmap .cqmqrow.open{border-color:#ffcf6a}
+.cqmap .cqmqbox{margin:4px 8px 0;max-height:46vh;overflow-y:auto}.cqmap .cqmqbox.hide{display:none}

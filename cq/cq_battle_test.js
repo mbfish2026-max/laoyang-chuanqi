@@ -181,4 +181,12 @@ G('TAB="map"');ok(G('cqPg.travel(0,2,0)')===true&&G('S.zone')===2&&G('TAB')==='f
  G('S.actU=S.actU||{};S.actU[0]=1');ok(G('cqPg.travel(1,0,0)')===true&&G('S.act')===1&&G('S.zone')===0,'跨章节传送（goAct）');G('goAct(0,0,1)');
  ok(G('cqPg._t.TOPT.map')===1,'地图页带顶栏');
  const br=fs.readFileSync(path.join(root,'cq_bridge.js'),'utf8');ok(/openMap: function\(\)\{ var b = document\.querySelector\('#tabs button\[data-t=map\]'\)/.test(br),'openMap 钩子仍点底栏地图');}
+// ---------- 地图页 主线任务行 ----------
+{useCls('zs');const h=G(`cqPg._t.mapPage('')`),src=fs.readFileSync(path.join(root,'cq/pages_cq.js'),'utf8'),css=fs.readFileSync(path.join(root,'cq/pages_cq.css'),'utf8');
+ const q=G('cqPg.mqText()'),ql=G('CQSys.questLine()').replace(/<[^>]*>/g,'');ok(q&&ql.includes(q)&&/\(\d+\/\d+\)/.test(q),'任务行=当前主线任务名+进度（CQSys.questLine）：'+q);
+ const i1=h.indexOf('cqmaptabs'),i2=h.indexOf('cqmqrow'),i3=h.indexOf('class="chc');ok(i1>0&&i2>i1&&i3>i2&&h.slice(i1,i2).indexOf('class="chc')<0,'任务行紧跟章节页签、在章节卡之前');
+ ok(/\.cqmqrow\{[^}]*white-space:nowrap/.test(css)&&/\.cqmqrow \.t\{[^}]*text-overflow:ellipsis/.test(css)&&/\.cqmqrow\{[^}]*height:30px/.test(css),'任务行单行不换行、超长省略');
+ ok(/class="cqmqbox hide"/.test(h)&&G('cqPg.mqToggle()')===true&&/class="cqmqbox"/.test(G(`cqPg._t.mapPage('')`))&&G('cqPg.mqToggle()')===false,'点击展开/再点收起');
+ ok(/classList\.contains\('cqmq'\)\?mqb:det/.test(src),'原 .cqmq 面板移入展开框，不再放底部折叠区');
+ ok(/closest\('\.cqmqbox,\.cqmqrow'\)\)mqToggle\(false\)/.test(src),'点空白处收起');}
 T.done();

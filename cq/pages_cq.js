@@ -85,7 +85,9 @@ function topSync(){const e=topEl();if(!e)return;const on=!!TOPT[TAB];e.classList
 // 数据全部来自 ACTS[0..2].zones / MONS / BOSSES / QUESTS / CQSys.bossRt / actOpen；点地图 → 传送确认 → goAct+goZone 后回战斗挂机。
 // 第四章起仍是暗夜数据，只显示「敬请期待」卡；原地图页（难度切换/主线任务/其他扩展）保留在底部「难度 · 任务」折叠区。
 const MAPN=3,CHB=[['stage_1001.png','orclord'],['stage_1002.png','zombieking'],['a2_cave_0.webp','stonezombieking']];
-let MAPOPEN=false;
+let MAPOPEN=false,MQOPEN=false;
+// 主线任务行：CQSys.questLine()（名称+进度，去掉标签），单行省略；点开 = 原 hud_cq 的 .cqmq 面板（移到这里，不再放底部折叠区）
+function mqText(){let t='';try{t=(window.CQSys&&CQSys.questLine)?CQSys.questLine():(ok('questLine')?questLine():'')}catch(e){}return String(t||'').replace(/<[^>]*>/g,'').replace(/^【主线】/,'').trim()||'暂无主线任务'}
 function mlv(z,d){try{return ok('mlD')?mlD(z.ml0!=null?z.ml0:z.ml,d):z.ml}catch(e){return z.ml}}
 function bossRt(k){try{return CQSys.bossRt(k)}catch(e){return null}}
 function cdTxt(r){if(!r)return'';if(r.ready)return'可挑战';const s=Math.max(0,Math.ceil(r.left||0)),m=Math.floor(s/60),x=s%60;return (m<10?'0':'')+m+':'+(x<10?'0':'')+x}
@@ -109,11 +111,14 @@ function chapCard(c,d){const [bg,bo]=CHB[c.a]||[];const st=c.done?'<span class="
  <div class="st"><div class="prog"><i style="width:${c.qn?c.qd/c.qn*100:0}%"></i></div><span class="m">任务 ${c.qd}/${c.qn}</span>${st}</div></div>
  <div class="zl">${ACTS[c.a].zones.map((z,i)=>zoneRow(c.a,z,i,d)).join('')}</div>`}
 function mapPage(old){const d=MAPD==null?S.diff:MAPD,cs=[];for(let a=0;a<MAPN&&a<ACTS.length;a++)cs.push(chInfo(a,d));const cur=Math.min(MAPN-1,S.act);
- return `<div class="cqpg cqmap"><div class="jump"><div class="stabs sm cqmaptabs">${cs.map(c=>`<button class="${c.a===cur?'on':''}" data-ch="${c.a}" onclick="cqPg.mapJump(${c.a})">${'一二三'[c.a]} · ${esc(c.n)}</button>`).join('')}<button onclick="cqPg.bossPop()">首领刷新</button></div></div>
+ return `<div class="cqpg cqmap"><div class="jump"><div class="stabs sm cqmaptabs">${cs.map(c=>`<button class="${c.a===cur?'on':''}" data-ch="${c.a}" onclick="cqPg.mapJump(${c.a})">${'一二三'[c.a]} · ${esc(c.n)}</button>`).join('')}<button onclick="cqPg.bossPop()">首领刷新</button></div>
+ <div class="cqmqrow${MQOPEN?' open':''}" onclick="cqPg.mqToggle()"><b>主线任务</b><span class="t">${esc(mqText())}</span><i>${MQOPEN?'▴':'▾'}</i></div><div class="cqmqbox${MQOPEN?'':' hide'}"></div></div>
  ${d!==S.diff?`<div class="dim dnote">正在查看 ${esc(DIFFS[d].n)} 难度（当前挂机：${esc(DIFFS[S.diff].n)}）</div>`:''}
  ${cs.map(c=>chapCard(c,d)).join('')}
  <div class="chc lk soon"><div class="bg" style="background-image:url(${UI}pg/img_bg_maptile1.png)"></div><div class="tx"><div class="no">第四章 · CHAPTER</div><div class="t">敬请期待</div><div class="m">击败${esc(ACTS[2].boss)}后开放</div></div></div>
  <details class="cqmapold"${MAPOPEN?' open':''} ontoggle="cqPg._mapOpen(this.open)"><summary>难度 · 主线任务 · 其他</summary>${old}</details></div>`}
+function mqToggle(v){MQOPEN=v==null?!MQOPEN:!!v;const P=document.getElementById('panel');const b=P&&P.querySelector('.cqmap .cqmqbox'),r=P&&P.querySelector('.cqmap .cqmqrow');
+ if(b)b.classList.toggle('hide',!MQOPEN);if(r){r.classList.toggle('open',MQOPEN);const i=r.querySelector('i');if(i)i.textContent=MQOPEN?'▴':'▾'}return MQOPEN}
 function mapGo(a,i){const z=ACTS[a]&&ACTS[a].zones[i];if(!z)return;const d=MAPD==null?S.diff:MAPD,s=zState(a,i,d);if(s==='lk'){if(ok('toast'))toast('尚未解锁');return}
  const r=z.boss?bossRt(z.boss):null,mons=(z.mons||[]).map(k=>(MONS[k]||{}).n||k).join(' / ');
  modal(`<div class="cqpg cqgo"><div class="cqpanel"><div class="cqttl">传送 · ${esc(z.n)}</div><div class="kv one"><div><span>怪物等级</span><b>Lv.${mlv(z,d)}</b></div><div><span>主要怪物</span><b>${esc(mons)}</b></div>${r?`<div><span>首领</span><b>${esc(r.n)} · ${cdTxt(r)}</b></div><div><span>推荐战力</span><b>${num(r.recPower)}</b></div>`:''}<div><span>难度</span><b>${esc(DIFFS[d].n)}</b></div></div>
@@ -136,14 +141,14 @@ function hook(){
     if(SKV==='ac'){P.innerHTML=skTabs()+`<div class="cqpg">${ok('acPanel')?acPanel():''}</div>`;return}}catch(e){console.error('[cq pages] skill',e)}
    if(SKT===4)SKT=0;const r=f.apply(this,arguments);try{P.querySelectorAll('.stabs button[onclick*="SKT=4"]').forEach(b=>b.remove());P.insertAdjacentHTML('afterbegin',skTabs())}catch(e){}return r};renderSkills.__cqpg=1}
  if(ok('renderMap')&&!renderMap.__cqpg){const f=renderMap;renderMap=function(){const P=$('#panel');const r=f.apply(this,arguments);
-   try{const st=P.scrollTop,kids=[...P.childNodes];const box=document.createElement('div');box.innerHTML=mapPage('');const det=box.querySelector('.cqmapold');kids.forEach(n=>det.appendChild(n));P.innerHTML='';P.appendChild(box.firstElementChild);P.scrollTop=st;if(!P.__cqms){P.__cqms=1;P.addEventListener('scroll',()=>{try{mapScroll()}catch(e){}},{passive:true})}
+   try{const st=P.scrollTop,kids=[...P.childNodes];const box=document.createElement('div');box.innerHTML=mapPage('');const det=box.querySelector('.cqmapold'),mqb=box.querySelector('.cqmqbox');kids.forEach(n=>(n.classList&&n.classList.contains('cqmq')?mqb:det).appendChild(n));P.innerHTML='';P.appendChild(box.firstElementChild);P.scrollTop=st;if(!P.__cqms){P.__cqms=1;P.addEventListener('scroll',()=>{try{mapScroll()}catch(e){}},{passive:true});P.addEventListener('click',e=>{if(TAB==='map'&&MQOPEN&&e.target.closest&&!e.target.closest('.cqmqbox,.cqmqrow'))mqToggle(false)})}
     if(!P.__cqmapfirst&&TAB==='map'){P.__cqmapfirst=1;const a0=Math.min(MAPN-1,S.act);if(a0>0)setTimeout(()=>mapJump(a0),0)}else mapScroll()}catch(e){console.error('[cq pages] map',e)}return r};renderMap.__cqpg=1}
  if(ok('renderEG')&&!renderEG.__cqpg){const f=renderEG;renderEG=function(){const P=$('#panel');
    try{if(FLT==='sign'||FLT==='off'){P.innerHTML=flTabs()+`<div class="cqpg cqfuli">${FLT==='sign'?signPanel()+offPanelPg():offPanelPg()}</div>`;return}}catch(e){console.error('[cq pages] fuli',e)}
    if(FLT!=='more')EGT=FLT;const r=f.apply(this,arguments);try{P.insertAdjacentHTML('afterbegin',flTabs());if(FLT!=='more')P.classList.add('cqfl1');else P.classList.remove('cqfl1')}catch(e){}return r};renderEG.__cqpg=1}
 }
 window.cqPg={autoEquip,smith(){TAB='shop';try{SHT='enh'}catch(e){}render()},toAttr(){const a=document.querySelector('#panel .attr');if(a)a.scrollIntoView({block:'center'})},
- mapGo,travel,bossPop,mapJump,mapScroll,mapFight(){TAB='fight';render()},_mapOpen(o){MAPOPEN=!!o},
+ mapGo,travel,mqToggle,mqText,bossPop,mapJump,mapScroll,mapFight(){TAB='fight';render()},_mapOpen(o){MAPOPEN=!!o},
  menu(){try{if(typeof setUI==='function')return setUI()}catch(e){}TAB='eg';FLT='more';render()},topSync,topData,
  sk(k){SKV=k;if(k==='ac')SKT=4;render()},fl(k){FLT=k;render()},sign(){const G=SG();if(!G)return null;const r=G.claim();if(ok('toast'))toast(r&&r.ok?'签到成功：'+((r.reward&&r.reward.name)||''):(r&&r.reason)||'签到失败');render();return r},
  offClaim(d){const O=OF();if(!O)return null;const r=O.claim(!!d);if(ok('toast'))toast(r&&r.ok?(d?'已双倍领取':'已领取'):(r&&r.reason)||'领取失败');render();return r},
