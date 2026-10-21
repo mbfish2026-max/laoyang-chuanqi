@@ -4,9 +4,9 @@ const T=require('./cq_harness')('cq_ui_test');const{G,ok}=T;
 ok(!T.loadErr.some(e=>e.startsWith('cq/')),'cq/ 脚本载入无错 '+T.loadErr.join(';'));
 G(`S=newSave();load();S.lvl=20;calc()`);
 const b0=G('S.bag.filter(x=>x.k==="rune"||x.k==="gem").length'),o0=G('matCount("heitie")');
-G(`addBag({uid:S.uid++,k:'rune',r:9});addBag({uid:S.uid++,k:'gem',g:'rub',lv:2});addBag(oreItem(1))`);
-ok(G('S.bag.filter(x=>x.k==="rune"||x.k==="gem").length')===b0,'直接造出的符文/宝石不进背包');
-ok(G('matCount("heitie")')-o0>=3,'符文/宝石入包时换成黑铁矿');
+G(`addBag(oreItem(1))`);
+ok(G('S.bag.filter(x=>x.k==="rune"||x.k==="gem").length')===b0&&G('typeof rollRune')==='undefined','符文/宝石已删除（无 rollRune，背包无符文/宝石）');
+ok(G('matCount("heitie")')-o0>=1,'黑铁矿正常入包（原符文/宝石位产出 oreItem）');
 ok(!G(`Object.values(QUESTS).some(q=>/符文|宝石/.test(q.rw||''))`),'任务奖励文字无符文/宝石');
 ok(!G(`Object.values(TCS).some(t=>t&&t.runes)`),'掉落表不再带符文');
 let nm='';for(let i=0;i<400&&!/之/.test(nm);i++){const it=G('JSON.stringify(genItem(10,{q:3}))');const o=JSON.parse(it);nm=o.name||''}

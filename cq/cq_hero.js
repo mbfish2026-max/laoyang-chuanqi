@@ -13,7 +13,7 @@
   // 有 CQSys.heroStats 时：生命 = heroStats.hp × statHpK，受伤减 def × defK，takesDmg=0 不受伤；hpK 只作兜底。
   var TUNE = CQ.HERO_TUNE = CQ.HERO_TUNE || {atkT: 1.6, dpsK: 0.095, hejiSec: 6.5, hejiSecMin: 6, hejiSecMax: 6.8, hejiRef: 3.2, hejiCd: 30, dpsWin: 120, dpsMin: 8,
     atkK: 0.35, hpK: 0.8, hurtK: 1.0, takesDmg: 1, skNorm: 1.25, healAt: 0.7, hurtT: 2.3, hurtP: 0.35, regen: 0.005, reviveSec: 30, statHpK: 1.0, defK: 0.5,
-    /* 普攻系数按玩家职业分设（参考的是玩家有效 DPS，三职业输出形态不同，单一 dpsK 做不到都 8–10%）；缺省回落 dpsK */ dpsKBy: {zs: 0.24, fs: 0.43, ds: 0.17}};
+    /* 2026-10-22 总控：合击 6.5 秒×30 秒冷却已占 ~13–16%，普攻降到 2–4%，9 组合合计 ≤20%（cq_hero_balance_sim 9 组合）；普攻系数按玩家职业分设（参考的是玩家有效 DPS，三职业输出形态不同，单一 dpsK 做不到都 8–10%）；缺省回落 dpsK */ dpsKBy: {zs: 0.06, fs: 0.045, ds: 0.05}};
   CQ.heroDpsK = function(host){ var c = host && host.cls ? host.cls() : null, B = TUNE.dpsKBy || {}; return +B[c] || TUNE.dpsK; };
   // 职业：1 战士 2 法师 3 道士（与传奇之旅 prof 一致）；老羊传奇 S.cls：zs/fs/ds
   var PROF = {zs: 1, fs: 2, ds: 3}, PNAME = {1: '战士', 2: '法师', 3: '道士'};
@@ -133,7 +133,8 @@
     var ts = host.targets(); if (!ts.length) return {ok: false, msg: '没有目标'};
     var targets = cb.aoe ? ts : [host.pick ? host.pick(ts) : ts[0]], hits = [], total = 0, self = this;
     h.rage = 0; h.hejiCd = TUNE.hejiCd; h.hejiCount = (h.hejiCount || 0) + 1;
-    var tot = this.hejiTotal(cb, host), per = Math.max(1, Math.round(tot / targets.length));   // 群体合击：总伤平分到目标
+    var tot = this.hejiTotal(cb, host) / (1 + (cb.dot || 0) * 5), per = Math.max(1, Math.round(tot / targets.length));   // 群体合击：总伤平分到目标
+    // 噬魂沼泽（dot）：首击 + 5 跳×20% 合计 = 一次合击总伤（原版首击后再追加 100%，在「按玩家 DPS 定总伤」口径下会翻倍）
     targets.forEach(function(m){ hits.push({m: m, d: per}); total += per; });
     save(this.store, h);
     return {ok: true, type: 'heji', name: cb.name, fx: cb.fx, combo: cb, hits: hits, total: total, manual: !!manual};

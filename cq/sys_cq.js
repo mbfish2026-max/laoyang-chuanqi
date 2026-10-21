@@ -72,9 +72,5 @@ function cqAtFix(){try{if(!S||typeof CLS_DEF==='undefined'||typeof curCls!=='fun
 // ---------- 对外接口 ----------
 function cqItemCls(it){if(!it||it.k)return null;const b=BASEM[it.b];return(b&&b.ccls)||null}
 function cqEquipAttrs(){const o={};for(const k of SLOTS){const it=S.eq[k];if(!it)continue;const m=allMods(it),l=itemLocal(it);for(const x in m)o[x]=(o[x]||0)+m[x];if(l.min)o.atkMin=(o.atkMin||0)+l.min;if(l.max)o.atkMax=(o.atkMax||0)+l.max;if(l.def)o.def=(o.def||0)+l.def}return o}
-// 守卫（基础游戏仍有 TCS.runes / 任务奖励文字 / 个别 k:'rune'|'gem' 直造路径）：统一换成黑铁矿
-{const f=addBag;addBag=function(it){if(it&&(it.k==='rune'||it.k==='gem')){const o=cqOre(it.k==='rune'?1+Math.floor((it.r|0)/8):1);return f.call(this,o)}return f.apply(this,arguments)}}
-for(const q of Object.values(QUESTS))if(q&&typeof q.rw==='string')q.rw=q.rw.replace(/高阶符文|符文|宝石/g,'黑铁矿');
-if(typeof TCS!=='undefined')for(const k in TCS)if(TCS[k]&&TCS[k].runes)TCS[k].runes=0;
 window.CQSys={sv:()=>CQ_SV,itemCls:cqItemCls,equipAttrs:cqEquipAttrs,genItem:(lv,o)=>genItem(lv,o||{}),rollDrops:m=>rollTC(m),addItem:it=>addBag(it),
  addMat:(id,n)=>addMat(id,n),matCount:id=>matCount(id),takeMat:cqTakeMat,acts:()=>ACTS,zone:()=>ACTS[S.act||0].zones[S.zone||0],monDef:k=>MONS[k]||BOSSES[k]||null};
