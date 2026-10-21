@@ -89,8 +89,8 @@
     CQ.MOVE.config({range: CQ.Host.range, walk: function(){ return 1.3; }});
     st.R.ava.className = 'ava ' + (role.cls === 'ds' ? 'ds' : '');
     // 角色 / 英雄立绘
-    st.roleEl = unitFigure('me', role.cls === 'ds' ? 'hero_ds' : 'hero_zs', role.name);
-    st.heroEl = unitFigure('pet', st.hero.h.prof === 3 ? 'hero_ds' : 'hero_zs', st.hero.h.name); st.heroEl.setAttribute('data-a', 'hero');
+    st.roleEl = unitFigure('me', roleArt(role.cls), role.name);
+    st.heroEl = unitFigure('pet', heroArt(st.hero.h.prof), st.hero.h.name); st.heroEl.setAttribute('data-a', 'hero');
     st.heroHb = h('div', 'hhb', '<i></i>'); st.heroEl.querySelector('.in').appendChild(st.heroHb); st.heroRv = h('div', 'hrv'); st.heroEl.querySelector('.in').appendChild(st.heroRv);
     CQ.FX.attach(st.R.canvas, DW, 600); CQ.FX.preload();
     layout(); if (W0.ResizeObserver) { st.ro = new ResizeObserver(layout); st.ro.observe(stage); }
@@ -98,7 +98,7 @@
   }
   // 换角色/换职业（stash newChar/switchChar、转职）后刷新角色卡名字与形象：renderUI 10Hz 比对 name|cls，变了才动 DOM
   function refreshRole(){ var r = CQ.Host.role(), k = r.name + '|' + r.cls; if (st._roleK === k) return; var first = st._roleK == null; st._roleK = k; if (first) return;
-    var nm = st.roleEl.querySelector('.hn'), img = st.roleEl.querySelector('img'); txt(nm, r.name); var src = UI + (r.cls === 'ds' ? 'hero_ds' : 'hero_zs') + '.png';
+    var nm = st.roleEl.querySelector('.hn'), img = st.roleEl.querySelector('img'); txt(nm, r.name); var src = UI + (roleArt(r.cls)) + '.png';
     if (img.getAttribute('src') !== src) img.setAttribute('src', src); st.R.ava.className = 'ava ' + (r.cls === 'ds' ? 'ds' : ''); onHeroChange(); }
   function unitFigure(kind, img, name){ var e = h('div', 'hero ' + (kind === 'me' ? 'me' : 'pet'), '<div class="in"><div class="shadow"></div><div class="hn">' + esc(name) + '</div><img src="' + UI + img + '.png" alt=""></div>'); st.R.units.appendChild(e); return e; }
   function layout(){ if (!st) return; var w = st.stage.clientWidth || DW, hh = st.stage.clientHeight || 600, s = w / DW;
@@ -169,7 +169,9 @@
     else if (k === 'hunequip') { r = C.heroUnequip(a.getAttribute('data-s')); if (r && r.err) CQ.Host.toast(r.err); }
     else if (k === 'hrename') { var n = W0.prompt ? W0.prompt('英雄名字（最多 12 字）', st.hero.h.name) : null; if (n && n.trim()) C.heroSet({name: n.trim().slice(0, 12)}); }
     onHeroChange(); }
-  function onHeroChange(){ if (!st) return; st.hero.reload(); var nm = st.heroEl.querySelector('.hn'); if (nm) txt(nm, st.hero.h.name); var img = st.heroEl.querySelector('img'); if (img) { var src = UI + (st.hero.h.prof === 3 ? 'hero_ds' : 'hero_zs') + '.png'; if (img.getAttribute('src') !== src) img.setAttribute('src', src); }
+  function roleArt(c){ return c === 'ds' ? 'hero_ds' : c === 'fs' ? 'hero_fs' : 'hero_zs'; }
+  function heroArt(p){ return p === 3 ? 'hero_ds' : p === 2 ? 'hero_fs' : 'hero_zs'; }
+  function onHeroChange(){ if (!st) return; st.hero.reload(); var nm = st.heroEl.querySelector('.hn'); if (nm) txt(nm, st.hero.h.name); var img = st.heroEl.querySelector('img'); if (img) { var src = UI + (heroArt(st.hero.h.prof)) + '.png'; if (img.getAttribute('src') !== src) img.setAttribute('src', src); }
     st._pres = null; if (st.R.hpanel) { st.R.hpanel._h = ''; renderHeroPanel(); } renderSide(); }
   function onBossEnrage(d){ if (!st) return; var w = h('div', 'warn', '<span>首领狂暴 · 伤害 ×' + ((d && d.mul) || 1.5) + '</span>'); st.R.root.appendChild(w); CQ.FX.once(w, null, true, 3000); }
   function renderHeroPanel(){ var p = st.R.hpanel; if (!p.classList.contains('on')) return;
