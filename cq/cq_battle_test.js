@@ -28,7 +28,7 @@ ok(G('r.ok')&&G('r.hits.length')===2,'群体合击命中全部目标');
 ok(G('hero.h.rage')===0&&G('hero.h.hejiCd')===CQ_T('hejiCd'),'合击后怒气清零、冷却 HERO_TUNE.hejiCd 秒');
 ok(G('r.total')>=Math.round(135*3.2*.9)-2&&G('r.total')<=Math.round(135*3.2*1.1)+2,'无 DPS 兜底：合击总伤=(玩家上限+英雄上限)×倍率，去掉等级加成');
 G('host.dps=()=>1000;hero.h.rage=100;hero.h.hejiCd=0;var r2=hero.doHeji(host,true)');ok(G('r2.total')>=1000*6*.9-2&&G('r2.total')<=1000*6.8*1.1+2,'合击总伤 ≈ 玩家 6–6.8 秒 DPS');
-G('hits.length=0;hero._fr=0;hero.unit.atkT=0;hero.tick(.01,host)');ok(G('hits[0][1]')>=Math.floor(1000*CQ_T('dpsK')*1.6*.9)-1&&G('hits[0][1]')<=Math.ceil(1000*CQ_T('dpsK')*1.6*1.1),'英雄普攻 = 玩家 DPS×dpsK×1.6 秒');
+G('hits.length=0;hero._fr=0;hero.unit.atkT=0;hero.h.skOff={zys:1,lhhf:1,sds:1};hero.tick(.01,host);hero.h.skOff={}');ok(G('hits[0][1]')>=Math.floor(1000*CQ_T('dpsK')*1.6*.9)-1&&G('hits[0][1]')<=Math.ceil(1000*CQ_T('dpsK')*1.6*1.1),'英雄普攻 = 玩家 DPS×dpsK×1.6 秒');
 G('delete host.dps;hero.h.hejiCd=0');
 ok(!G('hero.doHeji(host,true).ok'),'冷却中不能再次合击');
 G('hero.tick(CQ.HERO_TUNE.hejiCd+1,host)');ok(G('hero.h.hejiCd')===0,'冷却随时间结束');
@@ -189,4 +189,26 @@ G('TAB="map"');ok(G('cqPg.travel(0,2,0)')===true&&G('S.zone')===2&&G('TAB')==='f
  ok(/class="cqmqbox hide"/.test(h)&&G('cqPg.mqToggle()')===true&&/class="cqmqbox"/.test(G(`cqPg._t.mapPage('')`))&&G('cqPg.mqToggle()')===false,'点击展开/再点收起');
  ok(/classList\.contains\('cqmq'\)\?mqb:det/.test(src),'原 .cqmq 面板移入展开框，不再放底部折叠区');
  ok(/closest\('\.cqmqbox,\.cqmqrow'\)\)mqToggle\(false\)/.test(src),'点空白处收起');}
+// ---------- 英雄战斗（M2：走位 / 开启技能 AI / 合击怒气 / 受伤阵亡复活 / 无佣兵） ----------
+{G(`var Bm={mons:[{uid:7,idx:5,walk_spd:99,moveT:99}],roleIdx:24,_pets:[{hp:1,idx:24-6}]};var _st=[];for(let i=0;i<30;i++){const a=Bm._pets[0].idx;CQ.MOVE.update(Bm,.4);_st.push(CQ.MOVE.cheb(a,Bm._pets[0].idx))}`);
+ ok(G('_st.every(d=>d<=1)')&&G('_st.some(d=>d===1)'),'英雄每次只走一格');ok(G('CQ.MOVE.cheb(Bm._pets[0].idx,5)')<=1,'英雄走到怪身边');
+ G(`var hh=new CQ.Hero(2,localStorage);hh.h.prof=1;hh.h.exists=true;hh.h.autoHeji=false;var hit2=[];var gh={idx:0};var gv={};
+  var h2={now:()=>Date.now(),targets:()=>MON.filter(m=>m.hp>0),hit:(m,d,s)=>{hit2.push(d);return d},atkMax:()=>100,lvl:()=>12,heroK:()=>.35,inRange:(m,r)=>CQ.MOVE.cheb(gh.idx,gv.idx)<=r};
+  MON=[mkMon(Object.keys(MONS)[0],10)];MON[0].hp=1e7;gv.idx=20;hh.unit.atkT=0;hh.tick(.01,h2)`);
+ ok(G('hit2.length')===0,'战士英雄：怪在射程外不出手');G('gv.idx=1;hh.unit.atkT=0;hh.tick(.01,h2)');ok(G('hit2.length')===1,'贴身后出手');
+ G('hh.h.prof=2;gv.idx=4;hh.cds={};hh.unit.atkT=0;var e1=hh.tick(.01,h2)');ok(G('e1&&e1.skill')==='雷电术','法师英雄射程 4，放最高优先级已开技能（雷电术）');
+ G('hh.unit.atkT=0;var e2=hh.tick(.01,h2)');ok(G('e2.skill')!=='雷电术','技能冷却中换下一个');
+ G("hh.cds={};hh.h.skOff={ldsh:1};hh.unit.atkT=0;var e3=hh.tick(.01,h2)");ok(G('e3.skill')==='地狱火','关闭的技能不放（skOff）');
+ G("hh.cds={};hh.h.skOff={bpx:1,ldsh:1,dyh:1,kjhh:1,hqs:1};hh.unit.atkT=0;var e4=hh.tick(.01,h2)");ok(G('e4.skill')===null&&G('e4.dmg')>0,'全关只普攻');
+ G("hh.h.skOff={};hh.h.sk={hqs:{lv:1}};hh.cds={};hh.unit.atkT=0;var e5=hh.tick(.01,h2)");ok(G('e5.skill')==='火球术','有技能书表时只放学会的');G('delete hh.h.sk');
+ G('hh.h.rage=0;hh.cds={};hh.unit.atkT=0;hh.tick(.01,h2)');ok(G('hh.h.rage')===3,'英雄出手 +3 怒气（原版）');
+ G("hh.h.mode='rest';hh.h.rage=0;hh.unit.atkT=0;hit2.length=0;hh.tick(.01,h2);hh.addRage(5)");ok(G('hh.h.rage')===0&&G('hit2.length')===0,'休息模式不出手不涨怒气');G("hh.h.mode='attack'");
+ ok(G('CQ.HEJI.COMBO["1+3"].stun')===2&&G('CQ.HEJI.COMBO["2+3"].dot')===.2&&G('CQ.HEJI.COMBO["3+3"].heal')===.2&&G('CQ.HEJI.COMBO["1+2"].aoe')===false,'合击效果与原版一致（眩晕/持续/回血/单体）');
+ G('hh.unit.hp=hh.unit.maxhp=100;hh.h.rage=0;var hu=hh.hurt(30,h2)');ok(G('hu.dmg')>0&&!G('hu.dead')&&G('hh.h.rage')===2,'英雄受伤掉血 +2 怒气');
+ G('var hd=hh.hurt(1e6,h2)');ok(G('hd.dead')&&G('hh.reviveLeft(Date.now())')===30,'英雄阵亡，30 秒后复活');
+ ok(G('hh.hurt(10,h2)')===null&&G('hh.tick(1,h2)')===null,'阵亡中不受伤不出手');
+ G('var _n=h2.now;h2.now=()=>Date.now()+31e3;var rv=hh.tick(.01,h2);h2.now=_n');ok(G('rv&&rv.type')==='herorevive'&&G('hh.unit.hp===hh.unit.maxhp'),'复活满血');
+ G(`CQ.Scene=CQ.Scene||{};var _g0=CQ.Scene.grid;var GB={b:{roleIdx:26},hero:{idx:8},view:m=>m._v};MON=[mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10)];MON[0]._v={idx:9};MON[1]._v={idx:20};MON[2]._v={idx:27};CQ.Scene.grid=()=>GB;var at=CQ._heroAttackers();CQ.Scene.grid=_g0`);
+ ok(G('at.length')===1&&G('at[0]===MON[0]'),'只有贴身英雄（且没贴主角）的怪打英雄');
+ G(`ALLY.push({kind:'merc',uid:991,hp:50,max:50});S.merc=S.merc||{t:'archer',lvl:1,eq:{}};mercTick(1);step(.1)`);ok(G("ALLY.every(a=>a.kind!=='merc')")&&G('mercTick._cq')===1,'旧佣兵不再参战');}
 T.done();

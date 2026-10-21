@@ -147,7 +147,7 @@
   // 英雄事件（来自 cq_bridge 的 step 内英雄核心）：普攻前冲、受伤飘字、阵亡变灰、复活
   function onHeroEvent(ev){ if (!st || st.paused || !ev) return; var u = st.hero.unit;
     if (ev.type === 'heji') { playHeji(ev); return; }
-    if (ev.type === 'heroatk') { lunge(st.heroEl, u.idx, ev.target); return; }
+    if (ev.type === 'heroatk') { lunge(st.heroEl, u.idx, ev.target); if (ev.skill && st.heroBox) float(st.heroBox.cx, st.heroBox.y - 4, ev.skill, 'heal'); return; }
     if (ev.type === 'herorevive') { st._heroPos = null; st.heroEl.classList.remove('dead'); CQ.Host.log('<span style="color:#7dff8a">' + esc(st.hero.h.name) + ' 复活了</span>'); return; }
     if (ev.type === 'herohurt') { var v = viewOf(ev.m); if (v && v.el) lunge(v.el, v.idx, null); var bx = st.heroBox; if (bx) float(bx.cx + (Math.random() - .5) * 16, bx.y + 14, '-' + fmt(ev.dmg), 'me');
       CQ.FX.once(st.heroEl, 'hurt', false, 400);
@@ -350,7 +350,7 @@
     pick: function(ts){ var b = ts.filter(function(m){ return m.boss; })[0]; return b || ts[0]; },
     hit: function(m, d, src){ return H.hit(m, d, src); }, atkMax: H.atkMax, lvl: H.lvl, heroK: H.heroK, maxhp: H.maxhp, heroStats: H.heroStats}; }
 
-  CQ.Scene = {mount: mount, unmount: unmount, pause: pause, resume: resume, onMonDamage: onMonDamage, onRoleHurt: onRoleHurt, onKill: onKill, onLoot: onLoot, onSkill: onSkill, playHeji: playHeji, onHeroChange: onHeroChange, onPet: onPet, pets: function(){ return st && st.pets; }, onHeroEvent: onHeroEvent, onDot: onDot, onBossEnrage: onBossEnrage,
+  CQ.Scene = {grid: function(){ return st && !st.paused ? {b: st.b, hero: st.hero.unit, view: viewOf} : null; }, mount: mount, unmount: unmount, pause: pause, resume: resume, onMonDamage: onMonDamage, onRoleHurt: onRoleHurt, onKill: onKill, onLoot: onLoot, onSkill: onSkill, playHeji: playHeji, onHeroChange: onHeroChange, onPet: onPet, pets: function(){ return st && st.pets; }, onHeroEvent: onHeroEvent, onDot: onDot, onBossEnrage: onBossEnrage,
     doHeji: function(){ if (!st) return {ok: false}; return doHejiNow(); },
     state: function(){ return st; }, mounted: function(){ return !!st; }};
 })();
