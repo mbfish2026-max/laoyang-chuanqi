@@ -5,3 +5,13 @@
 #cqStage .cq-ph-s{font-size:11px;color:#8a7a5a}
 #cqStage .cq-ph-v{font-size:10px;color:#666;margin-top:8px}
 .cq-legacy-hide{display:none!important;visibility:hidden!important}
+/* 底部导航（设计稿 live.css .nav）：五项等分、不换行 */
+#tabs.cqnav{display:flex!important;flex-wrap:nowrap!important;justify-content:stretch;height:calc(62px + env(safe-area-inset-bottom));padding:0 0 env(safe-area-inset-bottom)!important;border:0;border-top:2px solid #8a6230!important;border-image:none!important;background:linear-gradient(180deg,#24170f,#0e0805)!important;box-sizing:border-box}
+#tabs.cqnav button{flex:1 1 0;min-width:0!important;min-height:0!important;height:60px;margin:0;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12px!important;line-height:14px;color:#d8c290!important;background:none!important;border:0;border-right:1px solid #3a2614;border-radius:0;white-space:nowrap;overflow:hidden;text-shadow:0 1px 1px #000}
+#tabs.cqnav button:last-child{border-right:0}
+#tabs.cqnav button i{display:block;flex:none;width:40px!important;height:26px!important;border:0!important;border-radius:0!important;box-shadow:none!important;background-color:transparent!important;background-size:36px auto!important;background-position:50% 0!important;background-repeat:no-repeat!important;font-size:0!important}
+#tabs.cqnav button i>*{display:none!important}
+#tabs.cqnav button.on{color:#ffe3a3!important;background:radial-gradient(60% 80% at 50% 100%,rgba(255,170,60,.25),rgba(0,0,0,0))!important}
+#tabs.cqnav button.on i{filter:none;box-shadow:none!important}
+#panel .cqsubnav{white-space:nowrap;flex-wrap:nowrap}
+#panel .cqsubnav button{white-space:nowrap;min-width:0}

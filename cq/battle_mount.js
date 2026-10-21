@@ -72,3 +72,34 @@ if(typeof window!=='undefined'){
   },true);
 }
 })();
+// ── 底部导航：对齐设计稿 chuanqi_v2_live（战斗/角色/技能/地图/福利 五项，图标 nav_*.png）──
+// 暗夜旧页签（背包/商店/佣兵/终局）不再出现在底栏：背包/商店/佣兵并入「角色」页顶部子页签；「福利」= 原终局页（悬赏/功业/事件/设置…）。
+(function(){
+if(typeof document==='undefined'||window.__NOUI)return;
+const NAV=[['fight','battle','战斗'],['hero','role','角色'],['skill','skill','技能'],['map','map','地图'],['fuli','fuli','福利']];
+const GRP={hero:'hero',bag:'hero',shop:'hero',merc:'hero',eg:'fuli',fuli:'fuli'};
+const SUB=[['hero','角色'],['bag','背包'],['shop','商店'],['merc','佣兵']];
+window.CQ_NAV=NAV.map(n=>n[2]);
+function go(t){if(t==='fuli')t='eg';TAB=t;render();try{PWRF.kick()}catch(e){}}
+window.cqNavGo=go;
+function sync(){const nav=document.getElementById('tabs');if(!nav)return;const g=GRP[TAB]||TAB;
+  nav.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t===g));
+  const P=document.getElementById('panel');if(!P)return;
+  if(GRP[TAB]==='hero'&&!P.querySelector(':scope>.cqsubnav'))P.insertAdjacentHTML('afterbegin',`<div class="stabs cqsubnav">${SUB.map(([k,n])=>`<button class="${TAB===k?'on':''}" data-st="${k}">${n}</button>`).join('')}</div>`);}
+let PB=false;
+function build(){const nav=document.getElementById('tabs');if(!nav)return false;
+  nav.classList.add('cqnav');
+  const have={};nav.querySelectorAll('button').forEach(b=>{if(NAV.some(n=>n[0]===b.dataset.t)&&!have[b.dataset.t])have[b.dataset.t]=b;else b.remove()});
+  NAV.forEach(([t,ic,lb],i)=>{let b=have[t];if(!b){b=document.createElement('button');b.dataset.t=t}
+    if(!b.__cq){b.__cq=1;b.innerHTML=`<i style="background-image:url(assets/cq/ui/nav_${ic}.png)"></i>${lb}`;b.onclick=e=>{e.preventDefault();go(t)}}
+    if(nav.children[i]!==b)nav.insertBefore(b,nav.children[i]||null)});
+  const P=document.getElementById('panel');
+  if(P&&!PB){PB=true;P.addEventListener('click',e=>{const s=e.target.closest&&e.target.closest('.cqsubnav button');if(s){e.stopPropagation();go(s.dataset.st)}});
+    new MutationObserver(()=>{if(GRP[TAB]==='hero'&&!P.querySelector(':scope>.cqsubnav'))sync()}).observe(P,{childList:true})}
+  return true}
+function hook(){if(typeof render!=='function'||render.__cqnav)return;const r=render;render=function(){const o=r.apply(this,arguments);try{build();sync()}catch(e){}return o};render.__cqnav=1}
+function init(){hook();build();try{sync()}catch(e){}
+  const nav=document.getElementById('tabs');if(nav)new MutationObserver(()=>build()).observe(nav,{childList:true})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+setTimeout(init,0);
+})();

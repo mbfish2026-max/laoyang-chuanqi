@@ -119,4 +119,10 @@ ok(inf.length===1&&inf[0]==='cqBreath','CSS 只有怪物卡片呼吸是 infinite
 ok(/\.cqb \.card \.fig\{[^}]*animation:cqBreath/.test(css),'呼吸挂在 .card .fig');
 const js=['cq/cq_fx.js','cq/cq_scene.js','cq_bridge.js'].map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n');
 ok(!/iterations\s*:\s*Infinity|infinite/i.test(js.replace(/\/\/.*$/mg,'')),'JS 不创建循环动画');
+// 底部导航对齐设计稿：战斗/角色/技能/地图/福利，nav_*.png 图标，不换行
+{const bm=fs.readFileSync(path.join(root,'cq/battle_mount.js'),'utf8'),bc=fs.readFileSync(path.join(root,'cq/battle_mount.css'),'utf8');
+ ok(/\[\['fight','battle','战斗'\],\['hero','role','角色'\],\['skill','skill','技能'\],\['map','map','地图'\],\['fuli','fuli','福利'\]\]/.test(bm),'底栏五项顺序与设计稿一致');
+ ok(['battle','role','skill','map','fuli'].every(n=>fs.existsSync(path.join(root,'assets/cq/ui/nav_'+n+'.png'))),'底栏图标资源存在');
+ ok(/#tabs\.cqnav\{[^}]*flex-wrap:nowrap/.test(bc)&&/#tabs\.cqnav button\{[^}]*white-space:nowrap/.test(bc),'底栏不换行');
+ ok(/\['bag','背包'\],\['shop','商店'\],\['merc','佣兵'\]/.test(bm),'背包/商店/佣兵在角色页子页签可达');}
 T.done();
