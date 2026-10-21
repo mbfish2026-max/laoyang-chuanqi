@@ -24,4 +24,8 @@ ok(!/[a-z]{4}/i.test(vm.runInContext(`clFriendlyErr({message:'Something weird ha
 ok(/^[\u4e00-\u9fa5]/.test(vm.runInContext(`clFriendlyErr({message:'JWT expired'})`,c)),'JWT 失效中文');
 const css=fs.readFileSync(__dirname+'/../cq/ui_cq.css','utf8');
 ok(/flex-wrap:nowrap/.test(css)&&/font-size:11px/.test(css),'nowrap + 11px 规则');
+const hud=fs.readFileSync(__dirname+'/../cq/hud_cq.js','utf8');
+ok(/\.top \.menu/.test(hud)&&/insertBefore\(b,m\)/.test(hud),'战斗统计按钮移入顶栏菜单左侧');
+ok(/cqverrow/.test(hud)&&/#cqver,\.cq-ph-v\{display:none/.test(css),'版本号移到设置页、战斗页隐藏');
+ok(G('typeof CQSys.version')==='function','CQSys.version');
 T.done();

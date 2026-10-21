@@ -17,4 +17,15 @@ if(typeof renderBag==='function'){const f=renderBag;renderBag=function(){const r
 if(typeof renderMap==='function'){const f=renderMap;renderMap=function(){const r=f.apply(this,arguments);try{if(!window.__NOUI){const P=document.getElementById('panel');if(P&&!P.querySelector('.cqmq')){const w=typeof autoHoldWhy==='function'?autoHoldWhy():'';
  P.insertAdjacentHTML('afterbegin',`<div class="gp cqmq"><h3>主线任务 <span class="r"><button class="btn xs ${S.auto?'on':''}" onclick="CQSys.setAuto(${S.auto?0:1})">${S.auto?'自动推进':'原地挂机'}</button></span></h3><div>${CS.questLine()}</div>${w?`<div class="dim">${w}</div>`:''}</div>`)}}}catch(e){console.error(e)}return r}}
 CS.potHTML=potHTML;
+
+// ---------- M1.2：战斗统计按钮挪到顶栏右侧（菜单左边）；版本号移到设置页 ----------
+(function(){if(typeof document==='undefined'||window.__NOUI)return;
+ function moveDs(){const b=document.getElementById('dsbtn'),m=document.querySelector('#cqStage .cqb .top .menu');if(!b||!m)return;if(b.parentNode!==m.parentNode){m.parentNode.insertBefore(b,m);b.classList.add('cqtop');b.title='战斗统计'}}
+ function verRow(){const S2=document.getElementById('setM');if(!S2||S2.querySelector('.cqverrow'))return;const v=window.CQ_VERSION||'';
+  S2.insertAdjacentHTML('beforeend',`<div class="gp cqverrow"><div class="row"><span>版本</span><b>${v}</b></div></div>`)}
+ let q=0;const run=()=>{q=0;try{moveDs();verRow()}catch(e){}};
+ const boot=()=>{new MutationObserver(()=>{if(!q){q=1;setTimeout(run,0)}}).observe(document.body,{childList:true,subtree:true});run()};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+ })();
+CS.version=()=>window.CQ_VERSION||'';
 })();

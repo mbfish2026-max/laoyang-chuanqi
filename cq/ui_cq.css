@@ -2,3 +2,9 @@
 #setM .setsec .btns,#setM .mdset .btns,.mdset .btns,#modal .ipanel .btns.c{display:flex;flex-wrap:nowrap!important;gap:3px}
 #setM .setsec .btns>.btn,#setM .mdset .btns>.btn,.mdset .btns>.btn,#modal .ipanel .btns.c>.btn{flex:1 1 0;min-width:0;padding-left:2px;padding-right:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #ftop .xpb span,.cell small,.btn.xs,span.tag,#fzone small,#fzone span small,#cqver,#clsync,.cq-ph-v{font-size:11px!important}
+/* M1.2：战斗统计进顶栏右侧；战斗页左下角版本号隐藏（改在设置页「版本」行显示） */
+#dsbtn.cqtop{position:static!important;flex:none;width:40px!important;height:40px;padding:2px!important;margin-left:auto;justify-content:center;border-radius:6px}
+#dsbtn.cqtop span{display:none}#dsbtn.cqtop i{font-size:18px}
+#dsbtn.cqtop+.menu{margin-left:4px}
+#cqver,.cq-ph-v{display:none!important}
+#setM .cqverrow b{color:#c9a14a;font-size:12px}

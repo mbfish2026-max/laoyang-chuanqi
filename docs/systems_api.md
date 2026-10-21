@@ -1,72 +1,75 @@
 # 老羊传奇 · 系统侧接口（M1）
 
-All of these live on `window.CQSys`. Data/numbers come from `CQ_BAL` in cq/balance.js. Load order in index.html: `… cq/sys_cq.js → cq/enhance.js → cq/stash_cq.js → cq/ui_cq.js → cq/sysapi_cq.js → cq/battle_mount.js`. The battle engine is loaded dynamically by battle_mount after DOMContentLoaded, so it sits on the outermost layer and can wrap freely.
-This replaces the fallbacks in `CQ.MISSING` in cq_bridge.js. Detection: `window.CQSys && CQSys.api===1`.
-**No signature changes**: hitMon(m,d,src,fxc), floatNum, killMon(m), groundLoot and usePot(k) are only wrapped at runtime, so their parameters and return values are unchanged.
+全部挂在 `window.CQSys` 上；数值来自 cq/balance.js 的 `CQ_BAL`。index.html 加载顺序：`… cq/sys_cq.js → cq/enhance.js → cq/stash_cq.js → cq/ui_cq.js → cq/sysapi_cq.js → cq/hud_cq.js → cq/battle_mount.js`。战斗引擎由 battle_mount 在 DOMContentLoaded 后动态加载，处于最外层，可以随意包装。
+本文接口用来替换 cq_bridge.js 里 `CQ.MISSING` 的兜底实现。是否就绪：`window.CQSys && CQSys.api===1`。
+**签名不变**：hitMon(m,d,src,fxc)、floatNum、killMon(m)、groundLoot、usePot(k) 只做运行时包装，参数和返回值都没改。
 
-## Events
-`CQSys.on(ev, fn) → off()`. A `window` CustomEvent `cq:<ev>` (detail is the same as the payload) also fires at the same time.
+## 事件
+`CQSys.on(ev, fn) → off()`；同时在 `window` 上派发 CustomEvent `cq:<ev>`（detail 与回调参数相同）。
 | ev | detail |
 |---|---|
-| `char` | `{id, cls}` new character |
-| `hero` | the S.hero object (create / modify / equip changes) |
-| `skill` | `{id, t}` skill cast |
-| `yb` | `{d, why, yb}` 元宝 change |
+| `char` | `{id, cls}` 新建角色 |
+| `hero` | S.hero 对象（创建/修改/穿脱装备） |
+| `skill` | `{id, t}` 技能施放 |
+| `yb` | `{d, why, yb}` 元宝变动 |
 | `crit` | `{crit:true, src, dmg, t}` |
-| `bossSpawn` | `{key, name, enrageIn}` (seconds) |
+| `bossSpawn` | `{key, name, enrageIn}`（秒） |
 | `bossEnrage` | `{key, mul}` |
 | `bossDead` | `{key}` |
+| `autoPot` | 当前自动吃药配置 |
+| `auto` | `{auto}` 挂机开关变化 |
 
-## Classes / character creation
+## 职业 / 创建角色
 - `CQSys.classes() → [{id:'zs'|'fs'|'ds', n, d, ic, open}]`
-- `CQSys.createChar(name, cls, mode?) → id` (creates and switches to the new character; wraps stash.js `newChar`). Returns 0 when the class isn't open.
+- `CQSys.createChar(name, cls, mode?) → id`：新建并切换到该角色（包装 stash.js `newChar`）；职业未开放返回 0
 - `CQSys.curCls() → 'zs'|'fs'|'ds'`
 
-## Hero (saved with the character: `S.hero`, so it goes into the cloud save automatically and is separate per character)
-- `CQSys.hero() → {cls, name, lvl, rage(0–100), autoHeji(0/1), eq:{slot:item}, t}`. Missing fields are filled with defaults.
-- `CQSys.heroProfs() → [cls…]`: recommended hero classes (zs → fs/ds, others → zs first)
-- `CQSys.heroCreate(cls, name?) → {ok, hero} | {err:'已有英雄'|'职业无效'}`: one per character
+## 英雄（存在角色存档 `S.hero` 中 → 自动进云存档、按角色区分）
+- `CQSys.hero() → {cls, name, lvl, rage(0–100), autoHeji(0/1), eq:{部位:物品}, t}`，缺字段自动补默认值
+- `CQSys.heroProfs() → [cls…]`：推荐英雄职业（战士 → 法/道，其余 → 战士优先）
+- `CQSys.heroCreate(cls, name?) → {ok, hero} | {err:'已有英雄'|'职业无效'}`：每个角色只能建一个
 - `CQSys.heroSet({name?, rage?, autoHeji?}) → hero`
-- `CQSys.heroEquip(uid) → {ok, slot} | {err}` (moves from the bag; class-locked bases check the hero's class) / `CQSys.heroUnequip(slot) → {ok}|{err:'背包已满'}`
-- `CQSys.heroStats() → {cls, lvl, atkMin, atkMax, def, mdef, hp, takesDmg, heroK}`. Formula: hero gear + level × `CQ_BAL.hero.cls[cls]` (placeholder, **numbers to be confirmed by the class/numbers side**). `takesDmg=0` means the hero currently takes no damage.
+- `CQSys.heroEquip(uid) → {ok, slot} | {err}`（从背包移入；职业锁定底材按英雄职业校验）/ `CQSys.heroUnequip(slot) → {ok} | {err:'背包已满'}`
+- `CQSys.heroStats() → {cls, lvl, atkMin, atkMax, def, mdef, hp, takesDmg, heroK}`：英雄装备 + 等级 × `CQ_BAL.hero.cls[cls]`（占位系数，**待职业/数值方确认**）；`takesDmg=0` 表示目前英雄不受伤
 
-## Player stats / gear
-- `CQSys.equipAttrs()`: totals of the player's equipped attributes (with enhancement). `CQSys.itemCls(it)`: the item's class.
-- `CQSys.power() → int` combat power: sum of equipped `power(it)` + hero gear ×0.5 + level×20, × rebirth multiplier (capped at `cqCapMul` 1.8)
+## 玩家属性 / 装备
+- `CQSys.equipAttrs()`：玩家已穿装备属性合计（含强化）；`CQSys.itemCls(it)`：物品职业
+- `CQSys.power() → int` 战力：已穿装备 `power(it)` 之和 + 英雄装备 ×0.5 + 等级×20，再乘转生倍率（`cqCapMul` 封顶 1.8）
 
-## Skill cooldowns (filled in by the class bot)
-- Registry `window.CQ_SKCD[skillId] = cooldown in seconds`
-- `CQSys.skillCast(id)`: call when the skill is cast (the class bot calls it at its cast point)
-- `CQSys.skillCooldown(id) → {id, cd, left, ready, placeholder}`. `placeholder:true` means no cooldown is registered for it; the battle side can keep using its fallback.
+## 技能冷却（职业 Bot 填）
+- 登记表 `window.CQ_SKCD[技能id] = 冷却秒数`
+- `CQSys.skillCast(id)`：施放时调用（由职业 Bot 在施放点调用）
+- `CQSys.skillCooldown(id) → {id, cd, left, ready, placeholder}`；`placeholder:true` 表示该技能尚未登记冷却，战斗侧可继续用兜底
 
-## Monster → 传奇 portraits
-- `CQSys.monArt(key) → {id, src:'assets/cq/ui/<id>.png'} | null`. The table is `window.CQ_MONART` (chapter-1 monsters/bosses are mapped to the 5 existing portraits; it can be extended by assignment)
+## 怪物 → 传奇立绘
+- `CQSys.monArt(key) → {id, src:'assets/cq/ui/<id>.png'} | null`；对照表 `window.CQ_MONART`（第 1 章怪物/首领已映射到现有 5 张立绘，可直接赋值扩充）
 
-## 元宝 (account-level `ACCT.yb`, saved to the cloud, shared across characters)
-- `CQSys.currency() → {gold, yb}`; `CQSys.ybAdd(n, why) → balance`; `CQSys.ybSpend(n, why) → bool`
+## 元宝（账号级 `ACCT.yb`，进云存档，跨角色共享）
+- `CQSys.currency() → {gold, yb}`；`CQSys.ybAdd(n, why) → 余额`；`CQSys.ybSpend(n, why) → bool`
 
-## Crit flag (replaces the global CRIT)
-- `CQSys.critNow`: true while hitMon is running if this hit is a crit (it counts the old CRIT and also rolls the equipment stat `crit`% × `CQ_BAL.critMul`=1.5; doesn't roll for hero/dot sources)
-- `CQSys.hit = {crit, src, dmg, t}`: the most recent hit; crits also emit `crit`
+## 暴击标记（替代全局 CRIT）
+- `CQSys.critNow`：hitMon 执行期间为 true 表示本次是暴击（兼容旧 CRIT；另按装备属性 `crit`% 掷骰，伤害 × `CQ_BAL.critMul`=1.5；hero/dot 来源不掷）
+- `CQSys.hit = {crit, src, dmg, t}`：最近一次命中；暴击同时派发 `crit`
 
-## Boss spawn / enrage
-- `CQ_BAL.boss = {respawn:60, enrage:90, enrMul:1.5}` (seconds)
-- `CQSys.bossInfo()`: while alive `{alive:true, key, spawnAt, enrageAt, enrageLeft, enraged}`; after death `{alive:false, killAt, respawnAt, respawnLeft}`
-- step() runs `bossTick()` after each call: it detects boss spawn/death and enrages after 90 s (`m.dmg×1.5`, `m.cqEnr=1`)
+## 首领刷新 / 狂暴
+- `CQ_BAL.boss = {respawn:60, enrage:90, enrMul:1.5}`（秒）
+- `CQSys.bossInfo()`：存活时 `{alive:true, key, spawnAt, enrageAt, enrageLeft, enraged}`；死亡后 `{alive:false, killAt, respawnAt, respawnLeft}`
+- 每次 step() 之后执行 `bossTick()`：检测首领出现/死亡，90 秒后狂暴（`m.dmg×1.5`，`m.cqEnr=1`）
 
-## Potions (unchanged; the battle side only calls them)
-- **Potion function `usePot(k)`** (game.js:279), `k ∈ 'hp'|'mp'|'rej'|'tp'` (红药 / 蓝药 / 瞬回 / 回城; `tp` goes to `townPortal()`). Does nothing when the count is 0. Also available as `CQSys.usePot(k)` and `CQSys.potions() → {hp, mp, rej, tp}` (stock in `S.pot`).
-- **Auto-drink already exists**: inside `step(dt)` in game.js (lines 237–239), with no toggle and no separate entry point: HP < 40% and not already drinking → 红药 (heals 50% over 7 s, `H.potT`); HP < 20% → 瞬回 (35% HP/MP immediately); MP < 15% → 蓝药 (60% over 5 s, `H.mpT`).
-- **The three bars' ids (structure unchanged)**: potion bar `#pots` (buttons `#pb_hp #pb_mp #pb_rej #pb_tp`, counts `#p_hp #p_mp #p_rej #p_tp`; click handlers are bound in game.js:504); quest row `#fquest`; area bar `#fzone`.
+## 吃药（函数不变，战斗侧只调用）
+- **吃药函数 `usePot(k)`**（game.js），`k ∈ 'hp'|'mp'|'rej'|'tp'`（红药/蓝药/瞬回/回城；`tp` 走 `townPortal()`）；数量为 0 时不做任何事。也可用 `CQSys.usePot(k)`；`CQSys.potions() → {hp, mp, rej, tp}`（库存在 `S.pot`）
+- **已有自动吃药**：在 game.js `step(dt)` 内，无单独入口，阈值现由 `cqAP(k)` 读取（见下节）：血量低于阈值且未在回血 → 红药（7 秒回 50%，`H.potT`）；血量低于瞬回阈值 → 瞬回（立即回 35% 血/蓝）；蓝量低于阈值 → 蓝药（5 秒回 60%，`H.mpT`）
+- **三个栏的 id（结构未改）**：药水栏 `#pots`（按钮 `#pb_hp #pb_mp #pb_rej #pb_tp`，数量 `#p_hp #p_mp #p_rej #p_tp`，点击绑定在 game.js）；任务行 `#fquest`；区域栏 `#fzone`
 
-## Other
-- `CQSys.rollDrops(m)`, `addItem(it)`, `addMat/matCount/takeMat`, `acts()/zone()/monDef(id)` are listed in docs/systems_m1.md.
-- `cqEnhance(uid,{oil})` enhancement; `cqStashExpand('p'|'s')` warehouse.
+## 底栏收起后的承接（cq/hud_cq.js）
+战斗侧在 cq/ 里隐藏 `#pots`（红蓝球+药水栏）、`#fquest`（主线任务行）、`#fzone`（区域切换+原地挂机按钮）；**id/结构不变**，game.js 仍会写入，只是不显示。
+- **自动吃药（可配置）**：`CQSys.autoPot() → {on, hp, rej, mp}`（百分比，默认 1/40/20/15）；`CQSys.autoPot({on?, hp?, rej?, mp?})` 修改并存入 `S.apot`（按角色，进云存档），取值 0–95，`0` = 该药不自动吃，`on:0` = 全部关闭；派发 `autoPot`
+- **药水数量**：背包页（`renderBag`）底部追加「药水」面板 `.cqpot`：红/蓝/瞬回/回城数量 + 「使用」+ 阈值 ± + 自动吃药开关；`CQSys.potHTML()` 返回同样的 HTML，可复用
+- **主线任务**：地图页（`renderMap`）顶部追加「主线任务」面板 `.cqmq`（`questLine()` + 自动推进暂停原因）+ 自动推进/原地挂机开关；`CQSys.questLine()` 返回文字
+- **挂机开关**：`CQSys.idle() → bool`（true = 原地挂机，即 `S.auto=0`）；`CQSys.setAuto(0|1)` 保存并重绘，派发 `auto`
+- **战斗统计**：`#dsbtn` 运行时移入战场顶栏 `.cqb .top`，放在菜单按钮 `.menu` 左侧（加 class `cqtop`，只显示 📊 图标）；弹窗逻辑不变
+- **版本号**：战斗页左下角 `#cqver` 和挂载点 `.cq-ph-v` 隐藏（元素保留）；设置弹窗 `#setM` 底部追加「版本」行 `.cqverrow`；`CQSys.version()` 返回版本字符串
 
-## Bottom-bar takeover (cq/hud_cq.js, M1 addendum)
-The battle side hides `#pots` (red/blue orbs + potion bar), `#fquest` (main quest row), `#fzone` (zone switcher + 原地挂机 button) in cq/. **Their id/structure is unchanged**; game.js still writes to them, they just aren't shown.
-- **Auto-potion (configurable)**: `CQSys.autoPot() → {on, hp, rej, mp}` (percent, defaults 1/40/20/15). `CQSys.autoPot({on?, hp?, rej?, mp?})` changes and saves to `S.apot` (per character, cloud save), range 0–95, `0` = this potion is never auto-used, `on:0` = off entirely; emits event `autoPot`. Logic is still in game.js `step(dt)`, now reading `cqAP(k)` (returns 0–0.95).
-- **Potion display**: Bag page (`renderBag`) gets a "药水" panel `.cqpot` appended at the bottom: red/blue/instant/town-portal counts + "使用" + threshold ± + auto-potion toggle. `CQSys.potHTML()` returns the same HTML, can be reused.
-- **Main quest**: Map page (`renderMap`) gets a "主线任务" panel `.cqmq` at the top (`questLine()` + auto-advance pause reason) plus an auto-advance / idle-in-place toggle. `CQSys.questLine()` returns the text.
-- **Idle toggle**: `CQSys.idle() → bool` (true = idle in place, i.e. `S.auto=0`); `CQSys.setAuto(0|1)` saves and re-renders, emits event `auto`.
-- **Potion function**: `usePot(k)` / `CQSys.usePot(k)`, `k ∈ hp|mp|rej|tp`, signature unchanged.
+## 其他
+- `CQSys.rollDrops(m)`、`addItem(it)`、`addMat/matCount/takeMat`、`acts()/zone()/monDef(id)` 见 docs/systems_m1.md
+- 强化 `cqEnhance(uid,{oil})`；仓库扩充 `cqStashExpand('p'|'s')`
