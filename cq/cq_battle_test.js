@@ -111,7 +111,7 @@ G('CQ.artBad("assets/cq/ui/mdl_mst_zz_new.png")');ok(G('CQ.Host.monArt({key:"zz_
 for(const k of['treedemon','zombieking','elezombieking','stonezombieking'])ok(fs.existsSync(path.join(root,'assets/cq/ui/mdl_mst_'+k+'.png'))&&G('CQ.Host.monArt({key:"'+k+'",boss:1})').indexOf('mdl_mst_'+k)>=0,'首领立绘 '+k);
 {const sc=fs.readFileSync(path.join(root,'cq/cq_scene.js'),'utf8');ok(/CQ\.artBad\(u\)/.test(sc),'卡片 img onerror 逐级兜底');ok(/\.cqb \.plaque\{top:70px;[^}]*writing-mode:horizontal-tb/.test(css)&&/\.cqb\.boss \.plaque\{display:none\}/.test(css)&&!/plaque\.style\.top = Math\.round\(H/.test(sc),'区域牌移到网格上方，不压第 6 列');}
 ok(/\.card\.boss \.fig\{[^}]*max-height:150%[^}]*max-width:140%/.test(css),'首领 400 高立绘按卡尺寸等比缩放（不横向压邻格过多）');
-ok(G('CQ.heroDpsK({cls:()=>"fs"})')===0.43&&G('CQ.heroDpsK({cls:()=>"zs"})')===0.24&&G('CQ.heroDpsK({cls:()=>"ds"})')===0.17&&G('CQ.heroDpsK({})')===CQ_T('dpsK'),'英雄普攻系数按玩家职业 dpsKBy（缺省 dpsK）');
+ok(G('CQ.heroDpsK({cls:()=>"fs"})')===0.045&&G('CQ.heroDpsK({cls:()=>"zs"})')===0.06&&G('CQ.heroDpsK({cls:()=>"ds"})')===0.05&&G('CQ.heroDpsK({})')===CQ_T('dpsK'),'英雄普攻系数按玩家职业 dpsKBy（缺省 dpsK）');
 G('CQ.artBad("assets/cq/ui/mdl_mst_zz_none.png")');ok(/mdl_mst_1001/.test(G('CQ.Host.monArt({key:"zz_none",n:"鸡"})'))&&/mdl_mst_1002/.test(G('CQ.Host.monArt({key:"zz_none",n:"鹿"})')),'monArt 兜底按怪名取传奇之旅立绘');
 for(const n of[1001,1002,1003,1004,1005,1006,1007,1008,1009,1011,1012,1022,1023,1024,1025,1034,2002])ok(fs.existsSync(path.join(root,'assets/cq/ui/mdl_mst_'+n+'.png')),'立绘 mdl_mst_'+n);
 ok(/body\.cq-on #hud[^{]*#fquest[^{]*#fzone\{display:none/.test(css)||/#fzone\{display:none/.test(css),'战斗页隐藏药水栏/任务行/区域栏（仅 body.cq-on）');
@@ -241,4 +241,8 @@ if(G("typeof heroSkPick")==='function'){// 职业开发 cls_hero.js 接入（分
  G(`var hk=new CQ.Hero(1,localStorage);hk.h.exists=true;hk.h.autoHeji=true;hk.h.rage=100;hk.h.hejiCd=0;hk.unit.hp=hk.unit.maxhp=100;MON=[mkMon(Object.keys(MONS)[0],10)];MON[0].hp=1e7;var hkh={now:()=>Date.now(),targets:()=>MON.filter(m=>m.hp>0),hit:(m,d)=>d,atkMax:()=>100,lvl:()=>12,heroK:()=>.35};hk.unit.atkT=9;var ka=hk.autoHeji(hkh)`);
  ok(G('ka&&ka.type')==='heji'&&G('hk.h.hejiCd')===30,'合击开：自动合击，冷却 30 秒');
  G(`hk.h.skOff={heji:1};hk.h.rage=100;hk.h.hejiCd=0;var kb=hk.autoHeji(hkh)`);ok(G('kb')===null,'合击关：不自动合击');}
+{G(`var hd2=new CQ.Hero(2,localStorage);hd2.h.prof=3;hd2.h.exists=true;hd2.unit.hp=hd2.unit.maxhp=100;MON=[mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10)];MON.forEach(m=>m.hp=1e9);
+  var hdh={now:()=>Date.now(),targets:()=>MON.filter(m=>m.hp>0),hit:(m,d)=>d,atkMax:()=>100,lvl:()=>12,heroK:()=>.35,dps:()=>1000};hd2.h.rage=100;hd2.h.hejiCd=0;var rd=hd2.doHeji(hdh,true)`);
+ ok(G('rd.name')==='噬魂沼泽'&&G('rd.total*(1+0.2*5)')>=1000*6*.9-4&&G('rd.total*(1+0.2*5)')<=1000*6.8*1.1+4,'噬魂沼泽：首击+5 跳持续合计 ≈ 一次合击总伤（不翻倍）');
+ ok(G('JSON.stringify(CQ.HERO_TUNE.dpsKBy)')==='{"zs":0.06,"fs":0.045,"ds":0.05}'&&CQ_T('hejiCd')===30&&CQ_T('hejiSec')===6.5,'英雄普攻系数 zs.06/fs.045/ds.05，合击 6.5 秒 DPS、冷却 30 秒');}
 T.done();
