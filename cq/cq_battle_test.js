@@ -229,4 +229,9 @@ if(G("typeof heroSkPick")==='function'){// 职业开发 cls_hero.js 接入（分
  ok(/zThumb\(a,i,'zth'\)/.test(src)&&/zThumb\(a,i,'zhead'\)/.test(src)&&/onerror="this\.style\.display='none'"/.test(src),'区域行与传送弹窗用同一张缩略图，缺图隐藏');
  ok(/c\.a>=2\?`assets\/cq\/map\/chapter_\$\{c\.a\+1\}\.webp`/.test(src)&&/chapter_4\.webp/.test(src)&&fs3.existsSync(root+'/assets/cq/map/chapter_3.webp')&&fs3.existsSync(root+'/assets/cq/map/chapter_4.webp'),'第 3/4 章卡片用 chapter_3/4.webp，1/2 章保留 stage_1001/1002');
  ok(!/b==='skelspirit'\?'1017':b/.test(src)&&/mdl_mst_\$\{b\}\.png/.test(src),'骷髅精灵优先 mdl_mst_skelspirit.png（1017 仅作缺图兜底）');}
+{const fs4=require('fs'),css=fs4.readFileSync(root+'/cq/pages_cq.css','utf8'),js=fs4.readFileSync(root+'/cq/pages_cq.js','utf8');
+ ok(['prof_bar_9s','prof_bar_fill_9s','sign_cell_9s','stamp_ok'].every(f=>fs4.existsSync(root+'/assets/ui/'+f+'.png')),'UI 美术 d851afb 4 张图都在');
+ ok(/prof_bar_9s\.png\) 6 fill/.test(css)&&/prof_bar_fill_9s\.png\) 5 fill/.test(css),'技能熟练度条：底 slice 6、填充 slice 5');
+ ok(/Lv\.\$\{b\}\/\$\{SKMX\(\)\}/.test(js)&&/CLS_SKMAX/.test(js),'等级标签 Lv.x/上限（CLS_SKMAX，缺省 20）');
+ ok(/sign_cell_9s\.png\) 12 fill/.test(css)&&/\.dy\.ok::after\{content:"";[^}]*stamp_ok\.png/.test(css),'签到格 sign_cell_9s slice 12，已签用 stamp_ok 印章替换 ✔');}
 T.done();

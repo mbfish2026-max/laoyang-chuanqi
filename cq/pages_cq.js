@@ -39,12 +39,13 @@ function skList(){const c=cls();return SKILLS.filter(s=>s.cls===c&&skOfCls(s)).s
 function skIcon(id,sm){const n=window.CQ&&CQ.SK_ICON&&CQ.SK_ICON[id];return n?`<img src="${UI}sk/ic_sk_${n}.png" alt="">`:`<span class="gl">${esc((SKM[id]||{}).ic||'✦')}</span>`}
 function skDesc(s){try{const v=SV(s.id,Math.max(1,bl(s.id)));const t=(v&&v.txt)||'';return (s.kind==='passive'&&!/^被动/.test(t)?'被动 · ':'')+t}catch(e){return ''}}
 function skillPage(){const L=skList(),lv=S.lvl;
+ const SKMX=()=>typeof CLS_SKMAX!=='undefined'&&CLS_SKMAX>0?CLS_SKMAX:20;// 技能上限：职业开发 cls-book 合并后 CLS_SKMAX=9，之前沿用 20
  const row=s=>{const b=bl(s.id),lk=!b&&lv<s.r;const d=lk?`Lv.${s.r} 解锁`:skDesc(s);
   const btn=lk?'<button class="cqbtn xs dis">未解锁</button>':`<button class="cqbtn xs ${canLearn(s.id)?'gold':''}" onclick="skPop('${s.id}')">${b?'升级':canLearn(s.id)?'学习':'详情'}</button>`;
-  return `<div class="sk2 ${lk?'lk':''}"><div class="ic">${skIcon(s.id)}</div><div class="i"><div class="n">${esc(s.n)}${b?`<small>Lv.${b}</small>`:''}</div><div class="d">${esc(d)}</div><div class="lv"><i style="width:${Math.min(100,b*5)}%"></i></div></div>${btn}</div>`};
+  return `<div class="sk2 ${lk?'lk':''}"><div class="ic">${skIcon(s.id)}</div><div class="i"><div class="n">${esc(s.n)}${b?`<small>Lv.${b}</small>`:''}</div><div class="d">${esc(d)}</div><div class="lvw"><div class="lv"><i style="width:${Math.min(100,b/SKMX()*100)}%"></i></div><span class="lvt">Lv.${b}/${SKMX()}</span></div></div>${btn}</div>`};
  const A=ok('acLearned')?acLearned():[];
  const ord=A.map((id,i)=>{const c=acCfg(id);return `<div class="ord"><div class="no">${i+1}</div>${skIcon(id)}<b>${esc(SKM[id].n)}</b><span class="c">${esc((ok('acSmartTxt')&&acSmartTxt(id))||'冷却好即放')}</span><span class="ar" onclick="acMove('${id}',-1)">▲</span><span class="ar" onclick="acMove('${id}',1)">▼</span><div class="sw ${c.on?'':'off'}" onclick="acSet('${id}','on',${c.on?0:1})"></div></div>`}).join('')||'<div class="dim">尚未学会主动技能</div>';
- return `<div class="cqpanel"><div class="cqttl">技能<span class="r">技能点 <b class="g">${S.kp|0}</b> · 等级上限 20</span></div>${L.map(row).join('')}</div>
+ return `<div class="cqpanel"><div class="cqttl">技能<span class="r">技能点 <b class="g">${S.kp|0}</b> · 等级上限 ${SKMX()}</span></div>${L.map(row).join('')}</div>
  <div class="cqpanel"><div class="cqttl">自动释放顺序<span class="r">从上到下检查</span></div>${ord}</div>`}
 function skTabs(){const c=cls();return `<div class="stabs cqsktabs">${[['list',(CLSN[c]||'')+'技能'],['ac','自动施法'],['tree','技能树']].map(([k,n])=>`<button class="${SKV===k?'on':''}" onclick="cqPg.sk('${k}')">${n}</button>`).join('')}</div>`}
 // ---------------- 福利 ----------------
