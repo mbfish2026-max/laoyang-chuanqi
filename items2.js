@@ -62,6 +62,7 @@ const _i2_show=showItem;showItem=function(uid){_i2_show(uid);if(typeof document=
  if(hid&&base){const req=[...base.children].find(e=>/^需求等级/.test(e.textContent));for(const e of [...hid.children]){if(e.tagName==='H4')continue;e.className='g';base.insertBefore(e,req||null)}hid.remove()}
  if(b.th)P.innerHTML=P.innerHTML.replace('单手伤害','双手伤害');
 };
-modsTxt=function(m){return Object.entries(m).map(([k,v])=>(MODT[k]||k+' {v}').replace('{v}',Array.isArray(v)?v[0]+'-'+v[1]:v).replace('+-','-')).join('，')};
+const MODS_GONE=new Set(['mcast']);// 已删除词缀（multicast.js），旧存档物品上的字段忽略不显示
+modsTxt=function(m){return Object.entries(m).filter(([k])=>!MODS_GONE.has(k)).map(([k,v])=>(MODT[k]||k+' {v}').replace('{v}',Array.isArray(v)?v[0]+'-'+v[1]:v).replace('+-','-')).join('，')};
 
 if(typeof mercPanel==='function'){const _i2_mp=mercPanel;mercPanel=function(){let h=_i2_mp();if(S.merc&&MERCS[S.merc.t].wcats){const T=MERCS[S.merc.t];const bad=T.wcats.map(c=>({wand:'魔杖',dagger:'匕首',sword:'剑'})[c]).join('/');h=h.replace(bad,T.wcats.map(c=>CATN[c]||c).join('/'))}return h}}

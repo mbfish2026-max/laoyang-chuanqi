@@ -152,7 +152,11 @@ function clsGroupPick(g){let b=null,bv=-1;for(const s of CLS_SKILLS){if(s.g!==g|
  return CLS_AOE.has(s.ty)?`怪物≥${s.sm}或有精英/首领，且为当前伤害最高的技能`:'当前伤害最高的单体技能'}}
 // ---------- 属性：被动/增益（game.js calc 末尾调用） ----------
 // 旧存档清理（一次）：不属于本职业的已学技能（例如旧版战士自动学到的召唤/骨系技能）退还技能点；空技能的角色补本职业初始技能
-function clsMigrate(){clsLateFix();if(typeof S==='undefined'||!S||!S.sk||S.cqsk===1||!CLS_SKILLS.length)return;S.cqsk=1;const c=curCls();let back=0;const gone=[];
+// 旧存档清理（一次）：已删除模块（late_mods 魔改技能 x*_ 等）残留的技能 id，不在 SKM 中的退还技能点
+function clsPruneSk(){if(typeof S==='undefined'||!S||!S.sk||S.skPr===1||!CLS_SKILLS.length)return;S.skPr=1;let back=0;
+ for(const k of Object.keys(S.sk)){if(SKM[k])continue;back+=Math.max(0,S.sk[k]|0);delete S.sk[k]}
+ if(back){S.kp=(S.kp||0)+back;if(S.main&&!SKM[S.main])S.main=null;if(typeof log==='function')try{log(`<b style="color:#ffd76a">技能整理：移除已下线技能，退还技能点 ${back}</b>`)}catch(e){}}}
+function clsMigrate(){clsLateFix();clsPruneSk();if(typeof S==='undefined'||!S||!S.sk||S.cqsk===1||!CLS_SKILLS.length)return;S.cqsk=1;const c=curCls();let back=0;const gone=[];
  for(const k of Object.keys(S.sk)){const s=SKM[k];if(s&&s.cls===c)continue;back+=S.sk[k]||0;if(s)gone.push(s.n);delete S.sk[k]}
  for(const k in CLS_DEF[c].sk||{})if(!S.sk[k])S.sk[k]=CLS_DEF[c].sk[k]
  S.kp=(S.kp||0)+back;S.main=null;S.curse=null;if(gone.length&&typeof log==='function')try{log(`<b style="color:#ffd76a">职业技能整理：移除非本职业技能 ${gone.join('、')}，退还技能点 ${back}</b>`)}catch(e){}}
