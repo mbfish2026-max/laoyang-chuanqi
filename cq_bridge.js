@@ -16,7 +16,7 @@
   CQ.MISSING = [
     {api: 'Host.heroSave / 英雄存档字段', why: '英雄(职业/名字/怒气/自动合击)要进云存档', fallback: 'localStorage cq_battle_hero_v1（不跟云存档、不分角色）'},
     {api: 'Host.heroProf / 英雄创建界面', why: '英雄职业由玩家选择', fallback: '战士带道士，法师/道士带战士'},
-    {api: 'Host.heroStats', why: '英雄自身攻防血/装备、会不会被怪打', fallback: '英雄攻击=玩家武器上限×heroK(0.35)，英雄不受伤'},
+    {api: 'Host.heroStats', why: '英雄自身攻防血/装备', fallback: 'CQ.HERO_TUNE：普攻 1.6 秒/玩家武器上限×0.35，血量=玩家生命×0.8，贴身怪按其攻击力打英雄，阵亡 30 秒复活'},
     {api: 'Host.skillCooldown(id)', why: '技能冷却圈需要真实冷却/剩余时间（暗夜技能无独立冷却）', fallback: '技能列表取 acLearned() 前 4 个；按 spend(id) 施放时刻 + max(ST.castT,1s) 画圈；点圈调 acPop(id)'},
     {api: 'Host.monArt(key) / 怪物→传奇立绘映射', why: '卡片立绘', fallback: '首领 mdl_mst_2001，其余按 key 哈希到 4 张骷髅立绘'},
     {api: 'Host.currency().yb 元宝', why: '顶栏第二货币', fallback: '显示 —'},
@@ -26,6 +26,11 @@
     {api: 'Host.hejiBalance', why: '英雄/合击伤害系数需数值确认', fallback: 'heroK=0.35，合击倍率沿用传奇之旅 COMBO'}
   ];
 
+  // 技能 → 传奇之旅序列帧（按技能名关键字；系统开发换成传奇技能后同样按名字匹配，例如 火球术/雷电术/半月弯刀/烈火剑法/灵魂火符/施毒术/治愈术）
+  var SKILL_FX = [[/火球|爆炎球|火焰弹|陨石/, 'huoqiu'], [/雷|电/, 'leidianshu'], [/冰|霜|雪|寒/, 'bingpaoxiao'], [/火墙|焰|炎/, 'huoqiang'], [/毒/, 'shidu'],
+    [/灵魂|火符|骨矛|骨魂|噬骨|念力/, 'linghunhuofu'], [/半月|旋风|双重挥击/, 'banyue'], [/烈火/, 'liehuo'], [/冲撞|跃/, 'yemanchongzhuang'], [/攻杀|刺杀|猛击|斩|震晕|狂乱|投掷|狂暴|专注/, 'gongsha'],
+    [/治|愈|复生/, 'zhiliaoshu'], [/召唤|唤起|魔像/, 'zhaohuan'], [/神圣|战甲|壁垒/, 'shenshengzhanjia'], [/盾|甲|护|吼|号令|指挥|嚎|呐|吶|图腾|挑衅|炎附|闪移/, 'mofadun']];
+  CQ.SKILL_FX = SKILL_FX;
   var castAt = {};      // 技能施放时刻（冷却圈兜底）
   var ART = ['mdl_mst_1015', 'mdl_mst_1014', 'mdl_mst_1017', 'mdl_mst_1013'];
   function hash(s){ s = String(s || ''); var x = 0; for (var i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) | 0; return Math.abs(x); }
@@ -53,12 +58,22 @@
     range: function(){ var ST = G('ST') || {}; return ST.ranged || /fs|ds/.test(Host.role().cls) ? 3 : 1; },
     atkMax: function(){ var ST = G('ST') || {}; return Math.max(1, (+ST.wmax || 0) + (+ST.fire || 0) + (+ST.cold || 0), Host.role().lvl * 3); },
     lvl: function(){ return Host.role().lvl; },
-    heroK: function(){ return 0.35; },
+    heroK: function(){ return (CQ.HERO_TUNE || {}).atkK || 0.35; },
+    maxhp: function(){ return Host.role().maxhp; },
+    pots: function(){ var S = G('S') || {}; return S.pot || {}; },
+    // 自动吃药已在 game.js step() 内（阈值 CQSys.autoPot，默认开），战斗侧不重复吃
+    autoPot: function(){ var C = window.CQSys; return C && C.autoPot ? C.autoPot() : null; },
+    usePot: function(k){ if (has('usePot')) { G('usePot')(k); return true; } return false; },
+    quest: function(){ try { return has('questLine') ? G('questLine')() : ''; } catch (e) { return ''; } },
+    zoneNav: function(d){ var S = G('S'); if (!S || !has('goZone')) return; G('goZone')(Math.max(0, Math.min(S.unl || 0, S.zone + d))); },
+    autoAdv: function(t){ var C = window.CQSys, S = G('S'); if (C && C.idle && C.setAuto) { if (t) C.setAuto(C.idle() ? 1 : 0); return !C.idle(); } if (!S) return false; if (t) { S.auto ^= 1; if (has('render')) G('render')(); } return !!S.auto; },
+    openMap: function(){ var b = document.querySelector('#tabs button[data-t=map]'); if (b) b.click(); },
     hit: function(m, d, src){ if (!m || !(m.hp > 0) || !has('hitMon')) return 0; var col = src === 'cqheji' ? '#ffb000' : '#7dff8a';
       try { return G('hitMon')(m, {phys: Math.round(d)}, src, col) || 0; } catch (e) { console.error('[CQ] hit', e); return 0; } },
     stun: function(m, s){ if (m && m.hp > 0) m.stun = Math.max(m.stun || 0, s); },
     healPct: function(p){ var H = G('H'), ST = G('ST'); if (H && ST) H.life = Math.min(ST.life, H.life + ST.life * p); },
     log: function(html){ if (has('log')) G('log')(html); },
+    skillFx: function(id){ var SKM = G('SKM') || {}, n = (SKM[id] || {}).n || ''; for (var i = 0; i < SKILL_FX.length; i++) if (SKILL_FX[i][0].test(n)) return SKILL_FX[i][1]; return null; },
     skillPop: function(id){ if (has('acPop')) G('acPop')(id); },
     toast: function(t){ if (has('toast')) G('toast')(t); },
     monArt: function(m){ if (m.boss) return 'assets/cq/ui/mdl_mst_2001.png'; return 'assets/cq/ui/' + ART[hash(m.key || m.n) % ART.length] + '.png'; },
@@ -82,7 +97,7 @@
     wrap('killMon', function(f){ return function(m){ try { if (on()) CQ.Scene.onKill(m); } catch (e) {} return f.apply(this, arguments); }; });
     wrap('groundLoot', function(f){ return function(it){ if (on()) { try { CQ.Scene.onLoot(it); } catch (e) {} return; } return f.apply(this, arguments); }; });
     wrap('spawnFloat', function(f){ return function(){ if (on()) return; return f.apply(this, arguments); }; });
-    wrap('spend', function(f){ return function(id){ castAt[id] = performance.now() / 1000; return f.apply(this, arguments); }; });
+    wrap('spend', function(f){ return function(id){ castAt[id] = performance.now() / 1000; var r = f.apply(this, arguments); try { if (on()) CQ.Scene.onSkill(id); } catch (e) {} return r; }; });
   }
 
   // ---------- 接 CQBattle ----------

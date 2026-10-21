@@ -2,7 +2,7 @@
    作用域：#cqStage .cqb；壳布局覆盖只在 body.cq-on 时生效（不改 style.css）。
    动画规则：除 .cqb .card .fig 的呼吸(cqBreath)外，全部 animation-iteration-count 为 1。 */
 body.cq-on #fbattle{flex:1 1 auto;min-height:0;padding:0;background-image:none!important}
-body.cq-on #ftop,body.cq-on #flog,body.cq-on #skbar{display:none}
+body.cq-on #ftop,body.cq-on #flog,body.cq-on #skbar,body.cq-on #hud,body.cq-on #fquest,body.cq-on #fzone{display:none!important}
 body.cq-on #fbattle>.fl,body.cq-on #fbattle>.cloot,body.cq-on #fbattle .tgbeam,body.cq-on #fbattle .dlbeam{display:none!important}
 body.cq-on #cqStage{top:0;background:#120a06}
 #cqStage.cq-paused *{animation-play-state:paused!important}
@@ -42,10 +42,10 @@ body.cq-on #cqStage{top:0;background:#120a06}
 .cqb .plaque small{font-size:12px;color:#d9c08a;letter-spacing:0;margin-top:4px}
 /* 怪物卡片（位置用 transform，走位过渡 .35s） */
 .cqb .card,.cqb .hero{position:absolute;left:0;top:0;transition:transform .35s ease-out}
-.cqb .card{width:66px;height:84px;z-index:10}
+.cqb .card{width:76px;height:96px;z-index:10}
 .cqb .card .in{position:absolute;inset:0;transform-origin:50% 100%}
 .cqb .card .bd{position:absolute;inset:0;background:url(../assets/cq/ui/card.png) center/100% 100%;border-radius:4px;box-shadow:0 6px 10px rgba(0,0,0,.55)}
-.cqb .card .fig{position:absolute;left:50%;bottom:16px;height:84px;transform:translateX(-50%);filter:drop-shadow(0 2px 2px rgba(0,0,0,.5));animation:cqBreath 2.6s ease-in-out infinite}
+.cqb .card .fig{position:absolute;left:50%;bottom:16px;height:92px;transform:translateX(-50%);filter:drop-shadow(0 2px 2px rgba(0,0,0,.5));animation:cqBreath 2.6s ease-in-out infinite}
 .cqb .card .clv{position:absolute;left:0;right:0;top:2px;text-align:center;font-size:10px;font-weight:700;color:#fff;text-shadow:0 0 2px #000,0 1px 1px #000}
 .cqb .card .cnm{position:absolute;left:2px;right:2px;bottom:9px;text-align:center;font-size:10.5px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-shadow:0 0 2px #000,0 0 3px #000,0 1px 1px #000}
 .cqb .card .hb{position:absolute;left:5px;right:5px;bottom:3px;height:5px;background:#1a0a06;border:1px solid #000;border-radius:3px;overflow:hidden}
@@ -56,9 +56,9 @@ body.cq-on #cqStage{top:0;background:#120a06}
 .cqb .card.cuniq .cnm{color:#f2c94a}
 .cqb .card.cuniq .bd{box-shadow:0 0 0 2px #e0a83a,0 6px 10px rgba(0,0,0,.55)}
 @keyframes cqBreath{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.025,1.04)}}
-.cqb .card.boss{width:104px;height:132px;z-index:12}
+.cqb .card.boss{width:118px;height:150px;z-index:12}
 .cqb .card.boss .bd{background-image:url(../assets/cq/ui/card_boss.png);box-shadow:0 0 0 2px #ff3a22,0 0 0 4px #2a0402,0 0 22px 4px rgba(255,40,20,.55),0 10px 16px rgba(0,0,0,.6)}
-.cqb .card.boss .fig{height:110px;bottom:26px}
+.cqb .card.boss .fig{height:126px;bottom:26px}
 .cqb .card.boss .clv{font-size:13px;top:5px}
 .cqb .card.boss .cnm{font-size:13px;bottom:14px;color:#ffb24a}
 .cqb .card.boss .hb{height:8px;bottom:5px}
@@ -76,6 +76,7 @@ body.cq-on #cqStage{top:0;background:#120a06}
 @keyframes cqSink{to{transform:translateY(40%) scale(.9);opacity:0}}
 /* 角色 / 英雄立绘 */
 .cqb .hero{z-index:14;filter:drop-shadow(0 4px 3px rgba(0,0,0,.6));pointer-events:none}
+.cqb .hero.pet{pointer-events:auto;cursor:pointer}
 .cqb .hero .in{position:relative;height:100%}
 .cqb .hero img{display:block;height:100%}
 .cqb .hero .hn{position:absolute;left:50%;top:-16px;transform:translateX(-50%);font-size:11px;font-weight:700;color:#7dff8a;white-space:nowrap;text-shadow:0 0 2px #000,0 1px 1px #000}
@@ -185,3 +186,34 @@ body.cq-on #cqStage{top:0;background:#120a06}
 .cqb .side{position:absolute;right:8px;display:flex;flex-direction:column;gap:8px;z-index:25}
 .cqb .chip{min-width:44px;height:30px;padding:0 10px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#ffe3a3;white-space:nowrap;cursor:pointer}
 .cqb .chip.off{color:#8a7a5a}
+
+/* ---- M1.1：底部只留技能行+合击（样稿 p1）；区域浮层、英雄血条/面板 ---- */
+.cqb .plaque{cursor:pointer;pointer-events:auto}
+.cqb .zpop{position:absolute;right:46px;z-index:40;display:none;align-items:center;gap:4px;padding:6px 8px;border-radius:8px;white-space:nowrap}
+.cqb .zpop.on{display:flex}
+.cqb .zpop span{font-size:13px;font-weight:700;color:#ffe3a3;padding:0 4px}
+.cqb .zpop button{height:26px;padding:0 8px;font-size:12px;color:#ffe9c0;border:1px solid #6a4a22;border-radius:6px;background:#2a160a}
+.cqb .zpop button.on{color:#7dff8a}
+.cqb .hero .hhb{position:absolute;left:50%;top:-4px;width:54px;margin-left:-27px;height:5px;border:1px solid #000;border-radius:3px;background:#1a0a06;overflow:hidden}
+.cqb .hero .hhb i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(180deg,#7dff8a,#1f9a2e);transition:width .2s}
+.cqb .hero.me .hhb,.cqb .hero .hrv:empty{display:none}
+.cqb .hero .hrv{position:absolute;left:50%;top:40%;transform:translateX(-50%);font-size:13px;font-weight:800;color:#ffd27a;text-shadow:0 0 3px #000}
+.cqb .hpanel{position:absolute;left:24px;right:24px;top:96px;z-index:45;display:none;padding:10px 12px;border-radius:10px;color:#ffe9c0;font-size:12px}
+.cqb .hpanel.on{display:block}
+.cqb .hpanel .ht{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.cqb .hpanel .ht b{font-size:16px;color:#7dff8a}
+.cqb .hpanel .ht small{color:#f2c94a}
+.cqb .hpanel .ht button{margin-left:auto;background:none;border:0;color:#ffe9c0;font-size:16px}
+.cqb .hpanel .hr{display:flex;align-items:center;gap:6px;margin:4px 0}
+.cqb .hpanel .hr span{flex:0 0 34px;color:#c9a46a}
+.cqb .hpanel .hr .cbar{position:relative;flex:1;height:8px}
+.cqb .hpanel .hr em{font-style:normal;white-space:nowrap}
+.cqb .hpanel .hr em.l{flex:1}
+.cqb .hpanel .cbar.rage i{background:linear-gradient(90deg,#ff7a2a,#ffd23a)}
+.cqb .hpanel .hc{margin:8px 0;padding:6px 8px;border:1px solid #5a3a1a;border-radius:6px;background:rgba(0,0,0,.35)}
+.cqb .hpanel .hc b{color:#ffb24a}
+.cqb .hpanel .hc p{margin:3px 0 0;line-height:1.4}
+.cqb .hpanel .hb2{display:flex;gap:8px;white-space:nowrap}
+.cqb .hpanel .hb2 button{flex:1;height:30px;font-size:13px;font-weight:700;color:#ffe9c0;border:1px solid #8a6a30;border-radius:6px;background:linear-gradient(180deg,#5a3418,#26130a)}
+.cqb .hpanel .hn2{margin-top:8px;font-size:11px;color:#9a8466}
+.cqb .ticker .cq-quest{color:#f2c94a}

@@ -6,7 +6,9 @@
 // 数值落地：本游戏唯一真相源是 game.js 的 hitMon/MON，英雄与合击伤害通过 Host.hit() 打进去（见 cq_bridge.js）。
 (function(){
   var W = typeof window !== 'undefined' ? window : globalThis, CQ = W.CQ = W.CQ || {};
-  var RAGE_MAX = 100, HEJI_CD = 30, REVIVE_SEC = 30, HERO_ATK_T = 1.6;
+  var RAGE_MAX = 100, HEJI_CD = 30;
+  // 英雄可调常量（README_M1.md 有说明）：普攻间隔/伤害系数(×玩家武器上限)/血量系数(×玩家生命上限)/受伤系数/每秒回血/复活秒数
+  var TUNE = CQ.HERO_TUNE = CQ.HERO_TUNE || {atkT: 1.6, atkK: 0.35, hpK: 0.8, hurtK: 1.0, regen: 0.005, reviveSec: 30};
   // 职业：1 战士 2 法师 3 道士（与传奇之旅 prof 一致）；老羊传奇 S.cls：zs/fs/ds
   var PROF = {zs: 1, fs: 2, ds: 3}, PNAME = {1: '战士', 2: '法师', 3: '道士'};
   var COMBO = {
@@ -34,28 +36,36 @@
   function Hero(playerProf, store){
     this.store = store; this.playerProf = playerProf;
     this.h = create(playerProf, store);
-    this.unit = {isHero: true, hp: 1, idx: null, atkT: HERO_ATK_T, deadUntil: 0};
+    this.unit = {isHero: true, hp: 1, maxhp: 1, idx: null, atkT: TUNE.atkT, deadUntil: 0};
   }
   Hero.prototype.combo = function(){ return COMBO[comboKey(this.playerProf, this.h.prof)]; };
   Hero.prototype.addRage = function(n){ this.h.rage = Math.min(RAGE_MAX, (this.h.rage || 0) + n); };
   Hero.prototype.ready = function(){ return this.h.rage >= RAGE_MAX && !(this.h.hejiCd > 0) && this.unit.hp > 0; };
   // 合击伤害：(玩家攻击上限 + 英雄攻击上限) * 倍率 * (1 + 主角等级/50)，原版公式；英雄攻击上限 = 玩家 * heroK
-  Hero.prototype.hejiDamage = function(cb, atkMax, lvl, heroK){ return Math.max(1, Math.round((atkMax + atkMax * heroK) * cb.mult * (1 + lvl / 50) * (0.9 + Math.random() * 0.2))); };
+  Hero.prototype.hejiDamage = function(cb, atkMax, lvl, heroK){ return Math.max(1, Math.round((atkMax + atkMax * (heroK != null ? heroK : TUNE.atkK)) * cb.mult * (1 + lvl / 50) * (0.9 + Math.random() * 0.2))); };
   // 每帧：冷却、复活、英雄普攻、自动合击。host: {targets(), hit(m,d,src), atkMax(), lvl(), heroK(), now()}
   Hero.prototype.tick = function(dt, host){
     var h = this.h, u = this.unit, now = host.now();
     if (h.hejiCd > 0) h.hejiCd = Math.max(0, h.hejiCd - dt);
-    if (u.deadUntil && now >= u.deadUntil) { u.deadUntil = 0; u.hp = 1; }
+    var mx = Math.max(1, Math.round((host.maxhp ? host.maxhp() : 100) * TUNE.hpK));
+    if (u.maxhp !== mx) { u.hp = u.maxhp > 1 ? Math.round(u.hp * mx / u.maxhp) : mx; u.maxhp = mx; }
+    if (u.deadUntil) { if (now < u.deadUntil) return null; u.deadUntil = 0; u.hp = u.maxhp; u.idx = null; return {type: 'herorevive'}; }
     if (u.hp <= 0) return null;
+    u.hp = Math.min(u.maxhp, u.hp + u.maxhp * TUNE.regen * dt);
     var ev = null;
     u.atkT -= dt;
-    if (u.atkT <= 0) { u.atkT = HERO_ATK_T;
+    if (u.atkT <= 0) { u.atkT = TUNE.atkT;
       var ts = host.targets(); if (ts.length) { var t = host.pick ? host.pick(ts) : ts[0];
-        var d = Math.max(1, Math.round(host.atkMax() * host.heroK() * (0.8 + Math.random() * 0.4)));
+        var d = Math.max(1, Math.round(host.atkMax() * TUNE.atkK * (0.8 + Math.random() * 0.4)));
         host.hit(t, d, 'cqhero'); this.addRage(1); ev = {type: 'heroatk', target: t, dmg: d}; } }
     if (h.autoHeji && this.ready() && host.targets().length) { var r = this.doHeji(host, false); if (r && r.ok) ev = r; }
     return ev;
   };
+  // 英雄受伤：怪物攻击英雄时调用；返回 {dmg, dead}
+  Hero.prototype.hurt = function(d, host){ var u = this.unit; if (u.hp <= 0 || u.deadUntil) return null; d = Math.max(1, Math.round(d * TUNE.hurtK)); u.hp -= d;
+    if (u.hp <= 0) { u.hp = 0; u.deadUntil = host.now() + TUNE.reviveSec * 1000; return {dmg: d, dead: true}; }
+    this.addRage(1); return {dmg: d, dead: false}; };
+  Hero.prototype.reviveLeft = function(now){ return this.unit.deadUntil ? Math.max(0, Math.ceil((this.unit.deadUntil - now) / 1000)) : 0; };
   Hero.prototype.doHeji = function(host, manual){
     var h = this.h, cb = this.combo();
     if (this.unit.hp <= 0) return {ok: false, msg: '英雄阵亡中'};
@@ -69,6 +79,6 @@
     return {ok: true, type: 'heji', name: cb.name, fx: cb.fx, combo: cb, hits: hits, total: total, manual: !!manual};
   };
   Hero.prototype.persist = function(){ save(this.store, this.h); };
-  CQ.Hero = Hero; CQ.HEJI = {COMBO: COMBO, comboKey: comboKey, PROF: PROF, PNAME: PNAME, RAGE_MAX: RAGE_MAX, HEJI_CD: HEJI_CD, REVIVE_SEC: REVIVE_SEC};
+  CQ.Hero = Hero; CQ.HEJI = {COMBO: COMBO, comboKey: comboKey, PROF: PROF, PNAME: PNAME, RAGE_MAX: RAGE_MAX, HEJI_CD: HEJI_CD, TUNE: TUNE};
   if (typeof module !== 'undefined') module.exports = {Hero: Hero, HEJI: CQ.HEJI};
 })();

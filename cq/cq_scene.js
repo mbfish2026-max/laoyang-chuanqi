@@ -6,7 +6,7 @@
 // 规则：特效只播一次（CQ.FX.once / animation 1 次）；只有怪物卡片立绘呼吸是循环动画。
 (function(){
   var W0 = typeof window !== 'undefined' ? window : globalThis, CQ = W0.CQ = W0.CQ || {};
-  var UI = 'assets/cq/ui/', DW = 390, TOPH = 62, BOTH = 116, CW = 66, CH = 84, BW = 104, BH = 132;
+  var UI = 'assets/cq/ui/', DW = 390, TOPH = 62, BOTH = 116, CW = 76, CH = 96, BW = 118, BH = 150, POTH = 0;
   var MAX_FLOATS = 22, LOOT_LIFE = 9000;
   var st = null;       // 场景状态
   function h(tag, cls, html){ var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
@@ -16,13 +16,13 @@
   function wpct(e, p){ var v = Math.max(0, Math.min(100, p)).toFixed(1) + '%'; if (e && e.style.width !== v) e.style.width = v; }
 
   // ---------- 布局 ----------
-  function geom(){ var g = st.g, M = CQ.MOVE; var top = st.bossOn ? 160 : TOPH + 10, bot = g.H - BOTH - 4;
+  function geom(){ var g = st.g, M = CQ.MOVE; var top = st.bossOn ? 160 : TOPH + 10, bot = g.H - BOTH - POTH - 4;
     var rowStep = Math.max(40, (bot - top - CH) / (M.ROWS - 1)), colStep = (DW - 16 - CW) / (M.COLS - 1);
     return {top: top, bot: bot, rowStep: rowStep, colStep: colStep}; }
   function cellBox(idx, kind){ var M = CQ.MOVE, p = M.xy(idx), G = geom();
     var cx = 8 + p[0] * G.colStep + CW / 2, by = G.top + p[1] * G.rowStep + CH;   // 格子中心 x、卡片底边 y
     var w = CW, hh = CH;
-    if (kind === 'boss') { w = BW; hh = BH; } else if (kind === 'role') { hh = 132; w = Math.round(hh * .675); } else if (kind === 'hero') { hh = 112; w = Math.round(hh * .695); }
+    if (kind === 'boss') { w = BW; hh = BH; } else if (kind === 'role') { hh = 150; w = Math.round(hh * .675); } else if (kind === 'hero') { hh = 124; w = Math.round(hh * .695); }
     var x = Math.max(2, Math.min(DW - w - 2, cx - w / 2)), y = by - hh;
     return {x: x, y: y, w: w, h: hh, cx: x + w / 2, cy: y + hh * .45, row: p[1]}; }
   function place(el, box, z){ var t = 'translate(' + Math.round(box.x) + 'px,' + Math.round(box.y) + 'px)'; if (el.style.transform !== t) el.style.transform = t; if (z != null && el.style.zIndex != z) el.style.zIndex = z; if (el.classList.contains('hero')) el.style.height = box.h + 'px'; }
@@ -40,10 +40,12 @@
       '<div class="bossbar metal"><div class="head" data-r="bhead"></div><div class="bn"><span data-r="bname"></span><small>首领</small><em data-r="blv"></em></div>' +
         '<div class="bbar"><div class="trail" data-r="btrail"></div><div class="fill" data-r="bfill"></div><div class="txt" data-r="btxt"></div><div class="x" data-r="bx"></div></div>' +
         '<div class="csub"><span>战斗用时 <b data-r="btime">00:00</b></span><span data-r="bwave"></span></div></div>' +
-      '<div class="plaque metal" data-r="plaque"></div>' +
+      '<div class="plaque metal" data-r="plaque" data-a="plaque" title="切换区域"></div>' +
       '<div class="ticker glass"><div class="rows" data-r="ticker"></div></div>' +
-      '<div class="side" data-r="side"><div class="chip glass" data-a="auto"></div></div>' +
+      '<div class="side" data-r="side"><div class="chip glass" data-a="auto"></div><div class="chip glass" data-a="zauto" data-r="zauto"></div></div>' +
       '<div class="pick" data-a="pick" data-r="pick"></div>' +
+      '<div class="zpop metal" data-r="zpop"><button data-a="zprev">◀</button><span data-r="zname"></span><button data-a="znext">▶</button><button data-a="zmap">地图</button></div>' +
+      '<div class="hpanel metal" data-r="hpanel"></div>' +
       '<div class="bottom"><div class="skills" data-r="skills"></div></div>';
     stage.innerHTML = ''; stage.appendChild(root);
     var R = {}; root.querySelectorAll('[data-r]').forEach(function(e){ R[e.getAttribute('data-r')] = e; });
@@ -61,7 +63,12 @@
     else if (k === 'auto') { st.hero.h.autoHeji = !st.hero.h.autoHeji; st.hero.persist(); renderSide(); }
     else if (k === 'pick') pickAll();
     else if (k === 'sk') { var id = a._id; if (id && CQ.Host.skillPop) CQ.Host.skillPop(id); }
-    else if (k === 'menu') { var cb = st.hero.combo(); CQ.Host.toast(st.hero.h.name + ' · 合击【' + cb.name + '】' + cb.desc.split(': ')[1]); }
+    else if (k === 'menu' || k === 'hero') toggleHeroPanel();
+    else if (k === 'hclose') toggleHeroPanel(false);
+    else if (k === 'plaque') st.R.zpop.classList.toggle('on');
+    else if (k === 'zprev' || k === 'znext') { CQ.Host.zoneNav(k === 'zprev' ? -1 : 1); st.R.zpop.classList.remove('on'); }
+    else if (k === 'zauto') { CQ.Host.autoAdv(true); renderSide(); }
+    else if (k === 'zmap') { st.R.zpop.classList.remove('on'); CQ.Host.openMap(); }
   }
 
   // ---------- 生命周期 ----------
@@ -75,7 +82,8 @@
     st.R.ava.className = 'ava ' + (role.cls === 'ds' ? 'ds' : '');
     // 角色 / 英雄立绘
     st.roleEl = unitFigure('me', role.cls === 'ds' ? 'hero_ds' : 'hero_zs', role.name);
-    st.heroEl = unitFigure('pet', st.hero.h.prof === 3 ? 'hero_ds' : 'hero_zs', st.hero.h.name);
+    st.heroEl = unitFigure('pet', st.hero.h.prof === 3 ? 'hero_ds' : 'hero_zs', st.hero.h.name); st.heroEl.setAttribute('data-a', 'hero');
+    st.heroHb = h('div', 'hhb', '<i></i>'); st.heroEl.querySelector('.in').appendChild(st.heroHb); st.heroRv = h('div', 'hrv'); st.heroEl.querySelector('.in').appendChild(st.heroRv);
     CQ.FX.attach(st.R.canvas, DW, 600); CQ.FX.preload();
     layout(); if (W0.ResizeObserver) { st.ro = new ResizeObserver(layout); st.ro.observe(stage); }
     renderSide(); start();
@@ -84,8 +92,8 @@
   function layout(){ if (!st) return; var w = st.stage.clientWidth || DW, hh = st.stage.clientHeight || 600, s = w / DW;
     st.g = {s: s, H: Math.max(420, hh / s)}; var r = st.R.root; r.style.transform = 'scale(' + s + ')'; r.style.height = st.g.H + 'px';
     st.R.canvas.style.width = DW + 'px'; st.R.canvas.style.height = st.g.H + 'px'; CQ.FX.resize(DW, st.g.H);
-    var H = st.g.H; st.R.plaque.style.top = Math.round(H * .52) + 'px'; st.R.ticker.parentNode.style.top = (H - BOTH - 92) + 'px';
-    st.R.side.style.top = (H - BOTH - 44) + 'px'; st.R.pick.style.top = (H - BOTH - 84) + 'px';
+    var H = st.g.H, pb = H - BOTH - POTH; st.R.plaque.style.top = Math.round(H * .5) + 'px'; st.R.ticker.parentNode.style.top = (pb - 92) + 'px';
+    st.R.side.style.top = (pb - 78) + 'px'; st.R.pick.style.top = (pb - 120) + 'px'; st.R.zpop.style.top = (Math.round(H * .5) - 46) + 'px';
     Object.keys(st.views).forEach(function(k){ st.views[k]._pos = null; }); }
   function start(){ if (st.raf || st.paused) return; st.lastT = performance.now(); st.raf = requestAnimationFrame(frame); }
   function stop(){ if (st && st.raf) { cancelAnimationFrame(st.raf); st.raf = 0; } }
@@ -101,6 +109,29 @@
     st.raf = requestAnimationFrame(frame);
   }
   function kindOf(v){ return v.boss ? 'boss' : 'mon'; }
+  // 英雄受伤（传奇规则：怪物贴身才攻击；离角色更近/只贴英雄的怪打英雄）
+  function heroHurtTick(dt){ var u = st.hero.unit; if (!(u.hp > 0) || u.idx == null) return;
+    st.b.mons.forEach(function(v){ if (v.dead || v.idx == null || v.stunned) return; if (CQ.MOVE.monCanAttack(st.b, v) !== 'pet' || CQ.MOVE.cheb(v.idx, u.idx) > 1) { v.hatk = null; return; }
+      if (v.hatk == null) v.hatk = 1 + Math.random(); v.hatk -= dt; if (v.hatk > 0) return; v.hatk = 2 + Math.random() * .6;
+      var m = v.ref, d = Math.round((m.dmg ? m.dmg[0] + Math.random() * (m.dmg[1] - m.dmg[0]) : 3)); var r = st.hero.hurt(d, hostForHero()); if (!r) return;
+      lunge(v.el, v.idx, null); var bx = st.heroBox; if (bx) float(bx.cx + (Math.random() - .5) * 16, bx.y + 14, '-' + fmt(r.dmg), 'me');
+      CQ.FX.once(st.heroEl, 'hurt', false, 400);
+      if (r.dead) { st.heroEl.classList.add('dead'); u.idx = null; st._heroPos = null; CQ.Host.log('<span style="color:#f77">英雄 ' + esc(st.hero.h.name) + ' 阵亡，' + CQ.HERO_TUNE.reviveSec + ' 秒后复活</span>'); } }); }
+  function toggleHeroPanel(on){ var p = st.R.hpanel; if (on == null) on = !p.classList.contains('on'); p.classList.toggle('on', on); if (on) renderHeroPanel(); }
+  function renderHeroPanel(){ var p = st.R.hpanel; if (!p.classList.contains('on')) return; var H = st.hero.h, u = st.hero.unit, cb = st.hero.combo(), now = Date.now(), T = CQ.HERO_TUNE, PN = CQ.HEJI.PNAME;
+    var stt = u.deadUntil ? '阵亡 · ' + st.hero.reviveLeft(now) + ' 秒后复活' : '战斗中';
+    var html = '<div class="ht"><b>' + esc(H.name) + '</b><small>' + PN[H.prof] + '</small><button data-a="hclose">✕</button></div>' +
+      '<div class="hr"><span>生命</span><div class="cbar hp"><i style="width:' + (u.maxhp ? u.hp / u.maxhp * 100 : 0).toFixed(1) + '%"></i></div><em>' + fmt(u.hp) + '/' + fmt(u.maxhp) + '</em></div>' +
+      '<div class="hr"><span>怒气</span><div class="cbar rage"><i style="width:' + Math.floor(H.rage || 0) + '%"></i></div><em>' + Math.floor(H.rage || 0) + '/100</em></div>' +
+      '<div class="hr"><span>状态</span><em class="l">' + stt + '</em></div>' +
+      '<div class="hr"><span>普攻</span><em class="l">每 ' + T.atkT + ' 秒 · 玩家武器上限×' + T.atkK + '</em></div>' +
+      '<div class="hc"><b>合击【' + esc(cb.name) + '】</b><p>' + esc(cb.desc) + '</p><p>已施放 ' + (H.hejiCount || 0) + ' 次' + (H.hejiCd > 0 ? ' · 冷却 ' + Math.ceil(H.hejiCd) + ' 秒' : '') + '</p></div>' +
+      '<div class="hb2"><button data-a="auto">' + (H.autoHeji ? '自动合击：开' : '自动合击：关') + '</button><button data-a="heji">立即合击</button></div>' +
+      '<div class="hn2">召唤 / 改名 / 选职业 / 英雄装备：等系统开发接口（docs/systems_api.md）</div>';
+    if (p._h !== html) { p._h = html; p.innerHTML = html; } }
+  function renderPots(){ if (!st.R.pots) return;  var P = CQ.Host.pots(), R = st.R; R.pots.querySelectorAll('button[data-k]').forEach(function(b){ var n = P[b.getAttribute('data-k')] || 0; txt(b.querySelector('b'), n); b.classList.toggle('none', n <= 0); });
+    var r = CQ.Host.role(); [[R.orbL, r.hp, r.maxhp], [R.orbR, r.mp, r.maxmp]].forEach(function(o){ var p = o[2] ? Math.max(0, Math.min(1, o[1] / o[2])) : 0, i = o[0].querySelector('i'), v = (100 - p * 100).toFixed(1) + '%'; if (i.style.top !== v) i.style.top = v; txt(o[0].querySelector('span'), Math.max(0, Math.round(o[1]))); }); }
+  function renderZpop(){ var R = st.R; if (!R.zpop.classList.contains('on')) return; txt(R.zname, CQ.Host.zone().name); }
   function sync(dt, now){
     var live = CQ.Host.mons(), seen = {}, b = st.b;
     live.forEach(function(m){ var v = st.views[m.uid]; seen[m.uid] = 1;
@@ -111,13 +142,14 @@
     var bossLive = b.mons.some(function(v){ return v.boss && !v.dead; });
     if (bossLive !== st.bossOn) { st.bossOn = bossLive; st.R.root.classList.toggle('boss', bossLive); b.mons.forEach(function(v){ v._pos = null; }); st._rolePos = st._heroPos = null; }
     // 英雄
-    var ev = st.hero.tick(dt, hostForHero()); if (ev) { if (ev.type === 'heji') playHeji(ev); else if (ev.type === 'heroatk') lunge(st.heroEl, st.hero.unit.idx, ev.target); }
+    var ev = st.hero.tick(dt, hostForHero()); if (ev) { if (ev.type === 'heji') playHeji(ev); else if (ev.type === 'heroatk') lunge(st.heroEl, st.hero.unit.idx, ev.target); else if (ev.type === 'herorevive') { st._heroPos = null; st.heroEl.classList.remove('dead'); CQ.Host.log('<span style="color:#7dff8a">' + esc(st.hero.h.name) + ' 复活了</span>'); } }
+    heroHurtTick(dt);
     // 走位（传奇原规则）
     CQ.MOVE.update(b, dt);
     b.mons.forEach(function(v){ if (v.dead || v.idx == null) return; var key = v.idx + (st.bossOn ? 'b' : ''); if (v._pos === key) return; v._pos = key;
       var bx = cellBox(v.idx, kindOf(v)); v.box = bx; place(v.el, bx, 10 + bx.row * 3 + (v.boss ? 1 : 0)); });
     var rk = b.roleIdx + (st.bossOn ? 'b' : ''); if (st._rolePos !== rk) { st._rolePos = rk; st.roleBox = cellBox(b.roleIdx, 'role'); place(st.roleEl, st.roleBox, 11 + st.roleBox.row * 3); }
-    var u = st.hero.unit, hk = u.idx + (st.bossOn ? 'b' : ''); if (u.idx != null && st._heroPos !== hk) { st._heroPos = hk; st.heroBox = cellBox(u.idx, 'hero'); place(st.heroEl, st.heroBox, 11 + st.heroBox.row * 3); }
+    var u = st.hero.unit, hk = u.idx + (st.bossOn ? 'b' : ''); if (u.idx != null && u.hp > 0 && st._heroPos !== hk) { st._heroPos = hk; st.heroBox = cellBox(u.idx, 'hero'); place(st.heroEl, st.heroBox, 11 + st.heroBox.row * 3); }
     // 血条：每帧（便宜）；其余 UI 10Hz
     b.mons.forEach(function(v){ if (v.dead) return; var p = v.ref.max ? v.ref.hp / v.ref.max * 100 : 0; wpct(v.hbI, p); wpct(v.hbS, p); });
     st.uiT -= dt; if (st.uiT <= 0) { st.uiT = .1; renderUI(now); }
@@ -162,10 +194,12 @@
     R.ring.setAttribute('stroke-dasharray', (R.ringC * rage / 100).toFixed(1) + ' ' + R.ringC); R.ring.setAttribute('stroke', full ? '#ffcf4a' : '#ff7a2a');
     R.heji.classList.toggle('cd', H.hejiCd > 0); R.heji.classList.toggle('full', full && !(H.hejiCd > 0));
     txt(R.heji.querySelector('.rg'), H.hejiCd > 0 ? '冷却 ' + Math.ceil(H.hejiCd) + '秒' : full ? '怒气已满' : '怒气 ' + rage + '%');
-    // 掉落滚动条
+    renderZpop(); if (CQ.Host.autoAdv() !== st._aa) { st._aa = CQ.Host.autoAdv(); renderSide(); } renderHeroPanel();
+    var hu = st.hero.unit; wpct(st.heroHb.querySelector('i'), hu.maxhp ? hu.hp / hu.maxhp * 100 : 0); txt(st.heroRv, hu.deadUntil ? st.hero.reviveLeft(Date.now()) + '秒' : '');
+    // 掉落滚动条（首行主线任务，原任务行收起后放这里）
     var L = CQ.Host.logs(4), lk = L.join('\u0001'); if (lk !== st.logKey) { st.logKey = lk; R.ticker.innerHTML = L.map(function(x){ return '<div class="crow">' + x + '</div>'; }).join(''); CQ.FX.once(R.ticker, 'tick', false, 700); }
   }
-  function renderSide(){ var c = st.R.side.querySelector('[data-a=auto]'); c.textContent = st.hero.h.autoHeji ? '自动合击 ✓' : '自动合击 ✗'; c.classList.toggle('off', !st.hero.h.autoHeji); }
+  function renderSide(){ var c = st.R.side.querySelector('[data-a=auto]'); c.textContent = st.hero.h.autoHeji ? '自动合击 ✓' : '自动合击 ✗'; c.classList.toggle('off', !st.hero.h.autoHeji); var z = st.R.zauto, a = CQ.Host.autoAdv(); txt(z, a ? '自动推进 ✓' : '原地挂机'); z.classList.toggle('off', !a); }
 
   // ---------- 事件（由 bridge 调用） ----------
   function viewOf(m){ return m && st && st.views[m.uid]; }
@@ -192,7 +226,9 @@
     if (num) { CQ.FX.once(st.roleEl, 'hurt', false, 400); st.hero.addRage(3); } }
   function onKill(m){ if (!st) return; var c = centerOfMon(m); st.lastKill = {x: c.x, y: c.y + 20, top: c.top, boss: !!m.boss, name: m.n}; }
   function onBossSpawn(m){ st.bossT0 = performance.now(); var w = h('div', 'warn', '<span>首领出现 · ' + esc(m.n) + '</span>'); st.R.root.appendChild(w); CQ.FX.once(w, null, true, 3000); }
-  function onSkill(id){ /* 冷却由 Host.skills() 提供，这里只留钩子 */ }
+  function onSkill(id){ if (!st || st.paused) return; var dir = CQ.Host.skillFx(id); if (!dir) return;
+    var tg = st.b._tgt && !st.b._tgt.dead ? st.b._tgt : st.b.mons.filter(function(v){ return !v.dead && v.box; })[0];
+    var s = st.roleBox ? {x: st.roleBox.cx, y: st.roleBox.cy} : null, t = tg && tg.box ? {x: tg.box.cx, y: tg.box.cy} : null; CQ.FX.playSkill(dir, s, t); }
 
   // ---------- 合击演出（样稿 p3） ----------
   function playHeji(ev){

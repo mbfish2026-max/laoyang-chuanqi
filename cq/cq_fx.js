@@ -21,7 +21,7 @@
     }).catch(function(){ s.failed = true; });
     return s;
   }
-  function preload(){ HEJI_DIRS.forEach(function(d){ loadSheet(d); loadSheet(d + '_charge'); }); }
+  function preload(){ HEJI_DIRS.forEach(function(d){ loadSheet(d); loadSheet(d + '_charge'); }); SKILL_DIRS.forEach(loadSheet); }
   function attach(cv, w, h){ canvas = cv; ctx = cv.getContext('2d'); resize(w, h); }
   function resize(w, h){ Wd = w; Hd = h; dpr = Math.min(2, W0.devicePixelRatio || 1); if (!canvas) return;
     var bw = Math.round(w * dpr), bh = Math.round(h * dpr); if (canvas.width !== bw || canvas.height !== bh) { canvas.width = bw; canvas.height = bh; } }
@@ -31,7 +31,7 @@
     for (var i = 0; i < n; i++) { var a = Math.random() * Math.PI * 2, v = spd * (.3 + Math.random()); P({x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - (up || 0), s: size * (.5 + Math.random()), c: col[i % col.length], life: life * (.6 + Math.random() * .6)}); } }
   function ring(x, y, r0, r1, col, life, w){ rings.push({x: x, y: y, r0: r0, r1: r1, c: col, life: life, max: life, w: w || 6}); kick(); }
   function sprite(dir, x, y, o){ var s = loadSheet(dir); if (!s.ok) return false; o = o || {};
-    anims.push({s: s, x: x, y: y, t: 0, scale: o.scale || 1, done: o.done}); kick(); return true; }
+    anims.push({s: s, x: x, y: y, t: 0, scale: o.scale || 1, done: o.done, tx: o.tx, ty: o.ty, dur: o.dur}); kick(); return true; }
   // 能量流：从 s 飞向 t 的拖尾粒子（原 trailFollow）
   function trail(s, t, dur, cols){ var n = low ? 6 : 16; for (var i = 0; i < n; i++) (function(i){ setTimeout(function(){
       var f = i / n; P({x: s.x + (t.x - s.x) * f, y: s.y + (t.y - s.y) * f - Math.sin(f * Math.PI) * 40, vx: (Math.random() - .5) * 40, vy: (Math.random() - .5) * 40, s: 7, c: cols[i % cols.length], life: .35}); }, dur * 1000 * i / n); })(i); }
@@ -48,6 +48,13 @@
     }, HEJI_WIND);
     return HEJI_WIND + imp;
   }
+  // 普通技能序列帧（传奇之旅 assets/fx，只播一次）：projectile 从施法者飞向目标、onTarget 落在目标、onSelf 落在施法者
+  var SKILL_DIRS = ['huoqiu', 'leidianshu', 'banyue', 'liehuo', 'gongsha', 'bingpaoxiao', 'huoqiang', 'linghunhuofu', 'shidu', 'zhiliaoshu', 'yemanchongzhuang', 'mofadun', 'zhaohuan', 'shenshengzhanjia'];
+  var lastSkill = 0;
+  function playSkill(dir, s, t){ if (!dir) return false; var now = performance.now(); if (now - lastSkill < (low ? 900 : 320)) return false;
+    var sh = loadSheet(dir); if (!sh.ok) return false; lastSkill = now; var ty = sh.meta.type, sc = .62;
+    if (ty === 'projectile' && s && t) return sprite(dir, s.x, s.y, {tx: t.x, ty: t.y, dur: .38, scale: .5, done: function(){ burst(t.x, t.y, 14, ['#fff2a8', '#ffb300', '#ff4d00'], 220, 5, .4); ring(t.x, t.y, 6, 50, 'rgba(255,200,120,.9)', .3, 5); }});
+    var p = ty === 'onSelf' ? s : (t || s); return p ? sprite(dir, p.x, p.y, {scale: sc}) : false; }
   function loop(now){
     if (!canvas) { running = false; return; }
     var dt = Math.min(.05, (now - last) / 1000); last = now;
@@ -58,10 +65,12 @@
     for (i = parts.length - 1; i >= 0; i--) { var q = parts[i]; q.life -= dt; if (q.life <= 0) { parts.splice(i, 1); continue; }
       var a = q.life / q.max; q.vx *= q.drag; q.vy = q.vy * q.drag + q.g * dt; q.x += q.vx * dt; q.y += q.vy * dt; glow(q.x, q.y, q.s, q.c, a); }
     for (i = anims.length - 1; i >= 0; i--) { var an = anims[i], s = an.s, me = s.meta; an.t += dt;
-      var fr = Math.floor(an.t * me.fps); if (fr >= me.frames) { anims.splice(i, 1); if (an.done) an.done(); continue; }
+      var fr = Math.floor(an.t * me.fps), ax = an.x, ay = an.y;
+      if (an.dur) { var ff = Math.min(1, an.t / an.dur); ax = an.x + (an.tx - an.x) * ff; ay = an.y + (an.ty - an.y) * ff; fr = fr % me.frames; if (ff >= 1) { anims.splice(i, 1); if (an.done) an.done(); continue; } }
+      else if (fr >= me.frames) { anims.splice(i, 1); if (an.done) an.done(); continue; }
       var sw = me.frameW, sh = me.frameH, c = fr % s.cols, row = Math.floor(fr / s.cols), dw = sw * an.scale, dh = sh * an.scale;
       ctx.globalAlpha = 1; ctx.globalCompositeOperation = me.blend === 'lighter' ? 'lighter' : 'source-over';
-      ctx.drawImage(s.img, c * sw, row * sh, sw, sh, an.x - dw / 2, an.y - dh / 2, dw, dh); ctx.globalCompositeOperation = 'lighter'; }
+      ctx.drawImage(s.img, c * sw, row * sh, sw, sh, ax - dw / 2, ay - dh / 2, dw, dh); ctx.globalCompositeOperation = 'lighter'; }
     ctx.globalAlpha = 1;
     if (parts.length || anims.length || rings.length) requestAnimationFrame(loop);
     else { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); running = false; }
@@ -73,6 +82,6 @@
     var h = function(e){ if (e.target === el) done(); };
     el.addEventListener('animationend', h); clearTimeout(el['_cqT' + cls]); el['_cqT' + cls] = setTimeout(done, ms || 1600); }
   function clear(){ parts.length = anims.length = rings.length = 0; }
-  CQ.FX = {attach: attach, resize: resize, preload: preload, loadSheet: loadSheet, sprite: sprite, burst: burst, ring: ring, trail: trail, heji: heji, hejiImpact: hejiImpact, once: once, clear: clear,
+  CQ.FX = {playSkill: playSkill, SKILL_DIRS: SKILL_DIRS, attach: attach, resize: resize, preload: preload, loadSheet: loadSheet, sprite: sprite, burst: burst, ring: ring, trail: trail, heji: heji, hejiImpact: hejiImpact, once: once, clear: clear,
     setLow: function(v){ low = !!v; }, stats: function(){ return {parts: parts.length, anims: anims.length, rings: rings.length, running: running}; }, HEJI_COL: HEJI_COL};
 })();
