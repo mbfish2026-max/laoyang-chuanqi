@@ -97,16 +97,18 @@ function zState(a,i,d){const open=ok('actOpen')?actOpen(a,d):a===0,here=a===S.ac
 function chInfo(a,d){const A=ACTS[a],q=d===S.diff?S.q:((S.Q||{})[d]||{}),qs=Object.keys(QUESTS).filter(k=>QUESTS[k].act===a),dn=qs.filter(k=>q[k]).length;
  const open=ok('actOpen')?actOpen(a,d):a===0;const ml=A.zones.map(z=>mlv(z,d));
  return {a,n:(A.n.split('·')[1]||A.n).trim(),no:A.n.split('·')[0].trim(),camp:A.camp,boss:A.boss,open,done:qs.length&&dn===qs.length,qd:dn,qn:qs.length,lv:Math.min(...ml)+'–'+Math.max(...ml)}}
+// 地图缩略图（美术2 0a58e56/df2d26b）：assets/cq/map/zone_<章 1起>_<区 1起>.webp，章 = ACTS[a]（a=0..2）；缺图隐藏
+const zImg=(a,i)=>`assets/cq/map/zone_${a+1}_${i+1}.webp`,zThumb=(a,i,c)=>`<img class="${c}" src="${zImg(a,i)}" alt="" loading="lazy" onerror="this.style.display='none'">`;
 function zoneRow(a,z,i,d){const s=zState(a,i,d),b=z.boss,B=b&&BOSSES[b],r=b?bossRt(b):null,tm=b&&s!=='lk'?cdTxt(r):'';
  const mons=(z.mons||[]).slice(0,3).map(k=>(MONS[k]||{}).n||k).join(' / ');
  const TAG={done:'<span class="tag ok">已通关</span>',here:'<span class="tag here">挂机中</span>',open:'<span class="tag op">已解锁</span>',lk:'<span class="tag lk">未解锁</span>'}[s];
  const per=r?(r.cd>=3600?'60':r.cd>=1800?'30':String(Math.round((r.cd||600)/60))):'';
  const btn=s==='lk'?'<button class="cqbtn xs dis">未解锁</button>':s==='here'?`<button class="cqbtn xs gold" onclick="cqPg.mapFight()">挂机中</button>`:`<button class="cqbtn xs" onclick="cqPg.mapGo(${a},${i})">前往</button>`;
- return `<div class="z ${s}" data-a="${a}" data-i="${i}"${s!=='lk'&&s!=='here'?` onclick="if(event.target.tagName!=='BUTTON')cqPg.mapGo(${a},${i})"`:''}><div class="pin">${s==='done'?'✔':s==='lk'?'🔒':i+1}</div><div class="i"><div class="n">${esc(z.n)}<small>Lv.${mlv(z,d)}</small>${z.dun?'<span class="tag dun">副本</span>':''}${TAG}</div>
+ return `<div class="z ${s}" data-a="${a}" data-i="${i}"${s!=='lk'&&s!=='here'?` onclick="if(event.target.tagName!=='BUTTON')cqPg.mapGo(${a},${i})"`:''}><div class="pin">${s==='done'?'✔':s==='lk'?'🔒':i+1}</div>${zThumb(a,i,'zth')}<div class="i"><div class="n">${esc(z.n)}<small>Lv.${mlv(z,d)}</small>${z.dun?'<span class="tag dun">副本</span>':''}${TAG}</div>
  <div class="m">怪物：${esc(mons)}</div><div class="m">${B?`首领：<b>${esc(B.n)}</b> · ${r&&r.actboss?'章节首领 ':''}${per} 分钟${tm?` · <span class="${tm==='可挑战'?'rdy':'cd'}">${tm}</span>`:''}`:'首领：—'}</div></div>
- <div class="rt">${b?`<div class="bh"><img src="${UI}mdl_mst_${b==='skelspirit'?'1017':b}.png" alt="" onerror="this.style.display='none'"></div>`:''}${btn}</div></div>`}
+ <div class="rt">${b?`<div class="bh"><img src="${UI}mdl_mst_${b}.png" alt="" onerror="${b==='skelspirit'?`if(!this.dataset.f){this.dataset.f=1;this.src='${UI}mdl_mst_1017.png';return}`:''}this.style.display='none'"></div>`:''}${btn}</div></div>`}
 function chapCard(c,d){const [bg,bo]=CHB[c.a]||[];const st=c.done?'<span class="tag ok">已通关</span>':c.open?'<span class="tag new">进行中</span>':`<span class="tag lk">${c.a?'击败'+esc(ACTS[c.a-1].boss)+'解锁':'未解锁'}</span>`;
- return `<div class="chc ${c.open?'':'lk'}" id="cqch_${c.a}"><div class="bg" style="background-image:url(${UI}pg/${bg})"></div><img class="boss" src="${UI}mdl_mst_${bo}.png" alt="">
+ return `<div class="chc ${c.open?'':'lk'}" id="cqch_${c.a}"><div class="bg" style="background-image:url(${c.a>=2?`assets/cq/map/chapter_${c.a+1}.webp`:UI+'pg/'+bg})"></div><img class="boss" src="${UI}mdl_mst_${bo}.png" alt="">
  <div class="tx"><div class="no">${esc(c.no)} · CHAPTER</div><div class="t">${esc(c.n)}</div><div class="m">Lv.${c.lv} · 营地 ${esc(c.camp)}</div><div class="m">章节首领 <b class="bn">${esc(c.boss)}</b> · 区域 ${ACTS[c.a].zones.length}</div></div>
  <div class="st"><div class="prog"><i style="width:${c.qn?c.qd/c.qn*100:0}%"></i></div><span class="m">任务 ${c.qd}/${c.qn}</span>${st}</div></div>
  <div class="zl">${ACTS[c.a].zones.map((z,i)=>zoneRow(c.a,z,i,d)).join('')}</div>`}
@@ -115,13 +117,13 @@ function mapPage(old){const d=MAPD==null?S.diff:MAPD,cs=[];for(let a=0;a<MAPN&&a
  <div class="cqmqrow${MQOPEN?' open':''}" onclick="cqPg.mqToggle()"><b>主线任务</b><span class="t">${esc(mqText())}</span><i>${MQOPEN?'▴':'▾'}</i></div><div class="cqmqbox${MQOPEN?'':' hide'}"></div></div>
  ${d!==S.diff?`<div class="dim dnote">正在查看 ${esc(DIFFS[d].n)} 难度（当前挂机：${esc(DIFFS[S.diff].n)}）</div>`:''}
  ${cs.map(c=>chapCard(c,d)).join('')}
- <div class="chc lk soon"><div class="bg" style="background-image:url(${UI}pg/img_bg_maptile1.png)"></div><div class="tx"><div class="no">第四章 · CHAPTER</div><div class="t">敬请期待</div><div class="m">击败${esc(ACTS[2].boss)}后开放</div></div></div>
+ <div class="chc lk soon"><div class="bg" style="background-image:url(assets/cq/map/chapter_4.webp),url(${UI}pg/img_bg_maptile1.png)"></div><div class="tx"><div class="no">第四章 · CHAPTER</div><div class="t">敬请期待</div><div class="m">击败${esc(ACTS[2].boss)}后开放</div></div></div>
  <details class="cqmapold"${MAPOPEN?' open':''} ontoggle="cqPg._mapOpen(this.open)"><summary>难度 · 主线任务 · 其他</summary>${old}</details></div>`}
 function mqToggle(v){MQOPEN=v==null?!MQOPEN:!!v;const P=document.getElementById('panel');const b=P&&P.querySelector('.cqmap .cqmqbox'),r=P&&P.querySelector('.cqmap .cqmqrow');
  if(b)b.classList.toggle('hide',!MQOPEN);if(r){r.classList.toggle('open',MQOPEN);const i=r.querySelector('i');if(i)i.textContent=MQOPEN?'▴':'▾'}return MQOPEN}
 function mapGo(a,i){const z=ACTS[a]&&ACTS[a].zones[i];if(!z)return;const d=MAPD==null?S.diff:MAPD,s=zState(a,i,d);if(s==='lk'){if(ok('toast'))toast('尚未解锁');return}
  const r=z.boss?bossRt(z.boss):null,mons=(z.mons||[]).map(k=>(MONS[k]||{}).n||k).join(' / ');
- modal(`<div class="cqpg cqgo"><div class="cqpanel"><div class="cqttl">传送 · ${esc(z.n)}</div><div class="kv one"><div><span>怪物等级</span><b>Lv.${mlv(z,d)}</b></div><div><span>主要怪物</span><b>${esc(mons)}</b></div>${r?`<div><span>首领</span><b>${esc(r.n)} · ${cdTxt(r)}</b></div><div><span>推荐战力</span><b>${num(r.recPower)}</b></div>`:''}<div><span>难度</span><b>${esc(DIFFS[d].n)}</b></div></div>
+ modal(`<div class="cqpg cqgo"><div class="cqpanel"><div class="cqttl">传送 · ${esc(z.n)}</div>${zThumb(a,i,'zhead')}<div class="kv one"><div><span>怪物等级</span><b>Lv.${mlv(z,d)}</b></div><div><span>主要怪物</span><b>${esc(mons)}</b></div>${r?`<div><span>首领</span><b>${esc(r.n)} · ${cdTxt(r)}</b></div><div><span>推荐战力</span><b>${num(r.recPower)}</b></div>`:''}<div><span>难度</span><b>${esc(DIFFS[d].n)}</b></div></div>
  <div class="row c"><button class="cqbtn gold" onclick="closeM();cqPg.travel(${a},${i},${d})">传送挂机</button><button class="cqbtn" onclick="closeM()">取消</button></div></div></div>`)}
 function travel(a,i,d){if(d==null)d=MAPD==null?S.diff:MAPD;if(zState(a,i,d)==='lk')return false;if(a!==S.act||d!==S.diff){if(ok('goAct'))goAct(a,d,1)}
  if(i>S.unl)return false;goZone(i);try{S.auto=S.auto}catch(e){}TAB='fight';render();return true}

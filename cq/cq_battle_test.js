@@ -224,4 +224,9 @@ if(G("typeof heroSkPick")==='function'){// 职业开发 cls_hero.js 接入（分
  ok(G('c3&&c3.skill')==='火球术'&&G('hit3.every(s=>s==="cqhero")'),'有 cls_hero 时用 heroSkPick/heroCast 施法（初始火球术）');
  G(`S.hero.skOff={hqs:1};hc3.h.skOff=S.hero.skOff;for(const k in HERO_CD)delete HERO_CD[k];hc3.unit.atkT=0;var c4=hc3.tick(.01,h3)`);ok(G('c4&&c4.skill')===null&&G('c4.dmg')>0,'关闭后 heroSkPick 不选，改普攻');
  G(`hc3.h.skOff={heji:1};hc3.h.autoHeji=true;hc3.h.rage=100;hc3.h.hejiCd=0;hc3.unit.atkT=9;var c5=hc3.tick(.01,h3)`);ok(!(G('c5')&&G('c5.type')==='heji'),'skOff.heji 时不自动合击');}
+{const fs3=require('fs'),src=fs3.readFileSync(root+'/cq/pages_cq.js','utf8');const n=G('ACTS.slice(0,3).reduce((s,a)=>s+a.zones.length,0)');let all=true;for(let a=0;a<3;a++)for(let i=0;i<G(`ACTS[${a}].zones.length`);i++)if(!fs3.existsSync(`${root}/assets/cq/map/zone_${a+1}_${i+1}.webp`))all=false;
+ ok(n===19&&all,'19 张区域缩略图 zone_<章>_<区>.webp 与 ACTS[0..2] 一一对应（从 1 起）');
+ ok(/zThumb\(a,i,'zth'\)/.test(src)&&/zThumb\(a,i,'zhead'\)/.test(src)&&/onerror="this\.style\.display='none'"/.test(src),'区域行与传送弹窗用同一张缩略图，缺图隐藏');
+ ok(/c\.a>=2\?`assets\/cq\/map\/chapter_\$\{c\.a\+1\}\.webp`/.test(src)&&/chapter_4\.webp/.test(src)&&fs3.existsSync(root+'/assets/cq/map/chapter_3.webp')&&fs3.existsSync(root+'/assets/cq/map/chapter_4.webp'),'第 3/4 章卡片用 chapter_3/4.webp，1/2 章保留 stage_1001/1002');
+ ok(!/b==='skelspirit'\?'1017':b/.test(src)&&/mdl_mst_\$\{b\}\.png/.test(src),'骷髅精灵优先 mdl_mst_skelspirit.png（1017 仅作缺图兜底）');}
 T.done();
