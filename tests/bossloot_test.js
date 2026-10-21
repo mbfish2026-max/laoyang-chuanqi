@@ -15,7 +15,7 @@ const UN=new Set(G("UNIQUES.map(u=>u.n)"));ok(ks.length>=3&&ks.every(k=>L[k].len
 const all=ks.flatMap(k=>L[k]);ok(G('UNIQUES.length')<ks.length*3||new Set(all).size===all.length,'专属互不重复（极品数足够时）');
 ok(L.orclord&&L.rakecatking&&L.redsnakeking,'第 1 章首领都有专属表');
 ok(['orclord','rakecatking','redsnakeking'].every(k=>L[k].length===2&&L[k].every(n=>G(`UNIQUES.find(u=>u.n==='${n}').boss`)===k)),'第 1 章首领专属 = 数据表 boss 字段指定的 2 件');
-ok(!ks.filter(k=>!['orclord','rakecatking','redsnakeking'].includes(k)).some(k=>L[k].some(n=>G(`!!UNIQUES.find(u=>u.n==='${n}').boss`))),'指定专属不分给其他首领');
+ok(!ks.some(k=>L[k].some(n=>{const b=G(`UNIQUES.find(u=>u.n==='${n}').boss||''`);return b&&b!==k})),'指定专属不分给其他首领（含第 2–3 章）');
 ok(L.cowking&&L.rift_guard&&L.mj_lord,'含牛魔王/虚隙守望者/秘境之主');
 ok(G("JSON.stringify(blBuild())")===G("BOSS_LOOT=null;JSON.stringify(blBuild())"),'分配确定性');
 const p=G("blChance('orclord',85)");ok(p>0.05&&p<=0.5,'地狱 ×4 替换概率 '+p.toFixed(3));

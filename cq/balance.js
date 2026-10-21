@@ -30,3 +30,12 @@ function cqHeroShare(heroDmg,hejiDmg,totalDmg){const h=(+heroDmg||0)+(+hejiDmg||
 function cqHeroShareOk(heroDmg,hejiDmg,totalDmg){return cqHeroShare(heroDmg,hejiDmg,totalDmg)<=CQ_BAL.budget.hero+1e-9}
 // 给定玩家本体伤害 P，英雄+合击允许的最大伤害：x/(P+x) ≤ s → x ≤ P·s/(1-s)
 function cqHeroDmgCap(playerDmg){const s=CQ_BAL.budget.hero;return Math.max(0,(+playerDmg||0)*s/(1-s))}
+
+// ---------- M2 数值（docs/systems_api.md） ----------
+// 首领真实时间刷新（秒）：小首领 10 分钟、章节首领 30–60 分钟（§7.3）；离线：上限 8 小时，英雄击杀 = 本体离线击杀 × heroK，离线首领胜负按战力，掉落折半，最多 bossMax 次
+CQ_BAL.bossRt={small:600,act:1800,actLate:3600};
+CQ_BAL.off={maxH:8,heroK:0.2,bossMax:6,bossDrop:0.5,winPow:0.8};
+// 技能书：每次击杀掉落几率；本职业书占比
+CQ_BAL.book={boss:0.15,actboss:0.3,elite:0.02,normal:0.002,ownCls:0.7};
+// 召唤物：属性 = (道术|魔法) × 系数 × (1 + 技能等级×lvK)；伤害占比上限（召唤流，src 'cqpet'）
+CQ_BAL.summon={dog:{hp:12,atk:1.1,def:0.5},skel:{hp:7,atk:0.8,def:0.3},pet:{hp:1.0,atk:1.0,def:1.0},lvK:0.06,attrLv:0.8,revive:60,share:0.6,petMax:2};
