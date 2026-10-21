@@ -19,8 +19,8 @@
   // 格子（照搬传奇之旅 map_battle/fight_battle battleNode：750 设计宽，6×5，cell 120×125，间距 2，左内边距 9，上内边距 4；
   //   纵向按 stretchBattle 规则把多出的高度均分给行距）。390 宽 → k=0.52：cell 62.4×65，列距 63.44，首列中心 x=35.9。
   // 网格固定，不随首领出现/消失移动（首领条盖在顶部，网格顶 = 首领条下沿），所有单位只站格子中心、底边对齐格子底边。
-  var GK = DW / 750, CELLW = 120 * GK, CELLH = 125 * GK, GAPX = 2 * GK, PADL = 9 * GK, GRID_TOP = 150;
-  function geom(){ var g = st.g, M = CQ.MOVE, top = GRID_TOP, bot = g.H - BOTH - POTH - 4;
+  var PICKH = 124, GK = DW / 750, CELLW = 120 * GK, CELLH = 125 * GK, GAPX = 2 * GK, PADL = 9 * GK, GRID_TOP = 150;
+  function geom(){ var g = st.g, M = CQ.MOVE, top = GRID_TOP, bot = g.H - BOTH - POTH - PICKH;   /* M1.9：网格底边让出右下「一键拾取」那一行（pick 在 pb-120），按钮不再压最后一排格子 */
     var rowStep = Math.max(CELLH + 2 * GK, (bot - top - CELLH) / (M.ROWS - 1)), colStep = CELLW + GAPX;
     return {top: top, bot: bot, rowStep: rowStep, colStep: colStep}; }
   function cellCenter(idx){ var p = CQ.MOVE.xy(idx), G = geom(); return {x: PADL + p[0] * G.colStep + CELLW / 2, bottom: G.top + p[1] * G.rowStep + CELLH, row: p[1], col: p[0]}; }
@@ -96,6 +96,10 @@
     layout(); if (W0.ResizeObserver) { st.ro = new ResizeObserver(layout); st.ro.observe(stage); }
     renderSide(); start();
   }
+  // 换角色/换职业（stash newChar/switchChar、转职）后刷新角色卡名字与形象：renderUI 10Hz 比对 name|cls，变了才动 DOM
+  function refreshRole(){ var r = CQ.Host.role(), k = r.name + '|' + r.cls; if (st._roleK === k) return; var first = st._roleK == null; st._roleK = k; if (first) return;
+    var nm = st.roleEl.querySelector('.hn'), img = st.roleEl.querySelector('img'); txt(nm, r.name); var src = UI + (r.cls === 'ds' ? 'hero_ds' : 'hero_zs') + '.png';
+    if (img.getAttribute('src') !== src) img.setAttribute('src', src); st.R.ava.className = 'ava ' + (r.cls === 'ds' ? 'ds' : ''); onHeroChange(); }
   function unitFigure(kind, img, name){ var e = h('div', 'hero ' + (kind === 'me' ? 'me' : 'pet'), '<div class="in"><div class="shadow"></div><div class="hn">' + esc(name) + '</div><img src="' + UI + img + '.png" alt=""></div>'); st.R.units.appendChild(e); return e; }
   function layout(){ if (!st) return; var w = st.stage.clientWidth || DW, hh = st.stage.clientHeight || 600, s = w / DW;
     st.g = {s: s, H: Math.max(420, hh / s)}; var r = st.R.root; r.style.transform = 'scale(' + s + ')'; r.style.height = st.g.H + 'px';
@@ -217,7 +221,7 @@
     st.b.mons.splice(st.b.mons.indexOf(v), 1); delete st.views[v.uid]; if (st.b._tgt === v) st.b._tgt = null; }
 
   // ---------- UI（10Hz） ----------
-  function renderUI(now){
+  function renderUI(now){ refreshRole();
     var R = st.R, r = CQ.Host.role();
     txt(R.pn, 'Lv.' + r.lvl + ' ' + r.name); txt(R.pw, r.power != null ? '战力 ' + fmt(r.power) : r.clsName);
     wpct(R.hp, r.maxhp ? r.hp / r.maxhp * 100 : 0); wpct(R.mp, r.maxmp ? r.mp / r.maxmp * 100 : 0); wpct(R.xp, r.xpPct);

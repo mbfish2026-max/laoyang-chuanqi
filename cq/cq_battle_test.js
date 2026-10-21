@@ -106,6 +106,8 @@ for(const k of['pet_kl','pet_ss','pet_ss_gold','mdl_mst_orclord','mdl_mst_imp'])
 ok(G('CQ.Host.monArt({key:"orclord",boss:1,n:"zz"})').indexOf('mdl_mst_orclord.png')>=0||G('!!(CQSys&&CQSys.monArt("orclord"))'),'首领按 key 找 mdl_mst_orclord.png');
 G('CQ._artBad.__t=0');ok(G('CQ.Host.monArts({key:"zz_new",n:"鸡"}).join()')==='assets/cq/ui/mdl_mst_zz_new.png,assets/cq/ui/mdl_mst_1001.png,'+G('CQ.Host.monArts({key:"zz_new",n:"鸡"})[2]')&&!/ART_KEYS/.test(fs.readFileSync(path.join(root,'cq_bridge.js'),'utf8')),'立绘候选链：同名 key 文件 → 怪名 → 兜底池，无手写清单');
 G('CQ.artBad("assets/cq/ui/mdl_mst_zz_new.png")');ok(G('CQ.Host.monArt({key:"zz_new",n:"鸡"})')==='assets/cq/ui/mdl_mst_1001.png','加载失败缓存后取下一级');
+{const sc=fs.readFileSync(path.join(root,'cq/cq_scene.js'),'utf8');ok(/bot = g\.H - BOTH - POTH - PICKH/.test(sc)&&/PICKH = 124/.test(sc)&&/pick\.style\.top = \(pb - 120\)/.test(sc),'网格底边在「一键拾取」行之上（不压格子）');
+ ok(/function refreshRole\(\)/.test(sc)&&/function renderUI\(now\)\{ refreshRole\(\);/.test(sc),'换角色/职业刷新角色卡名字与形象');}
 for(const k of['treedemon','zombieking','elezombieking','stonezombieking'])ok(fs.existsSync(path.join(root,'assets/cq/ui/mdl_mst_'+k+'.png'))&&G('CQ.Host.monArt({key:"'+k+'",boss:1})').indexOf('mdl_mst_'+k)>=0,'首领立绘 '+k);
 {const sc=fs.readFileSync(path.join(root,'cq/cq_scene.js'),'utf8');ok(/CQ\.artBad\(u\)/.test(sc),'卡片 img onerror 逐级兜底');ok(/\.cqb \.plaque\{top:70px;[^}]*writing-mode:horizontal-tb/.test(css)&&/\.cqb\.boss \.plaque\{display:none\}/.test(css)&&!/plaque\.style\.top = Math\.round\(H/.test(sc),'区域牌移到网格上方，不压第 6 列');}
 ok(/\.card\.boss \.fig\{[^}]*max-height:150%[^}]*max-width:140%/.test(css),'首领 400 高立绘按卡尺寸等比缩放（不横向压邻格过多）');
