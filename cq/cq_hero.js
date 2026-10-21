@@ -92,15 +92,29 @@
     u.atkT -= dt;
     if (u.atkT <= 0 && h.mode !== 'rest') { u.atkT = TUNE.atkT;
       var rg = this.range(), ts = host.targets().filter(function(m){ return !host.inRange || host.inRange(m, rg); });
-      if (ts.length) { var t = host.pick ? host.pick(ts) : ts[0], sk = this.pickSkill(host);
+      var CS = W.heroSkPick && W.heroCast;   // 职业开发 cls_hero.js（分支 cls-hero）：有就用它选技能/施法，没有用本文件 HERO_SK 兜底
+      if (CS) { var r0 = this.clsCast(ts, host, rg); if (r0) { if (r0.dmg > 0) this.addRage(3); return this.autoHeji(host) || r0; } if (!ts.length) return this.autoHeji(host); }
+      if (ts.length) { var t = host.pick ? host.pick(ts) : ts[0], sk = CS ? null : this.pickSkill(host);
         if (sk) { this.cds[sk.id] = sk.cd; if (host.cast) host.cast(sk.id); }
         if (sk && sk.heal) { if (host.healPct) host.healPct(sk.heal); ev = {type: 'heroatk', target: t, dmg: 0, skill: sk.n, heal: sk.heal}; }
         else { var mul = sk ? sk.p2 / TUNE.skNorm : 1 / TUNE.skNorm * (this.skillList(host).length ? 1 : TUNE.skNorm);
         var dps = host.dps ? host.dps() : 0, dk = CQ.heroDpsK(host), d = dps > 0 ? this.carry(capOf(host, dps * dk * TUNE.atkT * mul * (0.9 + Math.random() * 0.2), {src: 'hero', base: dps * dk * TUNE.atkT})) : Math.max(1, Math.round(host.atkMax() * TUNE.atkK * mul * (0.8 + Math.random() * 0.4)));
         if (d > 0) host.hit(t, d, 'cqhero'); this.addRage(3); ev = {type: 'heroatk', target: t, dmg: d, skill: sk ? sk.n : null}; } } }
-    if (h.autoHeji && this.ready() && host.targets().length) { var r = this.doHeji(host, false); if (r && r.ok) ev = r; }
-    return ev;
+    return this.autoHeji(host) || ev;
   };
+  // 自动合击：S.hero.skOff.heji=1 时不自动触发（手动按钮仍可用）
+  Hero.prototype.autoHeji = function(host){ var h = this.h; if (h.autoHeji && !this.skOff('heji') && this.ready() && host.targets().length) { var r = this.doHeji(host, false); if (r && r.ok) return r; } return null; };
+  Hero.prototype.basicDmg = function(host){ var dps = host.dps ? host.dps() : 0, dk = CQ.heroDpsK(host);
+    return dps > 0 ? this.carry(capOf(host, dps * dk * TUNE.atkT * (0.9 + Math.random() * 0.2), {src: 'hero', base: dps * dk * TUNE.atkT})) : Math.max(1, Math.round(host.atkMax() * TUNE.atkK * (0.8 + Math.random() * 0.4))); };
+  // cls_hero.js 接口：id = heroSkPick({targets, heroHpPct, playerHpPct})；有 id → heroCast(id, 普攻伤害/skNorm, {hit, healHero, targets})，否则普攻
+  Hero.prototype.clsCast = function(ts, host, rg){ var u = this.unit, self = this, pp = host.hpPct ? host.hpPct() : 1, id = null;
+    try { id = W.heroSkPick({targets: ts, heroHpPct: u.maxhp ? u.hp / u.maxhp : 1, playerHpPct: pp}); } catch (e) { id = null; }
+    if (id && this.skOff(id)) id = null;
+    if (!id) { if (!ts.length) return null; var t = host.pick ? host.pick(ts) : ts[0], d = this.basicDmg(host); if (d > 0) host.hit(t, d, 'cqhero'); return {type: 'heroatk', target: t, dmg: d, skill: null}; }
+    var base = ts.length ? this.basicDmg(host) / TUNE.skNorm : 1, out = null;
+    try { out = W.heroCast(id, base, {targets: function(){ return ts; }, hit: function(m, d, src){ return host.hit(m, d, src || 'cqhero'); }, healHero: function(n){ u.hp = Math.min(u.maxhp, u.hp + (+n || 0)); }}); } catch (e) { out = null; }
+    if (!out) return null;
+    return {type: 'heroatk', target: out.hits && out.hits[0] ? out.hits[0].t : ts[0], dmg: out.total || 0, skill: out.n || id, cast: out}; };
   // 英雄受伤：怪物攻击英雄时调用；返回 {dmg, dead}
   Hero.prototype.hurt = function(d, host){ var u = this.unit; if (!this.present() || u.hp <= 0 || u.deadUntil) return null; var hs = this.stats(host);
     if (!(TUNE.takesDmg != null ? TUNE.takesDmg : hs && hs.takesDmg)) return null;   // 原版英雄可受伤/阵亡（TUNE.takesDmg=1 覆盖 CQ_BAL.hero.takesDmg=0 占位）

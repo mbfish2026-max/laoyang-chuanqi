@@ -192,6 +192,7 @@ G('TAB="map"');ok(G('cqPg.travel(0,2,0)')===true&&G('S.zone')===2&&G('TAB')==='f
 // ---------- 英雄战斗（M2：走位 / 开启技能 AI / 合击怒气 / 受伤阵亡复活 / 无佣兵） ----------
 {G(`var Bm={mons:[{uid:7,idx:5,walk_spd:99,moveT:99}],roleIdx:24,_pets:[{hp:1,idx:24-6}]};var _st=[];for(let i=0;i<30;i++){const a=Bm._pets[0].idx;CQ.MOVE.update(Bm,.4);_st.push(CQ.MOVE.cheb(a,Bm._pets[0].idx))}`);
  ok(G('_st.every(d=>d<=1)')&&G('_st.some(d=>d===1)'),'英雄每次只走一格');ok(G('CQ.MOVE.cheb(Bm._pets[0].idx,5)')<=1,'英雄走到怪身边');
+ G('var _hsp=typeof heroSkPick==="function"?heroSkPick:undefined;globalThis.heroSkPick=undefined');// 先测本文件 HERO_SK 兜底
  G(`var hh=new CQ.Hero(2,localStorage);hh.h.prof=1;hh.h.exists=true;hh.h.autoHeji=false;var hit2=[];var gh={idx:0};var gv={};
   var h2={now:()=>Date.now(),targets:()=>MON.filter(m=>m.hp>0),hit:(m,d,s)=>{hit2.push(d);return d},atkMax:()=>100,lvl:()=>12,heroK:()=>.35,inRange:(m,r)=>CQ.MOVE.cheb(gh.idx,gv.idx)<=r};
   MON=[mkMon(Object.keys(MONS)[0],10)];MON[0].hp=1e7;gv.idx=20;hh.unit.atkT=0;hh.tick(.01,h2)`);
@@ -203,6 +204,7 @@ G('TAB="map"');ok(G('cqPg.travel(0,2,0)')===true&&G('S.zone')===2&&G('TAB')==='f
  G("hh.h.skOff={};hh.h.sk={hqs:{lv:1}};hh.cds={};hh.unit.atkT=0;var e5=hh.tick(.01,h2)");ok(G('e5.skill')==='火球术','有技能书表时只放学会的');G('delete hh.h.sk');
  G('hh.h.rage=0;hh.cds={};hh.unit.atkT=0;hh.tick(.01,h2)');ok(G('hh.h.rage')===3,'英雄出手 +3 怒气（原版）');
  G("hh.h.mode='rest';hh.h.rage=0;hh.unit.atkT=0;hit2.length=0;hh.tick(.01,h2);hh.addRage(5)");ok(G('hh.h.rage')===0&&G('hit2.length')===0,'休息模式不出手不涨怒气');G("hh.h.mode='attack'");
+ G('globalThis.heroSkPick=_hsp');
  ok(G('CQ.HEJI.COMBO["1+3"].stun')===2&&G('CQ.HEJI.COMBO["2+3"].dot')===.2&&G('CQ.HEJI.COMBO["3+3"].heal')===.2&&G('CQ.HEJI.COMBO["1+2"].aoe')===false,'合击效果与原版一致（眩晕/持续/回血/单体）');
  G('hh.unit.hp=hh.unit.maxhp=100;hh.h.rage=0;var hu=hh.hurt(30,h2)');ok(G('hu.dmg')>0&&!G('hu.dead')&&G('hh.h.rage')===2,'英雄受伤掉血 +2 怒气');
  G('var hd=hh.hurt(1e6,h2)');ok(G('hd.dead')&&G('hh.reviveLeft(Date.now())')===30,'英雄阵亡，30 秒后复活');
@@ -216,4 +218,20 @@ G('TAB="map"');ok(G('cqPg.travel(0,2,0)')===true&&G('S.zone')===2&&G('TAB')==='f
  ok(['zs','fs','ds'].every(c=>fs2.existsSync(root+'/assets/cq/ui/hero_head_'+c+'.png')),'英雄头像 hero_head_zs/fs/ds 都在');
  const sc=fs2.readFileSync(root+'/cq/cq_scene.js','utf8');ok(/function hejiIcon\(cb\)\{ return UI \+ \(cb && cb\.fx/.test(sc)&&/btn_heji\.png'; \}/.test(sc),'合击按钮按组合换图，缺图退回 btn_heji');
  ok(/'hero_head_' \+ \(PCLS\[p\]/.test(sc)&&/data-a="hero" data-r="hbtn"/.test(sc),'战斗页英雄按钮按英雄职业显示头像');ok(/class="hjic"/.test(sc),'合击演出大字带组合图标');}
+if(G("typeof heroSkPick")==='function'){// 职业开发 cls_hero.js 接入（分支 cls-hero；master 未合并时跳过）
+ G(`S.hero=null;CQSys.hero();S.hero.cls=null;CQSys.heroCreate('fs');var hc3=new CQ.Hero(1,{load:()=>({prof:2,exists:true,name:'x',rage:0,autoHeji:false,skOff:S.hero.skOff}),save:()=>{}});MON=[mkMon(Object.keys(MONS)[0],10)];MON[0].hp=1e7;
+  var hit3=[];var h3={now:()=>Date.now(),targets:()=>MON.filter(m=>m.hp>0),hit:(m,d,s)=>{hit3.push(s);return d},atkMax:()=>100,lvl:()=>12,heroK:()=>.35};hc3.unit.atkT=0;var c3=hc3.tick(.01,h3)`);
+ ok(G('c3&&c3.skill')==='火球术'&&G('hit3.every(s=>s==="cqhero")'),'有 cls_hero 时用 heroSkPick/heroCast 施法（初始火球术）');
+ G(`S.hero.skOff={hqs:1};hc3.h.skOff=S.hero.skOff;for(const k in HERO_CD)delete HERO_CD[k];hc3.unit.atkT=0;var c4=hc3.tick(.01,h3)`);ok(G('c4&&c4.skill')===null&&G('c4.dmg')>0,'关闭后 heroSkPick 不选，改普攻');
+ G(`hc3.h.skOff={heji:1};hc3.h.autoHeji=true;hc3.h.rage=100;hc3.h.hejiCd=0;hc3.unit.atkT=9;var c5=hc3.tick(.01,h3)`);ok(!(G('c5')&&G('c5.type')==='heji'),'skOff.heji 时不自动合击');}
+{const fs3=require('fs'),src=fs3.readFileSync(root+'/cq/pages_cq.js','utf8');const n=G('ACTS.slice(0,3).reduce((s,a)=>s+a.zones.length,0)');let all=true;for(let a=0;a<3;a++)for(let i=0;i<G(`ACTS[${a}].zones.length`);i++)if(!fs3.existsSync(`${root}/assets/cq/map/zone_${a+1}_${i+1}.webp`))all=false;
+ ok(n===19&&all,'19 张区域缩略图 zone_<章>_<区>.webp 与 ACTS[0..2] 一一对应（从 1 起）');
+ ok(/zThumb\(a,i,'zth'\)/.test(src)&&/zThumb\(a,i,'zhead'\)/.test(src)&&/onerror="this\.style\.display='none'"/.test(src),'区域行与传送弹窗用同一张缩略图，缺图隐藏');
+ ok(/c\.a>=2\?`assets\/cq\/map\/chapter_\$\{c\.a\+1\}\.webp`/.test(src)&&/chapter_4\.webp/.test(src)&&fs3.existsSync(root+'/assets/cq/map/chapter_3.webp')&&fs3.existsSync(root+'/assets/cq/map/chapter_4.webp'),'第 3/4 章卡片用 chapter_3/4.webp，1/2 章保留 stage_1001/1002');
+ ok(!/b==='skelspirit'\?'1017':b/.test(src)&&/mdl_mst_\$\{b\}\.png/.test(src),'骷髅精灵优先 mdl_mst_skelspirit.png（1017 仅作缺图兜底）');}
+{const fs4=require('fs'),css=fs4.readFileSync(root+'/cq/pages_cq.css','utf8'),js=fs4.readFileSync(root+'/cq/pages_cq.js','utf8');
+ ok(['prof_bar_9s','prof_bar_fill_9s','sign_cell_9s','stamp_ok'].every(f=>fs4.existsSync(root+'/assets/ui/'+f+'.png')),'UI 美术 d851afb 4 张图都在');
+ ok(/prof_bar_9s\.png\) 6 fill/.test(css)&&/prof_bar_fill_9s\.png\) 5 fill/.test(css),'技能熟练度条：底 slice 6、填充 slice 5');
+ ok(/Lv\.\$\{b\}\/\$\{SKMX\(\)\}/.test(js)&&/CLS_SKMAX/.test(js),'等级标签 Lv.x/上限（CLS_SKMAX，缺省 20）');
+ ok(/sign_cell_9s\.png\) 12 fill/.test(css)&&/\.dy\.ok::after\{content:"";[^}]*stamp_ok\.png/.test(css),'签到格 sign_cell_9s slice 12，已签用 stamp_ok 印章替换 ✔');}
 T.done();

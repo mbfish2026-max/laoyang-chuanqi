@@ -175,6 +175,7 @@
   function coreStep(dt){ var hc = heroCore(); if (!hc) return; dpsTick(dt);
     dots = dots.filter(function(o){ o.t -= dt; if (o.t > 0) return true; o.t = 1; if (!(o.m.hp > 0)) return false; Host.hit(o.m, o.d, 'cqheji'); emit('onDot', o); return --o.n > 0; });
     var ev = hc.tick(dt, coreHost);
+    if (ev && ev.cast && ev.cast.dot && ev.cast.hits) ev.cast.hits.forEach(function(x){ dots.push({m: x.t, d: Math.max(1, Math.round(ev.cast.dot.per * .2)), n: ev.cast.dot.sec, t: 1}); });   /* cls_hero 施毒术等：持续伤害按原版 20%/秒 */
     if (ev) { if (ev.type === 'heji') applyHeji(ev); else emit('onHeroEvent', ev); }
     // 英雄受伤：有怪时每 hurtT 秒，hurtP 概率被一只活怪打一下（战斗页的格子站位只做表现）
     var T = CQ.HERO_TUNE; hurtT -= dt; if (hurtT <= 0) { hurtT = T.hurtT * (0.85 + Math.random() * 0.3);

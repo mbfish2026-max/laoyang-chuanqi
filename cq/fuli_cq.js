@@ -37,7 +37,7 @@ function giveSign(r){const out={type:r.t,name:r.name};
  if(r.t==='yb')out.yb=CS.ybAdd(r.n,'七日签到');
  else if(r.t==='pot'){S.pot[r.k]=(S.pot[r.k]|0)+r.n}
  else if(r.t==='gold'){S.gold+=r.n}
- else if(r.t==='book'){const id=bookPick();if(id){addMat('book_'+id,1);out.book=id;out.name='技能书·'+(CQ_BOOKS[id].n||id)}else{S.gold+=2000;out.fallback='gold';out.gold=2000}}
+ else if(r.t==='book'){const id=bookPick();if(id){addMat('book_'+id,1);out.book=id;out.icon=(window.CQ_ICONS&&CQ_ICONS.matIcon('book_'+id))||null;out.name='技能书·'+(CQ_BOOKS[id].n||id)}else{S.gold+=2000;out.fallback='gold';out.gold=2000}}
  else if(r.t==='ring'){const it=ringItem(r.q);addBag(it);out.item={uid:it.uid,name:itemName(it),q:it.q}}
  return out}
 function signClaim(){const st=signState();if(st.claimedToday)return{ok:false,reason:'今日已签到',state:st};
