@@ -61,7 +61,7 @@
 - 规则：英雄普攻（hitMon src `'cqhero'`）+ 合击（src `'cqheji'`）≤ 总伤害 20%；`hero` 项不参与 `cqBudgetProduct()` 连乘
 - 系统侧强制：hitMon 包装按 30 秒滑动窗口记账，`cqhero/cqheji` 本次伤害超出余量时等比截断，派发 `heroCapped {want, got}`
 - `CQSys.heroShare() → {player, hero, share, cap, win}`；工具函数 `cqHeroShare(h,j,t)`、`cqHeroShareOk(h,j,t)`、`cqHeroDmgCap(本体伤害)`
-- 现状：按 CQ.HERO_TUNE（普攻 1.6s、武器上限 35%）估算英雄普攻单项约占 25%，会被截断；建议战斗侧下调到 ≈28% 武器上限
+- 现状：战斗侧 7f75beb 已按玩家近期 DPS 定英雄伤害（普攻≈9%、合击合计≤20%，cq/cq_hero_balance_sim.js 验证），系统侧截断只作兜底，正常情况下不会触发
 
 ## 吃药（函数不变，战斗侧只调用）
 - **吃药函数 `usePot(k)`**（game.js），`k ∈ 'hp'|'mp'|'rej'|'tp'`（红药/蓝药/瞬回/回城；`tp` 走 `townPortal()`）；数量为 0 时不做任何事。也可用 `CQSys.usePot(k)`；`CQSys.potions() → {hp, mp, rej, tp}`（库存在 `S.pot`）
