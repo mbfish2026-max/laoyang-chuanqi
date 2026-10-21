@@ -125,16 +125,18 @@ ok(!/iterations\s*:\s*Infinity|infinite/i.test(js.replace(/\/\/.*$/mg,'')),'JS �
  ok(['battle','role','skill','map','fuli'].every(n=>fs.existsSync(path.join(root,'assets/cq/ui/nav_'+n+'.png'))),'底栏图标资源存在');
  ok(/#tabs\.cqnav\{[^}]*flex-wrap:nowrap/.test(bc)&&/#tabs\.cqnav button\{[^}]*white-space:nowrap/.test(bc),'底栏不换行');
  ok(/\['bag','背包'\],\['shop','商店'\],\['merc','佣兵'\]/.test(bm),'背包/商店/佣兵在角色页子页签可达');}
+// 测试角色：一律 CQSys.createChar(name,cls) 新建（每职业一个，之后 switchChar 切回），不直接改 S.cls
+const QAC={};const useCls=c=>{if(QAC[c])G(`switchChar(${QAC[c]})`);else QAC[c]=G(`CQSys.createChar('QA_${c}','${c}')`);return QAC[c]};
 // ---------- 技能栏（设计稿 4 格 + 名称 + 图标，按当前职业，换职业即刷新） ----------
-{const row=c=>G(`(function(){var o=S.cls,ok0=S.sk;S.cls='${c}';S.sk=respBaseSk();var r=CQ.Host.skills();S.cls=o;S.sk=ok0;return JSON.stringify(r.map(function(x){return [x.id,x.n,x.img||'',x.lock||0,(SKM[x.id]||{}).cls]}))})()`);
+{const row=c=>(useCls(c),G(`(function(){var r=CQ.Host.skills();return JSON.stringify(r.map(function(x){return [x.id,x.n,x.img||'',x.lock||0,(SKM[x.id]||{}).cls]}))})()`));
  for(const c of['zs','fs','ds']){const r=JSON.parse(row(c));
   ok(r.length===4,c+' 技能栏 4 格：'+r.map(x=>x[1]).join('/'));
   ok(r.every(x=>x[4]===c&&x[1]),c+' 全是本职业技能且有名字');
   ok(r.filter(x=>x[2]).length>=3&&r.every(x=>!x[2]||fs.existsSync(path.join(root,x[2]))),c+' 图标为 ic_sk_*.png 且文件存在');}
  ok(row('zs')!==row('fs')&&row('fs')!==row('ds'),'换职业技能栏随之变化');
- G(`var _o=[S.cls,S.sk];S.cls='fs';S.sk=Object.assign(respBaseSk(),{ldsh:1})`);
+ useCls('fs');G(`S.sk=Object.assign({},S.sk,{ldsh:1});calc()`);
  const L=JSON.parse(G(`JSON.stringify(CQ.Host.skills().map(function(x){return [x.id,x.lock||0]}))`));
- ok(L.some(x=>x[0]==='hqs'&&!x[1])&&L.filter(x=>!x[1]).length>=1&&L.findIndex(x=>x[1])>L.findIndex(x=>!x[1]),'已学技能在前且未锁定，未学补位为锁定');G('S.cls=_o[0];S.sk=_o[1]');
+ ok(L.some(x=>x[0]==='hqs'&&!x[1])&&L.filter(x=>!x[1]).length>=1&&L.findIndex(x=>x[1])>L.findIndex(x=>!x[1]),'已学技能在前且未锁定，未学补位为锁定');useCls('zs');
  const sc=fs.readFileSync(path.join(root,'cq/cq_scene.js'),'utf8'),cc=fs.readFileSync(path.join(root,'cq/cq.css'),'utf8');
  ok(/classList\.toggle\('lock'/.test(sc)&&/\.csk\.lock/.test(cc)&&/\.csk \.key\{[^}]*white-space:nowrap/.test(cc),'场景渲染锁定态与名称（不换行）');}
 // ---------- 角色 / 技能 / 福利 设计稿页（cq/pages_cq.js） ----------
@@ -146,9 +148,9 @@ ok(!/iterations\s*:\s*Infinity|infinite/i.test(js.replace(/\/\/.*$/mg,'')),'JS �
  const role=G(`${P}.roleTop()`);ok((role.match(/class="cqslot/g)||[]).length===10,'角色页 10 个装备格');
  ok(['一键换装','铁匠强化','分配属性点','切换职业'].every(t=>role.includes(t))&&/战力 <b>/.test(role)&&/剩余属性点/.test(role),'角色页按钮/战力/属性点');
  ok(/CQSys\.equip/.test(src)&&/autoBest\(\)/.test(src),'一键换装走 CQSys.equip.autoBest');
- for(const c of['zs','fs','ds']){G(`S.cls='${c}';S.sk=respBaseSk();calc()`);const h=G(`${P}.skillPage()`),L=G(`${P}.skList().length`);
+ for(const c of['zs','fs','ds']){useCls(c);const h=G(`${P}.skillPage()`),L=G(`${P}.skList().length`);
   ok(L>=6&&(h.match(/class="sk2/g)||[]).length===L,c+' 技能页列出本职业全部技能 '+L);ok(/ic_sk_\d+\.png/.test(h)&&/自动释放顺序/.test(h),c+' 技能页图标+自动释放顺序');}
- G(`S.cls='zs';S.sk=respBaseSk();calc()`);
+ useCls('zs');
  ok(JSON.stringify(G(`${P}.FLN.map(x=>x[1])`))==='["签到","离线收益","悬赏","功业","事件","更多"]','福利页签：签到/离线收益/悬赏/功业/事件/更多');
  const sp=G(`${P}.signPanel()`);ok((sp.match(/class="dy/g)||[]).length===7&&/签到领取|今日已签到/.test(sp),'签到 7 天格 + 领取按钮（CQSys.signin.state）');
  const st0=G('CQSys.signin.state().signed');G('cqPg.sign()');ok(G('CQSys.signin.state().claimedToday')===true&&G('CQSys.signin.state().signed')===st0+1,'签到按钮走 CQSys.signin.claim');
@@ -161,7 +163,7 @@ ok(!/iterations\s*:\s*Infinity|infinite/i.test(js.replace(/\/\/.*$/mg,'')),'JS �
  G('S.lvl=17;S.name="顶栏QA";S.gold=12345;calc();H.life=ST.life/2;H.mana=ST.mana');const d=JSON.parse(G('JSON.stringify(cqPg.topData())'));
  ok(d.lvl===17&&d.name==='顶栏QA'&&d.gold===G('CQSys.currency().gold')&&d.yb===G('CQSys.currency().yb'),'顶栏等级/名字/金币/元宝取真实数据（CQSys.currency）');
  ok(Math.abs(d.hp-50)<1&&Math.abs(d.mp-100)<1&&d.power===G('CQSys.power()'),'顶栏血蓝百分比与战力');
- for(const c of['zs','fs','ds']){G(`S.cls='${c}'`);ok(G('cqPg.topData().cls')===c,c+' 顶栏头像随职业切换');}G("S.cls='zs'");
+ for(const c of['zs','fs','ds']){useCls(c);ok(G('cqPg.topData().cls')===c&&G('ST.mana')>0,c+' 顶栏头像随职业切换（法力为正）');}useCls('zs');
  ok(/\.ava\.fs\{[^}]*hero_fs/.test(css)&&/\.ava\.ds\{[^}]*hero_ds/.test(css),'三职业头像图');
  ok(/#cqtopx\{[^}]*flex-wrap:nowrap/.test(css)&&/#cqtopx \.ccur div\{[^}]*white-space:nowrap/.test(css),'顶栏不换行');
  ok(/setInterval\(\(\)=>\{try\{if\(TOPT\[TAB\]/.test(src)&&/render\.__cqtop/.test(src),'顶栏 render 后与 0.5s 轮询刷新');}
