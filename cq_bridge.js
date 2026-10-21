@@ -33,8 +33,8 @@
   var SKILL_FX_ART = CQ.SKILL_FX_ART = {'抗拒火环': 'kangjuhuohuan', '地狱火': 'diyuhuo', '诱惑之光': 'youhuozhiguang', '隐身术': 'yinshenshu'};
   var castAt = {};
   // 技能栏图标：传奇原版 ic_sk_*（assets/cq/ui/sk/），按技能 id 对应；无图的技能回退到 SKM.ic 字符
-  var SK_ICON = {jbjs:1001, gsjs:1002, csjs:1003, bywd:1004, ymcz:1005, lhjf:1007, hqs:2001, ldsh:2002, hq:2003, yhzg:2004, mfd:2005, bpx:2007,
-    jsl:3001, zys:3002, lhhf:3003, sds:3004, zhkl:3005, zhss:3005, ysh:3006, sszj:3007};
+  var SK_ICON = {jbjs:1001, gsjs:1002, csjs:1003, bywd:1004, ymcz:1005, lhjf:1007, hqs:2001, ldsh:2002, hq:2003, yhzg:2004, mfd:2005, bpx:2007, kjhh:2006, dyh:2008,
+    jsl:3001, zys:3002, lhhf:3003, sds:3004, zhkl:3005, zhss:3008, ysh:3006, sszj:3007};
   CQ.SK_ICON = SK_ICON;
   function skImg(id){ return SK_ICON[id] ? 'assets/cq/ui/sk/ic_sk_' + SK_ICON[id] + '.png' : null; }
   // 设计稿：技能栏固定 4 格 = 当前职业技能。已学（自动施放顺序）在前，不足 4 个用本职业未学主动技能（按需求等级）补位，显示为锁定
