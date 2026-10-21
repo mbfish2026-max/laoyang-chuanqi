@@ -9,7 +9,8 @@ body.cq-on #cqStage{top:0;background:#120a06}
 #cqStage .cqb{position:absolute;left:0;top:0;width:390px;transform-origin:0 0;overflow:hidden;font-family:"PingFang SC","Noto Sans CJK SC","Noto Sans SC",sans-serif;color:#f3e6c8;-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none}
 .cqb *{box-sizing:border-box}
 /* ground */
-.cqb .field{position:absolute;inset:0;background:url(../assets/cq/ui/ground.jpg) center/520px auto repeat}
+.cqb .field{position:absolute;inset:0;background:#3a2e1e url(../assets/cq/ui/ground_mirror.jpg) 50% 0/520px 883px repeat-y}
+/* 接缝：ground.jpg 上下边不连续（首尾行差 19.8，相邻行 6.0），原来 center 铺 441.5px 高（非整数）→ 两条横缝。改用上下镜像拼成的 1040×1766 块（整数 883px 高、从顶边铺），战场内只有 y=441.5 一处镜像接缝且像素连续 */
 .cqb .field::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 70% at 50% 45%,rgba(0,0,0,0) 45%,rgba(10,5,2,.55) 100%),linear-gradient(180deg,rgba(10,6,3,.55) 0,rgba(10,6,3,0) 120px,rgba(10,6,3,0) 70%,rgba(10,6,3,.8) 100%)}
 .cqb.boss .field::after{background:radial-gradient(120% 70% at 50% 45%,rgba(60,0,0,0) 40%,rgba(50,0,0,.6) 100%),linear-gradient(180deg,rgba(20,0,0,.6) 0,rgba(10,6,3,0) 150px,rgba(10,6,3,0) 70%,rgba(10,6,3,.8) 100%)}
 .cqb .world{position:absolute;inset:0}
@@ -41,7 +42,7 @@ body.cq-on #cqStage{top:0;background:#120a06}
 .cqb .plaque::before{top:-5px}.cqb .plaque::after{bottom:-5px}
 .cqb .plaque small{font-size:12px;color:#d9c08a;letter-spacing:0;margin-top:4px}
 /* 怪物卡片（位置用 transform，走位过渡 .35s） */
-.cqb .card,.cqb .hero{position:absolute;left:0;top:0;transition:transform .35s ease-out}
+.cqb .card,.cqb .hero{position:absolute;left:0;top:0;transition:transform .2s ease-out}   /* 逐格一步 0.2 秒（原版 ActionTool.MoveBy .2） */
 .cqb .card{width:76px;height:96px;z-index:10}
 .cqb .card .in{position:absolute;inset:0;transform-origin:50% 100%}
 .cqb .card .bd{position:absolute;inset:0;background:url(../assets/cq/ui/card.png) center/100% 100%;border-radius:4px;box-shadow:0 6px 10px rgba(0,0,0,.55)}

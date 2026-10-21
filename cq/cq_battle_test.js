@@ -91,6 +91,12 @@ ok(G('CQ.capDmg(1000,{src:"hero",base:100})')===180&&G('CQ.capDmg(500,{src:"comb
 G('var hc3=new CQ.Hero(1,localStorage);var host3=Object.assign({},host,{dps:()=>1000,cap:CQ.capDmg});hc3.h.rage=100;hc3.h.hejiCd=0;var r3=hc3.doHeji(host3,true)');ok(G('r3.total')<=1000*6.5*1.8+2&&G('r3.total')>=1000*6*.9-2,'合击 6–6.8 秒 DPS 且经封顶');
 ok(CQ_T('dpsWin')===120&&CQ_T('hejiCd')===45,'有效 DPS 窗口 120 秒、合击冷却 45 秒');
 G('var mo=mkMon(Object.keys(MONS)[0],1);mo.hp=10;mo.max=10;MON=[mo];var DS=CQ._dpsState,b0=DS.b[DS.b.length-1];hitMon(mo,{phys:5000},"hero","#fff");var b1=DS.b[DS.b.length-1]');ok(G('b1-b0')>0&&G('b1-b0')<=20,'有效 DPS：秒怪溢出不计（5000 伤害打 10 血只记剩余血量；测试里 hitMon 被包了两层）');
+// ---------- M1.4 格子走位 / 地图接缝 / 立绘 ----------
+ok(/\.cqb \.card,\.cqb \.hero\{[^}]*transition:transform \.2s/.test(css),'逐格移动 0.2 秒一步（原版 MoveBy .2）');
+{const sc=fs.readFileSync(path.join(root,'cq/cq_scene.js'),'utf8');ok(/CELLW = 120 \* GK/.test(sc)&&/GRID_TOP = 150/.test(sc)&&!/st\.bossOn \? 160/.test(sc),'格子按原版 120×125 缩放、网格固定不随首领漂移');}
+ok(/ground_mirror\.jpg\) 50% 0\/520px 883px repeat-y/.test(css)&&fs.existsSync(path.join(root,'assets/cq/ui/ground_mirror.jpg')),'地面用镜像块整数高平铺（无接缝）');
+ok(/mdl_mst_1001/.test(G('CQ.Host.monArt({key:"zz_none",n:"鸡"})'))&&/mdl_mst_1002/.test(G('CQ.Host.monArt({key:"zz_none",n:"鹿"})')),'monArt 兜底按怪名取传奇之旅立绘');
+for(const n of[1001,1002,1003,1004,1005,1006,1007,1008,1009,1011,1012,1022,1023,1024,1025,1034,2002])ok(fs.existsSync(path.join(root,'assets/cq/ui/mdl_mst_'+n+'.png')),'立绘 mdl_mst_'+n);
 ok(/body\.cq-on #hud[^{]*#fquest[^{]*#fzone\{display:none/.test(css)||/#fzone\{display:none/.test(css),'战斗页隐藏药水栏/任务行/区域栏（仅 body.cq-on）');
 ok(inf.length===1&&inf[0]==='cqBreath','CSS 只有怪物卡片呼吸是 infinite：'+inf.join(','));
 ok(/\.cqb \.card \.fig\{[^}]*animation:cqBreath/.test(css),'呼吸挂在 .card .fig');

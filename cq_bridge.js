@@ -33,6 +33,11 @@
   var SKILL_FX_ART = CQ.SKILL_FX_ART = {'抗拒火环': 'kangjuhuohuan', '地狱火': 'diyuhuo', '诱惑之光': 'youhuozhiguang', '隐身术': 'yinshenshu'};
   var castAt = {};      // 技能施放时刻（冷却圈兜底）
   var ART = ['mdl_mst_1015', 'mdl_mst_1014', 'mdl_mst_1017', 'mdl_mst_1013'];
+  // 传奇之旅 config/monster.txt 的 name→model（立绘已拷到 assets/cq/ui/）：CQSys.monArt 返回 null 时按怪名兜底
+  var ART_BY_NAME = {'鸡': 'mdl_mst_1001', '鹿': 'mdl_mst_1002', '多钩猫': 'mdl_mst_1003', '钉耙猫': 'mdl_mst_1004', '稻草人': 'mdl_mst_1005', '半兽人': 'mdl_mst_1006', '森林雪人': 'mdl_mst_1007',
+    '半兽战士': 'mdl_mst_1008', '毒蜘蛛': 'mdl_mst_1009', '食人花': 'mdl_mst_1011', '山洞蝙蝠': 'mdl_mst_1012', '骷髅': 'mdl_mst_1013', '掷斧骷髅': 'mdl_mst_1014', '骷髅战士': 'mdl_mst_1015',
+    '洞蛆': 'mdl_mst_1022', '僵尸': 'mdl_mst_1023', '爬行僵尸': 'mdl_mst_1024', '红蛇': 'mdl_mst_1025', '虎蛇': 'mdl_mst_1025', '盔甲虫': 'mdl_mst_1034', '电僵尸': 'mdl_mst_2002'};
+  CQ.ART_BY_NAME = ART_BY_NAME;
   var PCLS = {1: 'zs', 2: 'fs', 3: 'ds'}, PPROF = {zs: 1, fs: 2, ds: 3};
   // 冷却圈：CQSys.skillCooldown 已登记（placeholder:false）就用正式冷却
   function cdFix(o){ var C = sysFn('skillCooldown'); if (!C) return o; try { var c = C.skillCooldown(o.id); if (c && !c.placeholder && c.cd > 0) { o.cdMax = c.cd; o.cdLeft = c.left; o.sys = 1; } } catch (e) {} return o; }
@@ -102,7 +107,7 @@
     skillFx: function(id){ var SKM = G('SKM') || {}, n = (SKM[id] || {}).n || ''; if (SKILL_FX_ART[n]) return SKILL_FX_ART[n]; for (var i = 0; i < SKILL_FX.length; i++) if (SKILL_FX[i][0].test(n)) return SKILL_FX[i][1]; return null; },
     skillPop: function(id){ if (has('acPop')) G('acPop')(id); },
     toast: function(t){ if (has('toast')) G('toast')(t); },
-    monArt: function(m){ var C = sysFn('monArt'); if (C) { try { var a = C.monArt(m.key); if (a && a.src) return a.src; } catch (e) {} } if (m.boss) return 'assets/cq/ui/mdl_mst_2001.png'; return 'assets/cq/ui/' + ART[hash(m.key || m.n) % ART.length] + '.png'; },
+    monArt: function(m){ var C = sysFn('monArt'); if (C) { try { var a = C.monArt(m.key); if (a && a.src) return a.src; } catch (e) {} } var bn = ART_BY_NAME[m.n || ((G('MONS') || {})[m.key] || {}).n]; if (bn) return 'assets/cq/ui/' + bn + '.png'; if (m.boss) return 'assets/cq/ui/mdl_mst_2001.png'; return 'assets/cq/ui/' + ART[hash(m.key || m.n) % ART.length] + '.png'; },
     itemInfo: function(it){ if (!it) return null; var name = has('itemName') ? G('itemName')(it) : (it.name || '物品'), color = has('itemColor') ? G('itemColor')(it) : '#e8e0cc';
       var t = has('tgTier') ? G('tgTier')(it) : null, TG = G('TG'), tier = null;
       if (t && TG) tier = {key: t, rank: TG.RANK[t] || 1, color: TG.COL[t], tag: TG.TAG[t] || '极品', top: !!TG.TOP[t] || (TG.RANK[t] || 0) >= 3};

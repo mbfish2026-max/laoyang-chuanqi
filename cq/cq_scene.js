@@ -16,15 +16,20 @@
   function wpct(e, p){ var v = Math.max(0, Math.min(100, p)).toFixed(1) + '%'; if (e && e.style.width !== v) e.style.width = v; }
 
   // ---------- 布局 ----------
-  function geom(){ var g = st.g, M = CQ.MOVE; var top = st.bossOn ? 160 : TOPH + 10, bot = g.H - BOTH - POTH - 4;
-    var rowStep = Math.max(40, (bot - top - CH) / (M.ROWS - 1)), colStep = (DW - 16 - CW) / (M.COLS - 1);
+  // 格子（照搬传奇之旅 map_battle/fight_battle battleNode：750 设计宽，6×5，cell 120×125，间距 2，左内边距 9，上内边距 4；
+  //   纵向按 stretchBattle 规则把多出的高度均分给行距）。390 宽 → k=0.52：cell 62.4×65，列距 63.44，首列中心 x=35.9。
+  // 网格固定，不随首领出现/消失移动（首领条盖在顶部，网格顶 = 首领条下沿），所有单位只站格子中心、底边对齐格子底边。
+  var GK = DW / 750, CELLW = 120 * GK, CELLH = 125 * GK, GAPX = 2 * GK, PADL = 9 * GK, GRID_TOP = 150;
+  function geom(){ var g = st.g, M = CQ.MOVE, top = GRID_TOP, bot = g.H - BOTH - POTH - 4;
+    var rowStep = Math.max(CELLH + 2 * GK, (bot - top - CELLH) / (M.ROWS - 1)), colStep = CELLW + GAPX;
     return {top: top, bot: bot, rowStep: rowStep, colStep: colStep}; }
-  function cellBox(idx, kind){ var M = CQ.MOVE, p = M.xy(idx), G = geom();
-    var cx = 8 + p[0] * G.colStep + CW / 2, by = G.top + p[1] * G.rowStep + CH;   // 格子中心 x、卡片底边 y
+  function cellCenter(idx){ var p = CQ.MOVE.xy(idx), G = geom(); return {x: PADL + p[0] * G.colStep + CELLW / 2, bottom: G.top + p[1] * G.rowStep + CELLH, row: p[1], col: p[0]}; }
+  function cellBox(idx, kind){ var c = cellCenter(idx), cx = c.x, by = c.bottom;
     var w = CW, hh = CH;
     if (kind === 'boss') { w = BW; hh = BH; } else if (kind === 'role') { hh = 150; w = Math.round(hh * .675); } else if (kind === 'hero') { hh = 124; w = Math.round(hh * .695); } else if (kind === 'pet') { w = 60; hh = 76; }
-    var x = Math.max(2, Math.min(DW - w - 2, cx - w / 2)), y = by - hh;
-    return {x: x, y: y, w: w, h: hh, cx: x + w / 2, cy: y + hh * .45, row: p[1]}; }
+    var x = cx - w / 2; if (kind === 'boss') x = Math.max(2, Math.min(DW - w - 2, x));   // 只有首领大卡在边列收回（同原版 fitBoss）
+    var y = by - hh;
+    return {x: x, y: y, w: w, h: hh, cx: x + w / 2, cy: y + hh * .45, row: c.row}; }
   function place(el, box, z){ var t = 'translate(' + Math.round(box.x) + 'px,' + Math.round(box.y) + 'px)'; if (el.style.transform !== t) el.style.transform = t; if (z != null && el.style.zIndex != z) el.style.zIndex = z; if (el.classList.contains('hero')) el.style.height = box.h + 'px'; }
 
   // ---------- 构建 ----------

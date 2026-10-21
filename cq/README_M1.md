@@ -76,3 +76,14 @@ game.js `step()` 仍是唯一战斗结算：伤害/击杀/掉落（rollTC→addB
 ### 普通技能序列帧
 - 从传奇之旅搬到 assets/cq/fx：huoqiu、leidianshu、banyue、liehuo、gongsha、bingpaoxiao、huoqiang、linghunhuofu、shidu、zhiliaoshu、yemanchongzhuang、mofadun、zhaohuan、shenshengzhanjia。
 - 包装 `spend(id)`，按技能名匹配（`CQ.SKILL_FX`，见 cq_bridge.js）→ `CQ.FX.playSkill`：projectile 从角色飞到目标，onTarget 落在目标，onSelf 落在自身。每个只播一次，有节流。
+
+## M1.3
+- 召唤物小卡：ALLY kind cqpet；优先 CQSys pet:spawn/hit/atk/die 事件（cls 2a57190），按 uid 对比兜底；art pet_kl/pet_ss/pet_ss_gold，宝宝用 m.key→monArt。
+- 美术2 四套序列帧按技能名接入（CQ.SKILL_FX_ART），地狱火为 line 类型。
+- 英雄参考"有效 DPS"（去溢出、120 秒窗口）；英雄/合击伤害走 CQ_BAL.cap（src hero/combo）。
+
+## M1.4
+- 网格：按原版 battleNode 6×5，格 120×125、间距 2、padL 9（750 宽等比），格顶 150；单位逐格移动，卡片 transform .2s 补间（同原版 moveCard）。
+- 地图接缝：ground.jpg 本身不可无缝平铺（首尾行差 19.8 vs 相邻行 ~6），且旧 CSS 居中平铺产生 441.5px 非整数周期。改用上下镜像拼接 ground_mirror.jpg（1040×1766），repeat-y 从顶部对齐。待美术2出可无缝平铺底图后替换。
+- monArt：sysapi_cq.js CQ_MONART 把 chick/deer 等误映射到 1013（骷髅）；在 cq_bridge 加 ART_BY_NAME 名字兜底（仅当 CQSys.monArt 返回空时），并拷入 17 张 mdl_mst 图。
+- 封顶实测：裸装/满强化 statMul≤1.79，英雄/合击 1000 伤→1000，capLast.capped=false，无双重削减；heroCapped 事件来自 m2 英雄占比预算（20%/30s），非 cap。
