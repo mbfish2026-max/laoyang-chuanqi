@@ -21,7 +21,7 @@ G(`S.gold=0;S.lvl=10;S.sp=3;S.kp=2;calc()`);ok(G('S.gold')===3*200+2*1000&&G('S.
 G(`S=newSave();S.cls='zs';S.ci=1;S.sv=4;delete S.sk9;S.lvl=30;S.at={str:300,dex:20,vit:20,ene:10};S.sp=10;S.kp=4;S.autoAt=1;S.resp={sk:1,at:2};S.sk={gsjs:20,jbjs:6,lhjf:13,csjs:1};S.gold=0;cqMigrate();calc()`);
 const g=(10*400+4*2000)+Math.round((1000+900*30)/100)*100+2*Math.round((500+900*20)/100)*100;
 ok(G('S.sv')===G('CQ_SV')&&G('S.gold')===g,'迁移：点数+洗点药水折金币 '+G('S.gold')+'='+g);
-ok(G('S.sk.gsjs')===9&&G('S.sk.jbjs')===3&&G('S.sk.lhjf')===6&&G('S.sk.csjs')===1&&G('S.sk9')===1,'迁移：技能 20→9 按比例向上取整');
+ok(G('S.sk.gsjs')===9&&G('S.sk.jbjs')===4&&G('S.sk.lhjf')===7&&G('S.sk.csjs')===1&&G('S.sk9')===1,'迁移：技能 20→9 ceil(1+(旧-1)×8/19)');
 ok(G('S.resp')===undefined&&G('S.autoAt')===undefined&&G('S.at.str')===G(`agAutoAt('zs',30).str`),'迁移：删 resp/autoAt，属性按等级重算');
 G(`cqMigrate();calc()`);ok(G('S.sk.gsjs')===9&&G('S.gold')===g,'迁移幂等');
 // 技能书规则（照原版）
@@ -29,15 +29,15 @@ G(`S=newSave();S.cls='zs';S.ci=0;clsInit();S.lvl=1;S.bag=[];S.sk={};S.skx={};cal
 const r=G(`SKM.gsjs.r`);ok(G(`CQSys.bookLearn('fs_hqs').err`)==='职业不符','职业不符');
 G(`addMat('book_zs_gsjs',10)`);ok(G(`CQSys.bookLearn('zs_gsjs').err`)===`需要等级 ${r}`,'等级不足');
 G(`S.lvl=${r}`);ok(G(`CQSys.bookLearn('zs_gsjs').ok`)===1&&G('S.sk.gsjs')===1&&G(`CQSys.bookCount('zs_gsjs')`)===9,'学会 1 级，耗 1 本');
-G(`S.lvl=${r}+3`);ok(/熟练度不足 \(0\/30\)/.test(G(`CQSys.bookLearn('zs_gsjs').err`)),'熟练度不足（30=600×0.05）');
-G(`S.lvl=${r}+2;CQSys.skillExp('gsjs',30)`);ok(G(`CQSys.bookLearn('zs_gsjs').err`)===`需要等级 ${r+3}`,'2 级需求等级 = 需求+3');
-G(`S.lvl=${r}+3`);ok(G(`CQSys.bookLearn('zs_gsjs').ok`)===1&&G('S.sk.gsjs')===2&&G('CQSys.skExp("gsjs")')===0,'升 2 级，熟练度清零');
-G(`S.lvl=60;S.sk.gsjs=3;S.skx.gsjs=999;S.bag=[];addMat('book_zs_gsjs',1)`);ok(G(`CQSys.bookLearn('zs_gsjs').err`)==='需要技能书 x2','4 级需 2 本');
-const st=JSON.parse(G(`JSON.stringify(CQSys.skState('gsjs'))`));ok(st.lv===3&&st.max===9&&st.next.books===2&&st.have===1&&!st.can&&st.why==='需要技能书 x2','skState 给技能页 '+JSON.stringify(st));
+G(`S.lvl=${r}+3`);ok(/熟练度不足 \(0\/600\)/.test(G(`CQSys.bookLearn('zs_gsjs').err`)),'熟练度不足（1 级 600，原版）');
+G(`S.lvl=${r}+2;CQSys.skillExp('gsjs',600)`);ok(G(`CQSys.bookLearn('zs_gsjs').err`)===`需要等级 ${r+3}`,'2 级需求等级 = 需求+3');
+G(`S.lvl=${r}+3`);ok(G(`CQSys.bookLearn('zs_gsjs').ok`)===1&&G('S.sk.gsjs')===2&&G('CQSys.skExp("gsjs")')===0&&G(`CQSys.bookCount('zs_gsjs')`)===7,'升 2 级：耗 2 本，熟练度清零');
+G(`S.lvl=60;S.sk.gsjs=3;S.skx.gsjs=3000;S.bag=[];addMat('book_zs_gsjs',1)`);ok(G(`CQSys.bookLearn('zs_gsjs').err`)==='需要技能书 x5','4 级需 5 本');
+const st=JSON.parse(G(`JSON.stringify(CQSys.skState('gsjs'))`));ok(st.lv===3&&st.max===9&&st.next.books===5&&st.have===1&&!st.can&&st.why==='需要技能书 x5','skState 给技能页 '+JSON.stringify(st));
 G(`S.sk.gsjs=9`);ok(G(`CQSys.bookLearn('zs_gsjs').err`)==='技能已满级','9 级满');
-G(`S.sk.gsjs=1;S.skx.gsjs=1e6;S.autoSk=1;S.bag=[];addMat('book_zs_gsjs',4);CQSys.bookAutoUse()`);ok(G('S.sk.gsjs')===2&&G(`CQSys.bookCount('zs_gsjs')`)===3&&G('CQSys.skExp("gsjs")')===0,'挂机自动用书：熟练度满才升，升后清零停下');
+G(`S.sk.gsjs=1;S.skx.gsjs=600;S.autoSk=1;S.bag=[];addMat('book_zs_gsjs',5);CQSys.bookAutoUse()`);ok(G('S.sk.gsjs')===2&&G(`CQSys.bookCount('zs_gsjs')`)===3&&G('CQSys.skExp("gsjs")')===0,'挂机自动用书：熟练度满才升，升后清零停下');
 // 熟练度：施放 +1
-G(`S.sk.gsjs=1;S.skx.gsjs=0;TAB='hero';try{clsCast('gsjs',[])}catch(e){}`);ok(G('CQSys.skExp("gsjs")')===1,'施放 +1 熟练度');
+G(`S.sk.gsjs=1;S.skx.gsjs=0;CQSys.skillExp('gsjs')`);ok(G('CQSys.skExp("gsjs")')===1,'CQSys.skillExp → 职业侧 clsSkillExp +1');
 // 任务奖励
 G(`S=newSave();S.cls='zs';S.ci=0;clsInit();S.lvl=20;S.bag=[];calc();questDone('q1')`);ok(G(`CQSys.books('zs').reduce((a,b)=>a+CQSys.bookCount(b.id),0)`)===1&&G('S.kp|0')===0,'q1 奖励技能书 ×1');
 G(`S.atb={};S.q.a3q4=0;questDone('a3q4')`);ok(G('S.atb.str')===3&&G('S.atb.vit')===2,'a3q4 主属性+3 体力+2（固定）');

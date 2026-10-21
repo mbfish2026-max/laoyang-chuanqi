@@ -51,10 +51,10 @@ const CQ_MIG=[
  function v3(){try{if(S.q&&S.q.q6)for(const q of['q1','q3','q5'])if(!S.q[q]&&typeof questDone==='function')questDone(q)}catch(e){}},
  // v4（福利）：离线收益增加领取状态 claimed/doubled；旧存档里已结算的 S.cqOff 视为已领取（不能再补领双倍）；签到记录 ACCT.cqSign 缺省 {n:0,last:''}
  function v4(){if(S.cqOff&&typeof S.cqOff==='object'&&S.cqOff.claimed==null){S.cqOff.claimed=1;S.cqOff.doubled=0}try{if(typeof ACCT!=='undefined'&&ACCT&&!ACCT.cqSign)ACCT.cqSign={n:0,last:''}}catch(e){}},
- // v5（自动成长）：属性改为按等级推导；剩余属性点/技能点、洗点药水折金币；技能等级 20 → 9 按比例映射（向上取整，不弱于原等级；职业开发可提供 clsSkMap(id,旧级)）
+ // v5（自动成长）：属性改为按等级推导；剩余属性点/技能点、洗点药水折金币；技能等级 20 → 9 按比例映射（职业侧 clsSk9：ceil(1+(旧-1)×8/19)）
  function v5(){let g=0;const L=S.lvl||1;const R=S.resp;if(R&&typeof R==='object'){const p=(k,f)=>Math.round(f(L)/100)*100;g+=(R.sk|0)*p('sk',l=>1000+l*l*30)+(R.at|0)*p('at',l=>500+l*l*20)}delete S.resp;
   if(g){S.gold=(S.gold||0)+g;S.agGold=(S.agGold||0)+g}agPtGold();if(!S.atb)S.atb={};delete S.autoAt;
-  if(!S.sk9&&S.sk){for(const id in S.sk){const v=S.sk[id]|0;if(v<=0)continue;let n=null;if(typeof clsSkMap==='function'){try{n=clsSkMap(id,v)}catch(e){}}S.sk[id]=n!=null?n:Math.min(9,Math.ceil(v*9/20))}}
+  if(typeof clsSk9==='function')clsSk9();else if(!S.sk9&&S.sk){for(const id in S.sk){const v=S.sk[id]|0;if(v>0)S.sk[id]=Math.min(9,Math.ceil(1+(v-1)*8/19))}}
   S.sk9=1;if(!S.skx)S.skx={}},
 ];
 function cqMigrate(){if(!S)return 0;const from=S.sv||0;for(let v=from;v<CQ_SV;v++)CQ_MIG[v]();S.sv=CQ_SV;return CQ_SV-from}

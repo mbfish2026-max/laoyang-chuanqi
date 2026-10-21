@@ -72,41 +72,40 @@ CS.bookKnown=id=>!!(S.cqBooks&&S.cqBooks[id]);
 CS.bookCount=id=>CS.matCount?CS.matCount('book_'+id):((S.mats||{})['book_'+id]|0);
 const LH=[];CS.onBookLearn=fn=>{LH.push(fn)};
 // ---------- 技能书规则（照原版传奇之旅 game.js learnFromBook）：职业相符 → 等级达到下一级要求 → 当前级熟练度满 → 消耗 N 本同名书 → 升级、熟练度清零 ----------
-// 熟练度存 S.skx[技能id]；每次施放 +1（clsCast 包装；职业开发接管后设 window.CQ_SKEXP_CLS=1 并自行调 CQSys.skillExp），被动技能每次击杀 +1。
-// 每级要求 CQSys.skReq(技能id, 目标级 n)：职业开发可定义全局 clsSkReq(id,n) 返回 {lv,books,exp} 覆盖；缺省按 CQ_BAL.book（lv=技能需求等级+lvStep×(n-1)，books=cnt[n-1]，exp=exp[n-2]×expK）
-CS.skMax=()=>CQ_BAL.book.maxLv||9;
+// 规则本体在职业侧 classes.js：clsSkReq/clsCanLearn/clsLearn/clsSkillExp（熟练度在 acCast/hitMon 里累计，存 S.skx）。下面是系统接口 + 无职业侧时的兜底（CQ_BAL.book）。
+const HASCLS=()=>typeof clsCanLearn==='function'&&typeof clsLearn==='function';
+CS.skMax=()=>typeof CLS_SKMAX!=='undefined'?CLS_SKMAX:(CQ_BAL.book.maxLv||9);
 CS.skExp=id=>((S.skx||{})[id]|0);
-CS.skReq=(sk,n)=>{if(typeof clsSkReq==='function'){try{const r=clsSkReq(sk,n);if(r)return r}catch(e){}}const B=CQ_BAL.book,s=typeof SKM!=='undefined'&&SKM[sk],r0=(s&&s.r)||1,c=B.cnt;
+// 升到第 n 级的要求 {lv,books,exp}
+CS.skReq=(sk,n)=>{if(typeof clsSkReq==='function'){try{const r=clsSkReq(sk,n);if(r)return{lv:r.lvl,books:r.books,exp:r.exp}}catch(e){}}const B=CQ_BAL.book,s=typeof SKM!=='undefined'&&SKM[sk],r0=(s&&s.r)||1,c=B.cnt;
  return{lv:r0+B.lvStep*(n-1),books:c[Math.min(c.length,n)-1],exp:n<=1?0:Math.ceil((B.exp[Math.min(B.exp.length,n-1)-1]||0)*B.expK)}};
-CS.skillExp=(id,n)=>{if(!id||!S||!S.sk||!(S.sk[id]>0))return 0;const x=S.skx||(S.skx={});x[id]=(x[id]|0)+(n==null?1:+n||0);return x[id]};
-CS.bookOf=sk=>{const c=CS.curCls();return Object.values(window.CQ_BOOKS).find(b=>b.sk===sk&&b.cls===c)||null};
-// 技能页用：一个技能的学习/升级状态（战斗开发 pages_cq 技能行用）
+CS.skillExp=(id,n)=>{if(typeof clsSkillExp==='function')return clsSkillExp(id,n);if(!id||!S||!S.sk||!(S.sk[id]>0))return 0;const x=S.skx||(S.skx={});x[id]=(x[id]|0)+(n==null?1:+n||0);return x[id]};
+CS.bookOf=sk=>{const c=CS.curCls();return window.CQ_BOOKS[c+'_'+sk]||Object.values(window.CQ_BOOKS).find(b=>b.sk===sk&&b.cls===c)||null};
+// 技能页用：一个技能的学习/升级状态
 CS.skState=sk=>{const b=CS.bookOf(sk),cur=(S.sk&&S.sk[sk])|0,max=CS.skMax(),full=cur>=max,nx=full?null:CS.skReq(sk,cur+1),exp=CS.skExp(sk),have=b?CS.bookCount(b.id):0;
- const why=!b?'没有对应技能书':full?'技能已满级':(S.lvl|0)<nx.lv?`需要等级 ${nx.lv}`:(cur>0&&exp<nx.exp)?`熟练度不足 (${exp}/${nx.exp})`:have<nx.books?`需要技能书 x${nx.books}`:'';
+ let why=!b?'没有对应技能书':'';if(!why){const c=HASCLS()?clsCanLearn(sk,{have}):CS._canLearn(sk,have);why=c.ok?'':c.err}
  return{sk,book:b&&b.id,lv:cur,max,full,learned:cur>0,exp,need:nx?nx.exp:0,next:nx,have,can:!why,why}};
-CS.bookLearn=id=>{const b=window.CQ_BOOKS[id];if(!b)return{err:'未知技能书'};if(b.cls!==CS.curCls())return{err:'职业不符'};
- const sk=b.sk,from=(S.sk&&S.sk[sk])|0;if(from>=CS.skMax())return{err:'技能已满级'};const nx=CS.skReq(sk,from+1);
- if((S.lvl|0)<nx.lv)return{err:`需要等级 ${nx.lv}`};if(from>0&&CS.skExp(sk)<nx.exp)return{err:`熟练度不足 (${CS.skExp(sk)}/${nx.exp})`};
- const have=CS.bookCount(id);if(have<1)return{err:'没有这本书'};if(have<nx.books)return{err:`需要技能书 x${nx.books}`};
- CS.takeMat('book_'+id,nx.books);(S.cqBooks=S.cqBooks||{})[id]=(S.cqBooks[id]|0)+nx.books;
- const to=from+1;S.sk=S.sk||{};S.sk[sk]=to;(S.skx=S.skx||{})[sk]=0;if(typeof calc==='function')calc();b.from=from;b.to=to;
- for(const f of LH)try{f(b)}catch(e){console.error(e)}emit('bookLearn',b);save();return{ok:1,book:b,from,to,used:nx.books}};
-// 任务奖励「技能书 ×n」（替代旧技能点）：本职业、未满级、需求等级 ≤ 当前等级的书里，优先已学会的（升级用）
-CS.bookGive=n=>{const c=CS.curCls(),L=S.lvl|0,P=CS.books(c).filter(b=>!b.placeholder&&!CS.bookMaxed(b.id)&&b.lv<=L);if(!P.length){S.gold=(S.gold||0)+2000*(n||1);return null}
- const k=P.filter(b=>(S.sk&&S.sk[b.sk])|0),pool=k.length?k:P.sort((a,b)=>a.lv-b.lv);const out=[];for(let i=0;i<(n||1);i++){const b=pool[Math.floor(rnd()*pool.length)];addMat(bookMat(b),1);out.push(b.id)}
- if(typeof log==='function'&&!window.__NOUI)try{log('获得 '+out.map(id=>'技能书·'+CQ_BOOKS[id].n).join('、'))}catch(e){}return out};
+CS._canLearn=(sk,have)=>{const cur=(S.sk&&S.sk[sk])|0;if(cur>=CS.skMax())return{err:'技能已满级'};const nx=CS.skReq(sk,cur+1);if((S.lvl|0)<nx.lv)return{err:`需要等级 ${nx.lv}`};
+ if(cur>0&&CS.skExp(sk)<nx.exp)return{err:`技能熟练度不足 (${CS.skExp(sk)}/${nx.exp})`};if(have<1)return{err:'没有这本书'};if(have<nx.books)return{err:`需要技能书 x${nx.books}`};return{ok:1,from:cur,to:cur+1,books:nx.books}};
+CS.bookLearn=id=>{const b=window.CQ_BOOKS[id];if(!b)return{err:'未知技能书'};if(b.cls!==CS.curCls())return{err:'职业不符'};const sk=b.sk,have=CS.bookCount(id);
+ const c=HASCLS()?clsCanLearn(sk,{have}):CS._canLearn(sk,have);if(!c.ok)return{err:have<1&&/技能书/.test(c.err||'')?'没有这本书':c.err};
+ CS.takeMat('book_'+id,c.books);(S.cqBooks=S.cqBooks||{})[id]=(S.cqBooks[id]|0)+c.books;
+ if(HASCLS())clsLearn(sk,{noTake:1,have:c.books});else{S.sk=S.sk||{};S.sk[sk]=c.to;(S.skx=S.skx||{})[sk]=0;if(typeof calc==='function')calc()}
+ b.from=c.from;b.to=c.to;for(const f of LH)try{f(b)}catch(e){console.error(e)}emit('bookLearn',b);save();return{ok:1,book:b,from:c.from,to:c.to,used:c.books}};
 CS.bookMaxed=id=>{const b=window.CQ_BOOKS[id];return !!b&&!!(S.sk&&(S.sk[b.sk]|0)>=CS.skMax())};
 // 挂机（S.autoSk 开）：本职业书满足条件即自动学习/升级
 CS.bookAutoUse=()=>{let n=0;CS._bookQ=[];if(!S.autoSk)return 0;for(const b of CS.books(CS.curCls())){let g=0;while(g++<CS.skMax()&&CS.bookCount(b.id)>0&&CS.bookLearn(b.id).ok)n++}
  if(n&&typeof log==='function'&&!window.__NOUI)try{log(`<span style="color:#e8c070">自动使用技能书 ${n} 次</span>`)}catch(e){}return n};
 {const f=autoTick;autoTick=function(){const r=f.apply(this,arguments);try{if(S.autoSk)CS.bookAutoUse()}catch(e){}return r}}
-// 熟练度：施放 +1（职业开发在 acCast 里自己累计时设 window.CQ_SKEXP_CLS=1 关闭此包装）
-if(typeof clsCast==='function'){const f=clsCast;clsCast=function(id){const r=f.apply(this,arguments);if(!window.CQ_SKEXP_CLS)try{CS.skillExp(id,1)}catch(e){}return r}}
-// 被动技能（无施放）：每次击杀 +1
-{const f=killMon;killMon=function(m){const r=f.apply(this,arguments);try{if(!window.CQ_SKEXP_CLS&&S.sk&&typeof SKM!=='undefined')for(const id in S.sk){const s=SKM[id];if(s&&S.sk[id]>0&&(s.ty==='passive'||s.kind==='passive'))CS.skillExp(id,1)}}catch(e){}return r}}
+// 任务奖励「技能书 ×n」（替代旧技能点）：本职业、未满级、需求等级 ≤ 当前等级的书里，优先已学会的（升级用）
+CS.bookGive=n=>{const c=CS.curCls(),L=S.lvl|0,P=CS.books(c).filter(b=>!b.placeholder&&!CS.bookMaxed(b.id)&&b.lv<=L);if(!P.length){S.gold=(S.gold||0)+2000*(n||1);return null}
+ const k=P.filter(b=>(S.sk&&S.sk[b.sk])|0),pool=k.length?k:P.sort((a,b)=>a.lv-b.lv);const out=[];for(let i=0;i<(n||1);i++){const b=pool[Math.floor(rnd()*pool.length)];addMat(bookMat(b),1);out.push(b.id)}
+ if(typeof log==='function'&&!window.__NOUI)try{log('获得 '+out.map(id=>'技能书·'+CQ_BOOKS[id].n).join('、'))}catch(e){}return out};
 CS.bookDropFor=(m)=>{const B=CQ_BAL.book;const p=m.actboss?B.actboss:m.boss?B.boss:(m.fl||m.champ||m.elite)?B.elite:B.normal;if(rnd()>=p)return null;
  const ml=m.lv||1,c=CS.curCls();const ok=b=>b.lv<=ml+3;let pool=Object.values(window.CQ_BOOKS).filter(b=>ok(b)&&!CS.bookMaxed(b.id));if(!pool.length)return null;
- const own=pool.filter(b=>b.cls===c);if(own.length&&rnd()<B.ownCls)pool=own;const w=b=>1/(1+b.lv/10);return wpick(pool,w)};
+ const own=pool.filter(b=>b.cls===c);if(own.length&&rnd()<B.ownCls)pool=own;
+ // 本职业：已学会的按「下一级还差几本」加权（原版书可在书店买，掉落经济里让升级用书更容易出）；未学会的按需求等级衰减
+ const w=b=>{if(b.cls!==c)return 1/(1+b.lv/10);const cur=(S.sk&&S.sk[b.sk])|0;if(!cur)return 1;const q=CS.skReq(b.sk,cur+1);return 1+Math.max(0,(q?q.books:1)-CS.bookCount(b.id))/2};return wpick(pool,w)};
 {const f=rollTC;rollTC=function(m){const out=f.apply(this,arguments)||[];try{const b=m&&CS.bookDropFor(m);if(b){const k=bookMat(b);out.push({uid:S.uid++,k:'mat',id:k,n:1});emit('bookDrop',{id:b.id,n:b.n,mon:m.key})}}catch(e){}return out}}
 // ============ 4) 召唤物框架（系统侧：存档、属性、伤害预算） ============
 // S.summons = [{id, kind:'dog'|'skel'|'pet', mon?, sk(技能id), lv(技能等级), hp, deadAt, eq:{collar?}}]（随角色存档）
