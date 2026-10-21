@@ -8,9 +8,11 @@
 // ===================================================================================
 // 战士技能伤害统一系数（主动技能武器伤害%/固定伤害、基本剑术伤害加成；命中/眩晕/冷却不乘）
 const CLS_ZS_K=1.25;
+// 基本剑术附带吸血（1.76 无单独吸血技能，并入剑术被动）：[1 级, 上限] %
+const CLS_ZS_LL=[3,5];
 const clsZsTx=(p,f)=>`武器伤害 ${p>=0?'+':''}${p}%${f?`，额外 +${f} 物理`:''}`;
 clsDef('zs',[
- {id:'jbjs',t:0,n:'基本剑术',r:1,col:0,ty:'passive',cat:'*',ic:'🗡',v:L=>{const d=Math.round((6+3*(L-1))*CLS_ZS_K),a=15+5*(L-1);return{dmg:d,ar:a,txt:`被动：武器伤害 +${d}%，命中 +${a}%`}}},
+ {id:'jbjs',t:0,n:'基本剑术',r:1,col:0,ty:'passive',cat:'*',ic:'🗡',v:L=>{const d=Math.round((6+3*(L-1))*CLS_ZS_K),a=15+5*(L-1),ll=+Math.min(CLS_ZS_LL[1],CLS_ZS_LL[0]+0.25*(L-1)).toFixed(1);return{dmg:d,ar:a,ll,txt:`被动：武器伤害 +${d}%，命中 +${a}%，技能伤害 ${ll}% 转为生命`}}},
  {id:'gsjs',t:0,n:'攻杀剑术',r:3,col:1,ty:'hit',ic:'⚔',fx:'slash',cqfx:'gongsha',mana:L=>1,
   v:(L,sy)=>{const p=Math.round((80+12*(L-1))*sy*CLS_ZS_K),f=Math.round((3+2*(L-1))*CLS_ZS_K);return{pct:p,flat:f,ar:30,txt:`蓄力重击：${clsZsTx(p,f)}，本次命中 +30%`}}},
  {id:'csjs',t:0,n:'刺杀剑术',r:7,col:2,pre:['gsjs'],ty:'mhit',ic:'🔱',fx:'slash',cqfx:'gongsha',mana:L=>2,
@@ -22,7 +24,8 @@ clsDef('zs',[
  {id:'lhjf',t:0,n:'烈火剑法',r:16,col:1,pre:['gsjs'],ty:'hit',ic:'🔥',fx:'boom',cqfx:'liehuo',cd:6,mana:L=>6,syn:[['jbjs','gsjs'],4],
   v:(L,sy)=>{const p=Math.round((400+30*(L-1))*sy*CLS_ZS_K),f=Math.round((10+6*(L-1))*CLS_ZS_K);return{pct:p,flat:f,sure:1,txt:`召唤烈火附于剑上：${clsZsTx(p,f)}，必定命中，冷却 6 秒`}}},
 ]);
-CLS_DEF.zs.sk={jbjs:1};CLS_DEF.zs.hitMana=1;CLS_DEF.zs.block=5;// 每次近战命中 +1 法力；持盾额外格挡 5
+CLS_DEF.zs.sk={jbjs:1};CLS_DEF.zs.lpv=7;CLS_DEF.zs.lpl=4;CLS_DEF.zs.lifePct=50;// 有效生命约 ×2：每点体力生命 4→7、每级 2→4、职业生命 +50%
+CLS_DEF.zs.hitMana=1;CLS_DEF.zs.block=5;// 每次近战命中 +1 法力；持盾额外格挡 5
 // 平衡（按等级插值）：mk 近战总系数、ek 对首领/精英额外系数
 CLS_BAL.zs={mk:[[1,1],[12,1],[30,1],[60,1]],ek:[[1,1.2],[12,1.3],[30,1.3],[60,1.3]]};
 CLS_SKPLAN.zs={order:['gsjs','jbjs','gsjs','jbjs','gsjs','csjs','gsjs','jbjs','bywd','gsjs','jbjs','ymcz','gsjs','jbjs','lhjf','lhjf','gsjs','lhjf','jbjs','lhjf','lhjf','gsjs'],

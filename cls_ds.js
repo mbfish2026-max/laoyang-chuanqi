@@ -6,6 +6,8 @@
 // 技能等级 1–20，每级 1 技能点。数值参考 web-replica skill.txt（灵魂火符 150%+18 → 245%+1202、施毒 3→4 目标、5 秒冷却）。
 // 召唤物 = ALLY.kind 'cqpet'（classes.js CLS_TY.pet），伤害吃召唤伤害加成；属性随技能等级与角色等级成长。
 // ===================================================================================
+// 神兽强化系数 [生命, 攻击]（石墓首领首杀过慢）
+const CLS_DS_PET=[1.5,1.8];
 const clsDsTx=d=>`${d[0]}-${d[1]}`;
 clsDef('ds',[
  {id:'zys',t:2,n:'治愈术',r:1,col:0,ty:'heal',ic:'💚',fx:'shield',cqfx:'zhiliaoshu',cd:4,mana:L=>3+0.2*(L-1),
@@ -19,11 +21,11 @@ clsDef('ds',[
  {id:'ysh',t:2,n:'隐身术',r:13,col:1,ty:'buff',g:'ysh',ic:'👻',fx:'shield',mana:L=>5,
   v:L=>{const d=Math.min(60,25+2*(L-1)),t=20+2*(L-1);return{dodge:d,dur:t,txt:`隐身：${d}% 几率不被怪物命中（怪物转攻召唤物），持续 ${t} 秒`}}},
  {id:'zhss',t:0,n:'召唤神兽',r:16,col:1,pre:['zhkl'],ty:'pet',g:'dspet',ic:'🐕',cqfx:'zhaohuan',cd:3,mana:L=>12,
-  v:L=>{const lv=S.lvl||1,hp=Math.round(120+30*(L-1)+lv*12),a=Math.round(6+2.6*(L-1)+lv*1.1),gold=L>=15;return{hp,pd:[a,Math.round(a*1.7)],el:'fire',th:10,max:1,pn:gold?'金色神兽':'神兽',
+  v:L=>{const lv=S.lvl||1,hp=Math.round((120+30*(L-1)+lv*12)*CLS_DS_PET[0]),a=Math.round((6+2.6*(L-1)+lv*1.1)*CLS_DS_PET[1]),gold=L>=15;return{hp,pd:[a,Math.round(a*1.7)],el:'fire',th:10,max:1,pn:gold?'金色神兽':'神兽',
    txt:`召唤${gold?'金色':''}神兽：生命 ${hp}、火焰攻击 ${a}-${Math.round(a*1.7)}，反伤 10%（15 级起为金色神兽）`}}},
 ]);
 CLS_DEF.ds.sk={lhhf:1};
-CLS_BAL.ds={dk:[[1,1],[12,1],[30,1],[60,1]],ek:[[1,1.2],[12,1.3],[30,1.3],[60,1.3]]};
+CLS_BAL.ds={dk:[[1,1],[12,1.1],[30,1.25],[60,1.25]],ek:[[1,1.2],[12,1.5],[30,1.6],[60,1.6]]};
 CLS_SKPLAN.ds={order:['lhhf','zys','lhhf','lhhf','sds','lhhf','zhkl','zhkl','lhhf','zhkl','ysh','zhkl','zhss','zhss','zhss','zhss','zhss','sds','zhss','zhss','zys','zhss'],
  fill:()=>bl('zhss')<20?['zhss','zys']:bl('sds')<20?['sds','lhhf']:bl('lhhf')<20?['lhhf']:['zys','ysh','zhkl']};
 clsRegister();

@@ -158,8 +158,8 @@ function clsMigrate(){clsLateFix();if(typeof S==='undefined'||!S||!S.sk||S.cqsk=
  S.kp=(S.kp||0)+back;S.main=null;S.curse=null;if(gone.length&&typeof log==='function')try{log(`<b style="color:#ffd76a">职业技能整理：移除非本职业技能 ${gone.join('、')}，退还技能点 ${back}</b>`)}catch(e){}}
 const clsWCat=()=>{const w=S.eq&&S.eq.weapon;return w&&BASEM[w.b]?BASEM[w.b].cat:null};
 function clsCalc(o){const c=curCls();clsMigrate();const M=o.M||{};const lv=id=>{const b=bl(id);return b?b+o.allsk+(M['tc_'+SKM[id].cls+SKM[id].t]||0)+(o['sk_'+id]||0):0};const pv=id=>{const L=lv(id);return L?clsSV(id,L):null};
- let wd=0,ar=0,ias=0,crit=0,lifeP=0,manaP=0,defP=0;
- for(const s of CLS_SKILLS)if(s.cls===c&&s.ty==='passive'&&s.cat!=null){const v=pv(s.id);if(!v)continue;if(s.cat==='*'||s.cat.split(',').includes(clsWCat()||'none')){wd+=v.dmg||0;ar+=v.ar||0;crit+=v.crit||0;ias+=v.ias||0}}
+ let wd=0,ar=0,ias=0,crit=0,lifeP=CLS_DEF[c].lifePct||0,manaP=0,defP=0;// lifePct：职业生命加成%
+ for(const s of CLS_SKILLS)if(s.cls===c&&s.ty==='passive'&&s.cat!=null){const v=pv(s.id);if(!v)continue;if(v.ll)o.bll=(o.bll||0)+v.ll;if(s.cat==='*'||s.cat.split(',').includes(clsWCat()||'none')){wd+=v.dmg||0;ar+=v.ar||0;crit+=v.crit||0;ias+=v.ias||0}}
  for(const s of CLS_SKILLS)if(s.cls===c&&s.ty==='passive'&&s.cat==null){const v=pv(s.id);if(!v)continue;lifeP+=v.life||0;defP+=v.def||0;ias+=v.ias||0;crit+=v.crit||0;
   if(v.res)for(const k in o.res)o.res[k]=Math.min(75,o.res[k]+v.res);if(v.mregen)o.mregen+=v.mregen;if(v.mf)o.mf+=v.mf;if(v.gf)o.gf+=v.gf;if(v.ll)o.bll=(o.bll||0)+v.ll}
  if(CLS_DEF[c].block&&BASEM[S.eq.shield?.b]?.block)o.block=Math.min(75,o.block+CLS_DEF[c].block);// 职业额外格挡
