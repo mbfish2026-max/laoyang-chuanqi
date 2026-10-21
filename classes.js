@@ -1,5 +1,6 @@
 'use strict';
 // ===================================================================================
+// 【老羊传奇 M1 标注】本文件的 D2 技能（法师/野蛮人技能定义、数值、施放）暂留，交职业 Bot 以 cls_zs/fs/ds.js 重写后删除。
 // classes.js — 玩家职业：野蛮人(bar) / 法师(sor)。亡灵术士(nec)为原有职业，逻辑不变。
 // 存档：沿用角色存档 S.cls（缺省 'nec'，旧存档自动视为亡灵术士）；S.ci=1 表示已按职业初始化（新建/重置角色时一次性写入属性、技能、初始装备）。
 // 新增技能放入全局 SKILLS/SKM（带 cls 字段），技能页/加点/自动施法按 S.cls 过滤；数值在 clsSV，施放在 acFeasible/acSmart/acCast 包装中。
@@ -18,7 +19,7 @@ const CLS_DEF={
  fs:{n:'法师',ic:'✦',glyph:'✦',at:{str:10,dex:25,vit:10,ene:35},life0:40,lpl:1.5,lpv:2,mana0:35,mpl:2,mpe:2,trees:['火系','冰系','雷系'],
   sk:{rs:1},eq:['wand1'],dk:()=>1,autoEne:()=>S.at.ene<S.lvl+35},
  ds:{n:'道士',ic:'☯',glyph:'☯',at:{str:15,dex:25,vit:20,ene:25},life0:45,lpl:1.5,lpv:2.5,mana0:25,mpl:2,mpe:2,trees:['召唤','符毒','辅助'],
-  sk:{rs:1},eq:['wand1'],dk:()=>1,autoEne:()=>false},
+  sk:{rs:1},eq:['wand2'],dk:()=>1,autoEne:()=>false},
 };
 CLS_DEF.nec=CLS_DEF.zs;CLS_DEF.bar=CLS_DEF.zs;CLS_DEF.sor=CLS_DEF.fs;CLS_DEF.ama=CLS_DEF.zs;CLS_DEF.dru=CLS_DEF.ds;CLS_DEF.pal=CLS_DEF.zs;
 const curCls=()=>(S&&CLS_DEF[S.cls])?S.cls:'zs';
@@ -29,7 +30,7 @@ function trees(){return clsBase().trees}
 function skOfCls(s){return (s.cls||'zs')===curCls()}
 // 新角色/重置角色：按职业写入初始属性/技能/装备（只执行一次）
 function clsInit(){const c=curCls();if(S.ci)return;const D=CLS_DEF[c];S.ci=1;S.at=Object.assign({},D.at);S.sk=Object.assign({},D.sk);S.main=null;S.curse=null;S.autoCast=null;
- S.eq={};for(const b of D.eq){const B=BASEM[b];if(B)S.eq[B.s]=makeBase(B,1)}calc();H.life=ST.life;H.mana=ST.mana}
+ S.eq={};for(const b of D.eq.concat(['arm1'])){const B=BASEM[b];if(B)S.eq[B.s]=makeBase(B,1)}calc();H.life=ST.life;H.mana=ST.mana}
 // ===================================================================================
 // 职业技能引擎（数据驱动）：每个技能 = 定义 {id,cls,t 系,n,r 需求等级,col,pre 前置,ty 类型,el 元素,ic,mana,sm 智能施放所需怪数,v(L,sy) 数值}
 // ty：bolt 单体 / splash 溅射 / cone 前排 n 个 / multi n 发随机 / chain 弹跳 / aoe 全体 / burn 灼烧 / static 按当前生命比例 / turret 持续炮台
@@ -244,14 +245,15 @@ clsRegister();clsArtLoad();
 // 职业专属底材 / 词缀 / 技能等级加成（b.ccls = 职业 id；缩颅标记为亡灵术士）
 // ===================================================================================
 TCAP.orb=[2,3,3];TCAP.bhelm=[2,3,3];ITYPES.orb=['armo','shld','orb'];ITYPES.bhelm=['armo','helm','phlm'];
-{const nb=[
+// 老羊传奇：D2 职业专属底材/职业系词缀不注入（CQ_DATA 已替换装备数据）；职业 Bot 重写 cls_*.js 时删除本段
+if(!window.CQ_DATA){const nb=[
  A('orb1','shield','orb','鹰眼法球',1,0,[1,3],0,2),A('orb2','shield','orb','冰晶法球',12,0,[2,5],0,2),A('orb3','shield','orb','烈焰法球',22,0,[3,7],0,2),
  A('orb4','shield','orb','星辰法球',36,1,[6,12],0,3),A('orb5','shield','orb','天穹法球',60,2,[10,20],0,3),
  A('bh1','helm','bhelm','狼首盔',3,0,[8,11],25,2),A('bh2','helm','bhelm','獠牙战盔',12,0,[15,20],40,2),A('bh3','helm','bhelm','巨角盔',24,0,[25,35],55,3),
  A('bh4','helm','bhelm','屠夫面盔',40,1,[50,70],80,3),A('bh5','helm','bhelm','苍狼王冠',62,2,[90,125],110,3)];
  for(const b of nb){b.cls=1;b.ccls=b.cat==='orb'?'sor':'bar';BASES.push(b);BASEM[b.id]=b}
  for(const b of BASES)if(b.cat==='head')b.ccls='nec'}
-{const add=(n,lv,rq,it,k,v)=>PREFIX.push(AF(n,lv,rq,'skill',it,{[k]:[v,v]}));
+if(!window.CQ_DATA){const add=(n,lv,rq,it,k,v)=>PREFIX.push(AF(n,lv,rq,'skill',it,{[k]:[v,v]}));
  const T={bar:[['斗士的','战魂的','战神的'],['剑士的','锋主的','兵圣的'],['呼号的','咆哮的','雷吼的']],sor:[['焰语的','炎术的','焚天的'],['霜语的','冰术的','凛冬的'],['雷语的','电术的','天雷的']]};
  const IT={bar:'phlm,amul',sor:'orb,amul'};
  for(const c in T)for(let t=0;t<3;t++){const k='tc_'+c+t;MODT[k]='+{v} '+CLS_DEF[c].trees[t]+'（'+CLS_DEF[c].n+'专属）';HIDDEN_KEYS.add(k);T[c][t].forEach((n,i)=>add(n,[20,40,60][i],[15,30,45][i],IT[c],k,i+1))}

@@ -20,15 +20,16 @@ ok(G("(()=>{const a=mkMon('imp',62);const z=S.zone;S.zone=99;const b=mkMon('imp'
 G(`S.lvl=99`);ok(G("mkMon('imp',3).lv")===99,'等级上限 99');G(`S.lvl=60`);
 G(`EGM={k:'mj',L:1}`);ok(!G("bmHere()"),'终局模式中不生效');G(`EGM=null`);
 ok(G("(()=>{for(let i=0;i<200;i++){const m=mkMon('imp',3,'champ');const o=rollTC(m);if(!o.some(it=>it&&!it.k&&it.q>=3))return false}return true})()"),'精英必掉魔法以上');
-const wd=G("(()=>{let n=0;for(let i=0;i<3000;i++){const m=mkMon('imp',3,'uniq');if(rollTC(m).some(it=>it&&it.ward))n++}return n/3000})()");ok(wd>0.015&&wd<0.05,'头目破障掉率 '+wd.toFixed(3));
-ok(G("(()=>{const z=S.zone;S.zone=99;const m=mkMon('imp',3,'uniq');m.bm=0;let n=0;for(let i=0;i<1500;i++)if(rollTC(m).some(it=>it&&it.ward))n++;S.zone=z;return n===0})()"),'非血月不掉破障');
+const HASW=G("!!BASEM.cha_s");if(!HASW){ok(G("wardMake('fire')")===null,"无护身符底材时破障护符不生成（M4 重做）");ok(G("(()=>{for(let i=0;i<2000;i++){const m=mkMon('imp',3,'uniq');if(rollTC(m).some(it=>it==null||it.ward))return false}return true})()"),"掉落无空项")}
+if(HASW){const wd=G("(()=>{let n=0;for(let i=0;i<3000;i++){const m=mkMon('imp',3,'uniq');if(rollTC(m).some(it=>it&&it.ward))n++}return n/3000})()");ok(wd>0.015&&wd<0.05,'头目破障掉率 '+wd.toFixed(3));}
+if(HASW){ok(G("(()=>{const z=S.zone;S.zone=99;const m=mkMon('imp',3,'uniq');m.bm=0;let n=0;for(let i=0;i<1500;i++)if(rollTC(m).some(it=>it&&it.ward))n++;S.zone=z;return n===0})()"),'非血月不掉破障');}
 // 破障效果
 const mon="(()=>{const m=mkMon('imp',30);m.res.fire=120;m.res.cold=60;m.res.light=30;return m})()";
 G(`var M=${mon};S.bag=[];calc()`);ok(G("resOf(M,'fire')")===80&&G("resOf(M,'cold')")===60,'无护符：免疫封顶 80');
-G(`S.bag=[wardMake('fire')];calc()`);ok(G("resOf(M,'fire')")===40&&G("resOf(M,'cold')")===60&&G("resOf(M,'light')")===30,'烈焰破障：火 40，其他不变，低抗不抬高');
-const fr0=G("(()=>{S.bag=[];calc();return ST.fres!=null?ST.fres:ST.res&&ST.res.fire})()"),fr1=G("(()=>{S.bag=[wardMake('fire')];calc();return ST.fres!=null?ST.fres:ST.res&&ST.res.fire})()"),fr2=G("(()=>{S.bag=[wardMake('fire'),wardMake('fire')];calc();return ST.fres!=null?ST.fres:ST.res&&ST.res.fire})()");
-ok(fr0-fr1===25&&fr1===fr2,`代价 -25 火抗且同类不叠加 ${fr0}/${fr1}/${fr2}`);
+if(HASW){G(`S.bag=[wardMake('fire')];calc()`);ok(G("resOf(M,'fire')")===40&&G("resOf(M,'cold')")===60&&G("resOf(M,'light')")===30,'烈焰破障：火 40，其他不变，低抗不抬高');}
+if(HASW){const fr0=G("(()=>{S.bag=[];calc();return ST.fres!=null?ST.fres:ST.res&&ST.res.fire})()"),fr1=G("(()=>{S.bag=[wardMake('fire')];calc();return ST.fres!=null?ST.fres:ST.res&&ST.res.fire})()"),fr2=G("(()=>{S.bag=[wardMake('fire'),wardMake('fire')];calc();return ST.fres!=null?ST.fres:ST.res&&ST.res.fire})()");}
+if(HASW){ok(fr0-fr1===25&&fr1===fr2,`代价 -25 火抗且同类不叠加 ${fr0}/${fr1}/${fr2}`);}
 ok(G("Object.keys(BM.WARD).length")===6&&G("Object.values(BM.WARD).map(w=>w.n).join()")==='烈焰,冰封,雷鸣,剧毒,骨裂,虚空','6 种原创名');
-ok(G("(()=>{const it=wardMake('magic');return /ward_void\\.webp/.test(itemIcon(it))&&itemName(it)==='破障护符·虚空'})()"),'图标与名字');
+if(HASW){ok(G("(()=>{const it=wardMake('magic');return /ward_void\\.webp/.test(itemIcon(it))&&itemName(it)==='破障护符·虚空'})()"),'图标与名字');}
 G(`S.bm=undefined;delete S.bm`);ok(G("(()=>{try{bmCur();return true}catch(e){return false}})()"),'旧存档无 S.bm 兼容');
 console.log(`bloodmoon_test: ${pass} pass, ${fail} fail`);process.exit(fail?1:0);

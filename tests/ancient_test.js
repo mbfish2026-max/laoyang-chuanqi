@@ -20,7 +20,7 @@ G(`S.diff=0`);ok(JSON.stringify(G("ancChance()"))==='[0,0]','普通难度无上�
 G(`S.diff=2`);ok(G("ancChance()[0]")===0.05&&G("ancChance()[1]")===0,'地狱 5%');
 G(`EGM={k:'mj',L:20}`);ok(Math.abs(G("ancChance()[0]")-0.07)<1e-9&&G("ancChance()[1]")===0,'秘境20层 7% 无至臻');
 G(`EGM={k:'mj',L:200}`);ok(G("ancChance()[0]")===0.12&&G("ancChance()[1]")===0.02,'秘境封顶 12%，至臻 2%');
-const st=JSON.parse(G(`(()=>{let n=0,a=0,t=0;for(let i=0;i<4000;i++){const it=genItem(85,{q:5});if(it.q!==5)continue;n++;if(it.anc)a++;if(it.anc===2)t++}return JSON.stringify({n,a,t})})()`));
+const st=JSON.parse(G(`(()=>{let n=0,a=0,t=0;/* 老羊传奇：极品表小，按命中极品数采样 */for(let i=0;n<2000&&i<400000;i++){const it=genItem(85,{q:5});if(it.q!==5)continue;n++;if(it.anc)a++;if(it.anc===2)t++}return JSON.stringify({n,a,t})})()`));
 ok(st.a/st.n>0.08&&st.a/st.n<0.16,'实测上古率 '+(st.a/st.n).toFixed(3));ok(st.t/st.a<0.07,'实测至臻占比 '+(st.t/st.a).toFixed(3));
 // 至臻全满 + 完美
 const z=JSON.parse(G(`(()=>{const u=UNIQUES[${U}];const it=makeBase(BASEM[u.b],85);it.q=5;it.name=u.n;it.m={};for(const k in u.m)it.m[k]=Array.isArray(u.m[k])?u.m[k][0]:u.m[k];delete it.anc;ancApply(it,2);

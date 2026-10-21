@@ -16,7 +16,7 @@ function newSave(){return{v:2,lvl:1,xp:0,gold:0,at:{str:15,dex:25,vit:15,ene:25}
  imbue:0,found:{},kpm:0,last:Date.now(),sell:{0:1,1:1,2:0,3:0},log:[]}}
 // 存档仅存于内存 GS（云端为唯一真相，见 cloud.js）；不再写入 localStorage
 const GS=(()=>{const m=new Map();return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>{v=String(v);if(m.get(k)!==v){m.set(k,v);if(typeof clDirty==='function')clDirty()}},removeItem:k=>{m.delete(k)},keys:()=>[...m.keys()],clear:()=>m.clear()}})();
-function load(){try{S=JSON.parse(GS.getItem(KEY))}catch(e){S=null}if(!S||S.v!==2){S=newSave();for(const b of['wand1','shd1']){const it=makeBase(BASEM[b],1);S.eq[BASEM[b].s]=it}}}
+function load(){try{S=JSON.parse(GS.getItem(KEY))}catch(e){S=null}if(!S||S.v!==2){S=newSave();for(const b of['swd1','arm1']){const it=makeBase(BASEM[b],1);S.eq[BASEM[b].s]=it}}}
 function save(){S.last=Date.now();GS.setItem(KEY,JSON.stringify(S))}
 
 // ===== 物品属性计算 =====

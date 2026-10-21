@@ -12,10 +12,10 @@ function bmCur(){if(typeof S!=='object'||!S)return null;const h=bmHour(),d=S.dif
 function bmHere(){if(typeof EGM!=='undefined'&&EGM)return false;const b=bmCur();return!!(b&&b.a===S.act&&b.d===S.diff&&b.i===S.zone)}
 function bmLeft(){return 60-Math.floor((Date.now()%3600e3)/60e3)}
 {const f=mkMon;mkMon=function(key,lv,flag){let L=lv;const here=bmHere();if(here)L=Math.max(lv,Math.min(99,(S.lvl||1)+BM.LV));const m=f.call(this,key,L,flag);if(here&&m){m.exp*=BM.XP;m.bm=1}return m}}
-function wardMake(k){const W=BM.WARD[k];if(!W)return null;const it=makeBase(BASEM.cha_s,Math.min(99,(S&&S.lvl)||1));it.q=5;it.name='破障护符·'+W.n;it.ward=k;it.req=1;it.m=Object.assign({},W.m);it.uid=S.uid++;return it}
+function wardMake(k){const W=BM.WARD[k];if(!W||!BASEM.cha_s)return null;/* 老羊传奇：D2 护身符底材已移除，破障护符待 M4「血月降临」重做 */const it=makeBase(BASEM.cha_s,Math.min(99,(S&&S.lvl)||1));it.q=5;it.name='破障护符·'+W.n;it.ward=k;it.req=1;it.m=Object.assign({},W.m);it.uid=S.uid++;return it}
 {const f=rollTC;rollTC=function(m){if(!m||!m.bm||!bmHere())return f.apply(this,arguments);let mf=null;if(ST){mf=ST.mf;ST.mf=mf+BM.MF}let o;try{o=f.apply(this,arguments)}finally{if(mf!=null)ST.mf=mf}
  try{const el=m.fl==='champ'||m.fl==='uniq'||m.boss;if(el&&!o.some(it=>it&&!it.k&&it.q>=3))o.push(genItem(m.lv,{q:3}));
-  const p=m.boss?BM.P.boss:m.fl==='uniq'?BM.P.uniq:m.fl==='champ'?BM.P.champ:BM.P.n;if(rnd()<p){const ks=Object.keys(BM.WARD);o.push(wardMake(ks[Math.floor(rnd()*ks.length)]))}}catch(e){console.warn(e)}return o}}
+  const p=m.boss?BM.P.boss:m.fl==='uniq'?BM.P.uniq:m.fl==='champ'?BM.P.champ:BM.P.n;if(rnd()<p){const ks=Object.keys(BM.WARD);const w=wardMake(ks[Math.floor(rnd()*ks.length)]);if(w)o.push(w)}}catch(e){console.warn(e)}return o}}
 // 背包破障：同类只算一件
 {const f=charmMods;charmMods=function(){const bag=S.bag;const seen={},keep=[];for(const it of bag||[]){if(it&&it.ward){if(seen[it.ward])continue;seen[it.ward]=1}keep.push(it)}S.bag=keep;try{return f.apply(this,arguments)}finally{S.bag=bag}}}
 function bmWards(){const w={};for(const it of (S&&S.bag)||[])if(it&&it.ward&&BM.WARD[it.ward])w[it.ward]=1;return w}

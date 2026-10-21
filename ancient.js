@@ -32,7 +32,7 @@ function ancExtra(it,lv){const b=BASEM[it.b];if(!b||typeof PREFIX==='undefined')
 function ancChance(){if(typeof S!=='object'||!S)return[0,0];const mj=typeof EGM!=='undefined'&&EGM&&EGM.k==='mj';
  if(mj){const L=EGM.L||0;return[Math.min(ANC.P_MAX,ANC.P_MJ0+ANC.P_MJL*L),L>=ANC.TOP_L?ANC.P_TOP:0]}
  return S.diff===2?[ANC.P_HELL,0]:[0,0]}
-{const f=genItem;genItem=function(){const it=f.apply(this,arguments);try{if(it&&!it.k&&(it.q===5||it.q===6)&&!it.anc){const[p,t]=ancChance();if(p&&rnd()<p)ancApply(it,t&&rnd()<t?2:1)}}catch(e){console.warn(e)}return it}}
+{const f=genItem;let dep=0;/* 老羊传奇：只在最外层判定一次，防止内层重抽时上古双重判定 */genItem=function(){dep++;let it;try{it=f.apply(this,arguments)}finally{dep--}try{if(!dep&&it&&!it.k&&(it.q===5||it.q===6)&&!it.anc){const[p,t]=ancChance();if(p&&rnd()<p)ancApply(it,t&&rnd()<t?2:1)}}catch(e){console.warn(e)}return it}}
 // 名字前缀（图鉴仍用 it.name，不受影响）
 {const f=itemName;itemName=function(it){const n=f(it);return it&&it.anc&&ANC.N[it.anc]?ANC.N[it.anc]+'·'+n:n}}
 // 格子边框

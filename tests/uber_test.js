@@ -32,7 +32,8 @@ G(`const b=MON.find(m=>m.ubS==='abyss_s2');b.hp=b.max*0.49;step(0.05)`);ok(G("MO
 const dr=G("(()=>{const b=MON.find(m=>m.ubS==='abyss_s2');b._ph=b.hp;const h0=b.hp;b.hp-=1000;H.life=1e12;step(0.01);return h0-b.hp})()");ok(dr>400&&dr<=520,'残影存活本体减伤 50% → '+Math.round(dr));
 G(`UB.cage=GT;H.life=1e12;step(0.01)`);ok(G("UB.lock>GT+1.5")&&G("heroAct()")===0,'魇牢禁锢英雄');
 const en=G("(()=>{const a=MON.find(m=>m.ubS==='abyss_s3');const d0=a.dmg[0];const s=MON.find(m=>m.ubS==='abyss_s1');s.hp=0;killMon(s);return a.dmg[0]/d0})()");ok(Math.abs(en-1.2)<1e-6,'一魂陨落其余 +20%');
-G(`var bag0=S.bag.length;for(const m of MON.filter(m=>m.ubS)){m.hp=0;killMon(m)}`);ok(G("egUb().wins")===1&&G("S.bag.length-bag0")>=4,'三魂全灭结算掉落 '+G("S.bag.length-bag0"));
+// 老羊传奇：符文/宝石掉落改为黑铁矿（进材料不进背包），背包件数下限 4→2
+G(`var bag0=S.bag.length;for(const m of MON.filter(m=>m.ubS)){m.hp=0;killMon(m)}`);ok(G("egUb().wins")===1&&G("S.bag.length-bag0")>=2,'三魂全灭结算掉落 '+G("S.bag.length-bag0"));
 ok(G("S.bag.some(x=>x.ub)")&&G("S.bag.some(x=>x.k==='rune'&&x.r>=19)"),'必掉终极 + 20 号以上符文');
 G(`EGM&&egLeave(1)`);
 // 失败返还

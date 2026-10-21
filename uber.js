@@ -38,7 +38,7 @@ function ubKeyChance(m){if(!m||!S)return null;const E=typeof EGM!=='undefined'?E
 if(typeof egOpenCache==='function'){const f=egOpenCache;egOpenCache=function(w){const B=EG().bounty,n=B.wcaches;const r=f.apply(this,arguments);try{if(w&&B.wcaches<n&&!ubLock())ubGiveKey(pick(['t','h','d']),'week')}catch(e){}return r}}
 // ---------- 终极物品 ----------
 function ubTree(cls,t){return cls==='nec'?'t'+t+'sk':'tc_'+cls+t}
-function ubBase(D){if(D.b)return BASEM[D.b];return BASES.filter(x=>x.s===D.s&&!x.jew&&!x.ccls).sort((x,y)=>(y.tier|0)-(x.tier|0)||y.q-x.q)[0]}
+function ubBase(D){if(D.b&&BASEM[D.b])return BASEM[D.b];const s=D.s||(typeof cqD2Slot==='function'?cqD2Slot(D.b):null)||'amulet';/* 老羊传奇：D2 底材缺失时按部位取最高档底材 */return BASES.filter(x=>x.s===s&&!x.ccls).sort((x,y)=>(y.tier|0)-(x.tier|0)||y.q-x.q)[0]}
 function ubRanges(it){const D=UB.ITEMS[it&&it.ub];if(!D)return null;const m={};for(const k in D.m){const v=D.m[k];if(k==='allst'){for(const s of['str','dex','vit','ene'])m[s]=v}else if(k!=='tree')m[k]=v}return{n:D.n,m}}
 function ubMake(id,o={}){const D=UB.ITEMS[id];const b=ubBase(D);const it=makeBase(b,99);it.q=5;it.name=D.n;it.ub=id;it.req=Math.min(85,b.q||1);it.m={};
  for(const k in D.m){const v=D.m[k];const r=Array.isArray(v)?(o.max?v[1]:R(v[0],v[1])):v;

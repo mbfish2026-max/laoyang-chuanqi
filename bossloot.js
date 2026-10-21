@@ -7,8 +7,10 @@ const BL={W:4,PMAX:0.5,N:30,MF:50,DEC:2.5,RE:6,TIERS:[[0,30],[31,60],[61,999]],c
 let BOSS_LOOT=null;
 function blKeys(){return Object.keys(BOSSES).filter(k=>!BOSSES[k].uber&&!/^abyss/.test(k)).concat(Object.keys(BL.EXTRA))}
 function blBuild(){if(BOSS_LOOT)return BOSS_LOOT;BOSS_LOOT={};const ks=blKeys(),N=ks.length;
- const tiers=BL.TIERS.map(([a,b])=>UNIQUES.filter(u=>u.lv>=a&&u.lv<=b).sort((x,y)=>x.lv-y.lv||(x.n<y.n?-1:1)));
- ks.forEach((k,j)=>{BOSS_LOOT[k]=tiers.map(t=>t.length?t[Math.floor(j*t.length/N)].n:null).filter(Boolean)});return BOSS_LOOT}
+ // 老羊传奇：UNIQUES[i].boss 指定的专属优先，且不参与自动分配
+ const EX={};for(const u of UNIQUES)if(u.boss)(EX[u.boss]=EX[u.boss]||[]).push(u.n);
+ const tiers=BL.TIERS.map(([a,b])=>UNIQUES.filter(u=>!u.boss&&u.lv>=a&&u.lv<=b).sort((x,y)=>x.lv-y.lv||(x.n<y.n?-1:1)));
+ ks.forEach((k,j)=>{if(EX[k]){BOSS_LOOT[k]=EX[k].slice();return}BOSS_LOOT[k]=tiers.map(t=>t.length?t[Math.floor(j*t.length/N)].n:null).filter(Boolean)});return BOSS_LOOT}
 function blName(k){return BL.EXTRA[k]?BL.EXTRA[k]():(BOSSES[k]||{}).n||k}
 function blKeyOf(m){if(!m)return null;if(m.egMjBoss)return'mj_lord';if(m.egGuard)return'rift_guard';return m.boss&&BOSSES[m.key]&&!BOSSES[m.key].uber?m.key:null}
 // 名称 → 首领 key 列表（详情显示「首领专属」）
