@@ -9,8 +9,8 @@ body.cq-on #cqStage{top:0;background:#120a06}
 #cqStage .cqb{position:absolute;left:0;top:0;width:390px;transform-origin:0 0;overflow:hidden;font-family:"PingFang SC","Noto Sans CJK SC","Noto Sans SC",sans-serif;color:#f3e6c8;-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none}
 .cqb *{box-sizing:border-box}
 /* ground */
-.cqb .field{position:absolute;inset:0;background:#3a2e1e url(../assets/cq/ui/ground_mirror.jpg) 50% 0/520px 883px repeat-y}
-/* 接缝：ground.jpg 上下边不连续（首尾行差 19.8，相邻行 6.0），原来 center 铺 441.5px 高（非整数）→ 两条横缝。改用上下镜像拼成的 1040×1766 块（整数 883px 高、从顶边铺），战场内只有 y=441.5 一处镜像接缝且像素连续 */
+.cqb .field{position:absolute;inset:0;background:#3a2e1e url(../assets/cq/ui/ground.jpg) 0 0/390px 520px repeat}
+/* 接缝（M1.5）：美术2 bb141a6 重做 ground.jpg 1170×1560，四边可无缝平铺。平铺块取整数 CSS 像素 390×520（=3x 原图 1:1、2x 780×1040），从左上角铺，不居中，避免非整数周期产生横缝。镜像临时图 ground_mirror.jpg 已撤 */
 .cqb .field::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 70% at 50% 45%,rgba(0,0,0,0) 45%,rgba(10,5,2,.55) 100%),linear-gradient(180deg,rgba(10,6,3,.55) 0,rgba(10,6,3,0) 120px,rgba(10,6,3,0) 70%,rgba(10,6,3,.8) 100%)}
 .cqb.boss .field::after{background:radial-gradient(120% 70% at 50% 45%,rgba(60,0,0,0) 40%,rgba(50,0,0,.6) 100%),linear-gradient(180deg,rgba(20,0,0,.6) 0,rgba(10,6,3,0) 150px,rgba(10,6,3,0) 70%,rgba(10,6,3,.8) 100%)}
 .cqb .world{position:absolute;inset:0}
@@ -239,3 +239,23 @@ body.cq-on #cqStage{top:0;background:#120a06}
 .cqb .card.cpet .hb{top:-7px;bottom:auto;left:4px;right:4px}
 .cqb .card.cpet .cnm{top:-22px;bottom:auto;left:-14px;right:-14px}
 .cqb .card.cpet .fig{bottom:6px;height:64px}
+
+/* ---- M1.5 卡片 = 原版格子卡（itemRole 120×125 = 格子），按比例缩到 60.5×63，相邻留 ≈2.9px；尺寸由 cq_scene place() 写内联 width/height。文字 ≥11px，只留等级+名字+血条 ---- */
+.cqb .card,.cqb .card.boss,.cqb .card.cpet{width:60.5px;height:63px}
+.cqb .card .fig{height:84%;bottom:6px}
+.cqb .card .clv{top:1px;font-size:11px;line-height:12px}
+.cqb .card .cnm{bottom:7px;font-size:11px;line-height:12px;left:1px;right:1px;text-overflow:clip}
+.cqb .card .hb{left:3px;right:3px;bottom:2px;height:4px}
+.cqb .card.boss .fig{height:150%;bottom:8px}          /* 首领只占 1 格，立绘向上探出（原版 _popFig） */
+.cqb .card.boss .clv,.cqb .card.boss .cnm{font-size:11px}
+.cqb .card.boss .cnm{bottom:7px}
+.cqb .card.boss .hb{height:5px;bottom:2px}
+.cqb .card.cpet .fig{height:84%;bottom:6px}
+.cqb .card.cpet .pic{top:12px;font-size:26px;line-height:30px}
+.cqb .card.cpet .cnm{top:auto;bottom:7px;left:1px;right:1px}
+.cqb .card.cpet .hb{top:auto;bottom:2px;left:3px;right:3px}
+.cqb .hero .in{display:flex;justify-content:center}
+.cqb .hero img{height:100%;width:auto;max-width:100%;object-fit:contain;object-position:50% 100%}
+.cqb .hero .hn{top:auto;bottom:0;max-width:100%;overflow:hidden}
+.cqb .hero .hhb{top:1px;width:54px;margin-left:-27px}
+.cqb .hero .shadow{width:52px;margin-left:-26px}

@@ -66,7 +66,7 @@ if(G('!!(window.CQSys&&CQSys.api===1)')){
   G('CQSys.heroCreate("ds");hy.reload()');ok(G('hy.present()')&&G('hy.h.prof')===3,'heroCreate 后 reload 出现');
   ok(G('CQ.Host.heroStats()&&CQ.Host.heroStats().hp')>0,'heroStats 接入');
   const rr=JSON.parse(G('JSON.stringify(CQ.Host.role())'));ok(typeof rr.yb==='number'&&typeof rr.power==='number','顶栏元宝/战力来自 CQSys');
-  ok(/mdl_mst_1015/.test(G('CQ.Host.monArt({key:"halforc"})')),'monArt 用 CQSys.monArt');
+  ok(/mdl_mst_1006/.test(G('CQ.Host.monArt({key:"halforc"})')),'monArt 用 CQSys.monArt');
   ok(G('CQ.Host.bossInfo()&&("alive" in CQ.Host.bossInfo())'),'bossInfo 接入');
   G('window.CQ_SKCD.__t=5;CQSys.skillCast("__t")');ok(G('CQ.Host.skills.length>=0')&&G('(function(){var C=CQSys.skillCooldown("__t");return !C.placeholder&&C.cd===5})()'),'skillCooldown 已登记时取正式冷却');
   // step 内英雄出手（不依赖战斗页）
@@ -94,7 +94,14 @@ G('var mo=mkMon(Object.keys(MONS)[0],1);mo.hp=10;mo.max=10;MON=[mo];var DS=CQ._d
 // ---------- M1.4 格子走位 / 地图接缝 / 立绘 ----------
 ok(/\.cqb \.card,\.cqb \.hero\{[^}]*transition:transform \.2s/.test(css),'逐格移动 0.2 秒一步（原版 MoveBy .2）');
 {const sc=fs.readFileSync(path.join(root,'cq/cq_scene.js'),'utf8');ok(/CELLW = 120 \* GK/.test(sc)&&/GRID_TOP = 150/.test(sc)&&!/st\.bossOn \? 160/.test(sc),'格子按原版 120×125 缩放、网格固定不随首领漂移');}
-ok(/ground_mirror\.jpg\) 50% 0\/520px 883px repeat-y/.test(css)&&fs.existsSync(path.join(root,'assets/cq/ui/ground_mirror.jpg')),'地面用镜像块整数高平铺（无接缝）');
+ok(/ground\.jpg\) 0 0\/390px 520px repeat/.test(css)&&!/ground_mirror/.test(css.replace(/\/\*[\s\S]*?\*\//g,'')),'地面用美术2 无缝 ground.jpg 整数 390×520 平铺（撤镜像临时图）');
+// ---------- M1.5 卡片 = 格子比例、不重叠 ----------
+{const sc=fs.readFileSync(path.join(root,'cq/cq_scene.js'),'utf8'),GK=390/750,colStep=122*GK,cw=Math.floor((colStep-2.5)*2)/2,chh=Math.floor(cw*125/120*2)/2;
+ ok(/CARD_GAP = 2\.5/.test(sc)&&colStep-cw>=2&&colStep-cw<=3,'相邻卡片横向留 2–3px（'+(colStep-cw).toFixed(2)+'px）');
+ ok(Math.abs(cw/chh-120/125)<0.01,'卡片宽高比 = 原版 120:125');
+ ok(!/kind === 'boss'\) \{ w = BW/.test(sc),'首领卡同原版只占 1 格');}
+ok(!/font-size:(?:[0-9]|10)(?:\.\d+)?px/.test(css),'全部字号 ≥11px');
+ok(G('CQ.Host.petArtFb({art:"pet_kl"})')==='assets/cq/ui/mdl_mst_1014.png'&&G('CQ.Host.petArtFb({art:"pet_ss"})')===null,'骷髅缺图退回原版变异骷髅模型 1014');
 ok(/mdl_mst_1001/.test(G('CQ.Host.monArt({key:"zz_none",n:"鸡"})'))&&/mdl_mst_1002/.test(G('CQ.Host.monArt({key:"zz_none",n:"鹿"})')),'monArt 兜底按怪名取传奇之旅立绘');
 for(const n of[1001,1002,1003,1004,1005,1006,1007,1008,1009,1011,1012,1022,1023,1024,1025,1034,2002])ok(fs.existsSync(path.join(root,'assets/cq/ui/mdl_mst_'+n+'.png')),'立绘 mdl_mst_'+n);
 ok(/body\.cq-on #hud[^{]*#fquest[^{]*#fzone\{display:none/.test(css)||/#fzone\{display:none/.test(css),'战斗页隐藏药水栏/任务行/区域栏（仅 body.cq-on）');

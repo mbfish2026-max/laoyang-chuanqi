@@ -59,10 +59,11 @@
     pets: function(){ var A = G('ALLY') || []; return A.filter(function(a){ return a && a.kind === 'cqpet' && a.hp > 0; }).slice(0, CQ.PET_MAX || 2); },
     petLvl: function(a){ try { return has('slvl') ? G('slvl')(a.sub) || 0 : 0; } catch (e) { return 0; } },
     // 立绘：a.art（宝宝=原怪 monArt key；pet_kl/pet_ss/pet_ss_gold=assets/cq/ui/<art>.png）→ 兜底按名字/子类推断 → 都没有时由卡片退回 a.ic emoji
+    petArtFb: function(a){ var art = a.art || (a.sub === 'zhkl' ? 'pet_kl' : ''); return CQ.PET_ART_FB[art] ? 'assets/cq/ui/' + CQ.PET_ART_FB[art] + '.png' : null; },
     petArt: function(a){ var art = a.art;
       if (!art) { if (a.sub === 'zhkl') art = 'pet_kl'; else if (a.sub === 'zhss') art = /金色/.test(a.n || '') ? 'pet_ss_gold' : 'pet_ss';
         else { var nm = String(a.n || '').replace(/^宝宝·/, ''), M = G('MONS') || {}; for (var k in M) if (M[k] && M[k].n === nm) { art = k; break; } } }
-      if (!art) return null; if (/^pet_/.test(art)) return 'assets/cq/ui/' + art + '.png';
+      if (!art) return null; if (/^pet_/.test(art)) return 'assets/cq/ui/' + art + '.png';   // 图缺时卡片按 CQ.PET_ART_FB 退回原版模型，再退回 emoji
       var src = Host.monArt({key: art}); return /mdl_mst_2001/.test(src) ? null : src; },
     heroStats: function(){ var C = sysFn('heroStats'); if (!C) return null; try { var s = C.heroStats(); return s && s.cls ? s : null; } catch (e) { return null; } },
     heroBag: function(){ var S = G('S') || {}, B = G('BASEM') || {}; return (S.bag || []).filter(function(it){ return it && !it.k && B[it.b]; }).slice(0, 16); },
@@ -155,6 +156,8 @@
   // ---------- 运行时包装（最外层，最后加载） ----------
   var curSrc = null, curMon = null;
   // 召唤物事件：CQSys pet:spawn/pet:hit/pet:atk/pet:die {uid,dmg?,tgt?} 一旦出现就以事件为准，否则场景每帧按 uid 对比 ALLY 兜底
+  // 召唤物立绘兜底：pet_kl 用原版变异骷髅模型 mdl_mst_1014（web-replica monster.txt 300101）；神兽原版无专用模型（1091 用的是占位 1001），保持 emoji，待美术2出 pet_ss/pet_ss_gold
+  CQ.PET_ART_FB = {pet_kl: 'mdl_mst_1014'};
   var petEv = false; CQ.petEvents = function(){ return petEv; };
   function emitPet(k, d, fallback){ try { if (on() && CQ.Scene.onPet) CQ.Scene.onPet(k, d || {}, !!fallback); } catch (e) {} }
   function wrap(name, mk){ if (!has(name)) return false; var f = G(name); if (typeof f !== 'function' || f._cq) return false; var g = mk(f); g._cq = 1; window[name] = g;

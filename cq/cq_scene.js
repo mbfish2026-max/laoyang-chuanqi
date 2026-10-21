@@ -6,7 +6,7 @@
 // 规则：特效只播一次（CQ.FX.once / animation 1 次）；只有怪物卡片立绘呼吸是循环动画。
 (function(){
   var W0 = typeof window !== 'undefined' ? window : globalThis, CQ = W0.CQ = W0.CQ || {};
-  var UI = 'assets/cq/ui/', DW = 390, TOPH = 62, BOTH = 116, CW = 76, CH = 96, BW = 118, BH = 150, POTH = 0;
+  var UI = 'assets/cq/ui/', DW = 390, TOPH = 62, BOTH = 116, POTH = 0;
   var MAX_FLOATS = 22, LOOT_LIFE = 9000;
   var st = null;       // 场景状态
   function h(tag, cls, html){ var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
@@ -24,13 +24,14 @@
     var rowStep = Math.max(CELLH + 2 * GK, (bot - top - CELLH) / (M.ROWS - 1)), colStep = CELLW + GAPX;
     return {top: top, bot: bot, rowStep: rowStep, colStep: colStep}; }
   function cellCenter(idx){ var p = CQ.MOVE.xy(idx), G = geom(); return {x: PADL + p[0] * G.colStep + CELLW / 2, bottom: G.top + p[1] * G.rowStep + CELLH, row: p[1], col: p[0]}; }
-  function cellBox(idx, kind){ var c = cellCenter(idx), cx = c.x, by = c.bottom;
-    var w = CW, hh = CH;
-    if (kind === 'boss') { w = BW; hh = BH; } else if (kind === 'role') { hh = 150; w = Math.round(hh * .675); } else if (kind === 'hero') { hh = 124; w = Math.round(hh * .695); } else if (kind === 'pet') { w = 60; hh = 76; }
-    var x = cx - w / 2; if (kind === 'boss') x = Math.max(2, Math.min(DW - w - 2, x));   // 只有首领大卡在边列收回（同原版 fitBoss）
-    var y = by - hh;
+  // 卡片尺寸（M1.5）：原版 itemRole 卡 = 格子 120×125（卡:格 = 1:1），这里按同比例缩到列距减 2.5px，相邻卡留 ≈2.5px 间距、不重叠。
+  //   首领同原版只占 1 格（BOSS_MIN 之后的格），立绘可向上探出卡外（原版 _popFig/fitBoss）；英雄、角色、召唤物都用同一张格子卡尺寸。
+  var CARD_GAP = 2.5, CARDW = Math.floor((CELLW + GAPX - CARD_GAP) * 2) / 2, CARDH = Math.floor(CARDW * 125 / 120 * 2) / 2;
+  function cellBox(idx, kind){ var c = cellCenter(idx), w = CARDW, hh = CARDH;
+    var x = c.x - w / 2, y = c.bottom - hh;
     return {x: x, y: y, w: w, h: hh, cx: x + w / 2, cy: y + hh * .45, row: c.row}; }
-  function place(el, box, z){ var t = 'translate(' + Math.round(box.x) + 'px,' + Math.round(box.y) + 'px)'; if (el.style.transform !== t) el.style.transform = t; if (z != null && el.style.zIndex != z) el.style.zIndex = z; if (el.classList.contains('hero')) el.style.height = box.h + 'px'; }
+  function place(el, box, z){ var t = 'translate(' + Math.round(box.x) + 'px,' + Math.round(box.y) + 'px)'; if (el.style.transform !== t) el.style.transform = t; if (z != null && el.style.zIndex != z) el.style.zIndex = z;
+    var W = box.w + 'px', H = box.h + 'px'; if (el.style.width !== W) el.style.width = W; if (el.style.height !== H) el.style.height = H; }
 
   // ---------- 构建 ----------
   function build(stage){
@@ -120,7 +121,7 @@
   function petCard(a){ var art = CQ.Host.petArt(a), lv = CQ.Host.petLvl(a);
     var e = h('div', 'card cpet spawn', '<div class="in"><div class="bd"></div>' + (art ? '<img class="fig" alt="" src="' + esc(art) + '">' : '') + '<span class="pic"' + (art ? ' style="display:none"' : '') + '>' + esc(a.ic || '🐾') + '</span>' +
       '<div class="clv">' + (lv ? 'Lv.' + lv : '') + '</div><div class="cnm">' + esc(a.n || '召唤物') + '</div><div class="hb"><i></i></div></div>');
-    var img = e.querySelector('img'); if (img) img.onerror = function(){ img.remove(); e.querySelector('.pic').style.display = ''; };   // 没图退回 emoji
+    var img = e.querySelector('img'), fb = CQ.Host.petArtFb ? CQ.Host.petArtFb(a) : null; if (img) img.onerror = function(){ if (fb && img.getAttribute('src') !== fb) { img.src = fb; return; } img.remove(); e.querySelector('.pic').style.display = ''; };   // 没图→原版模型→emoji
     e.style.transform = 'translate(-200px,-200px)'; st.R.units.appendChild(e); CQ.FX.once(e, 'spawn', false, 600); return e; }
   function syncPets(){ var live = CQ.Host.pets(), seen = {}, P = st.pets || (st.pets = {}), ev = CQ.petEvents && CQ.petEvents();
     live.forEach(function(a){ seen[a.uid] = 1; var pv = P[a.uid];
