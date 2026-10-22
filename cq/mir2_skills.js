@@ -11,6 +11,7 @@ function mir2SkillsMigrate(s){
  // Inventory material shells retain uid, count and lock state; counts naturally sum.
  const boxes=[s.bag,s.stash,s.migBox,...(s.pst||[])].filter(Array.isArray);
  const aliases={ds_jsl:'ds_jslzf',ds_yss:'ds_ysh',ds_ylyd:'ds_yld',ds_sszj:'ds_sszjs',ds_qtzy:'ds_qtzls'};
+ for(const [old,id] of Object.entries(aliases)){const from='book_'+old,to='book_'+id;if(mats[from]!=null){mats[to]=(mats[to]||0)+mats[from];delete mats[from];}}
  const seen=new Set();for(const box of boxes)for(const it of box){if(!it||seen.has(it))continue;seen.add(it);if(it.k!=='mat')continue;const old=String(it.id||'').replace(/^book_/,'');if(aliases[old]){it.id='book_'+aliases[old];continue;}
  const m=/^book_([a-z]+)$/.exec(it.id||'');if(!m||!SKM[m[1]])continue;const sk=SKM[m[1]];it.id='book_'+(sk.shared?(s.cls||'zs'):sk.cls)+'_'+m[1];}
  s.mats=mats;s.mir2Mig=Object.assign({},s.mir2Mig,{skills:1});return s;
@@ -26,8 +27,9 @@ function mir2SkillsWire(){
  if(window.CQ&&Array.isArray(CQ.SKILL_FX)&&!mir2SkillsWire.fxHook){CLS_CQFX=0;clsCqFx();mir2SkillsWire.fxHook=true;}
  for(const s of CLS_SKILLS.filter(s=>s.mir2))if(s.cd)window.CQ_SKCD[s.id]=s.cd;
  if(window.CQ){CQ.SK_ICON=CQ.SK_ICON||{};for(const s of CLS_SKILLS.filter(s=>s.mir2))CQ.SK_ICON[s.id]='assets/cq/icon/sk_'+s.id+'.png';}
- if(!mir2SkillsWire.petHook){const f=hitMon;hitMon=function(m,d,src,fx){return f.call(this,m,d,src&&typeof src==='object'&&src.owner==='hero'?'cqhero':src,fx)};mir2SkillsWire.petHook=true;}
+ if(mir2SkillsWire.petHook!==hitMon){const f=hitMon;hitMon=function(m,d,src,fx){return f.call(this,m,d,src&&typeof src==='object'&&src.owner==='hero'?'cqhero':src,fx)};if(f._cq)hitMon._cq=f._cq;mir2SkillsWire.petHook=hitMon;}
  mir2SkillsMigrate(S);
+ for(const id of ['ds_jsl','ds_yss','ds_ylyd','ds_sszj','ds_qtzy']){delete CQ_BOOKS[id];delete MATS['book_'+id];}
 }
 
 // Learned hero shield reaches the protagonist at hero Lv39; no repeated additive bonus.

@@ -1,19 +1,10 @@
-"""Temporary integration only: never write shared runtime files."""
+"""Integrated skill runtime: Chromium/WebKit × new/legacy saves × three classes."""
 import json,os,re
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 import pw_baseline as base
-OUT='/workspace/design/laoyang_m1_shots/codex_mir2_skill'
+OUT='/workspace/design/laoyang_m1_shots/codex_mir2_int1/skill'
 ROOT=Path(__file__).resolve().parents[1]
-# These replacements are the reviewable shared-file wiring in docs/mir2_wire_skill.md.
-def wired(rel,src):
- if rel=='cq/pages_cq.js':
-  src=src.replace('s.cls===c&&skOfCls(s)','skOfCls(s)')
-  src=src.replace("const btn=lk?", "const btn=b>=SKMX()?'<button class=\"cqbtn xs dis\" disabled>满级</button>':lk?")
-  src=src.replace('${UI}sk/ic_sk_${n}.png','${SKM[id]&&SKM[id].mir2?n:UI+"sk/ic_sk_"+n+".png"}')
- if rel=='cq_bridge.js':src=src.replace("return SK_ICON[id] ?","return G('SKM')[id]&&G('SKM')[id].mir2 ? 'assets/cq/icon/sk_'+id+'.png' : SK_ICON[id] ?")
- if rel=='cq/hero_page.js':src=src.replace('${U}sk/ic_sk_${ic}.png','${SKM[s.id].mir2?ic:U+"sk/ic_sk_"+ic+".png"}')
- return src
 
 def main():
  os.makedirs(OUT,exist_ok=True);srv,url=base.start_server();rows=[]
@@ -24,16 +15,14 @@ def main():
     for cls,newsk in [('fs','lxhy'),('ds','sxs'),('zs','zrjf')]:
      ctx=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,has_touch=True,service_workers='block')
      ctx.route('https://*.supabase.co/**',base.Cloud('ok').handle)
-     for rel in ['cq/pages_cq.js','cq/hero_page.js','cq_bridge.js']:
-      body=wired(rel,(ROOT/rel).read_text())
-      ctx.route('**/'+rel+'*',lambda route,request,body=body:route.fulfill(content_type='application/javascript',body=body))
      ctx.add_init_script('localStorage.setItem("cq_sb_auth",'+json.dumps(json.dumps(base.fake_session()))+')')
      p=ctx.new_page();errors=[];p.on('pageerror',lambda e:errors.append(str(e)))
      p.goto(url+'/index.html');p.wait_for_function("typeof CL!=='undefined'&&CL.ready",timeout=30000);p.wait_for_timeout(900)
      p.evaluate("c=>{CQSys.createChar('技能验收'+c,c);closeM();S.autoSk=0;save()}",cls)
      if kind=='legacy':
-      p.evaluate("()=>{S.lvl=48;S.sk9=1;S.skx={};addMat('book_dhq',2);S.hero={cls:'fs',name:'旧英雄',lvl:45,eq:{},sk:{hqs:{lv:9,exp:42}},skOff:{hqs:1},mode:'attack'};save();load()}")
-     p.add_script_tag(url=url+'/cq/mir2_skills.js')
+      p.evaluate("()=>{S.lvl=48;S.sk9=1;S.skx={};delete S.mir2Mig.skills;addMat('book_dhq',2);S.hero={cls:'fs',name:'旧英雄',lvl:45,eq:{},sk:{hqs:{lv:9,exp:42}},skOff:{hqs:1},mode:'attack'};save()}")
+      p.reload();p.wait_for_function("typeof CL!=='undefined'&&CL.ready&&window.cqPg&&window.CQ&&CQ.Host",timeout=30000);p.wait_for_timeout(500)
+      assert p.evaluate("S.mir2Mig.skills===1&&CQSys.bookCount('fs_dhq')===2")
      p.evaluate("()=>{mir2SkillsWire();window.step=()=>{};S.lvl=60;S.autoSk=0;for(const s of CLS_SKILLS)if(skOfCls(s))S.sk[s.id]=9;S.hero=CQSys.hero();S.hero.cls=S.cls;S.hero.lvl=60;S.hero.sk={};for(const id of heroSkList())S.hero.sk[id]={lv:9,exp:0};calc();H.life=ST.life;H.mana=ST.mana;closeM()}")
      tag=f'{engine}_{kind}_{cls}'
      def shot(name):
@@ -68,6 +57,7 @@ def main():
      p.wait_for_timeout(400);p.locator('.cqb .csk[data-sk="0"]').click();shot('battle_cast')
      assert p.locator('.cqb .csk').evaluate_all('es=>es.every(e=>{const r=e.getBoundingClientRect();return r.width>=44&&r.height>=44})')
      assert p.evaluate('id=>clsCdLeft(id)>0',newsk)
+     errors=[e for e in errors if not ('supabase.co' in e and 'access control' in e)]
      assert not errors,errors
      rows.append({'browser':engine,'save':kind,'class':cls,'passed':True});print(tag,'PASS',flush=True);ctx.close()
    browser.close()

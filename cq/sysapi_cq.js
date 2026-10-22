@@ -9,7 +9,7 @@ CS.emit=(ev,d)=>{for(const f of LS[ev]||[])try{f(d)}catch(e){console.error('[CQS
 const now=()=>Date.now();
 // ---------- 职业 / 角色 ----------
 CS.classes=()=>CLASSES.map(c=>({id:c.id,n:c.n,d:c.d,ic:c.ic,open:!!c.open}));
-CS.createChar=(name,cls,mode)=>{const id=newChar(name,cls,mode);if(id||id===0)CS.emit('char',{id,cls});return id};
+CS.createChar=(name,cls,mode)=>{const id=newChar(name,cls,mode);if(typeof mir2SkillsMigrate==='function')mir2SkillsMigrate(S);if(id||id===0)CS.emit('char',{id,cls});return id};
 CS.curCls=()=>(typeof curCls==='function'?curCls():S.cls)||'zs';
 // ---------- 英雄（S.hero：随角色存档 → 进云存档、按角色区分） ----------
 const HDEF=()=>({cls:null,name:'',lvl:1,rage:0,autoHeji:1,eq:{},t:0,xp:0,skOff:{},mode:'attack'});

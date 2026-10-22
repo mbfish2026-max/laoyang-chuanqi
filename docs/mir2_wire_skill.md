@@ -96,3 +96,9 @@ const btn=b>=SKMX()?'<button class="cqbtn xs dis" disabled>满级</button>':lk?
 专项 UI 验证新增胶囊、圆钮与透明触控区域尺寸断言，并从胶囊外上下各10px点击验证开关状态切换；同时检查英雄页内部胶囊保持38×20、外层按钮及战斗栏按钮触控区域≥44px。对照 `codex_hero/`、`codex_skillbar/` 的 master 截图复核。公共文件未修改。
 
 本次复测：改动 JS 的 `node --check`、全部38个 `tests/*_test.js` 与战斗测试（39/39）通过；`pw_baseline.py` 四组通过、问题0条；技能专项 Chromium/WebKit × 新旧档 × 三职业12组通过，共96张截图（含开关关闭态）。
+
+## mir2-int 实际接线
+
+公共入口已载入扩展并在战斗桥安装后重新连接伤害来源；新角色与统一读档执行技能迁移。旧占位书的材料字典、背包及仓库均转换后再清理旧定义。技能页、英雄页、战斗栏使用真实技能图，共用盾参与职业目录，满级按钮禁用。
+
+`tests/mir2_skills_ui.py` 已移除临时路由替换及脚本注入，直接验证 index 的实际运行时；旧档通过保存、刷新走真实迁移。截图输出到 `/workspace/design/laoyang_m1_shots/codex_mir2_int1/skill/`。共享 Node harness 与 index 使用相同扩展安装入口，旧技能/书数量断言已更新。

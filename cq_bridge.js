@@ -36,7 +36,7 @@
   var SK_ICON = {jbjs:1001, gsjs:1002, csjs:1003, bywd:1004, ymcz:1005, lhjf:1007, hqs:2001, ldsh:2002, hq:2003, yhzg:2004, mfd:2005, bpx:2007, kjhh:2006, dyh:2008,
     jsl:3001, zys:3002, lhhf:3003, sds:3004, zhkl:3005, zhss:3008, ysh:3006, sszj:3007};
   CQ.SK_ICON = SK_ICON;
-  function skImg(id){ return SK_ICON[id] ? 'assets/cq/ui/sk/ic_sk_' + SK_ICON[id] + '.png' : null; }
+  function skImg(id){ return G('SKM')[id]&&G('SKM')[id].mir2 ? 'assets/cq/icon/sk_'+id+'.png' : SK_ICON[id] ? 'assets/cq/ui/sk/ic_sk_' + SK_ICON[id] + '.png' : null; }
   // 设计稿：技能栏固定 4 格 = 当前职业技能。已学（自动施放顺序）在前，不足 4 个用本职业未学主动技能（按需求等级）补位，显示为锁定
   function skRow(L){ var cls = Host.role().cls, SKM = G('SKM') || {}, pool = (G('CLS_SKILLS') || []).filter(function(x){ return x && x.cls === cls && x.kind !== 'passive' && SKM[x.id]; });
     L = (L || []).filter(function(o){ var s = SKM[o.id]; return !s || !s.cls || s.cls === cls; }).slice(0, 4);
@@ -214,6 +214,7 @@
     wrap('groundLoot', function(f){ return function(it){ if (on()) { try { CQ.Scene.onLoot(it); } catch (e) {} return; } return f.apply(this, arguments); }; });
     wrap('spawnFloat', function(f){ return function(){ if (on()) return; return f.apply(this, arguments); }; });
     wrap('spend', function(f){ return function(id){ castAt[id] = performance.now() / 1000; var r = f.apply(this, arguments); try { if (on()) CQ.Scene.onSkill(id); } catch (e) {} return r; }; });
+    if (typeof mir2SkillsWire==='function') mir2SkillsWire();
   }
 
   // ---------- 接 CQBattle ----------

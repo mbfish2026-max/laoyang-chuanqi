@@ -36,7 +36,7 @@ G(`S.bossRt.skelspirit={k:Date.now()-5*3600e3,n:3};S.last=Date.now()-3*3600e3;CQ
 ok(JSON.parse(G('JSON.stringify(CQSys.offlineLast())')).boss[0].win===false,'战力不足离线不击杀首领');
 // ---- 技能书
 ok(G(`['zs_csjs','zs_lhjf','fs_ldsh','ds_ysh','ds_zhss'].every(k=>CQ_BOOKS[k]&&!CQ_BOOKS[k].placeholder&&CQ_BOOKS[k].sk===k.slice(3))`)&&G(`CQ_BOOKS.zs_lhjf.lv`)===G(`SKM.lhjf.r`)&&!G(`CQ_BOOKS.zs_cs`),'技能书 id/等级对齐 cls_*.js');
-ok(G(`CQSys.books('zs').length`)===6&&G(`CQSys.books('fs').length`)===14&&G(`CQSys.books('ds').length`)===12,'占位技能书 6/14/12');
+ok(G(`CQSys.books('zs').length`)===10&&G(`CQSys.books('fs').length`)===19&&G(`CQSys.books('ds').length`)===18,'技能书完整目录 10/19/18');
 G(`S.cls='zs';S.lvl=30;S.bag=[];CQSys.addMat('book_zs_gsjs',1)`);ok(G(`CQSys.bookCount('zs_gsjs')`)===1,'书是材料');
 G(`window._lh=[];CQSys.onBookLearn(b=>_lh.push(b.id))`);
 G(`S.lvl=10`);ok(G(`CQSys.bookLearn('fs_hqs').err`)==='职业不符'&&G(`CQSys.bookLearn('zs_lhjf').err`)==='需要等级 16','学习校验');G(`S.lvl=30`);

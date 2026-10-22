@@ -35,13 +35,13 @@ function autoEquip(){const E=window.CQSys&&CQSys.equip;if(!E||!E.autoBest){if(ok
  const r=E.autoBest();if(ok('toast'))toast(r&&r.changed?`已换上 ${r.changed} 件更好的装备 · 战力 ${num(r.power&&r.power.before)}→${num(r.power&&r.power.after)}`:(r&&r.reason)||'没有更强的装备');render();return r}
 // ---------------- 技能 ----------------
 let SKV='list';
-function skList(){const c=cls();return SKILLS.filter(s=>s.cls===c&&skOfCls(s)).sort((a,b)=>a.r-b.r||a.col-b.col)}
-function skIcon(id,sm){const n=window.CQ&&CQ.SK_ICON&&CQ.SK_ICON[id];return n?`<img src="${UI}sk/ic_sk_${n}.png" alt="">`:`<span class="gl">${esc((SKM[id]||{}).ic||'✦')}</span>`}
+function skList(){return SKILLS.filter(s=>skOfCls(s)).sort((a,b)=>a.r-b.r||a.col-b.col)}
+function skIcon(id,sm){const n=window.CQ&&CQ.SK_ICON&&CQ.SK_ICON[id];return n?`<img src="${SKM[id]&&SKM[id].mir2?n:UI+"sk/ic_sk_"+n+".png"}" alt="">`:`<span class="gl">${esc((SKM[id]||{}).ic||'✦')}</span>`}
 function skDesc(s){try{const v=SV(s.id,Math.max(1,bl(s.id)));const t=(v&&v.txt)||'';return (s.kind==='passive'&&!/^被动/.test(t)?'被动 · ':'')+t}catch(e){return ''}}
 function skillPage(){const L=skList(),lv=S.lvl;
  const SKMX=()=>typeof CLS_SKMAX!=='undefined'&&CLS_SKMAX>0?CLS_SKMAX:20;// 技能上限：职业开发 cls-book 合并后 CLS_SKMAX=9，之前沿用 20
  const row=s=>{const b=bl(s.id),lk=!b&&lv<s.r;const d=lk?`Lv.${s.r} 解锁`:skDesc(s);
-  const btn=lk?'<button class="cqbtn xs dis">未解锁</button>':`<button class="cqbtn xs ${canLearn(s.id)?'gold':''}" onclick="skPop('${s.id}')">${b?'升级':canLearn(s.id)?'学习':'详情'}</button>`;
+  const btn=b>=SKMX()?'<button class="cqbtn xs dis" disabled>满级</button>':lk?'<button class="cqbtn xs dis">未解锁</button>':`<button class="cqbtn xs ${canLearn(s.id)?'gold':''}" onclick="skPop('${s.id}')">${b?'升级':canLearn(s.id)?'学习':'详情'}</button>`;
   return `<div class="sk2 ${lk?'lk':''}"><div class="ic">${skIcon(s.id)}</div><div class="i"><div class="n">${esc(s.n)}${b?`<small>Lv.${b}</small>`:''}</div><div class="d">${esc(d)}</div><div class="lvw"><div class="lv"><i style="width:${Math.min(100,b/SKMX()*100)}%"></i></div><span class="lvt">Lv.${b}/${SKMX()}</span></div></div>${btn}</div>`};
  const A=ok('acLearned')?acLearned():[];
  const ord=A.map((id,i)=>{const c=acCfg(id);return `<div class="ord"><div class="no">${i+1}</div>${skIcon(id)}<b>${esc(SKM[id].n)}</b><span class="c">${esc((ok('acSmartTxt')&&acSmartTxt(id))||'冷却好即放')}</span><span class="ar" onclick="acMove('${id}',-1)">▲</span><span class="ar" onclick="acMove('${id}',1)">▼</span><div class="sw ${c.on?'':'off'}" onclick="acSet('${id}','on',${c.on?0:1})"></div></div>`}).join('')||'<div class="dim">尚未学会主动技能</div>';

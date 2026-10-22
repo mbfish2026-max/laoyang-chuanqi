@@ -18,7 +18,7 @@ G('S.skx.gsjs=1e6');const r2=JSON.parse(G(`JSON.stringify(CQSys.bookLearn('zs_gs
 G(`S.sk.gsjs=9`);ok(/满级/.test(G(`CQSys.bookLearn('zs_gsjs').err`)),'满 9 级不能再用');G('S.sk.gsjs=2;S.skx.gsjs=1e6');G(`addMat('book_zs_gsjs',3)`);
 let hit=0;G(`CQSys.onBookLearn(b=>{window.__bk=b.sk})`);G(`CQSys.bookLearn('zs_gsjs')`);ok(G('window.__bk')==='gsjs'&&G('S.sk.gsjs')===3,'onBookLearn 回调收到技能 id');
 G(`S.autoSk=1;S.sk.lhjf=1;S.skx.lhjf=1e6;addMat('book_zs_lhjf',2);CQSys.bookAutoUse()`);ok(G('S.sk.lhjf')===2&&G("CQSys.bookCount('zs_lhjf')")===0,'挂机自动用书（2 级耗 2 本；升级后熟练度清零即停）');
-ok(G(`Object.values(CQ_BOOKS).filter(b=>!b.placeholder).every(b=>SKM[b.sk]&&SKM[b.sk].cls===b.cls)`),'所有正式技能书都对得上 CLS_SKILLS');
+ok(G(`Object.values(CQ_BOOKS).filter(b=>!b.placeholder).every(b=>SKM[b.sk]&&(SKM[b.sk].shared||SKM[b.sk].cls===b.cls))`),'所有正式技能书都对得上 CLS_SKILLS');
 // 3) 自动强化
 G(`S.bag=[];for(const k of SLOTS)if(S.eq[k])S.eq[k].en=0;S.eq.weapon.en=0;S.gold=100000;S.mats=S.mats||{};addMat('heitie',50);S.cqAE={on:1,max:3,keep:300};for(let i=0;i<60;i++)CQSys.autoEnhTick()`);
 ok(Object.values(JSON.parse(G(`JSON.stringify(Object.fromEntries(SLOTS.filter(k=>S.eq[k]).map(k=>[k,S.eq[k].en||0])))`))).every(v=>v>=2&&v<=3),'自动强化已穿装备到 +2/+3');

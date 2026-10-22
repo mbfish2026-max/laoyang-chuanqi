@@ -1,6 +1,5 @@
 // cq/icons_cq.js：技能书/装备底材/UI 杂项图标路径全部真实存在，查找优先新图、无图回退。node tests/cq_icons_test.js
 const fs=require('fs'),path=require('path');const T=require('./cq_harness')('cq_icons_test');const{G,ok}=T;const root=path.join(__dirname,'..');
-G(fs.readFileSync(path.join(root,'cq/mir2_skills.js'),'utf8'));
 G("S=newSave();load();CQSys.createChar('图标集成','fs');mir2SkillsWire()");
 const I=JSON.parse(G('JSON.stringify({books:CQ_ICONS.books,eqs:CQ_ICONS.eqs,ui:CQ_ICONS.ui})'));
 const paths=[...I.books.map(b=>'assets/cq/icon/book_'+b+'.png'),...I.eqs.map(e=>'assets/cq/icon/eq_'+e+'.png'),...Object.values(I.ui)];

@@ -32,7 +32,7 @@ G(`S.sk={jbjs:20,gsjs:5,lhjf:2};S.sk9=0;S.kp=7;S.sp=4;calc()`);ok(G('S.sk.jbjs')
 ok(['jbjs','gsjs','lhjf'].every((k,i)=>G(`clsOldL(S.sk.${k})`)>=[20,5,2][i]),'映射后不弱于旧等级');
 calcOnce=G('S.sk9');ok(calcOnce===1,'映射只做一次');
 // 接口导出
-ok(G(`clsBookList('zs').length`)===6&&G(`JSON.stringify(clsBookList('zs')[0].books)`)==='[1,2,3,5,10,20,30,40,45]'&&G(`clsBookList('ds').find(b=>b.sk==='zhss').oid`)===104020,'clsBookList');
+ok(G(`clsBookList('zs').length`)===10&&G(`JSON.stringify(clsBookList('zs')[0].books)`)==='[1,2,3,5,10,20,30,40,45]'&&G(`clsBookList('ds').find(b=>b.sk==='zhss').oid`)===104020,'clsBookList');
 ok(G(`clsSkInfo('gsjs').need`)===3000&&G(`clsSkInfo('gsjs').bookId`)==='zs_gsjs','clsSkInfo');
 // 召唤物生命加成（原 summon_surv.js）：学了 xd_wild 时 +min(60,10+3(L-1))
 G(`calc();window._sl=ST.sumlife||0;SKM.xd_wild={id:'xd_wild',cls:'zz',t:0};S.sk.xd_wild=3;calc()`);ok(G('(ST.sumlife||0)-_sl')===Math.min(60,10+3*(G("slvl('xd_wild')")-1)),'xd_wild 召唤物生命加成');G(`delete SKM.xd_wild;delete S.sk.xd_wild;calc()`);
