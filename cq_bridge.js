@@ -93,7 +93,8 @@
     zone: function(){ var S = G('S') || {}, z = has('zoneData') ? G('zoneData')() : null; if (!z) return {name: '', sub: ''};
       var w = Math.min(S.wave || 0, z.w || 0); return {name: z.n, sub: z.boss && w >= (z.w || 0) ? '首领' : '第' + w + '/' + (z.w || 0) + '波'}; },
     logs: function(n){ var L = G('LOGS') || []; return L.slice(-n); },
-    skills: function(){ return skRow(Host.skLearned()); },
+    skills: function(){ var C=SYS(); if(!C||!C.battleSkills)return skRow(Host.skLearned());
+      var M=G('SKM')||{}; return C.battleSkills().map(function(id){if(!id)return null;var s=M[id],v=C.battleSkillState(id);return {id:id,n:s.n,ic:s.ic,img:skImg(id),lock:v.lock,need:s.r,nomana:!v.mana,cdMax:v.cd,cdLeft:v.left,fired:G('ACT')[id]};}); },
     skLearned: function(){ var S = G('S') || {}, SKM = G('SKM') || {}, ST = G('ST') || {}, now = performance.now() / 1000, cls = Host.role().cls;
       if (has('acLearned')) { var L = G('acLearned')() || [], cfg = has('acCfg') ? G('acCfg') : null, cm = Math.max(1, +ST.castT || 1);
         return L.slice(0, 4).map(function(id){ var s = SKM[id] || {}, t = castAt[id] || 0; return cdFix({id: id, n: s.n, ic: s.ic, img: null, off: cfg ? !cfg(id).on : false, cdMax: cm, cdLeft: t ? Math.max(0, cm - (now - t)) : 0, fired: t}); }); }

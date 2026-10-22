@@ -57,7 +57,7 @@
     var R = {}; root.querySelectorAll('[data-r]').forEach(function(e){ R[e.getAttribute('data-r')] = e; });
     // 技能栏：2 技能 + 合击 + 2 技能（样稿 bottom()）
     var C = 2 * Math.PI * 48;
-    var sk = function(i){ return '<div class="csk cempty" data-a="sk" data-sk="' + i + '"><div class="ic"></div><div class="cd" style="--p:100%"></div><div class="cdt"></div><div class="key"></div></div>'; };
+    var sk = function(i){ return '<button type="button" class="csk cempty" data-a="sk" data-sk="' + i + '"><div class="ic"></div><div class="cd" style="--p:100%"></div><div class="cdt"></div><div class="key"></div></button>'; };
     R.skills.innerHTML = sk(0) + sk(1) + '<div class="heji" data-a="heji"><svg viewBox="0 0 104 104"><circle cx="52" cy="52" r="48" fill="none" stroke="rgba(0,0,0,.6)" stroke-width="5"/><circle data-ring cx="52" cy="52" r="48" fill="none" stroke="#ff7a2a" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 ' + C + '"/></svg><img src="' + UI + 'btn_heji.png" alt="" onerror="this.onerror=null;this.src=\'' + UI + 'btn_heji.png\'"><div class="t">合击</div><div class="rg"></div></div>' + sk(2) + sk(3);
     R.sk = [].slice.call(R.skills.querySelectorAll('.csk')); R.heji = R.skills.querySelector('.heji'); R.ring = R.heji.querySelector('[data-ring]'); R.ringC = C;
     R.root = root; R.world = root.querySelector('.world'); R.canvas = root.querySelector('canvas.cqfx'); R.ava = root.querySelector('.ava');
@@ -69,7 +69,7 @@
     else if (k === 'heji') { var r = doHejiNow(); if (!r.ok) CQ.Host.toast(r.msg); }
     else if (k === 'auto') { st.hero.h.autoHeji = !st.hero.h.autoHeji; st.hero.persist(); renderSide(); }
     else if (k === 'pick') pickAll();
-    else if (k === 'sk') { var id = a._id; if (id && CQ.Host.skillPop) CQ.Host.skillPop(id); }
+    else if (k === 'sk') { var id = a._id; if(!id){TAB='skill';cqPg.sk('bar');}else {var result=CQSys.manualSkill(id);CQ.FX.once(a,'press',false,180);if(!result.ok&&typeof toast==='function')toast(result.err);} }
     else if (k === 'menu' || k === 'hero') toggleHeroPanel();
     else if (k === 'hclose') toggleHeroPanel(false);
     else if (k === 'hjoff') { heroHejiToggle(!st.hero.skOff('heji')); }
@@ -257,10 +257,10 @@
       txt(R.bwave, z.sub); }
     // 技能冷却圈
     var sks = CQ.Host.skills();
-    R.sk.forEach(function(e, i){ var s = sks[i]; if (!s) { if (e._id !== null) { e._id = null; e.className = 'csk cempty'; e.querySelector('.ic').textContent = ''; txt(e.querySelector('.key'), ''); txt(e.querySelector('.cdt'), ''); e.querySelector('.cd').style.setProperty('--p', '100%'); } return; }
+    R.sk.forEach(function(e, i){ var s = sks[i]; if (!s) { if (e._id !== null) { e._id = null; e.className = 'csk cempty'; e.title='配置战斗栏'; e.setAttribute('aria-label','空位，配置战斗栏'); e.querySelector('.ic').textContent = '+'; txt(e.querySelector('.key'), '配置'); txt(e.querySelector('.cdt'), ''); e.querySelector('.cd').style.setProperty('--p', '100%'); } return; }
       if (e._id !== s.id) { e._id = s.id; e.querySelector('.ic').innerHTML = s.img ? '<img src="' + esc(s.img) + '" alt="">' : esc(s.ic || '✦'); txt(e.querySelector('.key'), s.n); }
       var left = Math.max(0, s.cdLeft || 0), max = s.cdMax || 1, ready = left <= 0.05;
-      e.classList.toggle('ready', ready && !s.off && !s.lock); e.classList.toggle('off', !!s.off); e.classList.toggle('lock', !!s.lock); e.title = s.lock ? s.n + '（' + s.need + ' 级可学）' : s.n; e.classList.remove('cempty');
+      e.classList.toggle('nomana',!!s.nomana); e.setAttribute('aria-label',s.n+(s.lock?' 未学会':s.nomana?' 法力不足':!ready?' 冷却中':'')); e.classList.toggle('ready', ready && !s.nomana && !s.lock); e.classList.toggle('off', !!s.off); e.classList.toggle('lock', !!s.lock); e.title = s.lock ? s.n + '（' + s.need + ' 级可学）' : s.n; e.classList.remove('cempty');
       e.querySelector('.cd').style.setProperty('--p', ready ? '100%' : (100 - left / max * 100).toFixed(1) + '%');
       txt(e.querySelector('.cdt'), ready ? '' : left.toFixed(1));
       if (s.fired && e._fired !== s.fired) { e._fired = s.fired; CQ.FX.once(e, 'fire', false, 500); } });

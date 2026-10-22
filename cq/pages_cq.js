@@ -47,7 +47,9 @@ function skillPage(){const L=skList(),lv=S.lvl;
  const ord=A.map((id,i)=>{const c=acCfg(id);return `<div class="ord"><div class="no">${i+1}</div>${skIcon(id)}<b>${esc(SKM[id].n)}</b><span class="c">${esc((ok('acSmartTxt')&&acSmartTxt(id))||'冷却好即放')}</span><span class="ar" onclick="acMove('${id}',-1)">▲</span><span class="ar" onclick="acMove('${id}',1)">▼</span><div class="sw ${c.on?'':'off'}" onclick="acSet('${id}','on',${c.on?0:1})"></div></div>`}).join('')||'<div class="dim">尚未学会主动技能</div>';
  return `<div class="cqpanel"><div class="cqttl">技能<span class="r">技能点 <b class="g">${S.kp|0}</b> · 等级上限 ${SKMX()}</span></div>${L.map(row).join('')}</div>
  <div class="cqpanel"><div class="cqttl">自动释放顺序<span class="r">从上到下检查</span></div>${ord}</div>`}
-function skTabs(){const c=cls();return `<div class="stabs cqsktabs">${[['list',(CLSN[c]||'')+'技能'],['ac','自动施法'],['tree','技能树']].map(([k,n])=>`<button class="${SKV===k?'on':''}" onclick="cqPg.sk('${k}')">${n}</button>`).join('')}</div>`}
+function battleBarPanel(){return `<div class="cqpanel cqbarcfg"><div class="cqttl">战斗栏</div><p class="dim">点击位置选择主动技能，未学技能也可放入。重复选择会交换位置。</p><div class="cqbarslots">${CQSys.battleSkills().map((id,i)=>`<button class="cqbtn" onclick="cqPg.barPick(${i})"><small>${['左一','左二','右一','右二'][i]}</small>${id?skIcon(id):'＋'}<span>${id?esc(SKM[id].n):'空位'}</span><small>${id&&!bl(id)?'未学会':''}</small></button>`).join('')}</div></div>`}
+function barPick(i){modal(`<div class="mtitle">战斗栏 · ${['左一','左二','右一','右二'][i]}</div><div class="cqbarchoices">${skList().filter(s=>s.ty!=='passive').map(s=>`<button class="cqbtn" onclick="cqPg.barSet(${i},'${s.id}')">${skIcon(s.id)}<span>${esc(s.n)}</span><small>${bl(s.id)?'Lv.'+bl(s.id):'未学会'}</small></button>`).join('')}<button class="cqbtn" onclick="cqPg.barSet(${i},null)">＋ 留空</button></div>`)}
+function skTabs(){const c=cls();return `<div class="stabs cqsktabs">${[['list',(CLSN[c]||'')+'技能'],['ac','自动施法'],['bar','战斗栏'],['tree','技能树']].map(([k,n])=>`<button class="${SKV===k?'on':''}" onclick="cqPg.sk('${k}')">${n}</button>`).join('')}</div>`}
 // ---------------- 福利 ----------------
 let FLT='sign';const FLN=[['sign','签到'],['off','离线收益'],['bounty','悬赏'],['ach','功业'],['event','事件'],['more','更多']];
 // 签到 / 离线收益：系统接口 CQSys.signin / CQSys.offline（逻辑、奖励、存档都在 cq/fuli_cq.js）
@@ -148,7 +150,7 @@ function hook(){
  if(ok('renderHero')&&!renderHero.__cqpg){const f=renderHero;renderHero=function(){const r=f.apply(this,arguments);try{const P=$('#panel');P.insertAdjacentHTML('afterbegin',roleTop());P.classList.add('cqpgp')}catch(e){console.error('[cq pages] role',e)}return r};renderHero.__cqpg=1}
  if(ok('renderSkills')&&!renderSkills.__cqpg){const f=renderSkills;renderSkills=function(){const P=$('#panel');
    try{if(SKV==='list'){P.innerHTML=skTabs()+`<div class="cqpg cqskill">${skillPage()}</div>`;return}
-    if(SKV==='ac'){P.innerHTML=skTabs()+`<div class="cqpg">${ok('acPanel')?acPanel():''}</div>`;return}}catch(e){console.error('[cq pages] skill',e)}
+    if(SKV==='bar'){P.innerHTML=skTabs()+battleBarPanel();return} if(SKV==='ac'){P.innerHTML=skTabs()+`<div class="cqpg">${ok('acPanel')?acPanel():''}</div>`;return}}catch(e){console.error('[cq pages] skill',e)}
    if(SKT===4)SKT=0;const r=f.apply(this,arguments);try{P.querySelectorAll('.stabs button[onclick*="SKT=4"]').forEach(b=>b.remove());P.insertAdjacentHTML('afterbegin',skTabs())}catch(e){}return r};renderSkills.__cqpg=1}
  if(ok('renderMap')&&!renderMap.__cqpg){const f=renderMap;renderMap=function(){const P=$('#panel');const r=f.apply(this,arguments);
    try{const st=P.scrollTop,kids=[...P.childNodes];const box=document.createElement('div');box.innerHTML=mapPage('');const det=box.querySelector('.cqmapold'),mqb=box.querySelector('.cqmqbox');kids.forEach(n=>(n.classList&&n.classList.contains('cqmq')?mqb:det).appendChild(n));P.innerHTML='';P.appendChild(box.firstElementChild);P.scrollTop=st;if(!P.__cqms){P.__cqms=1;P.addEventListener('scroll',()=>{try{mapScroll()}catch(e){}},{passive:true});P.addEventListener('click',e=>{if(TAB==='map'&&MQOPEN&&e.target.closest&&!e.target.closest('.cqmqbox,.cqmqrow'))mqToggle(false)})}
@@ -157,7 +159,7 @@ function hook(){
    try{if(FLT==='sign'||FLT==='off'){P.innerHTML=flTabs()+`<div class="cqpg cqfuli">${FLT==='sign'?signPanel()+offPanelPg():offPanelPg()}</div>`;return}}catch(e){console.error('[cq pages] fuli',e)}
    if(FLT!=='more')EGT=FLT;const r=f.apply(this,arguments);try{P.insertAdjacentHTML('afterbegin',flTabs());if(FLT!=='more')P.classList.add('cqfl1');else P.classList.remove('cqfl1')}catch(e){}return r};renderEG.__cqpg=1}
 }
-window.cqPg={autoEquip,smith(){TAB='shop';try{SHT='enh'}catch(e){}render()},toAttr(){const a=document.querySelector('#panel .attr');if(a)a.scrollIntoView({block:'center'})},
+window.cqPg={barPick,barSet(i,id){CQSys.setBattleSkill(i,id);closeM();render()},autoEquip,smith(){TAB='shop';try{SHT='enh'}catch(e){}render()},toAttr(){const a=document.querySelector('#panel .attr');if(a)a.scrollIntoView({block:'center'})},
  mapGo,travel,mqToggle,mqText,bossPop,mapJump,mapScroll,mapFight(){TAB='fight';render()},_mapOpen(o){MAPOPEN=!!o},
  menu(){try{if(typeof setUI==='function')return setUI()}catch(e){}TAB='eg';FLT='more';render()},topSync,topData,
  sk(k){SKV=k;if(k==='ac')SKT=4;render()},fl(k){FLT=k;render()},sign(){const G=SG();if(!G)return null;const r=G.claim();if(r&&r.ok&&r.reward&&r.reward.icon)SIGNIC[r.day]=r.reward.icon;if(ok('toast'))toast(r&&r.ok?'签到成功：'+((r.reward&&r.reward.name)||''):(r&&r.reason)||'签到失败');render();return r},

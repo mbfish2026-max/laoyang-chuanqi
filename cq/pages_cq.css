@@ -156,3 +156,9 @@
 .cqfuli .dy{background:none;box-shadow:none;border-style:solid;border-width:6px;border-image:var(--cq-sign-cell,url(../assets/ui/sign_cell_9s.png)) 12 fill stretch;box-sizing:border-box;padding:0;overflow:hidden}
 .cqfuli .dy.ok::after{content:"";top:50%;left:50%;width:44px;height:44px;transform:translate(-50%,-50%) rotate(-12deg);background:var(--cq-stamp-ok,url(../assets/ui/stamp_ok.png)) center/contain no-repeat;text-shadow:none}
 .cqfuli .dy.ok{opacity:1}.cqfuli .dy.ok>*{opacity:.5}
+
+.cqbarslots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.cqbarslots button{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:100px;padding:8px 2px;white-space:nowrap}.cqbarslots img,.cqbarchoices img{width:36px;height:36px}.cqbarslots span{font-size:12px}.cqbarchoices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.cqbarchoices button{display:flex;align-items:center;gap:6px;min-height:52px;white-space:nowrap;padding:6px}.cqbarchoices small{font-size:11px}.cqbarcfg button{min-width:44px}.cqsktabs button{white-space:nowrap}
+#panel .cqbarslots .cqbtn{display:flex;height:auto;min-height:116px;min-width:44px;padding:8px 2px;justify-content:flex-start}
+#modal .cqbarchoices .cqbtn{display:flex;height:auto;min-height:52px;min-width:44px;padding:6px;gap:5px;font-size:12px}
+#modal .cqbarchoices .cqbtn img{flex:none;width:28px;height:28px}
+#modal .cqbarchoices .cqbtn small{font-size:10px}

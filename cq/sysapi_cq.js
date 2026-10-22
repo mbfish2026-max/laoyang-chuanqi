@@ -91,3 +91,46 @@ CS.potions=()=>({hp:S.pot.hp|0,mp:S.pot.mp|0,rej:S.pot.rej|0,tp:S.pot.tp|0});
 CS.usePot=k=>usePot(k);
 CS.api=1;
 })();
+
+(function(){const CS=window.CQSys;
+// 战斗栏配置随 S 保存；首次访问复制旧栏位的已学优先顺序。
+CS.battleSkills=()=>{
+ const valid=id=>!!(SKM[id]&&skOfCls(SKM[id])&&SKM[id].ty!=='passive');
+ if(!Array.isArray(S.battleSkills)||(S.battleSkillsCls&&S.battleSkillsCls!==curCls())){
+  const ids=acLearned().filter(valid).slice(0,4);
+  CLS_SKILLS.filter(s=>valid(s.id)).slice().sort((a,b)=>a.r-b.r||((window.CQ&&CQ.SK_ICON&&CQ.SK_ICON[b.id])?1:0)-((window.CQ&&CQ.SK_ICON&&CQ.SK_ICON[a.id])?1:0)).forEach(s=>{if(ids.length<4&&!ids.includes(s.id))ids.push(s.id)});
+  S.battleSkills=Array.from({length:4},(_,i)=>ids[i]||null);
+ }
+ S.battleSkillsCls=curCls();
+ S.battleSkills=Array.from({length:4},(_,i)=>valid(S.battleSkills[i])?S.battleSkills[i]:null);
+ return S.battleSkills.slice();
+};
+CS.setBattleSkill=(slot,id)=>{
+ if(!Number.isInteger(slot)||slot<0||slot>3)return false;
+ if(id!==null&&!(SKM[id]&&skOfCls(SKM[id])&&SKM[id].ty!=='passive'))return false;
+ const ids=CS.battleSkills(),other=id===null?-1:ids.indexOf(id);
+ if(other>=0&&other!==slot)ids[other]=ids[slot];
+ ids[slot]=id;S.battleSkills=ids;save();return true;
+};
+CS.battleSkillState=id=>{
+ const s=SKM[id],lock=!s||!bl(id)||S.lvl<s.r;
+ const cd=s&&s.cd||0,left=cd?clsCdLeft(id):Math.max(0,H.castT||0);
+ return {lock,cd:cd||Math.max(ST.castT||0,ST.atkT||0,0.3),left,mana:!!s&&H.mana>=SV(id,Math.max(1,slvl(id))).mana};
+};
+CS.manualSkill=id=>{
+ if(!CS.battleSkills().includes(id))return {ok:0,err:'未配置'};
+ const s=SKM[id],st=CS.battleSkillState(id),ms=liveMon();
+ if(st.lock)return {ok:0,err:'尚未学会'};
+ if(st.left>0)return {ok:0,err:'冷却中'};
+ if(!st.mana)return {ok:0,err:'法力不足'};
+ if(H.life<=0)return {ok:0,err:'角色已倒下'};
+ if(!['buff','heal','pet'].includes(s.ty)&&!ms.length)return {ok:0,err:'暂无目标'};
+ if(s.ty==='charm'&&CLS_TY.charm.ok&&!CLS_TY.charm.ok(s,ms))return {ok:0,err:'暂无可诱惑目标'};
+ const r=clsCast(id,ms);H.castT=r===2?ST.atkT:ST.castT;return {ok:1};
+};
+{const f=save;save=function(){CS.battleSkills();return f.apply(this,arguments)}}
+{const f=load;load=function(){const r=f.apply(this,arguments);CS.battleSkills();return r}}
+
+{const f=resetRuntime;resetRuntime=function(){for(const id in ACT)delete ACT[id];return f.apply(this,arguments)}}
+
+})();
