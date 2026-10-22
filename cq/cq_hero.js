@@ -59,13 +59,13 @@
   }
   // 存档变化（CQSys hero 事件：创建/改名/装备）后重新读，保留战斗中的冷却/计数
   Hero.prototype.reload = function(){ var o = this.h, n = create(this.playerProf, this.store); n.hejiCd = o.hejiCd || 0; n.hejiCount = o.hejiCount || 0; this.h = n; this.unit.atkT = Math.min(this.unit.atkT, TUNE.atkT); };
-  Hero.prototype.present = function(){ return this.h.exists !== false; };
+  Hero.prototype.present = function(){ return this.h.exists !== false && this.h.mode !== 'recall'; };
   Hero.prototype.stats = function(host){ var s = host && host.heroStats ? host.heroStats() : null; return s && s.atkMax != null ? s : null; };
   Hero.prototype.combo = function(){ return COMBO[comboKey(this.playerProf, this.h.prof)]; };
   Hero.prototype.addRage = function(n){ if (this.h.mode === 'rest') return; this.h.rage = Math.min(RAGE_MAX, (this.h.rage || 0) + n); };
   Hero.prototype.range = function(){ return RANGE[this.h.prof] || 1; };
   Hero.prototype.skOff = function(id){ var o = this.h.skOff || {}; return !!o[id]; };
-  Hero.prototype.skillList = function(host){ var lv = host && host.lvl ? host.lvl() : 99, sk = this.h.sk, self = this;
+  Hero.prototype.skillList = function(host){ var lv = this.h.lvl || (host && host.lvl ? host.lvl() : 99), sk = this.h.sk, self = this;
     return (HERO_SK[CLSK[this.h.prof]] || []).filter(function(x){ return x.r <= lv && (!sk || sk[x.id]) && !self.skOff(x.id); }); };
   Hero.prototype.pickSkill = function(host){ var cds = this.cds || (this.cds = {}); var lowHp = host && host.hpPct ? host.hpPct() < TUNE.healAt : false;   /* 治愈术：主角血量低于 healAt 才放 */
     return this.skillList(host).filter(function(x){ return !(cds[x.id] > 0) && (!x.heal || lowHp); })[0] || null; };
@@ -90,7 +90,7 @@
     u.hp = Math.min(u.maxhp, u.hp + u.maxhp * TUNE.regen * dt);
     var ev = null;
     u.atkT -= dt;
-    if (u.atkT <= 0 && h.mode !== 'rest') { u.atkT = TUNE.atkT;
+    if (u.atkT <= 0 && h.mode !== 'rest' && h.mode !== 'follow') { u.atkT = TUNE.atkT;
       var rg = this.range(), ts = host.targets().filter(function(m){ return !host.inRange || host.inRange(m, rg); });
       var CS = W.heroSkPick && W.heroCast;   // 职业开发 cls_hero.js（分支 cls-hero）：有就用它选技能/施法，没有用本文件 HERO_SK 兜底
       if (CS) { var r0 = this.clsCast(ts, host, rg); if (r0) { if (r0.dmg > 0) this.addRage(3); return this.autoHeji(host) || r0; } if (!ts.length) return this.autoHeji(host); }
@@ -127,6 +127,7 @@
   Hero.prototype.doHeji = function(host, manual){
     var h = this.h, cb = this.combo();
     if (!this.present()) return {ok: false, msg: '尚未召唤英雄'};
+    if (this.skOff('heji') || h.mode === 'rest' || h.mode === 'follow') return {ok:false,msg:'合击已关闭或英雄休息中'};
     if (this.unit.hp <= 0) return {ok: false, msg: '英雄阵亡中'};
     if ((h.hejiCd || 0) > 0) return {ok: false, msg: '合击冷却中 (' + Math.ceil(h.hejiCd) + '秒)'};
     if ((h.rage || 0) < RAGE_MAX) return {ok: false, msg: '怒气不足 (' + Math.floor(h.rage || 0) + '/' + RAGE_MAX + ')'};

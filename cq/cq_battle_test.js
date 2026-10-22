@@ -63,7 +63,7 @@ if(G('!!(window.CQSys&&CQSys.api===1)')){
   G('var hx=new CQ.Hero(1,st2)');ok(G('hx.h.prof')===2&&G('hx.present()'),'英雄从 CQSys.hero 读');
   G('hx.h.rage=77;hx.persist()');ok(G('S.hero.rage')===77,'英雄状态经 heroSet 存 S.hero');
   G('S.hero=null;var hy=new CQ.Hero(1,CQ.Host.heroStore())');ok(!G('hy.present()')&&/尚未召唤/.test(G('hy.doHeji(host,true).msg')),'未创建英雄：不出手、合击提示召唤');
-  G('CQSys.heroCreate("ds");hy.reload()');ok(G('hy.present()')&&G('hy.h.prof')===3,'heroCreate 后 reload 出现');
+  G('S.lvl=22;CQSys.heroCreate("ds");hy.reload()');ok(G('hy.present()')&&G('hy.h.prof')===3,'heroCreate 后 reload 出现');
   ok(G('CQ.Host.heroStats()&&CQ.Host.heroStats().hp')>0,'heroStats 接入');
   const rr=JSON.parse(G('JSON.stringify(CQ.Host.role())'));ok(typeof rr.yb==='number'&&typeof rr.power==='number','顶栏元宝/战力来自 CQSys');
   ok(/mdl_mst_1006/.test(G('CQ.Host.monArt({key:"halforc"})')),'monArt 用 CQSys.monArt');
@@ -159,7 +159,7 @@ const QAC={};const useCls=c=>{if(QAC[c])G(`switchChar(${QAC[c]})`);else QAC[c]=G
  ok(!/S\.cqSign|CQ_SIGN\b/.test(src),'不再自带签到逻辑');}
 // ---------- 角色/技能/福利 顶栏（设计稿 topbar） ----------
 {const src=fs.readFileSync(path.join(root,'cq/pages_cq.js'),'utf8'),css=fs.readFileSync(path.join(root,'cq/pages_cq.css'),'utf8');
- const T2=JSON.parse(G('JSON.stringify(cqPg._t.TOPT)'));ok(['hero','bag','shop','merc','skill','eg','map'].every(k=>T2[k])&&!T2.fight,'顶栏在 角色(含背包/商店/佣兵)/技能/福利/地图 显示，战斗页不显示（战斗页有自己的金属顶栏）');
+ const T2=JSON.parse(G('JSON.stringify(cqPg._t.TOPT)'));ok(['hero','bag','shop','skill','eg','map'].every(k=>T2[k])&&!T2.fight,'顶栏在 角色(含背包/商店/佣兵)/技能/福利/地图 显示，战斗页不显示（战斗页有自己的金属顶栏）');
  G('S.lvl=17;S.name="顶栏QA";S.gold=12345;calc();H.life=ST.life/2;H.mana=ST.mana');const d=JSON.parse(G('JSON.stringify(cqPg.topData())'));
  ok(d.lvl===17&&d.name==='顶栏QA'&&d.gold===G('CQSys.currency().gold')&&d.yb===G('CQSys.currency().yb'),'顶栏等级/名字/金币/元宝取真实数据（CQSys.currency）');
  ok(Math.abs(d.hp-50)<1&&Math.abs(d.mp-100)<1&&d.power===G('CQSys.power()'),'顶栏血蓝百分比与战力');
@@ -212,14 +212,14 @@ G('TAB="map"');ok(G('cqPg.travel(0,2,0)')===true&&G('S.zone')===2&&G('TAB')==='f
  G('var _n=h2.now;h2.now=()=>Date.now()+31e3;var rv=hh.tick(.01,h2);h2.now=_n');ok(G('rv&&rv.type')==='herorevive'&&G('hh.unit.hp===hh.unit.maxhp'),'复活满血');
  G(`CQ.Scene=CQ.Scene||{};var _g0=CQ.Scene.grid;var GB={b:{roleIdx:26},hero:{idx:8},view:m=>m._v};MON=[mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10)];MON[0]._v={idx:9};MON[1]._v={idx:20};MON[2]._v={idx:27};CQ.Scene.grid=()=>GB;var at=CQ._heroAttackers();CQ.Scene.grid=_g0`);
  ok(G('at.length')===1&&G('at[0]===MON[0]'),'只有贴身英雄（且没贴主角）的怪打英雄');
- G(`ALLY.push({kind:'merc',uid:991,hp:50,max:50});S.merc=S.merc||{t:'archer',lvl:1,eq:{}};mercTick(1);step(.1)`);ok(G("ALLY.every(a=>a.kind!=='merc')")&&G('mercTick._cq')===1,'旧佣兵不再参战');}
+ G(`ALLY.push({kind:'merc',uid:991,hp:50,max:50});S.merc=S.merc||{t:'archer',lvl:1,eq:{}};CQSys.heroMigrate();step(.1)`);ok(G("ALLY.every(a=>a.kind!=='merc')")&&G('typeof mercTick')==='undefined','旧佣兵不再参战');}
 {const fs2=require('fs');const C=G('JSON.stringify(Object.entries(CQ.HEJI.COMBO).map(([k,v])=>[k,v.fx]))');const M={'1+2':'pixingzhan','1+3':'leitingyiji','2+3':'shihunzhaoze','1+1':'pohunzhan','2+2':'huolongqiyan','3+3':'morishenpan'};
  ok(JSON.parse(C).every(([k,f])=>f==='heji_'+M[k]&&fs2.existsSync(root+'/assets/cq/ui/'+f+'.png')),'6 种合击组合 → heji_<名>.png 图标都在');
  ok(['zs','fs','ds'].every(c=>fs2.existsSync(root+'/assets/cq/ui/hero_head_'+c+'.png')),'英雄头像 hero_head_zs/fs/ds 都在');
  const sc=fs2.readFileSync(root+'/cq/cq_scene.js','utf8');ok(/function hejiIcon\(cb\)\{ return UI \+ \(cb && cb\.fx/.test(sc)&&/btn_heji\.png'; \}/.test(sc),'合击按钮按组合换图，缺图退回 btn_heji');
  ok(/'hero_head_' \+ \(PCLS\[p\]/.test(sc)&&/data-a="hero" data-r="hbtn"/.test(sc),'战斗页英雄按钮按英雄职业显示头像');ok(/class="hjic"/.test(sc),'合击演出大字带组合图标');}
 if(G("typeof heroSkPick")==='function'){// 职业开发 cls_hero.js 接入（分支 cls-hero；master 未合并时跳过）
- G(`S.hero=null;CQSys.hero();S.hero.cls=null;CQSys.heroCreate('fs');var hc3=new CQ.Hero(1,{load:()=>({prof:2,exists:true,name:'x',rage:0,autoHeji:false,skOff:S.hero.skOff}),save:()=>{}});MON=[mkMon(Object.keys(MONS)[0],10)];MON[0].hp=1e7;
+ G(`S.hero=null;CQSys.hero();S.hero.cls=null;S.lvl=22;CQSys.heroCreate('fs');var hc3=new CQ.Hero(1,{load:()=>({prof:2,exists:true,name:'x',rage:0,autoHeji:false,skOff:S.hero.skOff}),save:()=>{}});MON=[mkMon(Object.keys(MONS)[0],10)];MON[0].hp=1e7;
   var hit3=[];var h3={now:()=>Date.now(),targets:()=>MON.filter(m=>m.hp>0),hit:(m,d,s)=>{hit3.push(s);return d},atkMax:()=>100,lvl:()=>12,heroK:()=>.35};hc3.unit.atkT=0;var c3=hc3.tick(.01,h3)`);
  ok(G('c3&&c3.skill')==='火球术'&&G('hit3.every(s=>s==="cqhero")'),'有 cls_hero 时用 heroSkPick/heroCast 施法（初始火球术）');
  G(`S.hero.skOff={hqs:1};hc3.h.skOff=S.hero.skOff;for(const k in HERO_CD)delete HERO_CD[k];hc3.unit.atkT=0;var c4=hc3.tick(.01,h3)`);ok(G('c4&&c4.skill')===null&&G('c4.dmg')>0,'关闭后 heroSkPick 不选，改普攻');

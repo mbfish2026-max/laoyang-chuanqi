@@ -6,7 +6,6 @@ const GATE=4;let MAPD=null;
 // 地狱后期章节收紧等级宽限：第3/4章 2 级，第5章 0 级(世界之心/毁灭王座需≈84–85级)，让地狱曲线平滑、终章稳定通关
 const GATE_N=6,GATE_NE=8;// 普通难度挂机推进宽限：章内区域间 6 级、进入新章节首区域 8 级（噩梦仍 GATE=4，地狱见 HELL_GATE）
 function gateOf(a,d,entry){return d===2?HELL_GATE[a]:d===0?(entry?GATE_NE:GATE_N):GATE}
-const MSLOT=['weapon','helm','armor'];
 const ELK=['fire','cold','light','pois'],ELN={phys:'物',fire:'火',cold:'冰',light:'电',pois:'毒',magic:'魔'};
 function curPen(){return DIFFS[S.diff].pen}
 // ---------- 存档 / 进度 ----------
@@ -16,10 +15,7 @@ function migrate(){
  if(!S.Q){S.Q={0:S.q||{}};S.CL={'0_0':S.cleared||{}};S.UN={'0_0':S.unl||0};S.ZN={'0_0':S.zone||0};S.diff=0;S.act=0}
  S.ZN=S.ZN||{};S.actU=S.actU||{0:0};S.diffU=S.diffU||0;S.bon=S.bon||{life:0,res:0};S.sockq=S.sockq||0;S.pers=S.pers||0;
  if(S.act1done)S.actU[0]=Math.max(S.actU[0]||0,1);
- if(S.autoMerc==null)S.autoMerc=1;
  S.q=S.Q[S.diff]||(S.Q[S.diff]={});const k=pkey();S.cleared=S.CL[k]||(S.CL[k]={});S.unl=S.UN[k]||0;
- if(S.merc===undefined)S.merc=null;
- if(!S.merc&&S.Q[0]&&S.Q[0].q2)hireMerc('archer',null,1);
  applyDiff();MAPA=S.act;MAPD=S.diff}
 function applyDiff(){for(const A of ACTS)for(const z of A.zones){if(z.ml0==null)z.ml0=z.ml;z.ml=mlD(z.ml0,S.diff)}}
 const _load=load;load=function(){_load();migrate()};
@@ -27,7 +23,7 @@ const _save=save;save=function(){syncProg();_save()};
 function actOpen(a,d){return d<=S.diffU&&a<=(S.actU[d]||0)}
 function goAct(a,d,quiet){if(!actOpen(a,d))return toast('尚未解锁');syncProg();const dc=d!==S.diff;S.diff=d;S.act=a;
  S.q=S.Q[d]||(S.Q[d]={});const k=pkey();S.cleared=S.CL[k]||(S.CL[k]={});S.unl=S.UN[k]||0;S.zone=Math.min(S.ZN[k]||0,S.unl);S.wave=0;
- applyDiff();MON=[];CORPSE=[];if(dc)ALLY=ALLY.filter(x=>x.kind==='merc');spawnT=2;calc();H.life=ST.life;H.mana=ST.mana;
+ applyDiff();MON=[];CORPSE=[];if(dc)ALLY=[];spawnT=2;calc();H.life=ST.life;H.mana=ST.mana;
  log(`<b class="quest">前往 ${DIFFS[d].n} · ${ACTS[a].n}（营地：${ACTS[a].camp}）</b>`);if(!quiet)render()}
 function unlockAfter(a){const d=S.diff;
  if(a<ACTS.length-1){S.actU[d]=Math.max(S.actU[d]||0,a+1);log(`<b class="quest">${DIFFS[d].n}难度 ${ACTS[a+1].n} 已解锁</b>`)}
@@ -109,13 +105,12 @@ function monsTick(dt){const ms=liveMon();let chill=0;
 // ---------- 角色属性：任务永久奖励、随从光环、受咒 ----------
 const _calc=calc;calc=function(){const o=_calc();const b=S.bon||{life:0,res:0};o.life+=b.life||0;
  for(const k in o.res){let v=o.res[k];if(b.res&&v<75)v=Math.min(75,v+b.res);if(typeof H!=='undefined'&&H.curse>GT)v-=25;o.res[k]=v}
- const mc=mercAlive()&&S.merc.t==='guard'?S.merc.v:null;if(mc==='might')o.sumdmg+=30;if(mc==='defi')o.def=Math.round(o.def*1.7);if(mc==='pray')o.regen+=2+S.lvl*0.15;
  ST=o;return o};
 
 // ---------- 任务 ----------
 const _questDone=questDone;questDone=function(q){_questDone(q);const d=S.diff,Q=QUESTS[q];
  switch(q){
- case'q2':S.mercU=1;if(!S.merc){hireMerc('archer',null,1);log('<b class="quest">荒原女射手 加入了你的队伍（随从）</b>')}break;
+ case'q2':break;
  case'a2q1':if(window.CQSys&&CQSys.bookGive)CQSys.bookGive(1);break;
  case'a3q1':S.bon.life+=20;calc();break;
  case'a3q2':{const it=genItem(S.lvl,{base:BASEM.rin,q:3});addBag(it);log('获得 '+itemName(it));break}
@@ -133,7 +128,7 @@ function partGet(qid,p){const k=qid+'_'+p;if(S.q[k])return;S.q[k]=1;const Q=QUES
 const _zoneClear=zoneClear;zoneClear=function(){const z=zoneData(),zi=S.zone,a=S.act;
  if(z.quest&&QUESTS[z.quest].clear&&!S.q[z.quest])questDone(z.quest);if(z.part)partGet(z.part[0],z.part[1]);
  _zoneClear();
- if(mercDead())mercRevive(1);
+
  const zs=ACTS[a].zones;
  // 挂机推进门槛：角色等级 ≥ 下一区域怪物等级 - GATE 才自动前进，否则原地历练
  if(S.auto&&S.zone!==zi&&S.lvl<zs[S.zone].ml-gateOf(a,S.diff)){log(`<span class="dim">${zs[S.zone].n} 推荐 ${zs[S.zone].ml-gateOf(a,S.diff)} 级，先在 ${zs[zi].n} 历练</span>`);S.zone=zi}
@@ -142,49 +137,12 @@ const _zoneClear=zoneClear;zoneClear=function(){const z=zoneData(),zi=S.zone,a=S
 function bfKey(k){return S.diff+'_'+k}
 const _die=die;die=function(){S.bf=S.bf||{};for(const m of MON)if(m.boss&&m.hp>0){const k=bfKey(m.key);S.bf[k]=(S.bf[k]||0)+1;log(`<span class="dim">${m.n} 在连战中受创（伤害 -${Math.round((1-Math.max(0.5,Math.pow(0.8,S.bf[k])))*100)}%）</span>`)}
 const D=DIFFS[S.diff];if(false&&D.dxp){const cur=S.xp-xpNeed(S.lvl),loss=Math.min(cur,Math.floor((xpNeed(S.lvl+1)-xpNeed(S.lvl))*D.dxp));if(loss>0){S.xp-=loss;log(`<b style="color:#f44">${D.n}死亡惩罚：经验 -${fmt(loss)}</b>`)}}
- const keep=ALLY.filter(a=>a.kind==='merc');_die();ALLY=keep;H.curse=0;calc()};
+ _die();H.curse=0;calc()};
 questLine=function(){const z=zoneData();let q=z.quest&&!S.q[z.quest]?z.quest:Object.keys(QUESTS).find(k=>QUESTS[k].act===S.act&&!S.q[k]);
  if(!q){const n=nextStage();return`【主线】${DIFFS[S.diff].n}·${ACTS[S.act].n.split('·')[1]} 已完成${n?'，可前往 '+DIFFS[n[1]].n+'·'+ACTS[n[0]].n.split('·')[1]:''}`}
  const Q=QUESTS[q];let p='';if(Q.parts)p=` (${Object.keys(Q.parts).filter(x=>S.q[q+'_'+x]).length}/${Object.keys(Q.parts).length})`;else p=` (${S.q[q]?1:0}/1)`;return`【主线】${Q.n}：${Q.d}${p}`};
 
 // ---------- 随从 ----------
-function mercAlive(){return S&&S.merc&&!S.merc.dead}
-function mercDead(){return S&&S.merc&&S.merc.dead}
-function mercAvail(){const mx=Math.max(...Object.values(S.actU||{0:0}),0);return Object.keys(MERCS).filter(k=>MERCS[k].act<=mx||(k==='archer'))}
-function hireCost(){return Math.round(100+S.lvl*S.lvl*2)}
-function reviveCost(){return 50+S.lvl*20}
-function hireMerc(t,v,free){if(!free){const c=hireCost();if(S.gold<c)return toast('金币不足');S.gold-=c}
- const old=S.merc;if(old)for(const k of MSLOT)if(old.eq[k])addBag(old.eq[k]);
- S.merc={t,v:v||MERCS[t].vd,eq:{},dead:0};S.mercU=1;ALLY=ALLY.filter(a=>a.kind!=='merc');if(ST)calc();if(!free)log(`雇佣了 <b>${MERCS[t].n}</b>（${MERCS[t].vars[S.merc.v]}）`);if(typeof TAB!=='undefined'&&TAB!=='fight')render()}
-function mercRevive(auto){if(!mercDead())return;const c=reviveCost();if(S.gold<c){if(!auto)toast('金币不足');return}S.gold-=c;S.merc.dead=0;calc();log(`花费 ${c} 金币复活随从 ${MERCS[S.merc.t].n}`);if(!auto)render()}
-function mercStats(){const T=MERCS[S.merc.t],L=S.lvl,M={};let wmn=0,wmx=0,idef=0;
- for(const k of MSLOT){const it=S.merc.eq[k];if(!it)continue;const m=allMods(it),l=itemLocal(it);for(const x in m)M[x]=(M[x]||0)+m[x];if(l.def)idef+=l.def;if(k==='weapon'&&l.min){wmn=l.min;wmx=l.max}}
- const str=Math.floor(T.str[0]+T.str[1]*L)+(M.str||0),dex=Math.floor(T.dex[0]+T.dex[1]*L)+(M.dex||0);
- const life=Math.round(T.life[0]+T.life[1]*L+(M.life||0)+(M.vit||0)*2);const def=Math.round(T.def[0]+T.def[1]*L+idef+dex/4);
- const sb=1+str/100*(T.spell?0:1);const mn=(T.dmg[0][0]+T.dmg[0][1]*L+wmn)*sb,mx=(T.dmg[1][0]+T.dmg[1][1]*L+wmx)*sb;
- const er=k=>Math.min(75,Math.round(T.res*L)+(M[k]||0)+(M.allres||0)+curPen());const res={fire:er('fres'),cold:er('cres'),light:er('lres'),pois:er('pres')};
- const ias=(M.ias||0)+(S.merc.v==='frenzy'?30:0);
- return{L,str,dex,life,def,dmg:[mn,mx],res,ar:40+L*10+dex*2+(M.ar||0),ll:M.ll||0,atk:T.atk/(1+ias/100),avgres:Math.round((res.fire+res.cold+res.light+res.pois)/4)}}
-function canMercEquip(it){if(!S.merc||it.k)return false;const b=BASEM[it.b],T=MERCS[S.merc.t];if(!MSLOT.includes(b.s))return false;if(b.s==='weapon'&&T.wcats&&!T.wcats.includes(b.cat))return false;
- const r=itemReq(it),ms=mercStats();return ms.L>=r.lv&&ms.str>=r.str&&ms.dex>=r.dex}
-function mercEquip(uid){const f=findItem(uid);if(!f||f.slot||!canMercEquip(f.it))return;const it=f.it,k=BASEM[it.b].s;S.bag.splice(f.i,1);if(S.merc.eq[k])S.bag.push(S.merc.eq[k]);S.merc.eq[k]=it;closeM();render()}
-function mercUnequip(k){if(S.bag.length>=40)return toast('背包已满');S.bag.push(S.merc.eq[k]);delete S.merc.eq[k];render()}
-function mercAutoEq(){if(!S.merc||!S.autoEq||!S.autoMerc)return;for(const it of S.bag.slice()){if(it.k||!canMercEquip(it))continue;const k=BASEM[it.b].s,c=S.merc.eq[k];
- if(!c||power(it)>power(c)){S.bag.splice(S.bag.indexOf(it),1);if(c)S.bag.push(c);S.merc.eq[k]=it;log(`随从换装：<span style="color:${itemColor(it)}">${itemName(it)}</span>`)}}}
-function mercTick(dt){if(!S.merc)return;let a=ALLY.find(x=>x.kind==='merc');
- if(!a){if(ACX.mercOn&&!S.merc.dead){S.merc.dead=1;ACX.mercOn=0;log(`<b style="color:#f84">随从 ${MERCS[S.merc.t].n} 阵亡</b>（营地可复活，${reviveCost()}金）`);calc();return}
-  if(S.merc.dead){if(!liveMon().length)mercRevive(1);return}
-  const ms=mercStats(),T=MERCS[S.merc.t];a={uid:mUid++,kind:'merc',n:T.n,ic:T.ic,hp:ms.life,max:ms.life,dmg:ms.dmg,res:ms.avgres,t:1e9,mt:1};ALLY.unshift(a);ACX.mercOn=1;calc();return}
- a.t=1e9;ACX.mercOn=1;
- ACX.mst=(ACX.mst||0)-dt;if(ACX.mst<=0){ACX.mst=1;const ms=mercStats();const r=a.hp/a.max;a.max=ms.life;a.hp=Math.min(a.max,Math.max(1,r*a.max));a.dmg=ms.dmg;a.res=ms.avgres;a.ms=ms}
- const ms=a.ms||mercStats();const mons=liveMon();if(!mons.length){a.hp=Math.min(a.max,a.hp+a.max*0.05*dt);return}
- if(S.merc.t==='guard'&&S.merc.v==='pray'){const h=(2+S.lvl*0.15)*dt;for(const x of ALLY)if(x.hp>0)x.hp=Math.min(x.max,x.hp+h)}
- a.mt-=dt;if(a.mt>0)return;a.mt=ms.atk;const tg=target(mons),T=MERCS[S.merc.t];const d=R(Math.round(ms.dmg[0]),Math.round(ms.dmg[1]));let done=0;
- if(T.spell){const el=S.merc.v;const tgs=el==='light'?mons.slice(0,3):[tg];for(const m of tgs){done+=hitMon(m,{[el]:d},a,{fire:'#f84',cold:'#8cf',light:'#ff6'}[el]);if(el==='cold')m.slow=GT+2}fxLine(a.uid,tg.uid,{fire:'#f84',cold:'#8cf',light:'#ff6'}[el])}
- else if(hitChance(ms.ar,tg.def,ms.L,tg.lv)){if(S.merc.t==='archer'){done=hitMon(tg,{phys:d*0.6,[S.merc.v]:d*0.6},a,S.merc.v==='fire'?'#f84':'#8cf');fxLine(a.uid,tg.uid,S.merc.v==='fire'?'#f84':'#8cf')}
-  else{done=hitMon(tg,{phys:d*(1+(S.merc.t==='guard'&&S.merc.v==='might'?0.3:0))},a,'#dfd');if(S.merc.t==='barb'&&S.merc.v==='bash'&&rnd()<0.15&&!tg.boss)tg.stun=1}}
- if(done&&ms.ll)a.hp=Math.min(a.max,a.hp+done*ms.ll/100)}
-const _allyCard=allyCard;allyCard=function(a){if(a.kind!=='merc')return _allyCard(a);return`<div class="ac merc ${a.hitT>0?'hit':''}" id="ca${a.uid}"><b class="lv">${S.lvl}</b><div class="pt">${art('merc_'+S.merc.t,a.ic)}</div><div class="nm">${a.n}</div>${bar(a.hp,a.max,'hp g')}</div>`};
 const _monCard=monCard;monCard=function(m){let h=_monCard(m);if(m.imm&&m.imm.length)h=h.replace('<div class="pt">',`<em class="imm">${m.imm.map(x=>ELN[x]).join('')}免</em><div class="pt">`);return h};
 
 // ---------- 防卡死：自动推进时，场上有怪却 STUCK 秒既无击杀、怪物血量也无进展（如治疗型首领群耗尽法力）判定为僵持，撤回上一主线区域历练（不算死亡） ----------
@@ -194,32 +152,19 @@ function stuckTick(dt){const ms=liveMon();const hp=ms.reduce((a,m)=>a+m.hp/m.max
  if(!ms.length||S.kills!==ACX.k0||hp<(ACX.mh??1e9)-0.005){ACX.k0=S.kills;ACX.st=0;ACX.mh=hp;return}ACX.st=(ACX.st||0)+dt;
  if(ACX.st>STUCK&&S.auto){ACX.st=0;ACX.stuckN=(ACX.stuckN||0)+1;{const k=ACTS[S.act].zones[S.zone].n;(ACX.stz=ACX.stz||{})[k]=(ACX.stz[k]||0)+1}log('<b style="color:#f84">久战不下，暂且撤退历练</b>');let z=Math.max(0,S.zone-1);while(z>0&&ACTS[S.act].zones[z].side)z--;goZone(z)}}
 // ---------- 主循环附加 ----------
-const _step=step;step=function(dt){_step(dt);if(!ST)return;stuckTick(dt);monsTick(dt);mercTick(dt);ACX.eqT=(ACX.eqT||0)+dt;if(ACX.eqT>3){ACX.eqT=0;mercAutoEq()}};
+const _step=step;step=function(dt){_step(dt);if(!ST)return;stuckTick(dt);monsTick(dt);ACX.eqT=(ACX.eqT||0)+dt;if(ACX.eqT>3){ACX.eqT=0;}};
 
 // ---------- 物品：加凹槽 / 个性化 （任务奖励） ----------
 function addSock(uid){const f=findItem(uid);if(!f||S.sockq<=0)return;const it=f.it,b=BASEM[it.b];if(it.k||!b.sock||it.sock||it.rw!=null)return;
  const mx=Math.max(1,maxSock(b,it.il));it.sock=it.q<=2?mx:it.q===3?Math.min(mx,R(1,2)):1;S.sockq--;log(`铁匠为 ${itemName(it)} 打出 ${it.sock} 个凹槽`);calc();showItem(uid);render()}
 function personalize(uid){const f=findItem(uid);if(!f||S.pers<=0)return;const it=f.it;if(it.k||it.pn||it.rw!=null)return;it.name='亡灵术士的'+it.name;it.pn=1;S.pers--;log('个性化完成：'+it.name);showItem(uid);render()}
 const _showItem=showItem;showItem=function(uid){_showItem(uid);const f=findItem(uid);if(!f||f.it.k)return;const it=f.it,b=BASEM[it.b];const box=document.querySelector('#modal .ipanel .btns.c');if(!box)return;let h='';
- if(f.i!=null&&S.merc&&canMercEquip(it))h+=`<button class="btn" onclick="mercEquip(${uid})">给随从</button>`;
  if(S.sockq>0&&b.sock&&!it.sock&&it.rw==null)h+=`<button class="btn gold" onclick="addSock(${uid})">加凹槽×${S.sockq}</button>`;
  if(S.pers>0&&!it.pn&&it.rw==null)h+=`<button class="btn gold" onclick="personalize(${uid})">个性化×${S.pers}</button>`;
  if(h)box.insertAdjacentHTML('afterbegin',h)};
 
 // ---------- UI：战斗页、角色页随从、地图页 ----------
 const _renderFight=renderFight;renderFight=function(){_renderFight();{const fb=$('#fbattle'),bk='bg_act'+(S.act+1);if(fb&&IMG[bk]){fb.style.backgroundImage=`linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.25) 35%,rgba(0,0,0,.7)),url(${IMG[bk]})`}}const e=document.querySelector('#ftop .zn');if(e&&S.diff&&!e.querySelector('.diff'))e.innerHTML=`<b class="diff d${S.diff}">${DIFFS[S.diff].n}</b> `+e.innerHTML};
-function mercPanel(){if(!S.mercU&&!S.merc)return`<div class="gp"><h3>随从</h3><div class="dim">完成第一章任务「堕落女猎手」后可获得随从。</div></div>`;
- let h='<div class="gp"><h3>随从</h3>';
- if(S.merc){const T=MERCS[S.merc.t],ms=mercStats();const row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;
-  h+=`<div class="row"><span><b>${T.n}</b> <span class="dim">${T.kind} · ${T.vars[S.merc.v]}</span></span><b>${S.merc.dead?'<span class="bad">阵亡</span>':'Lv.'+ms.L}</b></div>`+
-  row('生命 / 防御',ms.life+' / '+ms.def)+row('伤害',Math.round(ms.dmg[0])+'-'+Math.round(ms.dmg[1])+(T.spell?'（法术）':''))+row('力量 / 敏捷',ms.str+' / '+ms.dex)+row('火/冰/电/毒 抗',`${ms.res.fire}/${ms.res.cold}/${ms.res.light}/${ms.res.pois}`)+
-  `<div class="doll merc">${MSLOT.map(k=>{const it=S.merc.eq[k];return it?`<div class="dslot">${cell(it,`mercUnequip('${k}')`)}</div>`:`<div class="dslot"><div class="cell empty"><small>${SLOTN[k]}</small></div></div>`}).join('')}</div>
-  <div class="dim">点背包物品详情中的「给随从」装备；点上方格子卸下。随从等级跟随角色，可穿：${T.wcats?T.wcats.map(c=>({wand:'魔杖',dagger:'匕首',sword:'剑'})[c]).join('/'):'任意武器'}、头盔、铠甲</div>
-  <div class="btns">${S.merc.dead?`<button class="btn sm gold" onclick="mercRevive()">复活 ${reviveCost()}◈</button>`:''}<button class="btn sm ${S.autoMerc?'on':''}" onclick="S.autoMerc^=1;render()">随从自动换装</button></div>`}
- h+=`<div class="dim" style="margin-top:6px">营地雇佣（替换当前随从，装备退回背包）：${hireCost()}◈</div>`;
- for(const t of mercAvail()){const T=MERCS[t];h+=`<div class="row"><span>${T.ic} ${T.n} <span class="dim">(${ACTS[T.act].camp})</span></span><span class="btns">${Object.entries(T.vars).map(([v,n])=>`<button class="btn xs" onclick="hireMerc('${t}','${v}')">${n.split('(')[0]}</button>`).join('')}</span></div>`}
- return h+'</div>'}
-const _renderHero=renderHero;renderHero=function(){_renderHero();const P=$('#panel');const g=P.querySelectorAll('.gp');if(g.length>1)g[1].insertAdjacentHTML('afterend',mercPanel());else P.insertAdjacentHTML('beforeend',mercPanel())};
 renderMap=function(){const P=$('#panel');if(MAPD==null)MAPD=S.diff;if(MAPA==null)MAPA=S.act;const A=ACTS[MAPA],d=MAPD,open=actOpen(MAPA,d),k=pkey(MAPA,d),here=MAPA===S.act&&d===S.diff;
  const q=d===S.diff?S.q:(S.Q[d]||{}),cl=here?S.cleared:(S.CL[k]||{}),unl=here?S.unl:(S.UN[k]||0);
  const imm=key=>{const T=MONS[key];if(!T)return'';const r=resFor(T,d,0);const im=Object.keys(r).filter(x=>r[x]>=100);return im.length?`<span class="imm2">${im.map(x=>ELN[x]).join('')}免</span>`:''};

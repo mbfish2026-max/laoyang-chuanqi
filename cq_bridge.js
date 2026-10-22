@@ -64,10 +64,10 @@
     // 英雄存档：有 CQSys 时存 S.hero（随角色进云存档），并把旧 localStorage 存档一次性迁移进来后删掉
     heroStore: function(){ var C = sysFn('hero'), ls = Host.store(); if (!C) return ls;
       try { var old = ls.getItem('cq_battle_hero_v1'); if (old) { var o = JSON.parse(old) || {}, H = C.hero();
-        if (!H.cls && o.prof && C.heroCreate) { C.heroCreate(PCLS[o.prof] || 'ds', o.name || ''); C.heroSet({rage: o.rage || 0, autoHeji: o.autoHeji === false ? 0 : 1}); }
+        if (!H.cls && o.prof && C.heroCreate) { H.cls=PCLS[o.prof] || 'ds';H.name=o.name||'';H.lvl=1; C.heroSet({rage: o.rage || 0, autoHeji: o.autoHeji === false ? 0 : 1}); if (has('save')) G('save')(); }
         if (ls.removeItem) ls.removeItem('cq_battle_hero_v1'); } } catch (e) { console.warn('[CQ] 英雄存档迁移', e); }
       return {load: function(){ var H = C.hero(), cls = H.cls || (C.heroProfs ? C.heroProfs()[0] : 'ds');
-          return {prof: PPROF[cls] || 3, cls: H.cls, name: H.name || '', rage: +H.rage || 0, autoHeji: !!H.autoHeji, exists: !!H.cls, lvl: H.lvl, eq: H.eq || {}, skOff: H.skOff, sk: H.sk, mode: H.mode}; },   /* skOff/sk/mode：系统侧英雄技能开关/技能书/模式（缺字段 = 全开/不限/攻击） */
+          return {prof: PPROF[cls] || 3, cls: H.cls, name: H.name || '', rage: +H.rage || 0, autoHeji: !!H.autoHeji, exists: !!H.cls && H.mode !== 'recall', lvl: H.lvl, eq: H.eq || {}, skOff: H.skOff, sk: H.sk, mode: H.mode}; },   /* skOff/sk/mode：系统侧英雄技能开关/技能书/模式（缺字段 = 全开/不限/攻击） */
         save: function(h){ if (h.exists && C.heroSet) C.heroSet({name: h.name, rage: Math.floor(h.rage || 0), autoHeji: h.autoHeji ? 1 : 0}); }}; },
     heroSys: function(){ return SYS(); },
     // 召唤物（职业开发：ALLY.kind==='cqpet'，sub=技能 id，死后移出 ALLY）。战场只显示同主人最多 2 只
@@ -197,9 +197,7 @@
     wrap('hitMon', function(f){ return function(m, d, src, fxc){ var prev = curSrc, pm = curMon; curSrc = src; curMon = m; var hp0 = m && m.hp > 0 ? m.hp : 0; try { var r = f.apply(this, arguments); if (src !== 'cqhero' && src !== 'cqheji') dpsAdd(Math.min(+r || 0, hp0));
         if (src && typeof src === 'object' && src.kind === 'cqpet' && !petEv) emitPet('atk', {uid: src.uid, tgt: m, dmg: +r || 0}, true);
         if (src === 'hero' && core) core.addRage(window.CQSys && CQSys.critNow ? 4 : 2); return r; } finally { curSrc = prev; curMon = pm; } }; });
-    // 旧「佣兵」不再参战（英雄接管同场作战，docs/merc_to_hero_plan.md）：mercTick 不再召出佣兵，场上已有的 kind==='merc' 立刻移除。佣兵存档/装备由系统侧迁移处理。
-    if (has('mercTick') && !install._merc) { install._merc = 1; var noMerc = function(){ try { var A = G('ALLY'); if (A && A.some(function(a){ return a && a.kind === 'merc'; })) eval("ALLY = ALLY.filter(function(a){ return !a || a.kind !== 'merc'; })"); } catch (e) {} };
-      noMerc._cq = 1; window.mercTick = noMerc; try { eval('mercTick = noMerc'); } catch (e) {} noMerc(); }
+
     wrap('step', function(f){ return function(dt){ var r = f.apply(this, arguments); try { coreStep(+dt || 0); } catch (e) { console.error('[CQ] hero step', e); } return r; }; });
     // 暴击：有 CQSys 时按 crit 事件出大字（替代全局 CRIT）；暴击那一下的普通飘字跳过，由事件补成暴击大字
     var C = sysFn('on'); if (C && !install._crit) { install._crit = 1;

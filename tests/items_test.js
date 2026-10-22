@@ -79,7 +79,7 @@ ok(UNIQUES.length>=58+60,'暗金至少 118（现 '+UNIQUES.length+'）');ok(Obje
 ok(new Set(UNIQUES.map(u=>u.n)).size===UNIQUES.length,'暗金重名');ok(new Set(SETITEMS.map(u=>u.n)).size===SETITEMS.length,'套装件重名');
 for(const u of [...UNIQUES,...SETITEMS]){for(const k in u.m){const v=u.m[k];ok(Array.isArray(v)?v[0]<=v[1]:typeof v==='number','数值非法 '+u.n+'.'+k)}ok(u.rq<=99&&u.lv<=99,'等级 '+u.n)}
 for(const k in SETS){const n=SETITEMS.filter(x=>x.set===k).length;ok(n>=2,'套装件数<2 '+k);for(const t in SETS[k].bonus)ok(+t<=n,'套装奖励阈值超件数 '+k+t)}
-ok(G("BASEM.bow1.th===1&&BASEM.pole1.th===1&&!BASEM.jav1.th"),'双手标记');ok(G("MERCS.archer.wcats.includes('bow')&&MERCS.guard.wcats.includes('polearm')"),'随从可用弓/长柄');
+ok(G("BASEM.bow1.th===1&&BASEM.pole1.th===1&&!BASEM.jav1.th"),'双手标记');
 console.log(`  底材 ${BASES.length}  暗金 ${UNIQUES.length}  套装 ${Object.keys(SETS).length}/${SETITEMS.length}件`);
 
 sec('战斗属性');

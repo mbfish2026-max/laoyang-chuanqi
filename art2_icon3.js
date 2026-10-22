@@ -7,7 +7,7 @@
 const ICON3_DIR='assets/icon3/';
 // 无歧义 emoji：任何受控区域都替换
 const ICON3_MAP={'🏆':'trophy','✔':'check','✓':'check','○':'pending','✘':'cross','◈':'gold','🔒':'lock','🔓':'unlock','🔮':'rift_key','⏳':'timer',
- '✸':'legendary_power','🍄':'secret','📜':'secret_scroll','❗':'quest_new','◇':'quest_part','✺':'merc_aura','↺':'merc_recall','🎁':'cache','🧰':'cache_big'};
+ '✸':'legendary_power','🍄':'secret','📜':'secret_scroll','❗':'quest_new','◇':'quest_part','🎁':'cache','🧰':'cache_big'};
 // 有歧义 emoji：只在对应终局页（按 EG 页 key）替换
 const ICON3_CTX={bounty:{'⚔':'bounty_kill','🔥':'bounty_clear','☠':'bounty_boss'},
  para:{'◆':'para_core','⚔':'para_atk','⛨':'para_def','⌛':'para_idle'},
@@ -29,7 +29,7 @@ function icon3Scan(root,ctx){if(!root)return;const re=ctx&&ICON3_CRE[ctx]?[ICON3
  for(const n of L){const esc=n.data.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');const h=icon3Html(esc,ctx);
   const t=document.createElement('template');t.innerHTML=h;n.parentNode.replaceChild(t.content,n)}}
 // 底部导航：只换终局/佣兵两个按钮的图标（不碰战斗/角色/技能等其他按钮）
-function icon3Tabs(){const T={eg:'tab_endgame',merc:'tab_merc'};for(const k in T){const i=document.querySelector(`#tabs button[data-t=${k}]>i`);
+function icon3Tabs(){const T={eg:'tab_endgame'};for(const k in T){const i=document.querySelector(`#tabs button[data-t=${k}]>i`);
  if(i&&!i.querySelector('.ic3'))i.innerHTML=ic3(T[k],i.textContent.trim())}}
 // 巅峰等级角标（eg_para.js 在角色等级旁插入 <small style="color:#c0a0ff">✦N</small>）
 function icon3Para(root){(root||document).querySelectorAll('small[style*="c0a0ff"]').forEach(s=>{const n=s.firstChild;

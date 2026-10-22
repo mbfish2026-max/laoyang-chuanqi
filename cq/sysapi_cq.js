@@ -12,19 +12,41 @@ CS.classes=()=>CLASSES.map(c=>({id:c.id,n:c.n,d:c.d,ic:c.ic,open:!!c.open}));
 CS.createChar=(name,cls,mode)=>{const id=newChar(name,cls,mode);if(id||id===0)CS.emit('char',{id,cls});return id};
 CS.curCls=()=>(typeof curCls==='function'?curCls():S.cls)||'zs';
 // ---------- 英雄（S.hero：随角色存档 → 进云存档、按角色区分） ----------
-const HDEF=()=>({cls:null,name:'',lvl:1,rage:0,autoHeji:1,eq:{},t:0});
-CS.hero=()=>{if(!S.hero||typeof S.hero!=='object')S.hero=HDEF();const h=S.hero;for(const[k,v]of Object.entries(HDEF()))if(h[k]==null)h[k]=v;return h};
+const HDEF=()=>({cls:null,name:'',lvl:1,rage:0,autoHeji:1,eq:{},t:0,xp:0,skOff:{},mode:'attack'});
+CS.hero=()=>{if(!S.hero||typeof S.hero!=='object')S.hero=HDEF();const h=S.hero;for(const[k,v]of Object.entries(HDEF()))if(h[k]==null)h[k]=v;h.lvl=Math.max(1,Math.min(h.lvl|0||1,S.lvl||1));return h};
 CS.heroSet=p=>{const h=CS.hero();for(const k of['name','rage','autoHeji'])if(p&&k in p)h[k]=p[k];h.rage=Math.max(0,Math.min(100,+h.rage||0));CS.emit('hero',h);return h};
-CS.heroProfs=()=>{const c=CS.curCls();return c==='zs'?['fs','ds']:['zs','fs','ds'].filter(x=>x!==c).concat(['zs']).filter((x,i,a)=>a.indexOf(x)===i)};
-CS.heroCreate=(cls,name)=>{const h=CS.hero();if(h.cls)return{err:'已有英雄'};if(!['zs','fs','ds'].includes(cls))return{err:'职业无效'};
-  h.cls=cls;h.name=(name||'').trim().slice(0,12)||({zs:'战士',fs:'法师',ds:'道士'}[cls]+'英雄');h.lvl=S.lvl||1;h.t=now();save();CS.emit('hero',h);return{ok:1,hero:h}};
+CS.heroProfs=()=>['zs','fs','ds'];
+CS.heroUnlock=()=>!!CS.hero().cls||(S.lvl||1)>=22;
+CS.heroCreate=(cls,name)=>{const h=CS.hero();if(h.cls)return{err:'已有英雄'};if(!CS.heroUnlock())return{err:'22级解锁英雄'};if(!['zs','fs','ds'].includes(cls))return{err:'职业无效'};
+  h.cls=cls;h.name=(name||'').trim().slice(0,12)||({zs:'战士',fs:'法师',ds:'道士'}[cls]+'英雄');h.lvl=1;h.xp=0;h.t=now();save();CS.emit('hero',h);return{ok:1,hero:h}};
 CS.heroEquip=uid=>{const h=CS.hero();const i=S.bag.findIndex(x=>x.uid===uid);if(i<0)return{err:'背包无此物品'};const it=S.bag[i],b=BASEM[it.b];if(!b||it.k)return{err:'不可装备'};
   const c=CS.itemCls?CS.itemCls(it):null;if(c&&c!==h.cls)return{err:'职业不符'};const s=b.s;const old=h.eq[s];S.bag.splice(i,1);h.eq[s]=it;if(old)S.bag.push(old);save();CS.emit('hero',h);return{ok:1,slot:s}};
 CS.heroUnequip=s=>{const h=CS.hero();const it=h.eq[s];if(!it)return{err:'空'};if(typeof bagFits==='function'&&!bagFits(it))return{err:'背包已满'};delete h.eq[s];S.bag.push(it);save();CS.emit('hero',h);return{ok:1}};
-CS.heroStats=()=>{const h=CS.hero(),K=CQ_BAL.hero,lv=Math.min(S.lvl||1,CQ_BAL.lvlCap);let mn=0,mx=0,def=0,mdef=0,hp=0;
+CS.heroStats=()=>{const h=CS.hero(),K=CQ_BAL.hero,lv=Math.min(h.lvl||1,S.lvl||1,CQ_BAL.lvlCap);let mn=0,mx=0,def=0,mdef=0,hp=0;
   for(const it of Object.values(h.eq)){const l=itemLocal(it),m=allMods(it);mn+=l.min||0;mx+=l.max||0;def+=l.def||0;mdef+=m.mdef||0;hp+=m.life||0}
   const bm=K.cls[h.cls||'zs'];return{cls:h.cls,lvl:lv,atkMin:Math.round(mn+lv*bm.atk*0.6),atkMax:Math.round(mx+lv*bm.atk),def:Math.round(def+lv*bm.def),mdef:Math.round(mdef+lv*bm.def*0.5),
     hp:Math.round(K.hp0+lv*bm.hp+hp),takesDmg:!!K.takesDmg,heroK:K.k}};
+// 开关与模式均随角色存档；英雄事件通知战斗层重新读取。
+CS.hero.skState=()=>Object.assign({},CS.hero().skOff);
+CS.hero.skToggle=(id,on)=>{const h=CS.hero();if(id!=='heji'&&!(typeof heroSkList==='function'&&heroSkList(h.cls).includes(id)))return{err:'技能无效'};
+ if(on==null)on=!!h.skOff[id];if(on)delete h.skOff[id];else h.skOff[id]=1;save();CS.emit('hero',h);return{ok:1,on:!!on}};
+CS.heroMode=mode=>{const h=CS.hero();if(mode==null)return h.mode;if(!['attack','follow','rest','recall'].includes(mode))return{err:'模式无效'};h.mode=mode;save();CS.emit('hero',h);return{ok:1,mode}};
+CS.heroGainXp=n=>{const h=CS.hero();if(!h.cls||h.mode==='rest'||h.mode==='recall'||!(n>0))return;
+ const cap=Math.min(S.lvl||1,CQ_BAL.lvlCap);if(h.lvl>=cap)return;h.xp=(+h.xp||0)+n;
+ while(h.lvl<cap&&h.xp>=xpNeed(h.lvl+1)){h.lvl++;CS.emit('hero',h)}
+ if(h.lvl>=cap)h.xp=Math.min(h.xp,xpNeed(cap+1)-1)};
+{const f=gainXp;gainXp=function(n){const r=f.apply(this,arguments);CS.heroGainXp(n);return r}}
+// v2 → v3：保留已有英雄；旧佣兵按职业转换，装备溢出退回背包/仓库。
+CS.heroMigrate=()=>{const m=S.merc;if(m){const h=CS.hero();if(!h.cls&&m.t){h.cls=({mage:'fs',archer:'ds',guard:'zs',barb:'zs'})[m.t]||'zs';h.name=m.nm||'英雄';h.lvl=Math.max(1,Math.min(m.lvl||1,S.lvl||1));h.xp=Math.min(+m.xp||0,xpNeed(h.lvl+1)-1);h.autoEq=m.auto?1:0;h.t=now()}
+ const seen=new Set([...S.bag,...Object.values(S.eq||{}),...Object.values(h.eq),...(S.pst||[]).flat(),...(S.stash||[]),...(S.migBox||[])].filter(Boolean).map(x=>x.uid));
+ for(const it of [...Object.values(m.eq||{}),...Object.values(m.prev&&m.prev.eq||{})]){if(!it||typeof it!=='object'||seen.has(it.uid))continue;seen.add(it.uid);
+ if(typeof pruneObj==='function'){const box={it};const g=pruneObj(box);S.gold=(S.gold||0)+g;S.cqPruneG=(S.cqPruneG||0)+g;if(!box.it)continue}
+ const b=BASEM[it.b],c=CS.itemCls?CS.itemCls(it):null,req=b&&!it.k&&typeof itemReq==='function'?itemReq(it):{};
+ if(h.cls&&b&&!it.k&&!h.eq[b.s]&&(!c||c===h.cls)&&h.lvl>=(req.lv||1)){h.eq[b.s]=it;continue}
+ if(bagFits(it))S.bag.push(it);else{const pg=(S.pst||[]).find(a=>fits(a,it,PAGE_SZ));if(pg)pg.push(it);else(S.migBox=S.migBox||[]).push(it)}}}
+ delete S.merc;delete S.mercU;delete S.autoMerc;ALLY=ALLY.filter(a=>a.kind!=='merc');S.migHero=1;S.v=3;return CS.hero()};
+{const f=load;load=function(){const r=f.apply(this,arguments);CS.heroMigrate();save();CS.emit('hero',CS.hero());return r}}
+{const f=save;save=function(){CS.heroMigrate();return f.apply(this,arguments)}}
 // ---------- 技能冷却（职业 Bot 填 CQ_SKCD[id]=秒；施放时调 CQSys.skillCast(id)） ----------
 window.CQ_SKCD=window.CQ_SKCD||{};const CAST={};
 CS.skillCast=id=>{CAST[id]=now();CS.emit('skill',{id,t:CAST[id]})};

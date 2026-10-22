@@ -80,10 +80,9 @@ if(typeof window!=='undefined'){
 (function(){
 if(typeof document==='undefined'||window.__NOUI)return;
 const NAV=[['fight','battle','战斗'],['hero','role','角色'],['skill','skill','技能'],['map','map','地图'],['fuli','fuli','福利']];
-const GRP={hero:'hero',bag:'hero',shop:'hero',merc:'hero',eg:'fuli',fuli:'fuli'};
-// 旧佣兵已停战、英雄页未完成：暂时隐藏佣兵页入口（存档 S.merc 保留，供以后转英雄）
+const GRP={hero:'hero',bag:'hero',shop:'hero',eg:'fuli',fuli:'fuli'};
+// 旧页签书签回到角色页，专用英雄页在后续任务实现。
 const SUB=[['hero','角色'],['bag','背包'],['shop','商店']];
-try{mercPanel=function(){return''}}catch(e){}
 window.CQ_NAV=NAV.map(n=>n[2]);
 function go(t){if(t==='fuli')t='eg';TAB=t;render();try{PWRF.kick()}catch(e){}}
 window.cqNavGo=go;

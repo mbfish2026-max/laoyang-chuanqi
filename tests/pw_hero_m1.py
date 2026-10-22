@@ -15,11 +15,12 @@ def main():
     p=ctx.new_page();errors=[];p.on('pageerror',lambda e:errors.append(str(e)))
     p.on('console',lambda m:errors.append(m.text) if m.type=='error' and not any(x in m.text for x in ['404','Service Worker registration blocked']) else None)
     p.goto(url+'/index.html');p.wait_for_timeout(7500)
-    p.evaluate("""()=>{CQSys.createChar('英雄实测','fs');closeM();CQSys.heroCreate('zs');if(window.CQ&&CQ.heroCore)CQ.heroCore().reload();save()}""")
+    p.evaluate("""()=>{CQSys.createChar('英雄实测','fs');closeM();S.lvl=22;CQSys.heroCreate('zs');if(window.CQ&&CQ.heroCore)CQ.heroCore().reload();save()}""")
     if kind=='legacy_merc':
-     p.evaluate("""()=>{S.merc={_v:2,t:'mage',v:0,nm:'旧佣兵',lvl:1,xp:0,eq:{},prev:{},auto:1,ar:1};S.mercU=1;save()}""")
+     p.evaluate("""()=>{S.hero=null;S.v=2;S.merc={_v:2,t:'mage',v:0,nm:'旧佣兵',lvl:1,xp:0,eq:{},prev:{},auto:1,ar:1};S.mercU=1;GS.setItem(KEY,JSON.stringify(S));GS.setItem(CH_PRE+ACCT.cur,JSON.stringify(S))}""")
      p.reload();p.wait_for_timeout(3000)
     p.evaluate('closeM()')
+    assert p.evaluate("S.v===3 && !S.merc && !!S.hero.cls"),kind
     layouts={}
     for tab,page in [('hero','hero'),('fight','battle')]:
      p.evaluate("""t=>{TAB=t;closeM();render()}""",tab);p.wait_for_timeout(1200)

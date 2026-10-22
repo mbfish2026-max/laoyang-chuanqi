@@ -37,7 +37,7 @@ function summary(d){if(!d||!d.acct)return'（空）';return d.acct.chars.map(c=>
 function legacyKeys(){const out=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^cq_(save_|acct|ch_|eg_rank|cloud$)/.test(k))out.push(k)}}catch(e){}return out}
 function legacyRead(acctKey,pre){try{const a=JSON.parse(localStorage.getItem(acctKey));if(!a||!a.chars)return null;const chars={};for(const c of a.chars){const r=localStorage.getItem(pre+c.id);if(r)chars[c.id]=JSON.parse(r)}return{fmt:1,acct:a,chars}}catch(e){return null}}
 function legacyExport(uid){let L=[];const own=uid&&legacyRead('cq_acct@'+uid,'cq_ch@'+uid+'_');if(own)L.push(own);const g=legacyRead('cq_acct','cq_ch_');if(g)L.push(g);
- if(!g){try{const o=JSON.parse(localStorage.getItem('cq_save_v2'));if(o&&o.v===2)L.push({fmt:1,acct:{v:1,cur:1,nid:2,suid:1e9,chars:[{id:1,name:o.name||'战士',cls:'战士',lvl:o.lvl||1,t:o.last||0}],shared:[]},chars:{1:o}})}catch(e){}}
+ if(!g){try{const o=JSON.parse(localStorage.getItem('cq_save_v2'));if(o&&[2,3].includes(o.v))L.push({fmt:1,acct:{v:1,cur:1,nid:2,suid:1e9,chars:[{id:1,name:o.name||'战士',cls:'战士',lvl:o.lvl||1,t:o.last||0}],shared:[]},chars:{1:o}})}catch(e){}}
  L=L.filter(hasProgress);if(!L.length)return null;let d=L[0];for(const x of L.slice(1))d=mergeAccounts(d,x);
  try{const rk=localStorage.getItem('cq_eg_rank');if(rk)d.extra={cq_eg_rank:rk}}catch(e){}return d}
 function chProg(o){return o?[o.lvl||0,o.xp||0,o.kills||0]:[0,0,0]}

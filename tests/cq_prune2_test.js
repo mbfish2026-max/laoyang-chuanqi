@@ -13,7 +13,7 @@ G(`S=newSave();load();S.cls='zs';S.ci=0;clsInit();ensureLoot();calc();S.gold=100
  if(!Array.isArray(S.stash))S.stash=[];S.stash.push({uid:S.uid++,k:'rune',r:0});
  const w=genItem(10,{base:BASEM[Object.keys(BASEM).find(k=>BASEM[k].s==='weapon'&&!BASEM[k].cls)],q:1});w.sock=3;w.soc=[{r:3},{g:'rub',lv:2},{j:1,n:'珠宝',m:{ar:5}}];w.rw=5;w.rwm={edmg:50};w.name='力能';S.eq.weapon=w;window.__wuid=w.uid;
  const h=genItem(10,{base:BASEM[Object.keys(BASEM).find(k=>BASEM[k].s==='helm'&&!BASEM[k].cls)],q:1});h.sock=2;h.soc=[{r:1}];h.rw=1;h.name='天幕';S.bag.push(h);window.__huid=h.uid;
- if(!S.merc)S.merc={t:Object.keys(MERCS)[0],eq:{}};if(!S.merc.eq)S.merc.eq={};S.merc.eq.amulet={uid:S.uid++,b:'cha_l',q:3,m:{}};
+ if(!S.merc)S.merc={t:'archer',eq:{}};if(!S.merc.eq)S.merc.eq={};S.merc.eq.amulet={uid:S.uid++,b:'cha_l',q:3,m:{}};
  if(!Array.isArray(ACCT.shared))ACCT.shared=[[]];if(!ACCT.shared[0])ACCT.shared[0]=[];ACCT.shared[0].push({uid:ACCT.suid=(ACCT.suid||1)+1,k:'gem',g:'top',lv:0});
  window.__n0=S.bag.length;save();acctSave()`);
 G(`ACCT=null;resetRuntime();acctLoad();load();calc()`);
@@ -22,7 +22,7 @@ ok(G('S.gold')===1000+exp,`折算金币 ${exp}（实得 ${G('S.gold')-1000}）`)
 ok(G("S.bag.every(x=>x.k!=='rune'&&x.k!=='gem'&&x.b!=='cha_s')"),'背包里符文/宝石/护身符已移除');
 ok(G("S.pst.flat().every(x=>x.b!=='jew')")&&G("S.stash.every(x=>x.k!=='rune')"),'仓库/储物箱已清理');
 ok(G("ACCT.shared.flat().every(x=>x.k!=='gem')"),'共享仓库已清理');
-ok(G("!S.merc.eq.amulet"),'随从身上的护身符已移除');
+ok(G("!S.merc&&!S.hero.eq.amulet"),'随从身上的护身符已移除');
 ok(G(`S.eq.weapon&&S.eq.weapon.uid===__wuid&&S.eq.weapon.rw===undefined&&!S.eq.weapon.rwm&&S.eq.weapon.soc.length===0&&S.eq.weapon.sock===0`),'符文之语武器保留本体、去掉符文之语与镶嵌');
 ok(G(`(h=>h&&h.rw===undefined&&h.soc.length===0&&h.name===BASEM[h.b].n)(S.bag.find(x=>x.uid===__huid))`),'背包里的白色符文之语底材：保留本体、名字恢复底材名');
 ok(G(`JSON.stringify(S.bag.find(x=>x.uid===JSON.parse(__keep).uid))===__keep`),'普通装备原样保留');

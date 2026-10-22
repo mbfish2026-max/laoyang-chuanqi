@@ -5,7 +5,7 @@ G(`S=newSave();load();S.lvl=10;calc()`);
 ok(G('CQSys.api')===1,'CQSys.api 就绪');
 ok(G('CQSys.classes().map(c=>c.id).join()')==='zs,fs,ds','职业列表');
 const id=G(`CQSys.createChar('老羊','fs')`);ok(id>0||id===0,'创建法师角色');ok(G('S.cls')==='fs'&&G('S.name')==='老羊','切到新角色');
-ok(G(`CQSys.heroCreate('zs','阿战').ok`)===1&&G('S.hero.cls')==='zs','创建英雄');
+G('S.lvl=22');ok(G(`CQSys.heroCreate('zs','阿战').ok`)===1&&G('S.hero.cls')==='zs','创建英雄');
 ok(G(`CQSys.heroCreate('ds').err`)==='已有英雄','英雄只能建一次');
 G(`CQSys.heroSet({rage:150,autoHeji:0});save()`);ok(G('S.hero.rage')===100&&G('S.hero.autoHeji')===0,'怒气封顶 100');
 G(`const it=genItem(5,{base:BASEM.swd1,q:1});S.bag.push(it);window._u=it.uid`);

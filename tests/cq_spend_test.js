@@ -18,6 +18,5 @@ G(`S.cqSp={inc:10000,sp:2000};S.pot.hp=0;S.pot.mp=0;autoTick()`);const sp=G('S.c
 G(`S.cqSp={inc:1e6,sp:0};S.gold=CQ_BAL.spend.floor(S.lvl)+50;S.pot.hp=0;S.pot.mp=0;autoTick()`);ok(G('S.gold')>=G('CQ_BAL.spend.floor(S.lvl)'),'不跌破金币保底');
 G(`cqInc(1e6)`);ok(G('S.cqSp.inc')<=G('CQ_BAL.spend.win(S.lvl)'),'收入窗口衰减');
 // 随从自动复活不受节流
-G(`S.merc={t:Object.keys(MERCS)[0],lvl:10,nm:'t',dead:1};S.cqSp={inc:0,sp:1e9};S.gold=1e7;mercRevive(1)`);ok(!G('S.merc.dead'),'开启节流时随从自动复活仍不受限');
 G(`CQ_BAL.spend.on=0`);
 T.done();

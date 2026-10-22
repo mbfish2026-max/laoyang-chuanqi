@@ -8,6 +8,6 @@
  if(typeof autoStash==='function'){const f=autoStash;autoStash=function(it,...a){return it&&it.gb?false:f(it,...a)}}
  const hideGb=name=>{if(typeof window[name]!=='function')return;const f=window[name];window[name]=function(...a){if(!S||!Array.isArray(S.bag)||!S.bag.some(x=>x&&x.gb))return f.apply(this,a);
   const hid=S.bag.filter(x=>x&&x.gb);S.bag=S.bag.filter(x=>!(x&&x.gb));try{return f.apply(this,a)}finally{for(const x of hid)S.bag.push(x)}}};
- for(const n of['autoTick','mercAutoEq'])hideGb(n);
+ for(const n of['autoTick'])hideGb(n);
  {const f=gamble;gamble=function(...a){if(S&&typeof slotsUsed==='function'&&typeof BAG_SZ!=='undefined'&&slotsUsed(S.bag)>=BAG_SZ){shopMsg('背包已满，未扣金币：请先出售或存入仓库再赌博');return null}return f.apply(this,a)}}
 })();

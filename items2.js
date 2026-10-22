@@ -8,7 +8,6 @@ const CATN={wand:'魔杖',dagger:'匕首',sword:'剑',helm:'头盔',armor:'铠�
 const isTH=it=>!!(it&&!it.k&&BASEM[it.b]&&BASEM[it.b].th);
 // 护身符/珠宝（isCharm/isJewel/charmMods/genJC/jewelUI）与炼金匣升级/修复配方已删除（legacy_prune 批次2）
 // 随从：弓箭手用弓/弩，卫枪兵用长柄/矛（原版 1.13 随从武器规则）
-if(typeof MERCS!=='undefined'){if(MERCS.archer)MERCS.archer.wcats=['bow','xbow'];if(MERCS.guard)MERCS.guard.wcats=[...new Set([...(MERCS.guard.wcats||[]),'polearm','spear'])];if(MERCS.barb)MERCS.barb.wcats=[...new Set([...(MERCS.barb.wcats||[]),'axe','mace'])]}
 
 // ---------- 图标 ----------
 const _i2_icon=itemIcon;itemIcon=function(it){if(it.k==='mat')return`<i class="ii">✷</i>`;if(!it.k){const b=BASEM[it.b];const g={bow:'🏹',xbow:'🏹',polearm:'🔱',spear:'🔱',jav:'🎯',throw:'🔪',axe:'🪓',mace:'🔨',staff:'🦯',jewel:'💎',scha:'🧿',mcha:'🧿',lcha:'🧿'}[b&&b.cat];if(g)return`<i class="ii ${b.s==='charm'?'chm c'+b.sz:''}">${g}</i>`}return _i2_icon(it)};
@@ -33,17 +32,17 @@ const _i2_calc=calc;calc=function(){const o=_i2_calc();
 // 撕裂伤口 ow：8 秒流血（伤害按角色等级，原版公式分段，首领 1/2）；压碎性打击 cb：扣当前生命 1/4（首领 1/8）；
 // 致命一击 ds：物理伤害翻倍；对恶魔伤害 demon；无视防御 ignoredef；击退 kb；击中致盲 blind / 逃跑 flee：短暂失能；冻结 freeze。
 function owDps(L){const f=L<=15?9*L+31:L<=30?18*L-104:L<=45?27*L-374:L<=60?36*L-779:45*L-1319;return Math.max(1,f*25/256)}
-function attackerMods(src){if(src==='hero')return ST&&ST.M||{};if(src&&src.kind==='merc'&&S.merc){const M={};for(const k of ['weapon','helm','armor']){const it=S.merc.eq[k];if(!it)continue;const m=allMods(it);for(const x in m)M[x]=(M[x]||0)+m[x]}return M}return null}
+function attackerMods(src){return src==='hero'?ST&&ST.M||{}:null}
 let _i2_atk=0;
 const _i2_hitMon=hitMon;hitMon=function(m,d,src,fxc){if(!m||m.hp<=0)return _i2_hitMon(m,d,src,fxc);
- const atk=(src==='hero'&&(fxc==='#fff'||(fxc==='#6f6'&&d.phys)))||(src&&src.kind==='merc');const M=atk?attackerMods(src):null;
+ const atk=(src==='hero'&&(fxc==='#fff'||(fxc==='#6f6'&&d.phys)));const M=atk?attackerMods(src):null;
  if(!M||!d.phys)return _i2_hitMon(m,d,src,fxc);
  const T=MONS[m.key]||BOSSES[m.key]||{};const dd=Object.assign({},d);
  if(M.demon&&T.demon)dd.phys*=1+M.demon/100;
  let crit=false;if(M.ds&&rnd()*100<Math.min(100,M.ds)){dd.phys*=2;crit=true}
  const r=_i2_hitMon(m,dd,src,crit?'#ff4':fxc);
  if(m.hp>0&&M.cb&&rnd()*100<M.cb){const x=Math.round(m.hp*(m.boss?1/8:1/4));if(x>0){m.hp-=x;floatNum(m.uid,x,'#c6f');if(m.hp<=0){killMon(m);return r+x}}}
- if(m.hp>0&&M.ow&&rnd()*100<M.ow){const lv=src==='hero'?S.lvl:(mercStats().L||S.lvl);m.ow={dps:owDps(lv)*(m.boss?0.5:1),left:8}}
+ if(m.hp>0&&M.ow&&rnd()*100<M.ow){const lv=S.lvl;m.ow={dps:owDps(lv)*(m.boss?0.5:1),left:8}}
  if(m.hp>0&&!m.boss){if(M.kb)m.t+=0.25;if((M.blind&&rnd()*100<M.blind)||(M.flee&&rnd()*100<M.flee))m.stun=Math.max(m.stun||0,0.8)}
  if(m.hp>0&&M.freeze){m.stun=Math.max(m.stun||0,0.2*M.freeze*(m.boss?0.5:1));m.slow=GT+2}
  return r};
@@ -64,5 +63,3 @@ const _i2_show=showItem;showItem=function(uid){_i2_show(uid);if(typeof document=
 };
 const MODS_GONE=new Set(['mcast']);// 已删除词缀（multicast.js），旧存档物品上的字段忽略不显示
 modsTxt=function(m){return Object.entries(m).filter(([k])=>!MODS_GONE.has(k)).map(([k,v])=>(MODT[k]||k+' {v}').replace('{v}',Array.isArray(v)?v[0]+'-'+v[1]:v).replace('+-','-')).join('，')};
-
-if(typeof mercPanel==='function'){const _i2_mp=mercPanel;mercPanel=function(){let h=_i2_mp();if(S.merc&&MERCS[S.merc.t].wcats){const T=MERCS[S.merc.t];const bad=T.wcats.map(c=>({wand:'魔杖',dagger:'匕首',sword:'剑'})[c]).join('/');h=h.replace(bad,T.wcats.map(c=>CATN[c]||c).join('/'))}return h}}

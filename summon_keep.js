@@ -6,5 +6,5 @@ function skpRecall(){let n=0;try{if(!S||!ST)return 0;
  if(S.cls==='nec'){for(const id of['rs','rm']){const L=slvl(id);if(!L)continue;const v=SV(id,L),k=id==='rs'?'skel':'mage';let g=0;while(cntA(k)<v.n&&g++<20){if(id==='rs')addAlly('skel',{n:'骨仆',hp:v.life,dmg:v.dmg});else addAlly('mage',{n:'骨巫',hp:v.life,dmg:v.dmg,el:pick(['fire','cold','light','pois']),ranged:1});n++}}}
  if(S.cls==='dru'&&typeof CLS_TY!=='undefined'&&CLS_TY.csum){for(const s of CLS_SKILLS){if(s.cls!=='dru'||s.ty!=='csum')continue;const L=slvl(s.id);if(!L)continue;if(s.g&&typeof clsGroupPick==='function'&&clsGroupPick(s.g)!==s.id)continue;const v=SV(s.id,L);let g=0;while(ALLY.filter(a=>a.kind==='dpet'&&a.sub===s.id&&a.hp>0).length<(v.n||1)&&g++<20){CLS_TY.csum(s,v);n++}}}
 }catch(e){console.error('skp',e)}return n}
-{const f=egEnter;egEnter=function(m){const keep=SMKEEP.on&&typeof ALLY!=='undefined'?ALLY.filter(a=>a.hp>0&&a.kind!=='merc'):[];const r=f(m);
+{const f=egEnter;egEnter=function(m){const keep=SMKEEP.on&&typeof ALLY!=='undefined'?ALLY.filter(a=>a.hp>0):[];const r=f(m);
  try{if(SMKEEP.on&&EGM===m){for(const a of keep)if(!ALLY.includes(a))ALLY.push(a);const n=skpRecall();if(n)log(`<span class="dim">召唤物随行入场，召回 ${n} 只</span>`)}}catch(e){console.warn('skp',e)}return r}}

@@ -33,7 +33,7 @@ const LATE_SURV={bar:[[1,20],[45,20],[60,0]],ama:[[1,25],[30,25],[45,0]],pal:[[1
 // 亡灵召唤物（骨仆/骨巫/复生/魔像等，不含雇佣兵）地狱段额外系数：55 级前 =1（普通/噩梦不变），地狱 2–3 秒击杀普通怪
 var LATE_SUMK={nec:[[1,1],[55,1],[64,0.15],[85,0.7]]};
 function lateSumK(){const t=LATE_SUMK[lateC()];return t?lateLog(t):1}
-{const f=hitMon;hitMon=function(m,d,src,fxc){const isSum=src&&typeof src==='object'&&src.kind!=='merc'&&typeof ALLY!=='undefined'&&ALLY.includes(src);if(d&&src==='nbboom'){const k=lateSumK();if(k!==1){const o={};for(const e in d)o[e]=d[e]*k;d=o}}// 骸爆（白骨统帅套装：骨仆死亡爆炸）同属召唤物伤害
+{const f=hitMon;hitMon=function(m,d,src,fxc){const isSum=src&&typeof src==='object'&&typeof ALLY!=='undefined'&&ALLY.includes(src);if(d&&src==='nbboom'){const k=lateSumK();if(k!==1){const o={};for(const e in d)o[e]=d[e]*k;d=o}}// 骸爆（白骨统帅套装：骨仆死亡爆炸）同属召唤物伤害
  else if(d&&(src==='hero'||isSum)){const k=lateMul()*(isSum?lateSumK():1);if(k!==1){const o={};for(const e in d)o[e]=d[e]*k;d=o}}return f(m,d,src,fxc)}}
 // 技能 20 级后成长 + 详情显示时把属性加成/后期系数算进伤害
 let LATE_DISP=0;

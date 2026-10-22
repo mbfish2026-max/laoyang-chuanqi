@@ -7,12 +7,12 @@
 const LK={inAuto:0};
 const isLk=it=>!!(it&&it.lk);
 function lkAll(){const out=[];const push=(arr,w)=>{for(const it of arr||[])if(it)out.push([it,w])};push(S.bag,'bag');for(const k in S.eq)push([S.eq[k]],'eq');
- if(S.merc&&S.merc.eq)for(const k in S.merc.eq)push([S.merc.eq[k]],'merc');for(const p of S.pst||[])push(p,'pst');push(S.stash,'pst');
+ if(S.hero&&S.hero.eq)for(const k in S.hero.eq)push([S.hero.eq[k]],'hero');for(const p of S.pst||[])push(p,'pst');push(S.stash,'pst');
  if(typeof ACCT!=='undefined'&&ACCT&&ACCT.shared)for(const p of ACCT.shared)push(p,'shared');return out}
 function lkFind(uid){const r=lkAll().find(([it])=>it.uid===uid);return r?r[0]:null}
 function toggleLock(uid,v){const it=lkFind(uid);if(!it)return false;if(v==null)v=!it.lk;if(v)it.lk=1;else delete it.lk;
  if(typeof acctSave==='function'&&typeof ACCT!=='undefined'&&ACCT)acctSave();save();
- if(!window.__NOUI){toast(v?'已锁定':'已解锁');if(document.querySelector('#modal:not(.hide) .mslotm')&&typeof mercSlotUI==='function')mercSlotUI(MX.slot);else{const f=findItem(uid);if(f)showItem(uid);else closeM()}render()}return true}
+ if(!window.__NOUI){toast(v?'已锁定':'已解锁');{const f=findItem(uid);if(f)showItem(uid);else closeM()}render()}return true}
 const lkMsg=()=>{if(!window.__NOUI)toast('物品已锁定，请先解锁');return false};
 // 1) 直接以物品为目标的操作：目标锁定则拦截
 function lkGuard(name,pos){if(typeof window[name]!=='function')return;const f=window[name];window[name]=function(...a){const it=lkFind(a[pos]);if(isLk(it))return lkMsg();return f.apply(this,a)}}

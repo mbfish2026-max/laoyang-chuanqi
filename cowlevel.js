@@ -24,7 +24,7 @@ function cowGo(d){if(!cowOpen(d))return toast('尚未解锁');if(S.act!==4||S.di
 {const f=rollTC;rollTC=function(m){if(!inCow())return f(m);const mf=ST.mf;ST.mf=mf+COW.mf;let o;try{o=f(m)}finally{ST.mf=mf}
  if(rnd()<(m.boss?1:COW.rune))o=(o||[]).concat([oreItem(1)]);return o}}
 // 清图：留在牧场循环
-{const f=zoneClear;zoneClear=function(){if(!inCow())return f();S.dz=0;if(mercDead())mercRevive(1);S.cowN=(S.cowN||0)+1;log(`<b class="quest">${COWZ.n} 已肃清（第${S.cowN}轮）</b>${S.auto?' · 牛群再度聚集':''}`);S.wave=0}}
+{const f=zoneClear;zoneClear=function(){if(!inCow())return f();S.dz=0;S.cowN=(S.cowN||0)+1;log(`<b class="quest">${COWZ.n} 已肃清（第${S.cowN}轮）</b>${S.auto?' · 牛群再度聚集':''}`);S.wave=0}}
 // 连续阵亡：退回第五章最后已解锁区域
 {const f=die;die=function(){if(inCow()){S.dz=(S.dz||0)+1;if(S.dz>=3){S.dz=0;S.zone=Math.min(S.cowPrev|0,S.unl);log('<b style="color:#f84">牛群太凶猛，暂且撤离牧场</b>')}}return f()}}
 // 卡片滤镜

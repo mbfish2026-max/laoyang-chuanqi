@@ -145,9 +145,9 @@ function wrap(name,after,before){const f=window[name];if(typeof f!=='function')r
 // ================= 技能 / 战斗音效（按技能 id 建表） =================
 // 限流：① 每类最小间隔 GAP；② 全局同时发声上限 VOICE_MAX（按每个音效预计时长计数，超出则丢弃低优先级）；
 //       ③ 同类同时发声上限 CAT_MAX；④ 召唤物/佣兵/命中类额外随机稀疏，避免满屏召唤物时成噪音。
-const VOICE_MAX=8,CAT_MAX={hit:2,ally:2,merc:1,crit:1,block:1,skill:3,attack:1};
-const GAP={skill:70,attack:90,hit:110,crit:160,block:200,ally:140,merc:180};
-const PRIO={skill:3,crit:3,block:2,attack:2,merc:1,ally:1,hit:0};
+const VOICE_MAX=8,CAT_MAX={hit:2,ally:2,crit:1,block:1,skill:3,attack:1};
+const GAP={skill:70,attack:90,hit:110,crit:160,block:200,ally:140};
+const PRIO={skill:3,crit:3,block:2,attack:2,ally:1,hit:0};
 const VOICES=[];// {end,cat}
 function vClean(){const now=ctx.currentTime;for(let i=VOICES.length-1;i>=0;i--)if(VOICES[i].end<now)VOICES.splice(i,1)}
 const lastC={};
@@ -276,8 +276,7 @@ const ALLY_SFX={
  golem:{cg:(D,t)=>P.thud(D,t,0.8,90),bg:(D,t)=>{P.thud(D,t,0.7,100);P.bubble(D,t,0.5,2)},ig:(D,t)=>P.clang(D,t,0.6,500),fg:(D,t)=>{P.thud(D,t,0.6,90);P.fire(D,t,0.5,0.25)}},
  mage:{fire:(D,t)=>P.fire(D,t,0.5,0.25),cold:(D,t)=>P.ice(D,t,0.5),light:(D,t)=>P.zap(D,t,0.5,2),pois:(D,t)=>P.bubble(D,t,0.6,2)}
 };
-function allySfx(a,fxc){if(a.kind==='merc'){const el=colEl(fxc);return voice('merc',el,0.3,(t,D)=>{if(el==='phys'){P.slash(D,t,0.8,2600);P.thud(D,t,0.5,150)}else EL_FB[el](D,t)})}
- if(Math.random()<0.5)return;// 召唤物多：稀疏一半
+function allySfx(a,fxc){ if(Math.random()<0.5)return;// 召唤物多：稀疏一半
  const S2=ALLY_SFX[a.kind];const fn=typeof S2==='function'?S2:S2&&(S2[a.sub]||S2[a.el]);voice('ally',a.kind,0.25,(t,D)=>(fn||((D,t)=>P.slash(D,t,0.5)))(D,t))}
 
 // 钩子：spend(id) 是所有主动技能（含职业技能/自动施法）的唯一耗蓝入口 → 按 id 发声；随后同一动作内的 fx() 不再重复发声

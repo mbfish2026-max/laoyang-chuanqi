@@ -140,19 +140,6 @@ const ELITE_AFF={
 const CHAMP_V=[{n:'狂战',f:m=>{m.dmg=m.dmg.map(x=>x*1.3)}},{n:'幽影',f:m=>{m.res.phys+=50;m.spd*=0.85}},{n:'狂热',f:m=>{m.spd*=1.4}},{n:'精英',f:m=>{}}];
 const UNIQ_T=['血爪','腐眼','碎颅','裂魂','灰鬃','毒牙','暗刺','霜喉','焦骨','噬心','铁颚','夜啸'];
 
-// ---------- 随从 ----------
-// life/def: [基础, 每级]；dmg: [[最小基础,每级],[最大基础,每级]]；atk 攻击间隔(秒)；res 每级抗性
-const MERCS={
- archer:{n:'荒原女射手',act:0,ic:'🏹',ranged:1,kind:'弓箭',life:[45,9],def:[15,6],dmg:[[1,0.55],[3,0.95]],atk:1.3,str:[20,1.0],dex:[30,1.6],res:0.8,wcats:null,
-  vars:{fire:'火焰箭',cold:'冰霜箭'},vd:'fire'},
- guard:{n:'风蚀港卫枪兵',act:1,ic:'🔱',kind:'近战+光环',life:[120,16],def:[30,9],dmg:[[3,1.0],[7,1.6]],atk:1.4,str:[35,1.6],dex:[25,1.0],res:0.9,wcats:['sword','dagger'],
-  vars:{might:'战意光环(召唤物/随从伤害+30%)',pray:'祈祷光环(每秒回复生命)',defi:'坚壁光环(防御+70%)'},vd:'might'},
- mage:{n:'铁狼术士',act:2,ic:'🪄',ranged:1,spell:1,kind:'元素法术',life:[70,10],def:[20,6],dmg:[[3,1.3],[6,2.1]],atk:1.7,str:[25,1.0],dex:[20,0.9],res:1.0,wcats:['sword','wand','dagger'],
-  vars:{fire:'火球',cold:'冰爆(减速)',light:'连锁闪电'},vd:'cold'},
- barb:{n:'雪峰剑士',act:4,ic:'⚔',kind:'近战重击',life:[150,18],def:[30,9],dmg:[[4,1.4],[9,2.2]],atk:1.3,str:[45,1.8],dex:[30,1.0],res:0.9,wcats:['sword'],
-  vars:{bash:'重击(15%眩晕)',frenzy:'狂怒(攻速+30%)'},vd:'bash'},
-};
-
 // ---------- 章节 / 区域 ----------
 // w 波数；boss 末波首领；bosses 末波多首领；bw {波序:{b:[首领],m:[随从],n:数量}} 中途首领波（封印/王座）；
 // quest 任务；part 清空获得任务道具；side 支线(自动推进跳过)；dun 地下城；bl 章节首领额外等级；solo 首领波无随从

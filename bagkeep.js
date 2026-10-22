@@ -13,6 +13,6 @@ function bkApply(){if(typeof S==='undefined'||!S||typeof sortArr!=='function')re
   if(typeof ACCT!=='undefined'&&ACCT&&ACCT.shSort&&Array.isArray(ACCT.shared)&&typeof sortPages==='function'){const g=bkPagesSig(ACCT.shared);if(g!==BK.sh){sortPages(ACCT.shared);BK.sh=bkPagesSig(ACCT.shared)}}}catch(e){}}
 {const f=autoSortBag;autoSortBag=function(...a){if(S)S.bagSort=1;const r=f.apply(this,a);BK.bag=bkSig(S.bag);return r}}
 {const f=autoSortStash;autoSortStash=function(sh,...a){if(sh){if(typeof ACCT!=='undefined'&&ACCT)ACCT.shSort=1}else if(S)S.pstSort=1;return f.call(this,sh,...a)}}
-for(const n of['autoTick','mercAutoEq','recycleNow','sellJunk','autoEquip','render']){if(typeof window[n]!=='function')continue;const f=window[n];
+for(const n of['autoTick','recycleNow','sellJunk','autoEquip','render']){if(typeof window[n]!=='function')continue;const f=window[n];
  window[n]=n==='render'?function(...a){bkApply();return f.apply(this,a)}:function(...a){try{return f.apply(this,a)}finally{bkApply()}}}
 setInterval(bkApply,1000);

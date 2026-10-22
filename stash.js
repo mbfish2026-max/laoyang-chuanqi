@@ -40,7 +40,7 @@ function migrateChar(c){if(!S.pst){S.pst=mkPages(pstN());let p=0;for(const it of
  S.name=S.name||c.name;S.cid=c.id;S.cls=S.cls||c.cid||'zs';S.mode=S.mode||c.mode||'normal';if(S.mode==='season'){S.mode='normal';S.cqSeasonOld=1}if(c.mode==='season')c.mode='normal';/* 纪元已删除（legacy_prune C5）：旧纪元角色转普通，S.eg.season 原样保留不生效 */if(!S.ci&&typeof clsInit==='function')clsInit();if(!S.ast)S.ast={on:0,dest:'p',t:{gem:1,rune:1,mat:1,jewel:0,charm:0,unique:0,set:0,rare:0,sock:0}}}
 function drainOld(){if(S.stash&&S.stash.length){for(const it of S.stash.splice(0)){const p=S.pst.findIndex(pg=>fits(pg,it,PAGE_SZ));(S.pst[p<0?0:p]).push(it)}}}
 const _st_save=save;save=function(){if(ST_RESET)return;if(S.pst)drainOld();_st_save();try{const raw=GS.getItem(KEY);if(raw)GS.setItem(CH_PRE+ACCT.cur,raw);const c=curChar();if(c){c.lvl=S.lvl;c.t=Date.now();c.name=S.name||c.name}acctSave()}catch(e){}};
-function resetRuntime(){MON=[];ALLY=[];CORPSE=[];killWin=[];spawnT=2;LOGS.length=0;LOGDIRTY=1;Object.assign(H,{cb:null,abs:0,castT:0,atkT:0,potT:0,mpT:0,curse:0});if(typeof ACX!=='undefined')ACX.mercOn=0}
+function resetRuntime(){MON=[];ALLY=[];CORPSE=[];killWin=[];spawnT=2;LOGS.length=0;LOGDIRTY=1;Object.assign(H,{cb:null,abs:0,castT:0,atkT:0,potT:0,mpT:0,curse:0})}
 function switchChar(id){if(!ACCT.chars.some(c=>c.id===id))return false;if(id!==ACCT.cur){save();ACCT.cur=id;acctSave()}resetRuntime();load();S.last=Date.now();calc();H.life=ST.life;H.mana=ST.mana;save();
  if(typeof syncNow==='function')try{syncNow()}catch(e){}
  if(!window.__NOUI){closeM();TAB='hero';render();toast('已切换到 '+S.name)}return true}
@@ -107,7 +107,6 @@ const _st_show=showItem;showItem=function(uid){_st_show(uid);if(window.__NOUI)re
  if(!box.querySelector('[data-sh]'))box.insertAdjacentHTML('afterbegin',`<button class="btn" data-sh onclick="depositUid(${uid},'s')">存入共享仓库</button>`)};
 // ---------- 背包容量（按格）与卸装 ----------
 unequip=function(k){if(slotsUsed(S.bag)>=BAG_SZ)return toast('背包已满');S.bag.push(S.eq[k]);delete S.eq[k];calc();closeM();render()};
-if(typeof mercUnequip==='function')mercUnequip=function(k){if(slotsUsed(S.bag)>=BAG_SZ)return toast('背包已满');S.bag.push(S.merc.eq[k]);delete S.merc.eq[k];render()};
 // ---------- 自动存仓（拾取时；自动回收优先，见 loot.js） ----------
 const AST_T={mat:'材料',unique:'暗金',set:'套装',rare:'稀有'};// 宝石/符文/珠宝/护身符/凹槽底材 已删除（legacy_prune 批次2）
 function astType(it){if(it.k==='gem')return'gem';if(it.k==='rune')return'rune';if(it.k==='mat')return'mat';const b=BASEM[it.b];if(b.s==='jewel')return'jewel';if(b.s==='charm')return'charm';
