@@ -41,7 +41,7 @@ const rows={
    6000
   ],
   [
-   "rinshanhujiezhi",
+   "rin4",
    5000
   ],
   [
@@ -53,7 +53,7 @@ const rows={
    3000
   ],
   [
-   "glvsishenshoutao",
+   "glv4",
    2000
   ],
   [
@@ -71,7 +71,7 @@ const rows={
    10
   ],
   [
-   "shdmolishouzhuo",
+   "shd4",
    10
   ],
   [
@@ -115,7 +115,7 @@ const rows={
    10
   ],
   [
-   "rinkuloujiezhi",
+   "rin5",
    10
   ]
  ],
@@ -161,11 +161,11 @@ const rows={
    400
   ],
   [
-   "rinshanhujiezhi",
+   "rin4",
    40
   ],
   [
-   "glvsishenshoutao",
+   "glv4",
    20
   ],
   [
@@ -173,13 +173,13 @@ const rows={
    20
   ],
   [
-   "rinkuloujiezhi",
+   "rin5",
    10
   ]
  ],
  "zumaguard": [
   [
-   "rinshanhujiezhi",
+   "rin4",
    4000
   ],
   [
@@ -191,7 +191,7 @@ const rows={
    3000
   ],
   [
-   "glvsishenshoutao",
+   "glv4",
    3000
   ],
   [
@@ -539,7 +539,7 @@ const rows={
    400
   ],
   [
-   "rinshanhujiezhi",
+   "rin4",
    320
   ],
   [
@@ -665,7 +665,7 @@ const rows={
  ],
  "bloodgiant": [
   [
-   "rinshanhujiezhi",
+   "rin4",
    4000
   ],
   [
@@ -677,7 +677,7 @@ const rows={
    3000
   ],
   [
-   "glvsishenshoutao",
+   "glv4",
    3000
   ],
   [
@@ -1362,11 +1362,8 @@ function pool(key){return(rows[key]||[]).map(([id,denominator])=>({id,weight:1/d
 function install(){if(install.done)return;install.done=1;const f=rollTC;rollTC=function(m){if(m&&m.key==='molongfake')return [];const result=f.apply(this,arguments);if(!m||!m.boss)return result;
  for(const row of pool(m.key)){const r=row.resolved;if(!r||Math.random()>=row.weight)continue;
   if(r.type==='book'){result.push({uid:S.uid++,k:'mat',id:r.id,n:1});continue;}
-  if(!r.base)continue;const opt={base:r.base,q:r.type==='set'?6:r.type==='unique'?5:1};
-  if(r.type==='set')opt.set=r.def;if(r.type==='unique')opt.unique=r.def;
-  // Exact definition construction, no duplicate equipment data in this module.
-  let it=r.type==='base'?genItem(m.lv||S.lvl,opt):null;
-  if(r.type!=='base') {it=makeBase(r.base,m.lv||S.lvl);it.q=opt.q;it.name=r.def.n;it.req=r.def.rq||r.base.q;it.m=rollMods(r.def.m||{});finishDefense(it,r.base);if(r.type==='set')it.set=r.def.set;}
+  if(!r.base)continue;
+  const it=r.type==='base'?genItem(m.lv||S.lvl,{base:r.base,q:1}):CQMir2Equip.createContent(row.id,m.lv||S.lvl);
   if(it)result.push(it);
  }return result;};}
 window.CQMir2Loot={rows,pool,resolve,install};

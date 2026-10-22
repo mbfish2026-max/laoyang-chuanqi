@@ -217,10 +217,10 @@ function heroAct(){const ms=liveMon();const L=x=>slvl(x);
   else if(sk==='bs'){const tg3=[tg,...ms.filter(m=>m!==tg)].slice(0,3);for(const m of tg3)hitMon(m,{magic:R(v.dmg[0],v.dmg[1])},'hero','#f0ead0');fx('spear',tg3)}
   else if(sk==='bx'){hitMon(tg,{magic:R(v.dmg[0],v.dmg[1])},'hero','#cfe');fx('spirit',[tg])}
   else if(sk==='pn'){for(const m of ms)hitMon(m,{pois:R(v.dmg[0],v.dmg[1])},'hero','#6f6');fx('nova',ms)}
-  else if(sk==='pd'){if(hitChance(ST.ar,tg.def,S.lvl,tg.lv))hitMon(tg,{pois:R(v.dmg[0],v.dmg[1]),phys:R(ST.wmin,ST.wmax)},'hero','#6f6');fx('stab',[tg])}
+  else if(sk==='pd'){if(hitChance(ST.ar,tg.def,S.lvl,tg.lv))hitMon(tg,{pois:R(v.dmg[0],v.dmg[1]),phys:(window.CQMir2Equip?CQMir2Equip.rollAttack([ST.wmin,ST.wmax]):R(ST.wmin,ST.wmax))},'hero','#6f6');fx('stab',[tg])}
   return 1}
  // 普攻
- const tg=target(ms);if(hitChance(ST.ar,tg.def*(1-ST.tdef/100),S.lvl,tg.lv)){const d=hitMon(tg,{phys:R(ST.wmin,ST.wmax),fire:ST.fire,cold:ST.cold,light:ST.light?R(1,ST.light):0,pois:ST.pois},'hero','#fff');
+ const tg=target(ms);if(hitChance(ST.ar,tg.def*(1-ST.tdef/100),S.lvl,tg.lv)){const d=hitMon(tg,{phys:(window.CQMir2Equip?CQMir2Equip.rollAttack([ST.wmin,ST.wmax]):R(ST.wmin,ST.wmax)),fire:ST.fire,cold:ST.cold,light:ST.light?R(1,ST.light):0,pois:ST.pois},'hero','#fff');
   if(d){H.life=Math.min(ST.life,H.life+d*ST.ll/100);H.mana=Math.min(ST.mana,H.mana+d*ST.ml/100)}}fx('slash',[tg]);return 2}
 function summonFromCorpse(){if(!CORPSE.length)return 0;const L=x=>slvl(x);
  if(castable('rv')&&cntA('rev')<SV('rv',L('rv')).n){const c=CORPSE.pop();const T=MONS[c.key];if(T){spend('rv');const sm=L('sm'),m=mkMon(c.key,c.lv);addAlly('rev',{n:'复生·'+T.n,ic:T.ic,a:T.a,hp:m.max*3*(1+0.1*sm),dmg:m.dmg.map(x=>x*(1+0.1*sm)),until:GT+180});fx('summon');return 1}}
@@ -256,7 +256,7 @@ function step(dt){GT+=dt;for(const a of ALLY)if(a.hitT>0)a.hitT=Math.max(0,a.hit
   const allies=ALLY.filter(a=>a.hp>0);const wall=allies.find(a=>a.kind==='wall');let tg=wall||(allies.length&&rnd()<0.7?pick(allies):'hero');
   if(tg==='hero'){if(!hitChance(m.ar,ST.def,m.lv,S.lvl)){floatHero('闪避','#aaa');continue}
    if(ST.block&&BASEM[S.eq.shield?.b]?.block&&rnd()*100<ST.block){floatHero('格挡','#ccc');continue}
-   let el=m.el||'phys',v=dmg;if(el==='phys'){v=Math.max(1,v-ST.dr);const ab=Math.min(H.abs,v);H.abs-=ab;v-=ab}else v=Math.round(v*(1-ST.res[el]/100));
+   let el=m.el||'phys',v=dmg;if(el==='phys'){v=Math.max(1,v-ST.dr);const ab=Math.min(H.abs,v);H.abs-=ab;v-=ab}else v=Math.round((window.CQMir2Equip?CQMir2Equip.magicGuard(v,el):v)*(1-ST.res[el]/100));
    if(v>0){H.life-=v;floatHero('-'+v,'#f44')}if(!m.ranged&&ST.thorns)hitMon(m,{phys:ST.thorns},'hero','#fa0');
    if(!m.ranged&&curseOf(m,'im'))hitMon(m,{phys:dmg*m.cur.p/100},'hero','#f60')}
   else{const a=tg;let v=dmg;if(m.el&&m.el!=='phys')v*=1-a.res/100;a.hp-=Math.round(v);a.hitT=0.25;floatNum('a'+a.uid,Math.round(v),'#f66');

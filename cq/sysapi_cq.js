@@ -45,7 +45,7 @@ CS.heroMigrate=()=>{const m=S.merc;if(m){const h=CS.hero();if(!h.cls&&m.t){h.cls
  if(h.cls&&b&&!it.k&&!h.eq[b.s]&&(!c||c===h.cls)&&h.lvl>=(req.lv||1)){h.eq[b.s]=it;continue}
  if(bagFits(it))S.bag.push(it);else{const pg=(S.pst||[]).find(a=>fits(a,it,PAGE_SZ));if(pg)pg.push(it);else(S.migBox=S.migBox||[]).push(it)}}}
  delete S.merc;delete S.mercU;delete S.autoMerc;ALLY=ALLY.filter(a=>a.kind!=='merc');S.migHero=1;S.v=3;return CS.hero()};
-{const f=load;load=function(){const r=f.apply(this,arguments);CS.heroMigrate();save();CS.emit('hero',CS.hero());return r}}
+{const f=load;load=function(){const r=f.apply(this,arguments);if(cqMigrationFailed)return r;CS.heroMigrate();save();CS.emit('hero',CS.hero());return r}}
 {const f=save;save=function(){CS.heroMigrate();return f.apply(this,arguments)}}
 // ---------- 技能冷却（职业 Bot 填 CQ_SKCD[id]=秒；施放时调 CQSys.skillCast(id)） ----------
 window.CQ_SKCD=window.CQ_SKCD||{};const CAST={};
@@ -74,7 +74,7 @@ CS._heroReset=()=>{SH.b.length=0};
 // CQSys.hit = 最近一次 hitMon 的 {crit,src,dmg,t}；hitMon 执行期间 CQSys.critNow===true 表示本次为暴击。
 CS.hit={crit:false,src:null,dmg:0,t:0};CS.critNow=false;
 {const f=hitMon;hitMon=function(m,d,src,fxc){let crit=(typeof CRIT!=='undefined'&&!!CRIT);
-  const isH=src==='cqhero'||src==='cqheji';if(isH&&d&&typeof d==='object')d=heroCap(d);
+  const isH=src==='cqhero'||src==='cqheji'||!!(src&&typeof src==='object'&&src.owner==='hero');if(isH&&d&&typeof d==='object')d=heroCap(d);
   if(!crit&&!isH&&src!=='dot'&&d&&typeof d==='object'){const c=(CS.equipAttrs?CS.equipAttrs().crit:0)||0;if(c>0&&rnd()*100<c){crit=true;const d2={};for(const k in d)d2[k]=d[k]*CQ_BAL.critMul;d=d2}}
   CS.critNow=crit;try{const r=f.call(this,m,d,src,fxc);if(src!=='dot')shAdd(isH,+r||0);CS.hit={crit,src:src||null,dmg:r||0,t:now()};if(crit)CS.emit('crit',CS.hit);return r}finally{CS.critNow=false}}}
 // ---------- 首领刷新 / 狂暴 ----------
@@ -129,7 +129,7 @@ CS.manualSkill=id=>{
  const r=clsCast(id,ms);H.castT=r===2?ST.atkT:ST.castT;return {ok:1};
 };
 {const f=save;save=function(){CS.battleSkills();return f.apply(this,arguments)}}
-{const f=load;load=function(){const r=f.apply(this,arguments);CS.battleSkills();return r}}
+{const f=load;load=function(){const r=f.apply(this,arguments);if(cqMigrationFailed)return r;CS.battleSkills();return r}}
 
 {const f=resetRuntime;resetRuntime=function(){for(const id in ACT)delete ACT[id];return f.apply(this,arguments)}}
 

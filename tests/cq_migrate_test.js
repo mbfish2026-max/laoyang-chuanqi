@@ -8,9 +8,9 @@ G(`S=newSave();load();delete S.sv;S.gold=0;S.lvl=70;
  GS.setItem(KEY,JSON.stringify(S));GS.setItem(CH_PRE+ACCT.cur,JSON.stringify(S));load()`);
 ok(G('S.sv')===G('CQ_SV'),'载入后升级到当前版本');
 ok(G("S.bag.every(x=>x.k!=='rune'&&x.k!=='gem')")&&G("S.pst.flat().every(x=>x.k!=='rune')"),'符文/宝石已移除');
-ok(G("!S.bag.some(x=>x.uid===902)")&&G("!S.eq.helm"),'D2 底材物品移除（背包与身上）');
+ok(G("S.bag.some(x=>x.uid===902&&x.cqUnknown)&&S.eq.helm.uid===904&&!!S.eq.helm.cqUnknown"),'未知旧底材保留 uid 和原始快照');
 const it=JSON.parse(G("JSON.stringify(S.bag.find(x=>x.uid===903))"));ok(it&&it.sock===0&&it.soc.length===0&&it.rw==null&&it.en===0,'凹槽/符文之语清空，补 en=0');
-ok(G('S.gold')===G('S.cqMigGold')&&G('S.gold')===50*6+20*3+100+100+50,'折算金币 '+G('S.gold'));
+ok(G('S.gold')===G('S.cqMigGold')&&G('S.gold')===50*6+20*3+50,'折算金币 '+G('S.gold'));
 ok(G('S.lvl')===60,'等级压到上限 60');
 ok(G('ACCT.sv')===1&&G('ACCT.shN')===2,'账号层 sv 与共享仓库页数');
 // 幂等：再载入不再改动

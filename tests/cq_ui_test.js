@@ -9,8 +9,8 @@ ok(G('S.bag.filter(x=>x.k==="rune"||x.k==="gem").length')===b0&&G('typeof rollRu
 ok(G('matCount("heitie")')-o0>=1,'黑铁矿正常入包（原符文/宝石位产出 oreItem）');
 ok(!G(`Object.values(QUESTS).some(q=>/符文|宝石/.test(q.rw||''))`),'任务奖励文字无符文/宝石');
 ok(!G(`Object.values(TCS).some(t=>t&&t.runes)`),'掉落表不再带符文');
-let nm='';for(let i=0;i<400&&!/之/.test(nm);i++){const it=G('JSON.stringify(genItem(10,{q:3}))');const o=JSON.parse(it);nm=o.name||''}
-ok(/^[^之]+之/.test(nm)&&!/^之/.test(nm),'后缀名为「X之…」：'+nm);
+const names=Array.from({length:100},()=>JSON.parse(G('JSON.stringify(genItem(10,{q:3}))')));
+ok(names.every(it=>it.cqVersion===1&&!it.af.length&&it.name===G('BASEM['+JSON.stringify(it.b)+'].n')),'新掉落使用传奇底材名与极品点数，无暗黑前后缀');
 ok(fs.existsSync(__dirname+'/../cq/ui_cq.js')&&/BAD_BTN/.test(fs.readFileSync(__dirname+'/../cq/ui_cq.js','utf8')),'界面清理脚本存在');
 const html=fs.readFileSync(__dirname+'/../index.html','utf8');
 ok(/cq\/balance\.js/.test(html)&&html.indexOf('cq/balance.js')<html.indexOf('"stash.js'),'index.html 在 stash.js 前引入 cq/balance.js');

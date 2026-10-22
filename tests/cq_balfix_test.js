@@ -6,9 +6,9 @@ G(`S=newSave();load();S.cls='zs';S.ci=0;clsInit();ensureLoot();calc()`);
 ok(G('S.rcy.dv')===4&&!G('S.rcy.q[3]')&&!G('S.rcy.q[4]'),'新角色：魔法/稀有默认不回收（dv=4）');
 G(`S.rcy.dv=3;S.rcy.q[3]=1;S.rcy.q[4]=1;ensureLoot()`);ok(G('S.rcy.dv')===4&&!G('S.rcy.q[3]')&&!G('S.rcy.q[4]'),'旧档 dv=3（稀有回收）纠正为 dv=4');
 G(`S.rcy.q[3]=1;ensureLoot()`);ok(G('S.rcy.q[3]')===1,'dv=4 后玩家自己勾选的设置保留');
-G(`S.rcy.on=1;S.rcy.q={0:1,1:1,2:1,3:1,4:1};S.rcy.c=new Proxy({}, {get:()=>1});delete S.eq.helm;var hb=Object.values(BASEM).find(b=>b.s==='helm'&&canEquip(makeBase(b,1)));var h1=makeBase(hb,1);h1.q=1`);
+G(`S.lvl=30;calc();S.rcy.on=1;S.rcy.q={0:1,1:1,2:1,3:1,4:1};S.rcy.c=new Proxy({}, {get:()=>1});delete S.eq.helm;var hb=Object.values(BASEM).find(b=>b.s==='helm'&&b.def&&b.def[0]>0&&canEquip(makeBase(b,1)));var h1=makeBase(hb,1);h1.q=1`);
 ok(G('shouldRecycle(h1,false)')===false,'身上该部位空着：可装备的装备不回收');
-G(`S.eq.helm=makeBase(hb,1);S.eq.helm.q=1;var h2=makeBase(hb,1);h2.q=1;h2.en=3`);ok(G('power(h2)>power(S.eq.helm)')&&G('shouldRecycle(h2,false)')===false,'战力高于身上：不回收');
+G(`S.eq.helm=makeBase(hb,1);S.eq.helm.q=1;var h2=makeBase(hb,1);h2.q=1;h2.en=3;h2.m.life=50`);ok(G('power(h2)>power(S.eq.helm)')&&G('shouldRecycle(h2,false)')===false,'战力高于身上：不回收');
 G(`S.eq.helm.en=6;var h3=makeBase(hb,1);h3.q=1`);ok(G('power(h3)<=power(S.eq.helm)')&&G('shouldRecycle(h3,false)')===true,'战力不高于身上：照常回收');
 // 1) 掉落判定
 G('S.diff=0;S.act=0');ok(G('DENSITY.drop')===1,'第 1 章非首领掉落判定 1.0');G('S.act=1');ok(G('DENSITY.drop')===1,'第 2 章 1.0');G('S.act=2');ok(G('DENSITY.drop')===0.6,'第 3 章起仍 0.6');G('S.act=0');

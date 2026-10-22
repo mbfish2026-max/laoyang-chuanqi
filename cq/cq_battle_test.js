@@ -211,7 +211,7 @@ G('TAB="map"');ok(G('CQMir2Maps.travel(0,2,0)')===true&&G('S.zone')===2&&G('TAB'
  G('var hd=hh.hurt(1e6,h2)');ok(G('hd.dead')&&G('hh.reviveLeft(Date.now())')===30,'英雄阵亡，30 秒后复活');
  ok(G('hh.hurt(10,h2)')===null&&G('hh.tick(1,h2)')===null,'阵亡中不受伤不出手');
  G('var _n=h2.now;h2.now=()=>Date.now()+31e3;var rv=hh.tick(.01,h2);h2.now=_n');ok(G('rv&&rv.type')==='herorevive'&&G('hh.unit.hp===hh.unit.maxhp'),'复活满血');
- G(`CQ.Scene=CQ.Scene||{};var _g0=CQ.Scene.grid;var GB={b:{roleIdx:26},hero:{idx:8},view:m=>m._v};MON=[mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10)];MON[0]._v={idx:9};MON[1]._v={idx:20};MON[2]._v={idx:27};CQ.Scene.grid=()=>GB;var at=CQ._heroAttackers();CQ.Scene.grid=_g0`);
+ G(`CQ.Scene=CQ.Scene||{mounted:()=>false};var _g0=CQ.Scene.grid;var GB={b:{roleIdx:26},hero:{idx:8},view:m=>m._v};MON=[mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10)];MON[0]._v={idx:9};MON[1]._v={idx:20};MON[2]._v={idx:27};CQ.Scene.grid=()=>GB;var at=CQ._heroAttackers();CQ.Scene.grid=_g0`);
  ok(G('at.length')===1&&G('at[0]===MON[0]'),'只有贴身英雄（且没贴主角）的怪打英雄');
  G(`ALLY.push({kind:'merc',uid:991,hp:50,max:50});S.merc=S.merc||{t:'archer',lvl:1,eq:{}};CQSys.heroMigrate();step(.1)`);ok(G("ALLY.every(a=>a.kind!=='merc')")&&G('typeof mercTick')==='undefined','旧佣兵不再参战');}
 {const fs2=require('fs');const C=G('JSON.stringify(Object.entries(CQ.HEJI.COMBO).map(([k,v])=>[k,v.fx]))');const M={'1+2':'leitingyiji','1+3':'pixingzhan','2+3':'morishenpan','1+1':'pohunzhan','2+2':'huolongqiyan','3+3':'shihunzhaoze'};

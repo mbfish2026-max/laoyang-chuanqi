@@ -51,9 +51,16 @@ const CQ_MIG=[
   if(typeof clsSk9==='function')clsSk9();else if(!S.sk9&&S.sk){for(const id in S.sk){const v=S.sk[id]|0;if(v>0)S.sk[id]=Math.min(9,Math.ceil(1+(v-1)*8/19))}}
   S.sk9=1;if(!S.skx)S.skx={}},
 ];
-function cqMigrate(){if(!S)return 0;const from=S.sv||0;for(let v=from;v<CQ_SV;v++)CQ_MIG[v]();S.sv=CQ_SV;if(typeof mir2SkillsMigrate==='function')mir2SkillsMigrate(S);
- if(window.CQMir2Maps){const mapped=CQMir2Maps.migrate(S);if(mapped!==S){S=mapped;MON=[];CORPSE=[];}applyDiff();}return CQ_SV-from}
-{const f=load;load=function(){const r=f.apply(this,arguments);try{if(S){cqMigrate();if(typeof calc==='function')calc();save()}}catch(e){console.warn('cqMigrate',e)}return r}}
+function cqMigrate(){if(!S)return 0;const from=S.sv||0;
+ if(typeof mir2SkillsMigrate==='function')mir2SkillsMigrate(S);
+ if(window.CQMir2Maps){const mapped=CQMir2Maps.migrate(S);if(mapped!==S){S=mapped;MON=[];CORPSE=[];}}
+ if(window.CQMir2EquipMigrate){const migrated=CQMir2EquipMigrate.migrate(S,ACCT);S=migrated.state;ACCT=migrated.account;}
+ // Preserve unknown legacy equipment before old schema cleanup can discard it.
+ for(let v=from;v<CQ_SV;v++)CQ_MIG[v]();S.sv=CQ_SV;
+ if(window.CQMir2Maps)applyDiff();return CQ_SV-from}
+let cqMigrationFailed=false;
+{const f=load;load=function(){cqMigrationFailed=false;const r=f.apply(this,arguments);const original=S,account=ACCT;try{if(S){S=JSON.parse(JSON.stringify(S));ACCT=JSON.parse(JSON.stringify(ACCT));cqMigrate();if(typeof calc==='function')calc();save();acctSave()}}catch(e){cqMigrationFailed=true;S=original;ACCT=account;console.warn('cqMigrate',e)}return r}}
+
 {const f=newSave;newSave=function(){const s=f();s.sv=CQ_SV;s.eq={};s.sk9=1;s.atb={};s.skx={};delete s.autoAt;if(window.CQMir2Maps)CQMir2Maps.fresh(s);return s}}
 // ---------- 自动成长（docs/auto_growth_plan.md，照原版传奇之旅：升级不给属性点/技能点） ----------
 // S.at 由「职业初始值 + floor(每级成长 × (等级-1)) + S.atb 固定加成（任务/转生）」推导，每次 calc 前写回；不再手动/自动加点。

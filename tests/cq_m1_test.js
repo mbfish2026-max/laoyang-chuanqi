@@ -19,7 +19,7 @@ ok(G("S.eq.weapon&&S.eq.weapon.b==='swd1'&&S.eq.armor&&S.eq.armor.b==='arm1'"),'
 ok(G("UNIQUES.every(u=>BASEM[u.b])&&SETITEMS.every(u=>BASEM[u.b]&&SETS[u.set])"),'极品/套装底材与套装存在');
 ok(G("UNIQUES.filter(u=>u.lv<=12).length")>=5,'第 1 章极品 ≥5');
 ok(G("['麻痹戒指','护身戒指','复活戒指'].every(n=>UNIQUES.some(u=>u.n===n&&BASEM[u.b].s==='ring'))"),'特戒为极品戒指');
-ok(G("Object.keys(SETS).join()")==='zuma'&&G("SETITEMS.length")===4,'祖玛套 4 件占位');
+ok(G("SETS.zuma.bonus[4].edmg")===10&&G("SETITEMS.filter(it=>it.set==='zuma').length")===4,'祖玛旧套 4 件兼容保留');
 // ---------- 品质 ----------
 const dist=JSON.parse(G(`(()=>{const c={};for(let i=0;i<6000;i++){const it=genItem(R(1,12),{mf:0});c[it.q]=(c[it.q]||0)+1}return JSON.stringify(c)})()`));
 ok(!dist[0]&&!dist[2]&&!dist[7]&&!dist[8],'不产出 破旧/超强/合成/符文之语：'+JSON.stringify(dist));

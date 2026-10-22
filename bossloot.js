@@ -8,18 +8,36 @@ let BOSS_LOOT=null;
 function blKeys(){return Object.keys(BOSSES).filter(k=>!BOSSES[k].uber&&!/^abyss/.test(k)).concat(Object.keys(BL.EXTRA))}
 function blBuild(){if(BOSS_LOOT)return BOSS_LOOT;BOSS_LOOT={};const ks=blKeys(),N=ks.length;
  // 老羊传奇：UNIQUES[i].boss 指定的专属优先，且不参与自动分配
- const EX={};for(const u of UNIQUES)if(u.boss)(EX[u.boss]=EX[u.boss]||[]).push(u.n);
+ const EX={};for(const u of UNIQUES)if(u.boss)(EX[u.boss]=EX[u.boss]||[]).push(u.id||u.n);
  const tiers=BL.TIERS.map(([a,b])=>UNIQUES.filter(u=>!u.boss&&u.lv>=a&&u.lv<=b).sort((x,y)=>x.lv-y.lv||(x.n<y.n?-1:1)));
- ks.forEach((k,j)=>{if(EX[k]){BOSS_LOOT[k]=EX[k].slice();return}BOSS_LOOT[k]=tiers.map(t=>t.length?t[Math.floor(j*t.length/N)].n:null).filter(Boolean)});return BOSS_LOOT}
+ ks.forEach((k,j)=>{if(EX[k]){BOSS_LOOT[k]=EX[k].slice();return}BOSS_LOOT[k]=tiers.map(t=>t.length?(t[Math.floor(j*t.length/N)].id||t[Math.floor(j*t.length/N)].n):null).filter(Boolean)});return BOSS_LOOT}
 function blName(k){return BL.EXTRA[k]?BL.EXTRA[k]():(BOSSES[k]||{}).n||k}
 function blKeyOf(m){if(!m)return null;if(m.egMjBoss)return'mj_lord';if(m.egGuard)return'rift_guard';return m.boss&&BOSSES[m.key]&&!BOSSES[m.key].uber?m.key:null}
 // 名称 → 首领 key 列表（详情显示「首领专属」）
-function blOwners(name){const L=blBuild(),o=[];for(const k in L)if(L[k].includes(name))o.push(k);return o}
-function blPool(k,ilvl){return(blBuild()[k]||[]).map(n=>UNIQUES.find(u=>u.n===n)).filter(u=>u&&u.lv<=ilvl)}
+function blOwners(name){const L=blBuild(),o=[];for(const k in L)if(L[k].some(id=>id===name||UNIQUES.some(u=>u.id===id&&u.n===name)))o.push(k);return o}
+function blPool(k,ilvl){return(blBuild()[k]||[]).map(n=>UNIQUES.find(u=>u.id===n)||UNIQUES.find(u=>u.n===n)).filter(u=>u&&u.lv<=ilvl)}
 function blChance(k,ilvl){const c=blPool(k,ilvl).length;if(!c)return 0;const n=UNIQUES.filter(u=>u.lv<=ilvl).length;return Math.min(BL.PMAX,BL.W*c/(BL.W*c+Math.max(0,n-c)))}
-function blSwap(it,k,ilvl){const P=blPool(k,ilvl);if(!P.length||P.some(u=>u.n===it.name))return it;const U=pick(P),b=BASEM[U.b];if(!b)return it;
+function blSwapLegacy(it,k,ilvl){const P=blPool(k,ilvl);if(!P.length||P.some(u=>u.n===it.name))return it;const U=pick(P),b=BASEM[U.b];if(!b)return it;
  const lv=it.anc;const nw=makeBase(b,it.ilvl||ilvl);nw.q=5;nw.name=U.n;nw.req=U.rq;nw.m=rollMods(U.m);try{finishDefense(nw,b)}catch(e){}
  for(const x of Object.keys(it))delete it[x];Object.assign(it,nw);if(lv&&typeof ancApply==='function')ancApply(it,lv);it.blk=k;return it}
+function blSwap(it, key, level) {
+  if(!window.CQMir2Equip){return blSwapLegacy(it,key,level);}
+  const pool = blPool(key, level);
+  if (!pool.length || pool.some(u => u.id === it.cqContentId)) return it;
+  const def = pick(pool), uid = it.uid, ancient = it.anc, previous = BL.cur;
+  let next;
+  BL.cur = null; // 避免精确生成再次进入首领替换。
+  try { next = CQMir2Equip.createContent(def.id, it.il || level, {noAnc:true}); }
+  finally { BL.cur = previous; }
+  delete next.anc;
+  delete next.ax;
+  next.uid = uid;
+  for (const field of Object.keys(it)) delete it[field];
+  Object.assign(it, next);
+  if (ancient && typeof ancApply === 'function') ancApply(it, ancient);
+  it.blk = key;
+  return it;
+}
 {const f=genItem;genItem=function(ilvl){const it=f.apply(this,arguments);try{const k=BL.cur;if(k&&it&&!it.k&&it.q===5&&rnd()<blChance(k,ilvl))blSwap(it,k,ilvl)}catch(e){console.warn(e)}return it}}
 // ---------- 速刷 ----------
 function blDay(){const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()}
@@ -32,7 +50,7 @@ function blZoneBoss(z){return!!(z&&(z.boss||(z.bosses&&z.bosses.length)))}
  try{const fr=blFR();if(fr.on&&was&&blZoneBoss(z)&&!EGM&&S.act===a&&S.diff===d&&!(S.auto&&ACTS[a].zones.some((q,i)=>!q.side&&!S.cleared[i]))){if(S.zone!==zi){S.zone=zi;log(`⚡ 速刷：重进 <b>${z.n}</b>`)}S.wave=Math.max(0,z.w-1);MON=[];spawnT=Math.max(spawnT||0,BL.RE)}}catch(e){console.warn(e)}}}
 function blToggle(){const fr=blFR();fr.on=fr.on?0:1;save&&save();render()}
 // ---------- 地图页：速刷开关 + 每个首领区域「可掉落」 ----------
-function blDropLine(bs,ml){const L=blBuild(),seen=new Set(),it=[];for(const k of bs)for(const n of L[k]||[])if(!seen.has(n)){seen.add(n);const U=UNIQUES.find(u=>u.n===n);it.push(`<i class="${U&&U.lv<=ml?'ok':''}">${n}</i>`)}
+function blDropLine(bs,ml){const L=blBuild(),seen=new Set(),it=[];for(const k of bs)for(const n of L[k]||[])if(!seen.has(n)){seen.add(n);const U=UNIQUES.find(u=>u.id===n)||UNIQUES.find(u=>u.n===n);it.push(`<i class="${U&&U.lv<=ml?'ok':''}">${U?U.n:n}</i>`)}
  return it.length?`<div class="bldrop">可掉落：${it.join('')}</div>`:''}
 {const f=renderMap;renderMap=function(){const r=f.apply(this,arguments);try{const P=$('#panel');const A=ACTS[MAPA],d=MAPD;const rows=P.querySelectorAll('.zc');
  A.zones.forEach((z,i)=>{const bs=z.bosses||(z.boss?[z.boss]:[]);const row=rows[i];if(!bs.length||!row)return;const box=row.firstElementChild;if(box&&!box.querySelector('.bldrop'))box.insertAdjacentHTML('beforeend',blDropLine(bs,mlD(z.ml0,d)))});

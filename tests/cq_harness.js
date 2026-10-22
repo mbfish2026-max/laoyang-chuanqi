@@ -9,6 +9,7 @@ module.exports=function(name,opt){opt=opt||{};
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');const files=[...html.matchAll(/<script src="([^"?]+)/g)].map(m=>m[1]).filter(f=>!(opt.exclude||[]).includes(f)).filter(f=>!/^(cloud|login_flow|audio|power|ui_art|icon2|art2_|cq\/battle_mount)/.test(f));
  const loadErr=[];for(const f of files)try{vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),ctx,{filename:f})}catch(e){loadErr.push(f+': '+e.message)}
  if(ctx.CQMir2Maps)vm.runInContext('CQMir2Maps.install();CQMir2Maps.registerArt();CQMir2Loot.install()',ctx);
+ if(ctx.CQMir2Equip)vm.runInContext('CQMir2Equip.install()',ctx);
  if(ctx.mir2SkillsWire)vm.runInContext('mir2SkillsWire()',ctx);
  const G=s=>vm.runInContext(s,ctx);let pass=0,fail=0;const ok=(c,m)=>{if(c)pass++;else{fail++;console.log('  ✗ '+m)}};
  return{G,ok,loadErr,ctx,done(){console.log(`${name}: ${pass} pass, ${fail} fail`);process.exitCode=fail?1:0}}};

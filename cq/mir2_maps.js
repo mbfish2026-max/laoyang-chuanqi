@@ -2136,7 +2136,7 @@ function fresh(s){s.mir2Mig=Object.assign({},s.mir2Mig,{maps:1});return s;}
 function installSaveHooks(){
  if(installSaveHooks.done)return;installSaveHooks.done=1;
  const n=newSave;newSave=function(){return fresh(n.apply(this,arguments));};
- const f=load;load=function(){const r=f.apply(this,arguments);if(S){const mapped=migrate(S);if(mapped!==S){S=mapped;MON=[];CORPSE=[];}applyDiff();calc();}return r;};
+ const f=load;load=function(){const r=f.apply(this,arguments);if(typeof cqMigrationFailed!=='undefined'&&cqMigrationFailed)return r;if(S){const mapped=migrate(S);if(mapped!==S){S=mapped;MON=[];CORPSE=[];}applyDiff();calc();}return r;};
 }
 window.CQMir2Maps={installSaveHooks,artFiles,registerArt,fresh,mapHTML,show,preview,travel,bossPop,installUI,version:1,ids,locate,migrate,install,chapters,bossAliases,normalKeys:Object.keys(NORMALS),bossKeys:Object.keys(CHIEFS)};
 })();

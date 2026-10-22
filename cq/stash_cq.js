@@ -13,7 +13,7 @@ function cqFitPages(P,n0,max){const all=P.flat();const need=Math.max(n0,Math.cei
 function cqStashNorm(){const B=CQ_BAL.stash;
  if(S&&Array.isArray(S.pst)){if(!S.pstN)S.pstN=B.p0;if(S.pst.length!==S.pstN){if(S.pst.length>S.pstN){const r=cqFitPages(S.pst,S.pstN,B.pMax);S.pst.length=0;S.pst.push(...r.pages);S.pstN=r.n}else while(S.pst.length<S.pstN)S.pst.push([])}}
  if(typeof ACCT!=='undefined'&&ACCT&&Array.isArray(ACCT.shared)){if(!ACCT.shN)ACCT.shN=B.s0;if(ACCT.shared.length!==ACCT.shN){if(ACCT.shared.length>ACCT.shN){const r=cqFitPages(ACCT.shared,ACCT.shN,B.sMax);ACCT.shared.length=0;ACCT.shared.push(...r.pages);ACCT.shN=r.n}else while(ACCT.shared.length<ACCT.shN)ACCT.shared.push([])}ACCT.sv=CQ_ACCT_SV}}
-{const f=load;load=function(){const r=f.apply(this,arguments);try{if(!S.pst&&typeof migrateChar==='function')migrateChar(curChar()||{name:'战士',id:1});cqStashNorm()}catch(e){console.warn('cqStashNorm',e)}return r}}
+{const f=load;load=function(){const r=f.apply(this,arguments);if(cqMigrationFailed)return r;try{if(!S.pst&&typeof migrateChar==='function')migrateChar(curChar()||{name:'战士',id:1});cqStashNorm()}catch(e){console.warn('cqStashNorm',e)}return r}}
 // 扩容：w='p' 个人 / 's' 共享。返回 {ok} 或 {err}
 function cqStashCost(w){const B=CQ_BAL.stash;const n=w==='s'?shN():pstN(),p=n+1;if(w==='s'){if(n>=B.sMax)return null;return{gold:B.sCost(p),ckq:p>B.sFree?1:0,page:p}}if(n>=B.pMax)return null;return{gold:B.pCost(p),ckq:0,page:p}}
 function cqStashExpand(w){const c=cqStashCost(w);if(!c)return{err:'已达上限'};if(S.gold<c.gold)return{err:'金币不足'};if(c.ckq&&matCount('ckq')<c.ckq)return{err:'需要仓库扩充券'};

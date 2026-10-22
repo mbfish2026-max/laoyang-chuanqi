@@ -8,8 +8,8 @@ ctx.window=ctx;vm.createContext(ctx);ctx.__NOUI=1;ctx.__NOSHOWLOGIN=1;
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');const files=[...html.matchAll(/<script src="([^"?]+)/g)].map(m=>m[1]).filter(f=>!/^(cloud|login_flow|audio|power|ui_art|icon2|art2_)/.test(f));
 for(const f of files)try{vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),ctx,{filename:f})}catch(e){if(f==='bossloot.js')throw e}
 const G=s=>vm.runInContext(s,ctx);let pass=0,fail=0;const ok=(c,m)=>{if(c)pass++;else{fail++;console.log('  ✗ '+m)}};
-G(`mir2SkillsWire();CQMir2Maps.install();CQMir2Maps.registerArt();CQMir2Loot.install();S=newSave();try{load()}catch(e){};S.diff=2;S.lvl=85;calc();EGM=null;`);
-const L=JSON.parse(G("JSON.stringify(blBuild())"));const ks=Object.keys(L);
+G(`CQMir2Equip.install();mir2SkillsWire();CQMir2Maps.install();CQMir2Maps.registerArt();CQMir2Loot.install();S=newSave();try{load()}catch(e){};S.diff=2;S.lvl=85;calc();EGM=null;`);
+const L=JSON.parse(G("JSON.stringify(Object.fromEntries(Object.entries(blBuild()).map(([k,ids])=>[k,ids.map(id=>(UNIQUES.find(u=>u.id===id)||{n:id}).n)])))"));const ks=Object.keys(L);
 // 老羊传奇 M1：极品表只有第 1 章 + 特戒（10 件），按档位分配后允许多个首领共用；M3 起每首领 2–4 件专属再恢复「互不重复」
 const UN=new Set(G("UNIQUES.map(u=>u.n)"));ok(ks.length>=3&&ks.every(k=>L[k].length>=1&&L[k].length<=3&&L[k].every(n=>UN.has(n))),'每个首领 1–3 件专属且都在极品表 '+ks.length);
 const all=ks.flatMap(k=>L[k]);ok(G('UNIQUES.length')<ks.length*3||new Set(all).size===all.length,'专属互不重复（极品数足够时）');
@@ -21,10 +21,10 @@ ok(G("JSON.stringify(blBuild())")===G("BOSS_LOOT=null;JSON.stringify(blBuild())"
 const p=G("blChance('orclord',85)");ok(p>0.05&&p<=0.5,'地狱 ×4 替换概率 '+p.toFixed(3));
 ok(G("blChance('rakecatking',10)")>0&&G("blPool('rakecatking',10).length")>=1,'低等级只开放普通档');
 // 统计：首领暗金里专属占比 ≈ 理论值，暗金总数不变
-const st=JSON.parse(G(`(()=>{BL.cur='orclord';let u=0,e=0;for(let i=0;i<40000;i++){const it=genItem(85,{q:5});if(it.q===5){u++;if(BOSS_LOOT.orclord.includes(it.name))e++}}BL.cur=null;let u0=0,e0=0;for(let i=0;i<40000;i++){const it=genItem(85,{q:5});if(it.q===5){u0++;if(BOSS_LOOT.orclord.includes(it.name))e0++}}return JSON.stringify({u,e,u0,e0})})()`));
+const st=JSON.parse(G(`(()=>{BL.cur='orclord';let u=0,e=0;for(let i=0;i<40000;i++){const it=genItem(85,{q:5});if(it.q===5){u++;if(BOSS_LOOT.orclord.includes(it.cqContentId))e++}}BL.cur=null;let u0=0,e0=0;for(let i=0;i<40000;i++){const it=genItem(85,{q:5});if(it.q===5){u0++;if(BOSS_LOOT.orclord.includes(it.cqContentId))e0++}}return JSON.stringify({u,e,u0,e0})})()`));
 // 老羊传奇：极品表小，自然掉落本身就可能是专属 → 期望 = p + (1-p)×自然占比
 const nat=st.e0/st.u0,exp=p+(1-p)*nat;ok(Math.abs(st.e/st.u-exp)<0.07,'实测专属占比 '+(st.e/st.u).toFixed(3)+' 期望 '+exp.toFixed(3));ok(Math.abs(st.u-st.u0)<200,'暗金总数不变 '+st.u+'/'+st.u0);
-ok(G("(()=>{const it=genItem(85,{q:5});it.anc=1;it.name='x';const U=blPool('orclord',85)[0];blSwap(it,'orclord',85);return it.anc===1&&it.blk==='orclord'&&BOSS_LOOT.orclord.includes(it.name)})()"),'替换后保留上古');
+ok(G("(()=>{const it=genItem(85,{q:5});it.anc=1;it.name='x';it.cqContentId=null;const U=blPool('orclord',85)[0];blSwap(it,'orclord',85);return it.anc===1&&it.blk==='orclord'&&BOSS_LOOT.orclord.includes(it.cqContentId)})()"),'替换后保留上古');
 // 速刷
 G(`S.frun=undefined`);ok(G("blFR().on")===0,'旧存档速刷默认关');
 ok(G("blBonus(0)")===50&&G("blBonus(29)")===50&&G("blBonus(30)")===47.5&&G("blBonus(49)")===0,'每日前 30 次 +50%，之后递减到 0');

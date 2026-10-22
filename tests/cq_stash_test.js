@@ -18,7 +18,7 @@ ok(G(`depositUid(b.uid,'p')`)!==false,'绑定物品可存个人仓库');
 ok(G(`stashToStash(b.uid)`)===false,'个人→共享 也拦截绑定物品');
 // 职业筛选
 const cls=G(`[cqItemCls(genItem(20,{base:BASEM.wand1})),cqItemCls(genItem(20,{base:BASEM.wand2})),cqItemCls(genItem(30,{base:BASEM.swd8})),cqItemCls(genItem(5,{base:BASEM.swd1}))].join()`);
-ok(cls==='fs,ds,zs,','职业判定 海魂=法 偃月=道 炼狱=战 木剑=通用：'+cls);
+ok(cls==='fs,fs,zs,','职业判定 海魂=法 偃月=法（旧偃月见迁移专项） 炼狱=战 木剑=通用：'+cls);
 ok(G(`cqClsMatch(genItem(20,{base:BASEM.wand1}),'fs')&&!cqClsMatch(genItem(20,{base:BASEM.wand1}),'zs')&&cqClsMatch(genItem(5,{base:BASEM.swd1}),'none')&&cqClsMatch(genItem(5,{base:BASEM.swd1}),'all')`),'筛选芯片 全部/战/法/道/通用');
 G(`STV='shared';STF.c='fs'`);ok(G(`stMatch({it:genItem(20,{base:BASEM.wand1})})`)&&!G(`stMatch({it:genItem(5,{base:BASEM.swd1})})`),'共享仓库 stMatch 叠加职业筛选');G(`STV='bag';STF.c='all'`);
 // 旧存档 20 页 → 压缩

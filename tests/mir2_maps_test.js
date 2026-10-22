@@ -40,7 +40,7 @@ G('S.diff=0;S.act=3;S.zone=ACTS[3].mainEnd;S.unl=S.zone;S.q={};S.Q[0]=S.q;S.clea
 ok(G('!!S.q.a4q6&&S.act===4&&S.zone===0&&S.auto===1'),'main endpoint advances without entering appended branches');
 G('S.act=6;S.zone=4;S.unl=4;S.q={};S.Q[0]=S.q;S.auto=0;zoneClear()');ok(G('S.q.a7q5&&S.q.a7q6'),'both quests at dragon hall complete');
 ok(G('CQMir2Loot.pool("zombieking").some(r=>r.id==="book_fs_mfd")&&CQMir2Loot.pool("niumoking").some(r=>r.id==="wandxiaoyaoshan")'),'reference drops use contract IDs');
-ok(G("Object.keys(CQMir2Loot.rows).every(k=>CQMir2Loot.pool(k).every(r=>!r.id.startsWith('book_')||r.resolved))"),'all skill book references resolve after skill integration');
+ok(G("Object.keys(CQMir2Loot.rows).every(k=>CQMir2Loot.pool(k).every(r=>r.resolved))"),'all equipment and book content references resolve after integration');
 ok(G('Object.values(CQMir2Loot.rows).every(rows=>rows.every(([id,n])=>typeof id==="string"&&n>0))'),'valid drop weights');
 // Resolve and materialize a stable equipment reference without redefining it in the map block.
 G(`window._roll=rollTC;window._random=Math.random;Math.random=()=>0;window._it=rollTC(Object.assign(mkMon('skelspirit',30),{boss:1}));Math.random=_random`);
