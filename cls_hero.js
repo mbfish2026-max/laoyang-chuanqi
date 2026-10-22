@@ -8,6 +8,7 @@
 // 施法：heroSkPick() 选技能（AI），heroCast(id,base,host) 执行：伤害交给 host.hit（战斗开发 cq_hero 的 host，带 25% 预算封顶），治疗/召唤在这里直接做。
 // ===================================================================================
 const HERO_SK={zs:['gsjs','csjs','bywd','ymcz','lhjf'],fs:['hqs','kjhh','dyh','ldsh','bpx'],ds:['zys','lhhf','sds','zhkl','zhss']};
+function heroMir2Register(){for(const c of ['zs','fs','ds'])for(const s of CLS_SKILLS)if(s.mir2&&(s.shared||s.cls===c)&&s.ty!=='passive'&&!HERO_SK[c].includes(s.id))HERO_SK[c].push(s.id);}
 const HERO_SK0={zs:'gsjs',fs:'hqs',ds:'lhhf'};// 创建英雄时的初始技能（1 级）
 // 英雄技能伤害：一次施放「总伤」= base × m × 等级成长，群体技能把总伤平分给 n 个目标（n=0 全体）——群体不再按目标数放大，给合击留预算。
 // base 由 cq_hero 传入 = 普攻/skNorm(1.25)，所以 m=1.25 ≈ 一次普攻。等级成长 ×(1+0.03×(旧级-1))，9 级 ×1.57。cd 秒。
@@ -22,22 +23,22 @@ function heroAutoAt(cls,L){return clsAutoAt(cls||heroCls()||'zs',L||heroLv())}
 function heroSkList(cls){cls=cls||heroCls();return(HERO_SK[cls]||[]).filter(id=>SKM[id])}
 function heroSkOn(id){const h=heroH();return!(h&&h.skOff&&h.skOff[id])}
 function heroSkInit(){const h=heroH(),c=heroCls();if(!h||!c)return null;if(!h.sk||typeof h.sk!=='object'){h.sk={};const k=HERO_SK0[c];if(k)h.sk[k]={lv:1,exp:0}}
- for(const id of Object.keys(h.sk)){const v=h.sk[id];if(!SKM[id]||SKM[id].cls!==c||!(HERO_SK[c]||[]).includes(id)){delete h.sk[id];continue}if(typeof v==='number')h.sk[id]={lv:v,exp:0};h.sk[id].lv=Math.min(CLS_SKMAX,h.sk[id].lv|0)}return h.sk}
+ for(const id of Object.keys(h.sk)){const v=h.sk[id];if(!SKM[id])continue;if((!SKM[id].shared&&SKM[id].cls!==c)||!(HERO_SK[c]||[]).includes(id)){delete h.sk[id];continue}if(typeof v==='number')h.sk[id]={lv:v,exp:0};h.sk[id].lv=Math.min(CLS_SKMAX,h.sk[id].lv|0)}return h.sk}
 function heroSkLv(id){const sk=heroSkInit();return sk&&sk[id]?sk[id].lv|0:0}
 function heroSkExp(id){const sk=heroSkInit();return sk&&sk[id]?sk[id].exp|0:0}
-function heroSkReq(id,L){const s=SKM[id];if(!s||L<1||L>CLS_SKMAX)return null;const q=clsSkReq(id,L);return q}
+function heroSkReq(id,L){const s=SKM[id];if(!s||L<1||L>CLS_SKMAX)return null;const q=clsSkReq(id,L);if(id==='htsd')q.lvl=Math.min(60,34+Math.ceil((L-1)*26/8));return q}
 function heroSkillExp(id,n){const sk=heroSkInit();if(!sk||!sk[id]||sk[id].lv>=CLS_SKMAX)return 0;const q=heroSkReq(id,sk[id].lv+1);sk[id].exp=Math.min(q.exp,(sk[id].exp|0)+(n==null?1:n));return sk[id].exp}
-function heroCanLearn(id,opt){const c=heroCls();if(!c)return{err:'没有英雄'};const s=SKM[id];if(!s||!s.cls)return{err:'未知技能'};if(s.cls!==c)return{err:'职业不符'};
+function heroCanLearn(id,opt){const c=heroCls();if(!c)return{err:'没有英雄'};const s=SKM[id];if(!s||!s.cls)return{err:'未知技能'};if(!s.shared&&s.cls!==c)return{err:'职业不符'};
  if(!heroSkList(c).includes(id))return{err:'英雄不能学习此技能'};const cur=heroSkLv(id);if(cur>=CLS_SKMAX)return{err:'技能已满级'};const q=heroSkReq(id,cur+1);
  if(heroLv()<q.lvl)return{err:`英雄需要等级 ${q.lvl}`};if(cur>0&&heroSkExp(id)<q.exp)return{err:`技能熟练度不足 (${heroSkExp(id)}/${q.exp})`};
- const have=opt&&opt.have!=null?opt.have:clsBookCount(id);if(have<q.books)return{err:`需要技能书 x${q.books}`};return{ok:1,from:cur,to:cur+1,books:q.books}}
-function heroLearn(id,opt){const c=heroCanLearn(id,opt);if(!c.ok)return c;if(!(opt&&opt.noTake)){const k='book_'+clsBookId(id);if(typeof CQSys!=='undefined'&&CQSys.takeMat)CQSys.takeMat(k,c.books);else if(S.mats)S.mats[k]=(S.mats[k]|0)-c.books}
+ const have=opt&&opt.have!=null?opt.have:(typeof CQSys!=='undefined'?CQSys.bookCount(c+'_'+id):((S.mats||{})['book_'+c+'_'+id]||0));if(have<q.books)return{err:`需要技能书 x${q.books}`};return{ok:1,from:cur,to:cur+1,books:q.books}}
+function heroLearn(id,opt){const c=heroCanLearn(id,opt);if(!c.ok)return c;if(!(opt&&opt.noTake)){const k='book_'+heroCls()+'_'+id;if(typeof CQSys!=='undefined'&&CQSys.takeMat)CQSys.takeMat(k,c.books);else if(S.mats)S.mats[k]=(S.mats[k]|0)-c.books}
  heroSkInit()[id]={lv:c.to,exp:0};try{if(typeof CQSys!=='undefined'&&CQSys.emit)CQSys.emit('heroSkLearn',{id,from:c.from,to:c.to})}catch(e){}return c}
-function heroSkInfo(id){const s=SKM[id];if(!s)return null;const L=heroSkLv(id),q=L<CLS_SKMAX?heroSkReq(id,L+1):null,B=CLS_BOOK[id]||{},F=HERO_FX[s.ty]||{};
- return{id,n:s.n,ty:s.ty,lv:L,max:CLS_SKMAX,exp:heroSkExp(id),need:q?q.exp:0,reqLvl:q?q.lvl:0,books:q?q.books:0,have:clsBookCount(id),bookId:clsBookId(id),bookName:B.on||s.n,
+function heroSkInfo(id){const s=SKM[id];if(!s)return null;const L=heroSkLv(id),q=L<CLS_SKMAX?heroSkReq(id,L+1):null,B=CLS_BOOK[id]||{},F=HERO_FX[s.ty]||((s.ty==='burn'||s.ty==='debuff')?HERO_FX.aoe:{});
+ return{id,n:s.n,ty:s.ty,lv:L,max:CLS_SKMAX,exp:heroSkExp(id),need:q?q.exp:0,reqLvl:q?q.lvl:0,books:q?q.books:0,have:(typeof CQSys!=='undefined'?CQSys.bookCount(heroCls()+'_'+id):0),bookId:heroCls()+'_'+id,bookName:B.on||s.n,
   on:heroSkOn(id),mul:F.m?heroMul(id,L||1):0,n_tgt:F.n,cd:F.cd||0,can:heroCanLearn(id)}}
 function heroSkills(){return heroSkList().map(heroSkInfo)}
-const heroMul=(id,L)=>{const F=HERO_FX[SKM[id].ty]||{};return F.m?+(F.m*(1+0.03*(clsOldL(L)-1))).toFixed(3):0};// 总伤倍率；新 9 级 ≈ 旧 20 级 → ×1.57
+const heroMul=(id,L)=>{const F=HERO_FX[SKM[id].ty]||((SKM[id].ty==='burn'||SKM[id].ty==='debuff')?HERO_FX.aoe:{});return F.m?+(F.m*(1+0.03*(clsOldL(L)-1))).toFixed(3):0};// 总伤倍率；新 9 级 ≈ 旧 20 级 → ×1.57
 // ---------- 施法 AI ----------
 const HERO_CD={};// 运行时冷却（游戏时间 GT 秒），不存档
 const heroNow=()=>typeof GT!=='undefined'?GT:Date.now()/1000;
@@ -46,20 +47,22 @@ const heroPets=()=>ALLY.filter(a=>a.kind==='cqpet'&&a.owner==='hero'&&a.hp>0);
 function heroSkPick(ctx){const c=heroCls();if(!c)return null;ctx=ctx||{};const now=heroNow();const ms=ctx.targets||(typeof liveMon==='function'?liveMon():[]);
  const pp=ctx.playerHpPct!=null?ctx.playerHpPct:(typeof H!=='undefined'&&ST&&ST.life?H.life/ST.life:1),hp=ctx.heroHpPct!=null?ctx.heroHpPct:1;
  const ok=id=>heroSkLv(id)>0&&heroSkOn(id)&&!((HERO_CD[id]||0)>now);
- if(c==='ds'){if(ok('zys')&&Math.min(pp,hp)<0.6)return'zys';const pet=['zhss','zhkl'].find(ok);if(pet&&!heroPets().length)return pet}
+ if(c==='ds'){if(ok('zys')&&Math.min(pp,hp)<0.6)return'zys';const pet=['zhyl','zhss','zhkl'].find(ok);if(pet&&!heroPets().length)return pet}
+ for(const id of heroSkList(c)){const s=SKM[id];if(!ok(id))continue;if(s.ty==='buff'&&!(buffOn(id)))return id;if(s.ty==='pet'&&c!=='ds'&&!heroPets().length)return id;}
  if(!ms.length)return null;let best=null,bv=0;
- for(const id of heroSkList(c)){const s=SKM[id];if(!ok(id)||s.ty==='heal'||s.ty==='pet')continue;const F=HERO_FX[s.ty];if(!F||!F.m)continue;
+ for(const id of heroSkList(c)){const s=SKM[id];if(!ok(id)||s.ty==='heal'||s.ty==='pet'||s.ty==='buff')continue;const F=HERO_FX[s.ty]||((s.ty==='burn'||s.ty==='debuff')?HERO_FX.aoe:null);if(!F||!F.m)continue;
   const v=heroMul(id,heroSkLv(id))*(F.n===1?1:1+0.02*Math.min(ms.length,5));if(v>bv){bv=v;best=id}}
  return best}
 // 执行：base = 英雄本次普攻伤害（cq_hero 算好、已受预算约束的口径）；host = cq_hero 的 host（host.hit(t,d,src)、host.targets()），缺省用 hitMon
-function heroCast(id,base,host){const s=SKM[id];if(!s||!heroSkLv(id)||!heroSkOn(id))return null;const L=heroSkLv(id),F=HERO_FX[s.ty]||{},out={id,n:s.n,lv:L,hits:[],total:0};
+function heroCast(id,base,host){const s=SKM[id];if(!s||!heroSkLv(id)||!heroSkOn(id))return null;const L=heroSkLv(id),F=HERO_FX[s.ty]||((s.ty==='burn'||s.ty==='debuff')?HERO_FX.aoe:{}),out={id,n:s.n,lv:L,hits:[],total:0};
  HERO_CD[id]=heroNow()+(s.cd||F.cd||2);heroSkillExp(id,1);
- if(s.ty==='heal'){const v=clsSV(id,L);const h=v.heal||0;if(typeof H!=='undefined'&&ST)H.life=Math.min(ST.life,H.life+h);out.heal=h;if(host&&host.healHero)try{host.healHero(h)}catch(e){}}
+ if(s.ty==='buff'){CLS_TY.buff(s,clsSV(id,L));}
+ else if(s.ty==='heal'){const v=clsSV(id,L);const h=v.heal||0;if(typeof H!=='undefined'&&ST)H.life=Math.min(ST.life,H.life+h);out.heal=h;if(host&&host.healHero)try{host.healHero(h)}catch(e){}}
  else if(s.ty==='pet'){const v=clsSV(id,L);for(const a of ALLY)if(a.kind==='cqpet'&&a.owner==='hero')a.hp=0;ALLY=ALLY.filter(a=>a.hp>0);if(typeof clsPetSweep==='function')clsPetSweep();
   for(let i=0;i<(v.max||1);i++){const a=addAlly('cqpet',{sub:id,n:'英雄·'+(v.pn||s.n),ic:s.ic,hp:v.hp,dmg:v.pd,el:v.el||'phys',th:v.th||0,owner:'hero'});out.pet=a.uid}}
  else{const ts=host&&host.targets?host.targets():(typeof liveMon==='function'?liveMon():[]);const L2=F.n===0?ts:ts.slice(0,F.n||1);const d=Math.max(1,Math.round((base||1)*heroMul(id,L)/Math.max(1,L2.length)));
   for(const t of L2){if(host&&host.hit)host.hit(t,d,'cqhero');else if(typeof hitMon==='function')hitMon(t,{[s.el||'phys']:d},'cqhero');out.hits.push({t,d});out.total+=d}
-  if(F.dot)out.dot={sec:F.dot,per:d}}
+  if(F.dot)out.dot={sec:F.dot,per:d};if(id==='sxs'&&host&&host.healHero)host.healHero(Math.round(out.total*.15))}
  try{if(typeof CQSys!=='undefined'&&CQSys.emit)CQSys.emit('heroCast',{id,lv:L,total:out.total})}catch(e){}return out}
 // ---------- 主角召唤不影响英雄召唤物（owner='hero'） ----------
 {const f=CLS_TY.pet;CLS_TY.pet=function(s,v){const keep=ALLY.filter(a=>a.kind==='cqpet'&&a.owner==='hero');ALLY=ALLY.filter(a=>!(a.kind==='cqpet'&&a.owner==='hero'));try{return f.apply(this,arguments)}finally{ALLY.push(...keep.filter(a=>a.hp>0))}}}

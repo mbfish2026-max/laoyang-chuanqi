@@ -25,7 +25,7 @@ function clsBase(){return CLS_DEF[curCls()]}
 function clsName(){return clsBase().n}
 function heroArt(cls){const c=curCls();return c==='zs'?art('hero','🧙‍♂️',cls):`<img class="art ${cls||''}" src="assets/char/${c}_portrait.webp" alt="${clsBase().n}" onerror="this.outerHTML='<span class=&quot;glyph&quot;>${clsBase().glyph}</span>'">`}// 法师/道士：美术立绘 assets/char/{id}_portrait.webp
 function trees(){return clsBase().trees}
-function skOfCls(s){return!!s&&s.cls===curCls()}// 只认本职业技能：无 cls 的旧技能不再默认算战士（修：战士自动学到旧召唤技能）
+function skOfCls(s){return!!s&&!s.heroOnly&&(s.shared||s.cls===curCls())}// 只认本职业技能：无 cls 的旧技能不再默认算战士（修：战士自动学到旧召唤技能）
 // 新角色/重置角色：按职业写入初始属性/技能/装备（只执行一次）
 // 属性自动成长：S.at = 初始 + floor(每级成长 × (L-1))（升级不给属性点）
 function clsAutoAt(c,L){const D=CLS_DEF[c]||CLS_DEF.zs,o={};L=Math.max(1,L|0||1);for(const k of['str','dex','vit','ene'])o[k]=(D.at[k]||0)+Math.floor(((D.grow||{})[k]||0)*(L-1)+1e-9);return o}
@@ -50,13 +50,13 @@ function clsRegister(){CLS_SKILLS.sort((a,b)=>a.pri-b.pri);for(const s of CLS_SK
 // ---------- 美术清单 ----------
 const CLS_ART={icons:new Set(),fx:new Set()};
 function clsArtLoad(){if(typeof fetch!=='function'||typeof document==='undefined')return;try{const st=document.createElement('style');st.textContent='.ski.img{background:center/cover no-repeat;color:transparent}';document.head.appendChild(st);fetch('assets/skills/manifest.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(j=>{if(!j)return;for(const k of['icons','fx'])for(const id of j[k]||[])CLS_ART[k].add(id);if(typeof ACX!=='undefined')ACX.skSig=''}).catch(()=>{})}catch(e){}}
-const clsIconUrl=id=>CLS_ART.icons.has(id)?`assets/skills/${id}.webp`:null,clsFxUrl=id=>CLS_ART.fx.has(id)?`assets/skills/fx_${id}.webp`:null;
+const clsIconUrl=id=>SKM[id]&&SKM[id].mir2?`assets/cq/icon/sk_${id}.png`:CLS_ART.icons.has(id)?`assets/skills/${id}.webp`:null,clsFxUrl=id=>CLS_ART.fx.has(id)?`assets/skills/fx_${id}.webp`:null;
 {const f=skIcon;skIcon=function(s){if(s&&s.cls){const u=clsIconUrl(s.id);return u?`<i class="ski img" style="background-image:url(${u})"></i>`:`<i class="ski t${s.t}">${s.ic}</i>`}return f(s)}}
 // ---------- 数值 ----------
 function clsMk(){const t=(CLS_BAL[curCls()]||{}).mk;return t?clsBalK(t):1}// mk：职业近战伤害总系数（平衡用）
 function clsDk(c){const t=(CLS_BAL[c]||{}).dk;return t?clsBalK(t):1}
 const clsOldL=N=>Math.round(1+(N-1)*19/8),clsNewL=o=>o>0?Math.ceil(1+(o-1)*8/19):0;// 新 9 级 ↔ 旧 20 级
-function clsSV(id,L){const s=SKM[id];if(!s||!s.v)return{txt:''};return s.v(clsOldL(Math.max(1,L)),syn(id)*clsDk(s.cls))}// dk：职业技能伤害总系数（平衡用，已计入显示数值）
+function clsSV(id,L){const s=SKM[id];if(!s||!s.v)return{txt:''};return s.v(s.mir2?Math.max(1,L):clsOldL(Math.max(1,L)),syn(id)*clsDk(s.cls))}// dk：职业技能伤害总系数（平衡用，已计入显示数值）
 const CLS_ELC={fire:'#f84',cold:'#8cf',light:'#ff6',magic:'#e0c0ff',phys:'#fff'};
 const clsAvgD=d=>d?(d[0]+d[1])/2:0,clsRR=d=>R(Math.round(d[0]),Math.round(d[1]));
 const buffOn=id=>{const b=H.cbs&&H.cbs[id];return b&&b.until>GT?b:null};
@@ -161,7 +161,7 @@ function clsPruneSk(){if(typeof S==='undefined'||!S||!S.sk||S.skPr===1||!CLS_SKI
  for(const k of Object.keys(S.sk)){if(SKM[k])continue;back+=Math.max(0,S.sk[k]|0);delete S.sk[k]}
  if(back){S.kp=(S.kp||0)+back;if(S.main&&!SKM[S.main])S.main=null;if(typeof log==='function')try{log(`<b style="color:#ffd76a">技能整理：移除已下线技能，退还技能点 ${back}</b>`)}catch(e){}}}
 function clsMigrate(){clsLateFix();clsPruneSk();clsSk9();if(typeof S==='undefined'||!S||!S.sk||S.cqsk===1||!CLS_SKILLS.length)return;S.cqsk=1;const c=curCls();let back=0;const gone=[];
- for(const k of Object.keys(S.sk)){const s=SKM[k];if(s&&s.cls===c)continue;back+=S.sk[k]||0;if(s)gone.push(s.n);delete S.sk[k]}
+ for(const k of Object.keys(S.sk)){const s=SKM[k];if(s&&(s.shared||s.cls===c))continue;back+=S.sk[k]||0;if(s)gone.push(s.n);delete S.sk[k]}
  for(const k in CLS_DEF[c].sk||{})if(!S.sk[k])S.sk[k]=CLS_DEF[c].sk[k]
  S.kp=(S.kp||0)+back;S.main=null;S.curse=null;if(gone.length&&typeof log==='function')try{log(`<b style="color:#ffd76a">职业技能整理：移除非本职业技能 ${gone.join('、')}，退还技能点 ${back}</b>`)}catch(e){}}
 const clsWCat=()=>{const w=S.eq&&S.eq.weapon;return w&&BASEM[w.b]?BASEM[w.b].cat:null};
@@ -199,13 +199,13 @@ const CLS_SKMAX=9,CLS_BOOKN=[1,2,3,5,10,20,30,40,45];
 const CLS_EXPA=[600,1000,3000,5000,10000,20000,30000,40000,50000,60000],CLS_EXPB=[1000,2000,5000,10000,16000,25000,30000,40000,50000,60000];
 const CLS_BOOK={};// 技能 id → {oid 原版书物品 id, on 原版书名, or 原版 1 级需求等级, exp:[10]}
 function clsBookRule(cls,o){for(const id in o){const r=o[id];CLS_BOOK[id]=Object.assign({cls,exp:CLS_EXPB},r,{exp:r.exp==='A'?CLS_EXPA:r.exp==='B'||!r.exp?CLS_EXPB:r.exp})}}
-const clsBookId=id=>{const s=SKM[id];return s?s.cls+'_'+id:null};
-function clsSkReq(id,L){const s=SKM[id],B=CLS_BOOK[id];if(!s||!s.cls||L<1||L>CLS_SKMAX)return null;return{lvl:(s.r||1)+3*(L-1),books:CLS_BOOKN[L-1],exp:L>1?(B?B.exp:CLS_EXPB)[L-2]:0}}
+const clsBookId=id=>{const s=SKM[id];return s?(s.shared?curCls():s.cls)+'_'+id:null};
+function clsSkReq(id,L){const s=SKM[id],B=CLS_BOOK[id];if(!s||!s.cls||L<1||L>CLS_SKMAX)return null;return{lvl:s.mir2?Math.min(60,(s.r||1)+Math.ceil((L-1)*(60-s.r)/8)):(s.r||1)+3*(L-1),books:CLS_BOOKN[L-1],exp:L>1?(B?B.exp:CLS_EXPB)[L-2]:0}}
 function clsSkExpGet(id){return((S&&S.skx)||{})[id]|0}
 function clsSkillExp(id,n){const s=SKM[id];if(!S||!s||!s.cls||!bl(id)||bl(id)>=CLS_SKMAX)return 0;S.skx=S.skx||{};const q=clsSkReq(id,bl(id)+1);S.skx[id]=Math.min(q.exp,(S.skx[id]|0)+(n==null?1:n));return S.skx[id]}
 function clsBookCount(id){const k=clsBookId(id);try{if(typeof CQSys!=='undefined'&&CQSys.bookCount)return CQSys.bookCount(k)|0}catch(e){}return((S.mats||{})['book_'+k])|0}
 // 校验下一级；opt.have=已有书数（不传则查背包材料）
-function clsCanLearn(id,opt){const s=SKM[id];if(!s||!s.cls)return{err:'未知技能'};if(s.cls!==curCls())return{err:'职业不符'};const cur=bl(id);
+function clsCanLearn(id,opt){const s=SKM[id];if(!s||!s.cls)return{err:'未知技能'};if(s.heroOnly)return{err:'英雄专属技能'};if(!s.shared&&s.cls!==curCls())return{err:'职业不符'};const cur=bl(id);
  if(cur>=CLS_SKMAX)return{err:'技能已满级'};const q=clsSkReq(id,cur+1);if((S.lvl|0)<q.lvl)return{err:`需要等级 ${q.lvl}`};
  if(cur>0&&clsSkExpGet(id)<q.exp)return{err:`技能熟练度不足 (${clsSkExpGet(id)}/${q.exp})`};
  const have=opt&&opt.have!=null?opt.have:clsBookCount(id);if(have<q.books)return{err:`需要技能书 x${q.books}`};return{ok:1,from:cur,to:cur+1,books:q.books}}
@@ -213,8 +213,8 @@ function clsCanLearn(id,opt){const s=SKM[id];if(!s||!s.cls)return{err:'未知技
 function clsLearn(id,opt){const c=clsCanLearn(id,opt);if(!c.ok)return c;if(!(opt&&opt.noTake)){const k='book_'+clsBookId(id);if(typeof CQSys!=='undefined'&&CQSys.takeMat)CQSys.takeMat(k,c.books);else if(S.mats)S.mats[k]=(S.mats[k]|0)-c.books}
  S.sk[id]=c.to;S.skx=S.skx||{};S.skx[id]=0;if(typeof calc==='function')calc();try{if(typeof CQSys!=='undefined'&&CQSys.emit)CQSys.emit('skLearn',{id,from:c.from,to:c.to})}catch(e){}return c}
 // 技能书列表导出（系统开发：掉落/礼包/UI）
-function clsBookList(cls){return CLS_SKILLS.filter(s=>(!cls||s.cls===cls)&&s.cls).map(s=>{const B=CLS_BOOK[s.id]||{};const L=[];for(let i=1;i<=CLS_SKMAX;i++)L.push(clsSkReq(s.id,i));
- return{sk:s.id,n:s.n,cls:s.cls,bookId:s.cls+'_'+s.id,oid:B.oid||null,on:B.on||s.n,origLvl:B.or||null,max:CLS_SKMAX,req:L.map(x=>x.lvl),books:L.map(x=>x.books),exp:L.map(x=>x.exp)}})}
+function clsBookList(cls){return CLS_SKILLS.filter(s=>(!cls||s.shared||s.cls===cls)&&s.cls).map(s=>{const B=CLS_BOOK[s.id]||{};const L=[];for(let i=1;i<=CLS_SKMAX;i++)L.push(clsSkReq(s.id,i));
+ return{sk:s.id,n:s.n,heroOnly:!!s.heroOnly,cls:s.shared?(cls||curCls()):s.cls,bookId:(s.shared?(cls||curCls()):s.cls)+'_'+s.id,oid:B.oid||null,on:B.on||s.n,origLvl:B.or||null,max:CLS_SKMAX,req:L.map(x=>x.lvl),books:L.map(x=>x.books),exp:L.map(x=>x.exp)}})}
 // 学习/升级按原版（职业相符、等级够、熟练度够、书够），不用技能点
 {const f=canLearn;canLearn=function(id){const s=SKM[id];if(s&&s.cls)return!!clsCanLearn(id).ok;return f(id)}}
 {const f=learn;learn=function(id){const s=SKM[id];if(!s||!s.cls)return f(id);const r=clsLearn(id);if(typeof toast==='function'&&!window.__NOUI)try{toast(r.ok?`${s.n} 提升到 ${r.to} 级`:r.err)}catch(e){}
@@ -260,3 +260,8 @@ function clsPetSweep(){if(!CLS_PETS.size)return;const live=new Set(ALLY.filter(a
  for(const a of ALLY)if(a.kind==='cqpet'&&h0.has(a.uid)&&a.hp<h0.get(a.uid))clsPetEmit('pet:hit',{uid:a.uid,dmg:Math.round(h0.get(a.uid)-Math.max(0,a.hp))});
  clsPetSweep();return r}}
 {const f=resetRuntime;resetRuntime=function(){const r=f.apply(this,arguments);clsPetSweep();return r}}
+
+// Shared shield: one runtime ID, per-profession books; design values.
+function clsMir2Shared(){clsDef('zs',[{id:'htsd',n:'护体神盾',shared:true,mir2:true,r:39,t:2,col:2,ty:'buff',g:'htsd',ic:'🛡',cqfx:'mofadun',cd:30,mana:()=>30,v:L=>({dr:12+L,dur:6+L/3,txt:'护体神盾：短时减伤 '+(12+L)+'%（本游戏设计值）'})}]);
+clsBookRule('zs',{htsd:{on:'护体神盾',or:39}});clsRegister();
+}

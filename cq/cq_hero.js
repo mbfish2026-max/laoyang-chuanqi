@@ -23,7 +23,7 @@
     '1+3': {name: '劈星斩',   fx: 'heji_pixingzhan',   mult: 4.5, aoe: false, desc: '战+道: 单体极高伤害, 无视 50% 防御', pierce: .5},
     '2+2': {name: '火龙气焰', fx: 'heji_huolongqiyan', mult: 3.6, aoe: true,  desc: '法+法: 火龙席卷全场, 群体魔法伤害'},
     '2+3': {name: '末日审判', fx: 'heji_morishenpan',  mult: 2.8, aoe: true,  desc: '法+道: 群体伤害并为玩家和英雄回复 20% 生命', heal: .2},
-    '3+3': {name: '噬魂沟泽', fx: 'heji_shihunzhaoze', mult: 2.6, aoe: true,  desc: '道+道: 群体伤害, 之后 5 秒每秒追加 20% 伤害', dot: .2}
+    '3+3': {name: '噬魂沼泽', fx: 'heji_shihunzhaoze', mult: 2.6, aoe: true,  desc: '道+道: 群体伤害, 之后 5 秒每秒追加 20% 伤害', dot: .2}
   };
   // 伤害封顶：host.cap = CQ_BAL.cap(dmg, ctx)（cq_bridge 接入，系统实现缺时兜底）
   // 英雄技能（原版 heroSkills：本职业主动技能，slevel ≤ 英雄等级，按 priority 取第一个冷却好的；伤害 = 普攻 × p2）。
@@ -34,6 +34,11 @@
     fs: [{id: 'bpx', n: '冰咆哮', r: 14, p2: 1.7, cd: 3}, {id: 'ldsh', n: '雷电术', r: 11, p2: 1.5, cd: 2}, {id: 'dyh', n: '地狱火', r: 9, p2: 1.3, cd: 2}, {id: 'kjhh', n: '抗拒火环', r: 3, p2: 1.1, cd: 6}, {id: 'hqs', n: '火球术', r: 1, p2: 1.2, cd: 2}],
     ds: [{id: 'zys', n: '治愈术', r: 1, heal: .1, cd: 4}, {id: 'lhhf', n: '灵魂火符', r: 3, p2: 1.3, cd: 2}, {id: 'sds', n: '施毒术', r: 7, p2: 1.1, cd: 4}]
   };
+  // 同步新增技能到无 clsCast 时的兜底列表；效果强度仍受原预算限制。
+  if(typeof CLS_SKILLS!=='undefined')for(const c of ['zs','fs','ds'])for(const s of CLS_SKILLS){
+    if(!s.mir2||(!s.shared&&s.cls!==c)||s.ty==='passive')continue;
+    HERO_SK[c].unshift({id:s.id,n:s.n,r:s.r,p2:1.25,cd:s.cd||6});
+  }
   var CLSK = {1: 'zs', 2: 'fs', 3: 'ds'}, RANGE = {1: 1, 2: 4, 3: 4};   // 原版 heroAct：战士射程 1，法/道 4（切比雪夫）
   function capOf(host, d, ctx){ return host && host.cap ? host.cap(d, ctx) : d; }
   function comboKey(a, b){ return Math.min(a, b) + '+' + Math.max(a, b); }
@@ -135,7 +140,7 @@
     var targets = cb.aoe ? ts : [host.pick ? host.pick(ts) : ts[0]], hits = [], total = 0, self = this;
     h.rage = 0; h.hejiCd = TUNE.hejiCd; h.hejiCount = (h.hejiCount || 0) + 1;
     var tot = this.hejiTotal(cb, host) / (1 + (cb.dot || 0) * 5), per = Math.max(1, Math.round(tot / targets.length));   // 群体合击：总伤平分到目标
-    // 噬魂沟泽（dot）：首击 + 5 跳×20% 合计 = 一次合击总伤（原版首击后再追加 100%，在「按玩家 DPS 定总伤」口径下会翻倍）
+    // 噬魂沼泽（dot）：首击 + 5 跳×20% 合计 = 一次合击总伤（原版首击后再追加 100%，在「按玩家 DPS 定总伤」口径下会翻倍）
     targets.forEach(function(m){ hits.push({m: m, d: per}); total += per; });
     save(this.store, h);
     return {ok: true, type: 'heji', name: cb.name, fx: cb.fx, combo: cb, hits: hits, total: total, manual: !!manual};

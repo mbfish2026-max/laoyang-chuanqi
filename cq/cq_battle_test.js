@@ -243,6 +243,6 @@ if(G("typeof heroSkPick")==='function'){// 职业开发 cls_hero.js 接入（分
  G(`hk.h.skOff={heji:1};hk.h.rage=100;hk.h.hejiCd=0;var kb=hk.autoHeji(hkh)`);ok(G('kb')===null,'合击关：不自动合击');}
 {G(`var hd2=new CQ.Hero(3,localStorage);hd2.h.prof=3;hd2.h.exists=true;hd2.unit.hp=hd2.unit.maxhp=100;MON=[mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10)];MON.forEach(m=>m.hp=1e9);
   var hdh={now:()=>Date.now(),targets:()=>MON.filter(m=>m.hp>0),hit:(m,d)=>d,atkMax:()=>100,lvl:()=>12,heroK:()=>.35,dps:()=>1000};hd2.h.rage=100;hd2.h.hejiCd=0;var rd=hd2.doHeji(hdh,true)`);
- ok(G('rd.name')==='噬魂沟泽'&&G('rd.total*(1+0.2*5)')>=1000*6*.9-4&&G('rd.total*(1+0.2*5)')<=1000*6.8*1.1+4,'噬魂沟泽：首击+5 跳持续合计 ≈ 一次合击总伤（不翻倍）');
+ ok(G('rd.name')==='噬魂沼泽'&&G('rd.total*(1+0.2*5)')>=1000*6*.9-4&&G('rd.total*(1+0.2*5)')<=1000*6.8*1.1+4,'噬魂沼泽：首击+5 跳持续合计 ≈ 一次合击总伤（不翻倍）');
  ok(G('JSON.stringify(CQ.HERO_TUNE.dpsKBy)')==='{"zs":0.2,"fs":0.15,"ds":0.17}'&&CQ_T('hejiCd')===30&&CQ_T('hejiSec')===6.5,'英雄普攻系数 zs.2/fs.15/ds.17，合击 6.5 秒 DPS、冷却 30 秒');}
 T.done();

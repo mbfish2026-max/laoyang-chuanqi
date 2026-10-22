@@ -1,0 +1,137 @@
+{
+  "generator": "built-in imagegen",
+  "style": "original dark Chinese fantasy bronze-trim leather spellbook; no copyrighted art copied",
+  "processing": "downsample to 128px; same original book emblem used for skill and book icon",
+  "assets": [
+    {
+      "id": "dhq",
+      "source_sha256": "b8c96e852c70c262fac74ba1ba7c958cd3e9a59b0a023d0fdc47a1fbf731ab7d",
+      "source_file": "exec-c75c291d-a751-4ca5-8455-19aa265a0ff4.png"
+    },
+    {
+      "id": "sxyd",
+      "source_sha256": "b9323c9222da5f33de1af2372360200be33ddcac7309c5f386f67bbb89d4fb99",
+      "source_file": "exec-bdf2b65c-e1b4-4635-bb89-b734f77bb657.png"
+    },
+    {
+      "id": "blhy",
+      "source_sha256": "726a6c75be6d9dbdf6eebb26d1329d62c84f91c9daade9e3e60faf28c1dc08e1",
+      "source_file": "exec-fc8be1dc-1c0f-4ed6-a7d1-6c61bc490227.png"
+    },
+    {
+      "id": "hq",
+      "source_sha256": "fa6d2ae009a8d9c155079341843c66c8a833f3cb345ac9a8f03d6cec70d74a53",
+      "source_file": "exec-14b741c5-2155-46c9-9bc0-93939620b03f.png"
+    },
+    {
+      "id": "jgdy",
+      "source_sha256": "7af711ba592647291ac1d72c9e06b7283a5e7072c0b318e09b6bf2d5b1e425b0",
+      "source_file": "exec-3d84da2a-4c64-49f8-8522-cfb983930b7b.png"
+    },
+    {
+      "id": "dylg",
+      "source_sha256": "0dfc5095e27db8807f3eb87848582ee87eb3912adb983111a69b5fd6be26021d",
+      "source_file": "exec-3326e15b-aee9-4337-a526-ed249ba97e5f.png"
+    },
+    {
+      "id": "sys",
+      "source_sha256": "f0e1544cb3cec5903d876944532371d088b745a6333fa08679b5b34a2b2940b7",
+      "source_file": "exec-f278e9ea-7250-4e82-9d92-5a3433a879ff.png"
+    },
+    {
+      "id": "hbz",
+      "source_sha256": "639e484edabda11e905336d66e80fa08620ac71bc5b88fa619ee9c2ee654135b",
+      "source_file": "exec-cae582f9-c398-4f68-b0d3-2c05245db18d.png"
+    },
+    {
+      "id": "mth",
+      "source_sha256": "0a1e713f21fc3cce99be06bea8884fb6d3a961a0502de9d6fa68967108ff790f",
+      "source_file": "exec-2a9948a2-e012-409f-bf4a-866f24573d45.png"
+    },
+    {
+      "id": "lxhy",
+      "source_sha256": "30f5ccfcf1a8f3de8f10bb6585dc35a7b10863950c987dd8b2c194b53baa9948",
+      "source_file": "exec-53f0b478-2a32-4462-b773-db07a28a82fa.png"
+    },
+    {
+      "id": "fss",
+      "source_sha256": "299751404d806ae876980fc7ffd2aa32a1fa4c882b341e523055bf41cec52ae3",
+      "source_file": "exec-ff361ced-3611-4de9-834d-e680fdb03a45.png"
+    },
+    {
+      "id": "jslzf",
+      "source_sha256": "f0aefeb1be44480aa511557d0e4cdd172734718033bd5b1756f8950a0eb850fc",
+      "source_file": "exec-38fca5f4-3c78-4a51-827f-22b90d3ea463.png"
+    },
+    {
+      "id": "jtys",
+      "source_sha256": "0274e812969925b031d8d3468c9695f3cd787909dd1def4bd31fb5f2b86d4aec",
+      "source_file": "exec-6b4447f2-aba7-409e-9129-9307d939c1f5.png"
+    },
+    {
+      "id": "yld",
+      "source_sha256": "f31dd005ece2816b820b0bebf1257e3c34d066bc7cd04f77c85e7cbe5402072e",
+      "source_file": "exec-3b041b28-4dfd-4da8-baac-0c7e5b17fad0.png"
+    },
+    {
+      "id": "sszjs",
+      "source_sha256": "a547a53983b088e047879f5a4ac9b7cd310f902adca547997e2fef3693156b82",
+      "source_file": "exec-a353a1c1-f05c-463a-bc96-ac8d883a0a32.png"
+    },
+    {
+      "id": "xlqs",
+      "source_sha256": "761f6fa22e5bb307429abe00f28ea765aecda0c814ac46e526a7f0b333773b98",
+      "source_file": "exec-e106f450-4b38-4e81-b560-d3f3ff2af6df.png"
+    },
+    {
+      "id": "kmz",
+      "source_sha256": "fbdb9cf51ddb0b56effc178d08438194deb64311baf9c2b133bfdf0388c61c59",
+      "source_file": "exec-01f3ee2f-118c-45e8-8d4b-9a889e78b9e6.png"
+    },
+    {
+      "id": "qtzls",
+      "source_sha256": "0e946dfb610b11414b9eabac7ac2a8cdf32b83a4fadeac045db050cdaeea2926",
+      "source_file": "exec-2f68b956-13d5-467d-aea1-f26224b5663a.png"
+    },
+    {
+      "id": "qgb",
+      "source_sha256": "c4bd6c3fd8353d930f58c998054db7bedeeffb65db7602beb8f70ff194bca5ef",
+      "source_file": "exec-89416521-2e1b-4246-81b7-7bfe3adc2ec3.png"
+    },
+    {
+      "id": "wjzq",
+      "source_sha256": "d796f929c81990ba2b9f82d00567342fa7a9740d56f2e891ba3a3172578365ec",
+      "source_file": "exec-c04a1396-e055-43dc-9781-74a65cbd448e.png"
+    },
+    {
+      "id": "sxs",
+      "source_sha256": "305a84b0dd48dbe4c2f655f3a0f2557c29c261868ddec84a2ff2d52ac4c31e4d",
+      "source_file": "exec-0f09bc24-8f89-4c9d-9f87-6b1702ba36fc.png"
+    },
+    {
+      "id": "zhyl",
+      "source_sha256": "b73d6b23c6e3abb007be5ab1e9911a0904bd71dcd53b8746b66e42dceb47657b",
+      "source_file": "exec-28dff667-c9c2-48d1-98e5-bd93451f1862.png"
+    },
+    {
+      "id": "szh",
+      "source_sha256": "c02d09efd69d5ebd679016d519031bdda6af0dd0df0bdb75eadba275e0d6c33a",
+      "source_file": "exec-8247f10e-c3c9-42d5-a08f-372811142942.png"
+    },
+    {
+      "id": "zrjf",
+      "source_sha256": "3584b163950010024f34f125af3386a25f6c4b16aa55d99f8dee92213f291260",
+      "source_file": "exec-d9d57c7f-7fd2-4702-9c44-b8bee8b23aa7.png"
+    },
+    {
+      "id": "ktz",
+      "source_sha256": "bf40a45a1438d9e7908c78d3e5e6ea14bd63402e8ba0079c6f349779a5e4077a",
+      "source_file": "exec-f98309cf-96a7-40d4-9c7c-f6aabfc685b1.png"
+    },
+    {
+      "id": "htsd",
+      "source_sha256": "d1a5923bdfe5792a234f2dddb61979bda12c7d7ce93b39138bd9394cd0e85fb0",
+      "source_file": "exec-057e1e51-25ff-4692-afb2-bff27ce10197.png"
+    }
+  ]
+}
