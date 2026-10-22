@@ -26,7 +26,7 @@ G(`MON=[mkMon(ACTS[0].zones[1].mons[0],1)];MON[0].life=MON[0].max=1e9;window._e=
 G(`window._p=clsSkExpGet('jbjs');hitMon(MON[0],{phys:10},'hero')`);ok(G("clsSkExpGet('jbjs')")===G('_p')+1,'被动 基本剑术 命中 +1');
 // 效果换算：新 9 级 = 旧 20 级
 ok(G('clsOldL(9)')===20&&G('clsOldL(1)')===1,'clsOldL 9→20');
-ok(G(`SV('lhjf',9).txt`)===G(`SKM.lhjf.v(20,syn('lhjf')*clsDk('zs')).txt`),'烈火 9 级效果 = 旧 20 级');
+ok(G(`SV('lhjf',9).txt.startsWith(SKM.lhjf.v(20,syn('lhjf')*clsDk('zs')).txt)&&SV('lhjf',9).pct>=SKM.lhjf.v(20,syn('lhjf')*clsDk('zs')).pct`),'烈火 9 级保留旧 20 级效果并附加流派协同');
 // 旧存档：技能等级向上取整映射，不变弱；技能点/属性点字段不报错
 G(`S.sk={jbjs:20,gsjs:5,lhjf:2};S.sk9=0;S.kp=7;S.sp=4;calc()`);ok(G('S.sk.jbjs')===9&&G('S.sk.gsjs')===3&&G('S.sk.lhjf')===2,'旧 20/5/2 级 → 9/3/2');
 ok(['jbjs','gsjs','lhjf'].every((k,i)=>G(`clsOldL(S.sk.${k})`)>=[20,5,2][i]),'映射后不弱于旧等级');

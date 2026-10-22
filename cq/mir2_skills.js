@@ -34,3 +34,37 @@ function mir2SkillsWire(){
 
 // Learned hero shield reaches the protagonist at hero Lv39; no repeated additive bonus.
 {const f=calc;calc=function(){if(S&&S.hero&&S.hero.lvl>=39&&S.hero.sk&&S.hero.sk.htsd){S.sk=S.sk||{};S.sk.htsd=Math.max(S.sk.htsd||0,1)}return f.apply(this,arguments)}}
+
+// R04: build choice changes priorities and adds synergy; learning remains book-only.
+const MIR2_STREAMS={
+ zs:[['烈火单体',['lhjf','gsjs','csjs','ymcz'],['jbjs','gsjs'],'剑术协同烈火，优先爆发'],['半月群刷',['bywd','csjs','ymcz','lhjf'],['csjs'],'刺杀协同半月，优先群刷'],['刺杀冲撞',['csjs','ymcz','gsjs','lhjf'],['gsjs'],'攻杀协同刺杀，冲撞控制']],
+ fs:[['雷电爆发',['ldsh','dylg','bpx','mfd'],['hqs','dhq','jgdy'],'火球、疾光协同雷电'],['火墙控场',['hq','blhy','dyh','kjhh'],['dyh','blhy'],'地狱火、爆裂协同火墙'],['宝宝流',['yhzg','mfd','sys','sxyd'],['sys','mfd'],'圣言、魔法盾协同宝宝']],
+ ds:[['狗道',['zhss','sszjs','yld','qtzls'],['sszjs','yld','qtzls'],'护持技能协同神兽'],['毒符',['sds','lhhf','ysh','kmz'],['sds','kmz'],'施毒、困魔协同火符'],['骷髅辅助',['zhkl','zhss','xlqs','zys'],['jslzf','xlqs','zys'],'启示、治疗协同骷髅，可与神兽同场']]
+};
+function mir2Stream(){return MIR2_STREAMS[curCls()][Number.isInteger(S.stream)&&S.stream>=0&&S.stream<3?S.stream:0]}
+function mir2StreamChoose(i){if(!Number.isInteger(i)||i<0||i>2)return false;S.stream=i;const ids=mir2Stream()[1],a=acState();a.order=[...ids,...a.order.filter(id=>!ids.includes(id))];for(const id of ids)a.cfg[id]=Object.assign({},a.cfg[id],{on:1,mode:'smart'});S.battleSkills=ids.slice();S.battleSkillsCls=curCls();save();calc();render();return true}
+CQSys.streamChoose=mir2StreamChoose;
+{const f=clsSV;clsSV=function(id,L){const v=f(id,L),b=mir2Stream();if(id!==b[1][0])return v;const k=1+b[2].reduce((n,x)=>n+bl(x),0)*.02;
+ const out=Object.assign({},v);for(const key of ['pct','flat','dps','hp','k'])if(out[key])out[key]*=k;for(const key of ['dmg','pd'])if(out[key])out[key]=out[key].map(n=>Math.round(n*k));if(k>1)out.txt+='；流派协同 +'+Math.round((k-1)*100)+'%';return out}}
+{const f=clsEst;clsEst=function(s,ms){return f(s,ms)*(mir2Stream()[1].includes(s.id)?1.35:1)}}
+// The build's ordered attacks take priority when ready, while existing healing/buffs
+// still run first. Ineligible spells (cooldown, mana, active DOT) never block fallback.
+{const f=acSmart;acSmart=function(id,ms){if(S.stream==null)return f(id,ms);const b=mir2Stream(),s=SKM[id];if(!s||!CLS_SINGLE.has(s.ty)&&!CLS_AOE.has(s.ty))return f(id,ms);
+ const chosen=acState().order.filter(x=>b[1].includes(x)).find(x=>{const sk=SKM[x];return sk&&(CLS_SINGLE.has(sk.ty)||CLS_AOE.has(sk.ty))&&bl(x)&&acCfg(x).on&&acFeasible(x,ms)&&(ms.length>=sk.sm||ms.some(m=>m.boss)||!CLS_AOE.has(sk.ty))});return chosen?id===chosen:f(id,ms)}}
+
+{const f=acFeasible;acFeasible=function(id,ms){if(curCls()==='ds'&&S.stream===2&&['zhkl','zhss'].includes(id))return castable(id)&&clsCdLeft(id)<=0&&clsPetN(id)<1;return f(id,ms)}}
+// Fire wall scales with learned support and magic damage, and refreshes only on expiry.
+SKM.hq.v=(L,sy)=>{const dps=Math.round((8+L*3)*sy*(1+(ST.sdmg||0)/100));return{dps,bdur:4+L/3,n:5,txt:`火墙：最多5个目标每秒 ${dps} 火焰伤害，持续 ${(4+L/3).toFixed(1)} 秒`}};
+SYN.hq=[['dyh','blhy'],3];SYN.ldsh=[['hqs','dhq','jgdy'],5];SYN.lhhf=[['sds','kmz'],3];
+// Older 1.76 defensive skills belong in the hero whitelist as well.
+for(const [c,ids] of Object.entries({fs:['mfd'],ds:['ysh']}))for(const id of ids)if(!HERO_SK[c].includes(id))HERO_SK[c].push(id);
+{const f=render;render=function(){const out=f.apply(this,arguments),p=document.querySelector('#panel');if(TAB==='skill'&&p&&!p.querySelector('.mir2-streams')){const box=document.createElement('div');box.className='cqpanel mir2-streams';box.innerHTML='<div class="cqttl">流派选择</div><div style="display:flex;gap:4px">'+MIR2_STREAMS[curCls()].map((b,i)=>`<button class="cqbtn ${i===(S.stream||0)?'gold':''}" style="flex:1;min-width:0;min-height:44px;white-space:nowrap" onclick="CQSys.streamChoose(${i})">${b[0]}</button>`).join('')+'</div><p class="dim">'+mir2Stream()[3]+'。选择后配置四格和自动顺序；技能仍需技能书学习，可继续手动调整。</p>';p.prepend(box)}return out}}
+// 1.76 support spells have party effects as well as the protagonist's buff.
+function mir2PetGuard(dmg,el){const armor=buffOn('sszjs'),ghost=buffOn('yld'),hide=buffOn('jtys');
+ if(hide&&rnd()*100<(hide.dodge||0))return 0;
+ const b=el&&el!=='phys'?ghost:armor;return Math.max(0,dmg*(1-Math.min(75,b?(b.res||b.def||0):0)/100))}
+{const f=CLS_TY.debuff;CLS_TY.debuff=function(s,v,ms){if(s.id==='kmz')ms=ms.filter(m=>!m.boss&&!m.uniq&&!m.champ&&!m.fl&&m.lv<=combatLevel()+1);const out=f.call(this,s,v,ms);if(s.id==='xlqs')for(const m of out)m.revealedUntil=GT+v.dur;return out}}
+{const f=acFeasible;acFeasible=function(id,ms){if(id==='kmz'&&!ms.some(m=>!m.boss&&!m.uniq&&!m.champ&&!m.fl&&m.lv<=combatLevel()+1))return false;return f(id,ms)}}
+// Instant movement stays in the current map; never resets monsters or the boss.
+{const f=typeof clsAfterCast==='function'?clsAfterCast:null;window.clsAfterCast=function(s,v,ms,out){if(f)f.apply(this,arguments);if(s.id!=='sxyd'||!window.CQ||!CQ.Scene||!CQ.MOVE)return;const grid=CQ.Scene.grid();if(!grid)return;const occupied=new Set([grid.b.roleIdx,...grid.b.mons.filter(m=>!m.dead).map(m=>m.idx),...(grid.b._pets||[]).filter(a=>a.hp>0).map(a=>a.idx)]);const cells=Array.from({length:CQ.MOVE.N},(_,i)=>i).filter(i=>!occupied.has(i));if(cells.length)grid.b.roleIdx=cells[Math.floor(rnd()*cells.length)]}}
+SKM.sxyd.v=L=>({dodge:15+L*2,dur:12+L,txt:'瞬息移动：移到当前战场空格，闪避提高 '+(15+L*2)+'%，持续 '+(12+L)+' 秒'});

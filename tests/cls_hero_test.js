@@ -2,10 +2,10 @@
 const T=require('./cq_harness')('cls_hero_test');const{G,ok}=T;
 G(`S=newSave();load();CQSys.createChar('t','ds');calc();S.lvl=30;CQSys.heroCreate('ds','小道');S.hero.lvl=30;calc()`);
 ok(G('heroCls()')==='ds','英雄职业 ds');
-ok(G(`JSON.stringify(heroSkList('zs'))`)==='["gsjs","csjs","bywd","ymcz","lhjf","htsd","szh","zrjf","ktz"]'&&G(`heroSkList('fs').length`)===17&&G(`JSON.stringify(heroSkList('ds'))`)==='["zys","lhhf","sds","zhkl","zhss","htsd","jtys","yld","sszjs","qtzls","wjzq","xlqs","kmz","zhyl","qgb","sxs"]','三英雄技能表');
+ok(G(`JSON.stringify(heroSkList('zs'))`)==='["gsjs","csjs","bywd","ymcz","lhjf","htsd","szh","zrjf","ktz"]'&&G(`heroSkList('fs').length`)===18&&G(`JSON.stringify(heroSkList('ds'))`)==='["zys","lhhf","sds","zhkl","zhss","htsd","jtys","yld","sszjs","qtzls","wjzq","xlqs","kmz","zhyl","qgb","sxs","ysh"]','三英雄技能表');
 ok(G(`JSON.stringify(heroAutoAt('ds',11))`)===G(`JSON.stringify(clsAutoAt('ds',11))`)&&G('HERO_LIFEK')===0.8,'属性复用成长表');
 ok(G(`heroSkLv('lhhf')`)===1&&G(`Object.keys(S.hero.sk).length`)===1,'初始只有灵魂火符 1 级');
-ok(G(`heroCanLearn('gsjs').err`)==='职业不符'&&G(`heroCanLearn('ysh').err`)==='英雄不能学习此技能','职业/白名单');
+ok(G(`heroCanLearn('gsjs').err`)==='职业不符'&&G(`heroCanLearn('ysh',{have:1}).ok`)===1,'职业/白名单');
 ok(/需要技能书 x1/.test(G(`heroCanLearn('zhkl').err`)),'没书');G(`addMat('book_ds_zhkl',1)`);
 ok(G(`heroLearn('zhkl').ok`)===1&&G(`heroSkLv('zhkl')`)===1&&G(`S.sk.zhkl`)===undefined,'英雄学会，主角技能不变');
 G(`addMat('book_ds_zhkl',2)`);ok(/熟练度不足/.test(G(`heroCanLearn('zhkl').err`)),'熟练度不足');
