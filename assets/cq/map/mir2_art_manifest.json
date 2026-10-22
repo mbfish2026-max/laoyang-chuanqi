@@ -1,0 +1,138 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "generated_directory": "/home/box/.codex/generated_images/01a161ba-522b-7dd2-a652-cd47c339bb8a",
+  "processing": "Equal-grid atlas extraction, thumbnail max 360x360, preserve generated alpha; environments WebP quality90; chapter thumbnails390x260 quality88.",
+  "sources": [
+    {
+      "file": "exec-1041d208-3b46-4395-8bd3-637679ac0ed3.png",
+      "grid": [
+        2,
+        2
+      ],
+      "keys": [
+        "cqzuma1",
+        "cqbairimen",
+        "cqniumo1",
+        "cqmolongcity"
+      ],
+      "prompt": "Use case: stylized-concept. Create one production game environment atlas, 2 columns x 2 rows with exact equal rectangular panels, no borders, no text. Original retro Chinese dark fantasy MMORPG painted isometric environments, muted detailed stone and atmospheric torchlight, reminiscent of early 2000s Chinese fantasy games without copying any existing game image. Top left: ancient ram-headed statue temple, green weathered stone maze and braziers (Zuma). Top right: crimson moon canyon, twisted dead trees and spiderweb caves (Red Moon). Bottom left: underground bull demon temple with basalt pillars and bronze torches (Bull Temple). Bottom right: ruined dragon city with marsh, black fortress and red volcanic sky (Dragon City). Each panel landscape composition with clear floor in lower half, no characters or UI. This is a single atlas asset for four related chapter environments.",
+      "transparent": false
+    },
+    {
+      "file": "exec-dc68519e-0970-4cd6-a910-b4a7401cf054.png",
+      "grid": [
+        4,
+        4
+      ],
+      "keys": [
+        "cqrat",
+        "cqzumaarcher",
+        "cqzumastatue",
+        "cqzumaguard",
+        "cqfangspider",
+        "cqmoonspider",
+        "cqbloodzombie",
+        "chiyuedemon",
+        "cqniumowar",
+        "cqniumomage",
+        "niumoking",
+        "darkniumoking",
+        "cqmolongfrog",
+        "cqmolongblade",
+        "cqmolongarcher",
+        "molonglord"
+      ],
+      "prompt": "Use case stylized-concept. Single game sprite atlas 4 columns by 4 rows of exactly equal cells. Transparent background, no text, no grid lines. Sixteen separate full-body original monsters in gritty hand painted early 2000s Chinese dark fantasy MMORPG style, each centered entirely inside its own cell with generous empty margins, facing viewer at 3/4 angle. Order left to right top to bottom: row1 giant grey rat; ram-headed bow archer; living ram-headed stone statue; muscular ram-headed temple guard with hammer. Row2 huge red fang spider; purple winged moon spider; blood covered zombie; giant red rooted flesh demon boss. Row3 bull-headed axe warrior; bull-headed robed sorcerer; huge horned bull king with poleaxe; black armored bull king. Row4 giant blood-red frog; dragon scale armored sword soldier; dragon scale bow archer; enormous dragon-horned demon lord with spear. Do not copy any existing copyrighted designs. Consistent lighting, strong silhouettes, realistic painted texture. One atlas asset.",
+      "transparent": true
+    },
+    {
+      "file": "exec-15aa2078-c661-4e51-bfb3-1ca215d35ea6.png",
+      "grid": [
+        8,
+        4
+      ],
+      "keys": [
+        "cqwomawar",
+        "cqwomabrave",
+        "cqwomageneral",
+        "cqfirewoma",
+        "cqdarkwar",
+        "cqcentipede",
+        "cqblackmaggot",
+        "cqjumpbee",
+        "cqworm",
+        "cqpincer",
+        "cqhornfly",
+        "cqwedgemoth",
+        "cqredboar",
+        "cqblackboar",
+        "cqscorpionsnake",
+        "cqwolfspider",
+        "cqflowerspider",
+        "cqpoisonspider",
+        "cqblackjawspider",
+        "cqsteelspider",
+        "cqphantomspider",
+        "cqniumofighter",
+        "cqniumoguard",
+        "cqniumogeneral",
+        "cqniumopriest",
+        "cqevilzombie",
+        "cqskelhammer",
+        "cqskelspear",
+        "cqskelaxe",
+        "cqskelarcher",
+        "cqmolongbreaker",
+        "UNUSED"
+      ],
+      "prompt": "Use case stylized-concept. One production game monster sprite atlas, exactly 8 columns x 4 rows, 32 equal cells, transparent background, no text or grid. Each creature centered in cell, full body, generous margins, no overlap. Original gritty painted Chinese dark fantasy early 2000s MMORPG style, no copying copyrighted artwork. Order left to right by row. Row 1: red horned demon swordsman; blue horned demon brave; black horned demon general; flaming horned demon; dark armored warrior; giant centipede; black armored maggot; jumping bee. Row 2: giant pale worm; giant pincer insect; horned fly; wedge wing moth; red boar warrior; black boar warrior; scorpion snake; wolf spider. Row 3: flower patterned spider; green poisonous spider; black jaw spider; steel fang spider; ghostly phantom spider; bull demon fighter with fists; bull demon armored guard; bull demon general. Row 4: bull demon priest in robes; undead evil zombie; skeleton hammer soldier; skeleton spear soldier; skeleton axe soldier; skeleton archer; dragon armored breaker with mace; cave blood bat. Flat transparent isolation, coherent rendering, visible individual species silhouettes.",
+      "transparent": true
+    },
+    {
+      "file": "exec-98a88896-2af4-4f66-9cbb-73cfd8761075.png",
+      "grid": [
+        5,
+        4
+      ],
+      "keys": [
+        "womaguard",
+        "womalord",
+        "evilpincer",
+        "chulongshen",
+        "whiteboar",
+        "evilsnake",
+        "zumaguard",
+        "zumalord",
+        "bloodgiant",
+        "twinblood",
+        "twingold",
+        "hongmaboar",
+        "hongmascorpion",
+        "hongmalord",
+        "evilcorpseking",
+        "huangquanlord",
+        "molongmoth",
+        "molongstrong",
+        "molonggeneral",
+        "molongfake"
+      ],
+      "prompt": "Use case stylized-concept. Single production sprite atlas exactly 5 columns x 4 rows of 20 equal cells. Each full-body monster centered completely within cell, generous margins, transparent background, no writing or grid lines. Original Chinese dark fantasy gritty hand painted early 2000s MMORPG aesthetic. Distinct boss monsters, no copying existing game art. Reading left to right. Row1: horned blue temple demon guard with trident; enormous red winged temple demon lord; evil giant pincer beetle; towering green centipede dragon with claws; white boar brute with spiked mace. Row2: enormous purple evil serpent; ram-headed armored guard with stone hammer; massive ram-headed demon lord with ceremonial staff; hulking red blood giant; enormous two-headed bloody red demon. Row3: enormous two-headed gold gorilla; red boar guard; red scorpion guard; red horned sorcerer demon lord; undead corpse king with chains. Row4: skeletal underworld lord with staff; giant dragon-winged moth; hulking dragon scale brute; dragon scale armored general with halberd; dragon horned false lord with spear. Strong silhouettes, detailed bronze and stone textures, matching light from top left. No scenery.",
+      "transparent": true
+    },
+    {
+      "file": "exec-91145e3f-996c-4ccf-9ae8-fafced0f6ca3.png",
+      "grid": [
+        1,
+        1
+      ],
+      "keys": [
+        "cqbullhead"
+      ],
+      "prompt": "Use case stylized-concept. Original game monster full-body cutout: 牛头魔, a broad shaggy bull-headed primitive demon with black fur, simple torn leather loincloth and crude stone club, huge pale curved horns, no armor. Dark gritty hand painted early 2000s Chinese fantasy MMORPG sprite, 3/4 frontal pose, full body entirely in frame with generous transparent margins. No text, no backdrop. Original design, no copied game assets.",
+      "transparent": true
+    }
+  ],
+  "sprite_count": 68,
+  "scene_count": 4,
+  "thumbnail_count": 4
+}
