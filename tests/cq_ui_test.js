@@ -1,4 +1,4 @@
-// M1 补充：D2 残留关停 / 云报错中文化 / beacon catch / 命名：node tests/cq_ui_test.js
+// M1 补充：D2 残留关停 / 云报错中文化 / 命名：node tests/cq_ui_test.js
 const fs=require('fs'),vm=require('vm');
 const T=require('./cq_harness')('cq_ui_test');const{G,ok}=T;
 ok(!T.loadErr.some(e=>e.startsWith('cq/')),'cq/ 脚本载入无错 '+T.loadErr.join(';'));
@@ -16,7 +16,7 @@ const html=fs.readFileSync(__dirname+'/../index.html','utf8');
 ok(/cq\/balance\.js/.test(html)&&html.indexOf('cq/balance.js')<html.indexOf('"stash.js'),'index.html 在 stash.js 前引入 cq/balance.js');
 ok(/cq\/ui_cq\.css/.test(html)&&/cq\/ui_cq\.js/.test(html),'index.html 引入 ui_cq');
 const cl=fs.readFileSync(__dirname+'/../cloud.js','utf8');
-ok(/keepalive:true[^]*?body\}\)\.catch\(/.test(cl),'clBeacon fetch keepalive 带 .catch');
+// 离页 fetch 失败处理由 mir2_cloud_test.js 执行验证，允许 await + try/catch。
 const fe=cl.match(/function clFriendlyErr[^\n]*/)[0];const c={console:{warn(){}}};vm.createContext(c);vm.runInContext(fe,c);
 const t1=vm.runInContext(`clFriendlyErr({message:"Could not find the table 'public.cq_saves' in the schema cache"})`,c);
 ok(/[\u4e00-\u9fa5]/.test(t1)&&!/schema/.test(t1),'云表缺失 → 中文提示：'+t1);
