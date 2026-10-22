@@ -7,7 +7,7 @@ const BM={XP:1.5,MF:50,LV:2,CAP:40,P:{boss:0.08,uniq:0.03,champ:0.015,n:0.002},
   pois:{n:'剧毒',ic:'ward_pois',m:{pres:-25}},phys:{n:'骨裂',ic:'ward_phys',m:{allres:-10}},magic:{n:'虚空',ic:'ward_void',m:{allres:-15}}}};
 function bmHour(t){return Math.floor((t||Date.now())/3600e3)}
 function bmCands(d){const o=[];ACTS.forEach((A,a)=>{const cl=a===S.act&&d===S.diff?S.cleared:(S.CL&&S.CL[pkey(a,d)])||{};A.zones.forEach((z,i)=>{if(cl[i])o.push([a,i])})});return o}
-function bmCur(){if(typeof S!=='object'||!S)return null;const h=bmHour(),d=S.diff;if(S.bm&&S.bm.h===h&&S.bm.d===d&&S.bm.a!=null)return S.bm;
+function bmCur(){if(window.CQMutation)return null;if(typeof S!=='object'||!S)return null;const h=bmHour(),d=S.diff;if(S.bm&&S.bm.h===h&&S.bm.d===d&&S.bm.a!=null)return S.bm;
  const c=bmCands(d);if(!c.length)return null;let x=(h*2654435761+d*97)>>>0;x=(x^(x>>>13))>>>0;const [a,i]=c[x%c.length];S.bm={h,d,a,i};return S.bm}
 function bmHere(){if(typeof EGM!=='undefined'&&EGM)return false;const b=bmCur();return!!(b&&b.a===S.act&&b.d===S.diff&&b.i===S.zone)}
 function bmLeft(){return 60-Math.floor((Date.now()%3600e3)/60e3)}
