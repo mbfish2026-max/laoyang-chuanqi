@@ -111,13 +111,13 @@ CS.bookDropFor=(m)=>{const B=CQ_BAL.book;const p=m.actboss?B.actboss:m.boss?B.bo
 // S.summons = [{id, kind:'dog'|'skel'|'pet', mon?, sk(技能id), lv(技能等级), hp, deadAt, eq:{collar?}}]（随角色存档）
 function SM(){if(!Array.isArray(S.summons))S.summons=[];return S.summons}
 const CAP={dog:1,skel:1};
-CS.summonCap=(kind,skLv)=>kind==='pet'?Math.min(CQ_BAL.summon.petMax,(skLv|0)<=0?0:(skLv>=10?2:1)):(CAP[kind]||0);
+CS.summonCap=(kind,skLv)=>kind==='pet'?Math.min(CQ_BAL.summon.petMax,(skLv|0)<=0?0:(skLv>=7?2:1)):(CAP[kind]||0);
 CS.summonList=()=>SM().map(s=>Object.assign({},s,{stats:CS.summonStats(s.id)}));
 CS.summonAdd=(kind,o)=>{o=o||{};if(!['dog','skel','pet'].includes(kind))return{err:'种类无效'};const c=CS.curCls();if((kind==='pet'&&c!=='fs')||(kind!=='pet'&&c!=='ds'))return{err:'职业不符'};
  const lv=Math.max(1,o.lv|0);const have=SM().filter(s=>s.kind===kind).length;if(have>=CS.summonCap(kind,lv))return{err:'数量已满'};
  if(kind==='pet'){const z=zoneData();if(!o.mon||!(z.mons||[]).includes(o.mon)||BOSSES[o.mon])return{err:'只能诱惑当前地图的普通怪'}}
  const s={id:'s'+(S.uid++),kind,mon:o.mon||null,sk:o.sk||null,lv,hp:0,deadAt:0,eq:{}};SM().push(s);s.hp=CS.summonStats(s.id).hp;save();emit('summon',{op:'add',s});return{ok:1,summon:s}};
-CS.summonRemove=id=>{const L=SM(),i=L.findIndex(s=>s.id===id);if(i<0)return{err:'无'};const[s]=L.splice(i,1);if(s.eq.collar)S.bag.push(s.eq.collar);save();emit('summon',{op:'remove',s});return{ok:1}};
+CS.summonRemove=id=>{const L=SM(),i=L.findIndex(s=>s.id===id);if(i<0)return{err:'无'};const s=L[i];if(s.eq&&s.eq.collar&&s.eq.collar.lk)return{err:'请先解锁项圈'};if(s.eq&&s.eq.collar&&!bagFits(s.eq.collar))return{err:'背包已满'};L.splice(i,1);if(s.eq.collar)S.bag.push(s.eq.collar);save();emit('summon',{op:'remove',s});return{ok:1}};
 CS.summonSetLv=(id,lv)=>{const s=SM().find(x=>x.id===id);if(!s)return{err:'无'};s.lv=Math.max(1,lv|0);emit('summon',{op:'lv',s});return{ok:1}};
 CS.summonStats=id=>{const s=SM().find(x=>x.id===id);if(!s)return null;const K=CQ_BAL.summon,a=CS.equipAttrs?CS.equipAttrs():{};const lvl=S.lvl||1;
  const base=(s.kind==='pet'?(a.mag|0):(a.tao|0))+lvl*K.attrLv,g=1+s.lv*K.lvK;let hp,atk,def;
@@ -129,11 +129,11 @@ CS.summonStats=id=>{const s=SM().find(x=>x.id===id);if(!s)return null;const K=CQ
 CS.summonDie=id=>{const s=SM().find(x=>x.id===id);if(!s)return;s.deadAt=now();s.hp=0;emit('summon',{op:'die',s})};
 CS.summonRevive=id=>{const s=SM().find(x=>x.id===id);if(!s)return{err:'无'};const st=CS.summonStats(id);if(st.reviveLeft>0)return{err:'冷却中',left:st.reviveLeft};s.deadAt=0;s.hp=st.hp;emit('summon',{op:'revive',s});return{ok:1}};
 CS.summonEquipCollar=(id,uid)=>{const s=SM().find(x=>x.id===id);if(!s||s.kind!=='dog')return{err:'只有神兽有项圈位'};const i=S.bag.findIndex(x=>x.uid===uid);if(i<0)return{err:'背包无此物品'};
- const b=BASEM[S.bag[i].b];if(!b||b.s!=='amulet')return{err:'项圈位暂用项链类物品'};const old=s.eq.collar;s.eq.collar=S.bag.splice(i,1)[0];if(old)S.bag.push(old);save();emit('summon',{op:'collar',s});return{ok:1}};
+ const b=BASEM[S.bag[i].b];if(!b||b.s!=='amulet')return{err:'项圈位暂用项链类物品'};const old=s.eq.collar;if(S.bag[i].lk||(old&&old.lk))return{err:'请先解锁项圈'};s.eq.collar=S.bag.splice(i,1)[0];if(old)S.bag.push(old);save();emit('summon',{op:'collar',s});return{ok:1}};
 // 伤害预算：src 'cqpet' 计入召唤物；30 秒窗口内召唤物占总伤害 ≤ CQ_BAL.summon.share，超出部分等比截断
 const SW={b:[]};function swB(){const t=Math.floor(now()/1e3);let b=SW.b[SW.b.length-1];if(!b||b[0]!==t){b=[t,0,0];SW.b.push(b);while(SW.b.length&&SW.b[0][0]<=t-30)SW.b.shift()}return b}
 CS.summonShare=()=>{swB();let o=0,p=0;for(const b of SW.b){o+=b[1];p+=b[2]}return{other:o,pet:p,share:o+p>0?p/(o+p):0,cap:CQ_BAL.summon.share}};
-{const f=hitMon;hitMon=function(m,d,src,fxc){const pet=src==='cqpet';if(pet&&d&&typeof d==='object'){const st=CS.summonShare(),s=st.cap;if(st.other>0){const room=Math.max(0,st.other*s/(1-s)-st.pet);let t=0;for(const k in d)t+=+d[k]||0;if(t>room){const k2=t>0?room/t:0,o={};for(const k in d)o[k]=(+d[k]||0)*k2;d=o}}}
+{const f=hitMon;hitMon=function(m,d,src,fxc){const pet=src==='cqpet'||(src&&src.kind==='cqpet'&&src.owner!=='hero');if(pet&&d&&typeof d==='object'){const st=CS.summonShare(),s=st.cap;if(st.other>0){const room=Math.max(0,st.other*s/(1-s)-st.pet);let t=0;for(const k in d)t+=+d[k]||0;if(t>room){const k2=t>0?room/t:0,o={};for(const k in d)o[k]=(+d[k]||0)*k2;d=o}}}
  const r=f.call(this,m,d,src,fxc);if(src!=='dot'&&r>0)swB()[pet?2:1]+=r;return r}}
 CS._summonReset=()=>{SW.b.length=0};
 // 背包里点技能书 → 详情弹窗追加「学习」按钮
@@ -142,5 +142,6 @@ if(typeof showItem==='function'){const f=showItem;showItem=function(uid){const r
 // 伤害封顶：记录进入 hitMon 最外层（共享包装之外）的伤害，供 cq/cap_cq.js 计算运行时包装倍率
 {const f=hitMon;hitMon=function(m,d,src,fxc){const o=window.CQ_CAPIN;if(o)o(d);try{return f.apply(this,arguments)}finally{if(o)o(null)}}}
 CS.capLast=()=>CQ_BAL.capLast?CQ_BAL.capLast():null;
+if(typeof skpWire==='function')skpWire(CS);
 CS.m2=1;
 })();

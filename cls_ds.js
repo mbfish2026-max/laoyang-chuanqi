@@ -1,7 +1,7 @@
 'use strict';
 // ===================================================================================
 // cls_ds.js — 道士（热血传奇 1.76 技能）。M1 流派：狗道（设计方案 §4.3）
-// 核心 召唤神兽（狗，随技能等级成长，15 级起为金色神兽）；召唤骷髅为前期替身（与神兽同组，学会神兽后自动换狗）；
+// 核心 召唤神兽（狗，随技能等级成长，7 级起为金色神兽）；召唤骷髅为前期替身（与神兽同组，学会神兽后自动换狗）；
 // 治愈术（自身+召唤物）、隐身术（怪物转打召唤物）保生存；灵魂火符/施毒术 为输出（后续「毒符」流派核心）。
 // 技能书最高 9 级，不分配技能点。数值参考 web-replica skill.txt（灵魂火符 150%+18 → 245%+1202、施毒 3→4 目标、5 秒冷却）。
 // 召唤物 = ALLY.kind 'cqpet'（classes.js CLS_TY.pet），伤害吃召唤伤害加成；属性随技能等级与角色等级成长。
@@ -21,8 +21,8 @@ clsDef('ds',[
  {id:'ysh',t:2,n:'隐身术',r:13,col:1,ty:'buff',g:'ysh',ic:'👻',fx:'shield',mana:L=>5,
   v:L=>{const d=Math.min(60,25+2*(L-1)),t=20+2*(L-1);return{dodge:d,dur:t,txt:`隐身：${d}% 几率不被怪物命中（怪物转攻召唤物），持续 ${t} 秒`}}},
  {id:'zhss',t:0,n:'召唤神兽',r:16,col:1,pre:['zhkl'],ty:'pet',g:'dspet',ic:'🐕',cqfx:'zhaohuan',cd:3,mana:L=>12,
-  v:L=>{const lv=combatLevel(),hp=Math.round((120+30*(L-1)+lv*12)*CLS_DS_PET[0]),a=Math.round((6+2.6*(L-1)+lv*1.1)*CLS_DS_PET[1]),gold=L>=15;return{hp,pd:[a,Math.round(a*1.7)],el:'fire',th:10,max:1,pn:gold?'金色神兽':'神兽',
-   txt:`召唤${gold?'金色':''}神兽：生命 ${hp}、火焰攻击 ${a}-${Math.round(a*1.7)}，反伤 10%（15 级起为金色神兽）`}}},
+  v:L=>{const lv=combatLevel(),hp=Math.round((120+30*(L-1)+lv*12)*CLS_DS_PET[0]),a=Math.round((6+2.6*(L-1)+lv*1.1)*CLS_DS_PET[1]),gold=L>=7;return{hp,pd:[a,Math.round(a*1.7)],el:'fire',th:10,max:1,pn:gold?'金色神兽':'神兽',
+   txt:`召唤${gold?'金色':''}神兽：生命 ${hp}、火焰攻击 ${a}-${Math.round(a*1.7)}，反伤 10%（7 级起为金色神兽）`}}},
 ]);
 CLS_DEF.ds.sk={lhhf:1};
 CLS_BAL.ds={dk:[[1,1],[12,1.1],[30,1.25],[60,1.25]],ek:[[1,1.2],[12,1.5],[30,1.6],[60,1.6]]};

@@ -11,7 +11,7 @@ clsDef('fs',[
  {id:'kjhh',t:0,n:'抗拒火环',r:3,col:1,ty:'aoe',el:'fire',ic:'⭕',fx:'ring',cqfx:'huoqiang',cd:6,sm:1,mana:L=>3,
   v:(L,sy)=>{const d=CLS_DR(3,6,1.5,2.5,L,sy),st=+(1.2+0.08*(L-1)).toFixed(1);return{dmg:d,n:8,stun:Math.min(3,st),txt:`推开身边全部敌人：${clsFsTx(d,'fire')}，击退眩晕 ${Math.min(3,st)} 秒（首领免疫），冷却 6 秒`}}},
  {id:'yhzg',t:2,n:'诱惑之光',r:7,col:0,ty:'charm',el:'light',ic:'✨',cqfx:'zhaohuan',cd:3,mana:L=>6,
-  v:L=>{const p=Math.min(90,40+3*(L-1)),lv=2+Math.floor(L/3),mx=L>=10?2:1,k=+(1.5+0.1*(L-1)).toFixed(1);return{p,lv,max:mx,k,txt:`诱惑等级 ≤ 自身+${lv} 的普通怪物成为宝宝（成功率 ${p}%，最多 ${mx} 只，10 级 +1），宝宝生命/攻击 ×${k}；宝宝死亡 60 秒后才能再诱惑`}}},
+  v:L=>{const p=Math.min(90,40+3*(L-1)),lv=2+Math.floor(L/3),mx=L>=7?2:1,k=+(1.5+0.1*(L-1)).toFixed(1);return{p,lv,max:mx,k,txt:`诱惑等级 ≤ 自身+${lv} 的普通怪物成为宝宝（成功率 ${p}%，最多 ${mx} 只，7 级 +1），宝宝生命/攻击 ×${k}；宝宝死亡 60 秒后才能再诱惑`}}},
  {id:'dyh',t:0,n:'地狱火',r:9,col:2,pre:['hqs'],ty:'cone',el:'fire',ic:'🌋',fx:'boom',cqfx:'huoqiang',sm:2,mana:L=>4+0.2*(L-1),syn:[['hqs'],4],
   v:(L,sy)=>{const d=CLS_DR(8,14,3.5,5,L,sy);return{dmg:d,n:3,txt:`直线火焰贯穿前排 3 个敌人：${clsFsTx(d,'fire')}`}}},
  {id:'ldsh',t:2,n:'雷电术',r:11,col:1,ty:'bolt',el:'light',ic:'⚡',fx:'bolt',cqfx:'leidianshu',mana:L=>3+0.15*(L-1),syn:[['hqs'],5],
