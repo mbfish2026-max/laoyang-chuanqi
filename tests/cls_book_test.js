@@ -36,6 +36,13 @@ ok(G(`clsBookList('zs').length`)===6&&G(`JSON.stringify(clsBookList('zs')[0].boo
 ok(G(`clsSkInfo('gsjs').need`)===3000&&G(`clsSkInfo('gsjs').bookId`)==='zs_gsjs','clsSkInfo');
 // 召唤物生命加成（原 summon_surv.js）：学了 xd_wild 时 +min(60,10+3(L-1))
 G(`calc();window._sl=ST.sumlife||0;SKM.xd_wild={id:'xd_wild',cls:'zz',t:0};S.sk.xd_wild=3;calc()`);ok(G('(ST.sumlife||0)-_sl')===Math.min(60,10+3*(G("slvl('xd_wild')")-1)),'xd_wild 召唤物生命加成');G(`delete SKM.xd_wild;delete S.sk.xd_wild;calc()`);
+// 改名保留技能书 ID；模拟旧档持有的书，走真实保存/载入及学习入口。
+for(const [id,name,oid] of [['sds','施毒术',104007],['zhkl','召唤骷髅',104025]]){
+ G(`CQSys.createChar('旧书兼容','ds');S.lvl=30;S.autoSk=0;addMat('book_ds_${id}',1);save();load();calc()`);
+ ok(G(`clsSkInfo('${id}').bookName`)===name&&G(`CLS_BOOK.${id}.oid`)===oid,'书名修正且原版物品 ID 不变 '+id);
+ ok(G(`CQ_BOOKS.ds_${id}.n`)===name&&G(`MATS.book_ds_${id}.n`)==='技能书·'+name,'掉落与材料名一致 '+id);
+ ok(G(`CQSys.bookLearn('ds_${id}').ok`)===1&&G(`S.sk.${id}`)===1&&G(`CQSys.bookCount('ds_${id}')`)===0,'旧档原 ID 书可学习并扣书 '+id);
+}
 // 符文图鉴按钮已删
 ok(!/符文图鉴/.test(require('fs').readFileSync(__dirname+'/../skills.js','utf8')),'技能页无符文图鉴');
 T.done();

@@ -19,11 +19,11 @@
   var PROF = {zs: 1, fs: 2, ds: 3}, PNAME = {1: '战士', 2: '法师', 3: '道士'};
   var COMBO = {
     '1+1': {name: '破魂斩',   fx: 'heji_pohunzhan',    mult: 3.0, aoe: true,  desc: '战+战: 双刀破魂, 对所有敌人造成巨大物理伤害'},
-    '1+2': {name: '劈星斩',   fx: 'heji_pixingzhan',   mult: 4.5, aoe: false, desc: '战+法: 单体极高伤害, 无视 50% 防御', pierce: .5},
-    '1+3': {name: '雷霆一击', fx: 'heji_leitingyiji',  mult: 3.2, aoe: true,  desc: '战+道: 雷霆贯地, 群体伤害并眩晕 2 秒', stun: 2},
+    '1+2': {name: '雷霆一击', fx: 'heji_leitingyiji',  mult: 3.2, aoe: true,  desc: '战+法: 雷霆贯地, 群体伤害并眩晕 2 秒', stun: 2},
+    '1+3': {name: '劈星斩',   fx: 'heji_pixingzhan',   mult: 4.5, aoe: false, desc: '战+道: 单体极高伤害, 无视 50% 防御', pierce: .5},
     '2+2': {name: '火龙气焰', fx: 'heji_huolongqiyan', mult: 3.6, aoe: true,  desc: '法+法: 火龙席卷全场, 群体魔法伤害'},
-    '2+3': {name: '噬魂沼泽', fx: 'heji_shihunzhaoze', mult: 2.6, aoe: true,  desc: '法+道: 群体伤害, 之后 5 秒每秒追加 20% 伤害', dot: .2},
-    '3+3': {name: '末日审判', fx: 'heji_morishenpan',  mult: 2.8, aoe: true,  desc: '道+道: 群体伤害并为玩家和英雄回复 20% 生命', heal: .2}
+    '2+3': {name: '末日审判', fx: 'heji_morishenpan',  mult: 2.8, aoe: true,  desc: '法+道: 群体伤害并为玩家和英雄回复 20% 生命', heal: .2},
+    '3+3': {name: '噬魂沟泽', fx: 'heji_shihunzhaoze', mult: 2.6, aoe: true,  desc: '道+道: 群体伤害, 之后 5 秒每秒追加 20% 伤害', dot: .2}
   };
   // 伤害封顶：host.cap = CQ_BAL.cap(dmg, ctx)（cq_bridge 接入，系统实现缺时兜底）
   // 英雄技能（原版 heroSkills：本职业主动技能，slevel ≤ 英雄等级，按 priority 取第一个冷却好的；伤害 = 普攻 × p2）。
@@ -135,7 +135,7 @@
     var targets = cb.aoe ? ts : [host.pick ? host.pick(ts) : ts[0]], hits = [], total = 0, self = this;
     h.rage = 0; h.hejiCd = TUNE.hejiCd; h.hejiCount = (h.hejiCount || 0) + 1;
     var tot = this.hejiTotal(cb, host) / (1 + (cb.dot || 0) * 5), per = Math.max(1, Math.round(tot / targets.length));   // 群体合击：总伤平分到目标
-    // 噬魂沼泽（dot）：首击 + 5 跳×20% 合计 = 一次合击总伤（原版首击后再追加 100%，在「按玩家 DPS 定总伤」口径下会翻倍）
+    // 噬魂沟泽（dot）：首击 + 5 跳×20% 合计 = 一次合击总伤（原版首击后再追加 100%，在「按玩家 DPS 定总伤」口径下会翻倍）
     targets.forEach(function(m){ hits.push({m: m, d: per}); total += per; });
     save(this.store, h);
     return {ok: true, type: 'heji', name: cb.name, fx: cb.fx, combo: cb, hits: hits, total: total, manual: !!manual};

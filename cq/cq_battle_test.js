@@ -17,16 +17,16 @@ ok(G('CQ.MOVE.cheb(B2.mons[0].idx,B2.roleIdx)')<=1,'怪物走到贴身后停下'
 ok(G('CQ.MOVE.monCanAttack(B2,B2.mons[0])')==='role','贴身才可攻击');
 // ---------- 英雄 / 合击 ----------
 G(`localStorage.removeItem('cq_battle_hero_v1');var hero=new CQ.Hero(1,localStorage)`);
-ok(G('hero.h.prof')===3&&G('hero.combo().name')==='雷霆一击','战士默认带道士，合击=雷霆一击');
-ok(G("CQ.HEJI.COMBO[CQ.HEJI.comboKey(3,1)].name")==='雷霆一击'&&G("CQ.HEJI.COMBO['2+2'].name")==='火龙气焰','合击表与顺序无关');
+ok(G('hero.h.prof')===3&&G('hero.combo().name')==='劈星斩','战士默认带道士，合击=劈星斩');
+ok(G("CQ.HEJI.COMBO[CQ.HEJI.comboKey(3,1)].name")==='劈星斩'&&G("CQ.HEJI.COMBO['2+2'].name")==='火龙气焰','合击表与顺序无关');
 G(`var hits=[];var host={now:()=>Date.now(),targets:()=>MON.filter(m=>m.hp>0),hit:(m,d,s)=>{hits.push([m.uid,d,s]);return d},atkMax:()=>100,lvl:()=>12,heroK:()=>.35};
   MON=[mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10)];hero.h.autoHeji=false`);
 ok(!G('hero.doHeji(host,true).ok')&&/怒气不足/.test(G('hero.doHeji(host,true).msg')),'怒气不足不能合击');
 G('hero.addRage(250)');ok(G('hero.h.rage')===100,'怒气上限 100');
 G('var r=hero.doHeji(host,true)');
-ok(G('r.ok')&&G('r.hits.length')===2,'群体合击命中全部目标');
+ok(G('r.ok')&&G('r.hits.length')===1,'劈星斩单体合击命中一个目标');
 ok(G('hero.h.rage')===0&&G('hero.h.hejiCd')===CQ_T('hejiCd'),'合击后怒气清零、冷却 HERO_TUNE.hejiCd 秒');
-ok(G('r.total')>=Math.round(135*3.2*.9)-2&&G('r.total')<=Math.round(135*3.2*1.1)+2,'无 DPS 兜底：合击总伤=(玩家上限+英雄上限)×倍率，去掉等级加成');
+ok(G('r.total')>=Math.round(135*4.5*.9)-2&&G('r.total')<=Math.round(135*4.5*1.1)+2,'无 DPS 兜底：合击总伤=(玩家上限+英雄上限)×倍率，去掉等级加成');
 G('host.dps=()=>1000;hero.h.rage=100;hero.h.hejiCd=0;var r2=hero.doHeji(host,true)');ok(G('r2.total')>=1000*6*.9-2&&G('r2.total')<=1000*6.8*1.1+2,'合击总伤 ≈ 玩家 6–6.8 秒 DPS（冷却 30 秒）');
 G('hits.length=0;hero._fr=0;hero.unit.atkT=0;hero.h.skOff={zys:1,lhhf:1,sds:1};hero.tick(.01,host);hero.h.skOff={}');ok(G('hits[0][1]')>=Math.floor(1000*CQ_T('dpsK')*1.6*.9)-1&&G('hits[0][1]')<=Math.ceil(1000*CQ_T('dpsK')*1.6*1.1),'英雄普攻 = 玩家 DPS×dpsK×1.6 秒');
 G('delete host.dps;hero.h.hejiCd=0');
@@ -205,7 +205,7 @@ G('TAB="map"');ok(G('cqPg.travel(0,2,0)')===true&&G('S.zone')===2&&G('TAB')==='f
  G('hh.h.rage=0;hh.cds={};hh.unit.atkT=0;hh.tick(.01,h2)');ok(G('hh.h.rage')===3,'英雄出手 +3 怒气（原版）');
  G("hh.h.mode='rest';hh.h.rage=0;hh.unit.atkT=0;hit2.length=0;hh.tick(.01,h2);hh.addRage(5)");ok(G('hh.h.rage')===0&&G('hit2.length')===0,'休息模式不出手不涨怒气');G("hh.h.mode='attack'");
  G('globalThis.heroSkPick=_hsp');
- ok(G('CQ.HEJI.COMBO["1+3"].stun')===2&&G('CQ.HEJI.COMBO["2+3"].dot')===.2&&G('CQ.HEJI.COMBO["3+3"].heal')===.2&&G('CQ.HEJI.COMBO["1+2"].aoe')===false,'合击效果与原版一致（眩晕/持续/回血/单体）');
+ ok(G('CQ.HEJI.COMBO["1+2"].stun')===2&&G('CQ.HEJI.COMBO["3+3"].dot')===.2&&G('CQ.HEJI.COMBO["2+3"].heal')===.2&&G('CQ.HEJI.COMBO["1+3"].aoe')===false,'合击效果与原版一致（眩晕/持续/回血/单体）');
  G('hh.unit.hp=hh.unit.maxhp=100;hh.h.rage=0;var hu=hh.hurt(30,h2)');ok(G('hu.dmg')>0&&!G('hu.dead')&&G('hh.h.rage')===2,'英雄受伤掉血 +2 怒气');
  G('var hd=hh.hurt(1e6,h2)');ok(G('hd.dead')&&G('hh.reviveLeft(Date.now())')===30,'英雄阵亡，30 秒后复活');
  ok(G('hh.hurt(10,h2)')===null&&G('hh.tick(1,h2)')===null,'阵亡中不受伤不出手');
@@ -213,7 +213,7 @@ G('TAB="map"');ok(G('cqPg.travel(0,2,0)')===true&&G('S.zone')===2&&G('TAB')==='f
  G(`CQ.Scene=CQ.Scene||{};var _g0=CQ.Scene.grid;var GB={b:{roleIdx:26},hero:{idx:8},view:m=>m._v};MON=[mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10)];MON[0]._v={idx:9};MON[1]._v={idx:20};MON[2]._v={idx:27};CQ.Scene.grid=()=>GB;var at=CQ._heroAttackers();CQ.Scene.grid=_g0`);
  ok(G('at.length')===1&&G('at[0]===MON[0]'),'只有贴身英雄（且没贴主角）的怪打英雄');
  G(`ALLY.push({kind:'merc',uid:991,hp:50,max:50});S.merc=S.merc||{t:'archer',lvl:1,eq:{}};CQSys.heroMigrate();step(.1)`);ok(G("ALLY.every(a=>a.kind!=='merc')")&&G('typeof mercTick')==='undefined','旧佣兵不再参战');}
-{const fs2=require('fs');const C=G('JSON.stringify(Object.entries(CQ.HEJI.COMBO).map(([k,v])=>[k,v.fx]))');const M={'1+2':'pixingzhan','1+3':'leitingyiji','2+3':'shihunzhaoze','1+1':'pohunzhan','2+2':'huolongqiyan','3+3':'morishenpan'};
+{const fs2=require('fs');const C=G('JSON.stringify(Object.entries(CQ.HEJI.COMBO).map(([k,v])=>[k,v.fx]))');const M={'1+2':'leitingyiji','1+3':'pixingzhan','2+3':'morishenpan','1+1':'pohunzhan','2+2':'huolongqiyan','3+3':'shihunzhaoze'};
  ok(JSON.parse(C).every(([k,f])=>f==='heji_'+M[k]&&fs2.existsSync(root+'/assets/cq/ui/'+f+'.png')),'6 种合击组合 → heji_<名>.png 图标都在');
  ok(['zs','fs','ds'].every(c=>fs2.existsSync(root+'/assets/cq/ui/hero_head_'+c+'.png')),'英雄头像 hero_head_zs/fs/ds 都在');
  const sc=fs2.readFileSync(root+'/cq/cq_scene.js','utf8');ok(/function hejiIcon\(cb\)\{ return UI \+ \(cb && cb\.fx/.test(sc)&&/btn_heji\.png'; \}/.test(sc),'合击按钮按组合换图，缺图退回 btn_heji');
@@ -241,8 +241,8 @@ if(G("typeof heroSkPick")==='function'){// 职业开发 cls_hero.js 接入（分
  G(`var hk=new CQ.Hero(1,localStorage);hk.h.exists=true;hk.h.autoHeji=true;hk.h.rage=100;hk.h.hejiCd=0;hk.unit.hp=hk.unit.maxhp=100;MON=[mkMon(Object.keys(MONS)[0],10)];MON[0].hp=1e7;var hkh={now:()=>Date.now(),targets:()=>MON.filter(m=>m.hp>0),hit:(m,d)=>d,atkMax:()=>100,lvl:()=>12,heroK:()=>.35};hk.unit.atkT=9;var ka=hk.autoHeji(hkh)`);
  ok(G('ka&&ka.type')==='heji'&&G('hk.h.hejiCd')===30,'合击开：自动合击，冷却 30 秒');
  G(`hk.h.skOff={heji:1};hk.h.rage=100;hk.h.hejiCd=0;var kb=hk.autoHeji(hkh)`);ok(G('kb')===null,'合击关：不自动合击');}
-{G(`var hd2=new CQ.Hero(2,localStorage);hd2.h.prof=3;hd2.h.exists=true;hd2.unit.hp=hd2.unit.maxhp=100;MON=[mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10)];MON.forEach(m=>m.hp=1e9);
+{G(`var hd2=new CQ.Hero(3,localStorage);hd2.h.prof=3;hd2.h.exists=true;hd2.unit.hp=hd2.unit.maxhp=100;MON=[mkMon(Object.keys(MONS)[0],10),mkMon(Object.keys(MONS)[0],10)];MON.forEach(m=>m.hp=1e9);
   var hdh={now:()=>Date.now(),targets:()=>MON.filter(m=>m.hp>0),hit:(m,d)=>d,atkMax:()=>100,lvl:()=>12,heroK:()=>.35,dps:()=>1000};hd2.h.rage=100;hd2.h.hejiCd=0;var rd=hd2.doHeji(hdh,true)`);
- ok(G('rd.name')==='噬魂沼泽'&&G('rd.total*(1+0.2*5)')>=1000*6*.9-4&&G('rd.total*(1+0.2*5)')<=1000*6.8*1.1+4,'噬魂沼泽：首击+5 跳持续合计 ≈ 一次合击总伤（不翻倍）');
+ ok(G('rd.name')==='噬魂沟泽'&&G('rd.total*(1+0.2*5)')>=1000*6*.9-4&&G('rd.total*(1+0.2*5)')<=1000*6.8*1.1+4,'噬魂沟泽：首击+5 跳持续合计 ≈ 一次合击总伤（不翻倍）');
  ok(G('JSON.stringify(CQ.HERO_TUNE.dpsKBy)')==='{"zs":0.2,"fs":0.15,"ds":0.17}'&&CQ_T('hejiCd')===30&&CQ_T('hejiSec')===6.5,'英雄普攻系数 zs.2/fs.15/ds.17，合击 6.5 秒 DPS、冷却 30 秒');}
 T.done();
