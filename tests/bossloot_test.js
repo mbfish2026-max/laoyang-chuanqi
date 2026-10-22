@@ -20,9 +20,12 @@ ok(L.cowking&&L.rift_guard&&L.mj_lord,'含牛魔王/虚隙守望者/秘境之主
 ok(G("JSON.stringify(blBuild())")===G("BOSS_LOOT=null;JSON.stringify(blBuild())"),'分配确定性');
 const p=G("blChance('orclord',85)");ok(p>0.05&&p<=0.5,'地狱 ×4 替换概率 '+p.toFixed(3));
 ok(G("blChance('rakecatking',10)")>0&&G("blPool('rakecatking',10).length")>=1,'低等级只开放普通档');
+// 固定一个有暗金定义的非专属底材，避免高等级新底材回退后仅剩几十个有效样本。
+G(`var sampleBase=BASEM[UNIQUES.find(u=>u.lv<=60&&!blPool('orclord',85).some(v=>v.b===u.b)).b]`);
 // 统计：首领暗金里专属占比 ≈ 理论值，暗金总数不变
-const st=JSON.parse(G(`(()=>{BL.cur='orclord';let u=0,e=0;for(let i=0;i<40000;i++){const it=genItem(85,{q:5});if(it.q===5){u++;if(BOSS_LOOT.orclord.includes(it.cqContentId))e++}}BL.cur=null;let u0=0,e0=0;for(let i=0;i<40000;i++){const it=genItem(85,{q:5});if(it.q===5){u0++;if(BOSS_LOOT.orclord.includes(it.cqContentId))e0++}}return JSON.stringify({u,e,u0,e0})})()`));
+const st=JSON.parse(G(`(()=>{BL.cur='orclord';let u=0,e=0;for(let i=0;i<40000;i++){const it=genItem(85,{q:5,base:sampleBase});if(it.q===5){u++;if(BOSS_LOOT.orclord.includes(it.cqContentId))e++}}BL.cur=null;let u0=0,e0=0;for(let i=0;i<40000;i++){const it=genItem(85,{q:5,base:sampleBase});if(it.q===5){u0++;if(BOSS_LOOT.orclord.includes(it.cqContentId))e0++}}return JSON.stringify({u,e,u0,e0})})()`));
 // 老羊传奇：极品表小，自然掉落本身就可能是专属 → 期望 = p + (1-p)×自然占比
+ok(st.u===40000&&st.u0===40000,'两组均有 40000 件有效暗金样本');
 const nat=st.e0/st.u0,exp=p+(1-p)*nat;ok(Math.abs(st.e/st.u-exp)<0.07,'实测专属占比 '+(st.e/st.u).toFixed(3)+' 期望 '+exp.toFixed(3));ok(Math.abs(st.u-st.u0)<200,'暗金总数不变 '+st.u+'/'+st.u0);
 ok(G("(()=>{const it=genItem(85,{q:5});it.anc=1;it.name='x';it.cqContentId=null;const U=blPool('orclord',85)[0];blSwap(it,'orclord',85);return it.anc===1&&it.blk==='orclord'&&BOSS_LOOT.orclord.includes(it.cqContentId)})()"),'替换后保留上古');
 // 速刷

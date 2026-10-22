@@ -68,7 +68,25 @@ function cqbSort(){if(STV==='bag'){BGP=0;autoSortBag()}else{CQ_BAG_UI.page=0;aut
 function cqbRecycleMenu(){modal(`<div class="mtitle">装备回收</div><div class="gp"><p>一键回收按当前设置处理背包装备，锁定物品始终保留。</p><div class="btns c"><button class="btn gold" onclick="closeM();recycleNow()">一键回收</button><button class="btn" onclick="rcyUI()">自动回收设置</button><button class="btn" onclick="closeM()">返回</button></div></div>`)}
 function cqbRecycle(uid){const f=findItem(uid);if(!f||f.slot||f.it.k||f.it.lk)return;
  if(!confirm('回收「'+itemName(f.it)+'」？'))return;ensureLoot();const a=f.stash?pagesOf(f.where)[f.pg]:S.bag;const i=a.indexOf(f.it);if(i<0)return;a.splice(i,1);doRecycle(f.it);calc();save();if(f.stash&&f.where==='s'){acctSave();if(typeof clSyncSoon==='function')clSyncSoon()}closeM();render()}
-function cqbCompare(uid){CQ_BAG_UI.compare=true;try{showItem(uid)}finally{CQ_BAG_UI.compare=false}}
+function cqbCompare(uid){
+ const f=findItem(uid),cur=f&&!f.it.k&&!f.slot&&cmpTarget(f.it);if(!cur)return showItem(uid);
+ CQ_BAG_UI.compare=true;
+ try{
+  // Render both columns through the final detail renderer, including Mir2 ranges.
+  // Older detail renderers may already build the comparison via compare.js.
+  showItem(uid);if(document.querySelector('#modal .cmpw'))return;
+  const busy=CMP_BUSY;let clone;
+  CMP_BUSY=1;try{showItem(cur.uid);clone=document.querySelector('#modal .ipanel')?.cloneNode(true)}finally{CMP_BUSY=busy}
+  showItem(uid);if(!clone)return;
+  clone.querySelectorAll('.btns,button').forEach(e=>e.remove());clone.removeAttribute('id');clone.classList.add('cmpcur');
+  const mb=document.querySelector('#modal .mb'),panel=mb?.querySelector('.ipanel');if(!panel)return;
+  const wrap=document.createElement('div');wrap.className='cmpw';panel.replaceWith(wrap);wrap.append(panel,clone);
+  panel.insertAdjacentHTML('afterbegin','<div class="cmptag">查看中</div>');clone.insertAdjacentHTML('afterbegin','<div class="cmptag">当前装备</div>');
+  wrap.insertAdjacentHTML('afterend',cmpHtml(cmpDiff(f.it,cur)));
+  // Keep the touch action bars full width below the two attribute columns.
+  for(const bar of [...panel.querySelectorAll('.cqb-transfer,.btns.c')])mb.appendChild(bar);
+ }finally{CQ_BAG_UI.compare=false}
+}
 function cqbCell(g){const it=g.it,c=cqItemCls(it),badge=c&&c!==curCls()?`<b class="cqb-class">${{zs:'战',fs:'法',ds:'道'}[c]||''}</b>`:'';
  return cellG(g,`cqbTap(${it.uid})`).replace(/<\/div>$/,`${badge}${it.lk?'<b class="cqb-lock">锁</b>':''}</div>`)}
 function cqbRender(){if(!S.pst)migrateChar(curChar()||{name:'战士',id:1});drainOld();cqStashNorm();
