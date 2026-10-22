@@ -2,7 +2,7 @@ import sys,os,json
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import pw_baseline as b
 from playwright.sync_api import sync_playwright
-out='/workspace/design/laoyang_m1_shots/codex_summon';srv,url=b.start_server();results=[]
+out='/workspace/design/laoyang_m1_shots/codex_summon';os.makedirs(out,exist_ok=True);srv,url=b.start_server();results=[]
 with sync_playwright() as p:
  for name in ['chromium','webkit']:
   browser=getattr(p,name).launch();ctx=browser.new_context(viewport={'width':390,'height':844},has_touch=True,service_workers='block');ctx.route('https://*.supabase.co/**',b.Cloud('ok').handle)

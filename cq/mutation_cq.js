@@ -30,7 +30,7 @@ function sync(t=Date.now()){
 }
 {const f=spawnWave;spawnWave=function(){const a=current(),before=new Set(MON);const out=f.apply(this,arguments);if(a&&a.k==='corpse'){const wave=MON.filter(m=>!before.has(m)&&!m.boss&&!m.mutationPig);for(let i=0;i<Math.ceil(wave.length/2);i++)MON.push(mkMon(wave[i%wave.length].key,zoneData().ml));a.waves++;if(a.waves%5===0){const m=mkMon('zombieking',zoneData().ml);m.n='异变·尸王';m.mutationCorpse=true;MON.unshift(m)}}sync();return out}}
 {const f=rollTC;rollTC=function(m){const a=current();if(m.mutationPig){if(m.mutationPaid||Date.now()>=m.escapeAt)return [];m.mutationPaid=true;if(a)a.pigOutcome='宝箱已领取';S.gold+=Math.max(10000,m.lv*2000);if(typeof cqInc==='function')cqInc(Math.max(10000,m.lv*2000));const treasure=genItem(m.lv,{q:4});treasure.mutationChest=true;return [treasure]}
- const out=f.apply(this,arguments)||[];if(a&&a.k==='blood')out.push(...(f.apply(this,arguments)||[]));if(m.mutationCorpse&&!out.some(it=>it&&!it.k&&it.q>=4))out.push(genItem(m.lv,{q:4}));return out}}
+ const out=f.apply(this,arguments)||[];if(a&&a.k==='blood'){const replay=m.cqLootReplay;m.cqLootReplay=true;try{out.push(...(f.apply(this,arguments)||[]))}finally{if(replay===undefined)delete m.cqLootReplay;else m.cqLootReplay=replay}}if(m.mutationCorpse&&!out.some(it=>it&&!it.k&&it.q>=4))out.push(genItem(m.lv,{q:4}));return out}}
 {const f=step;step=function(dt){sync();return f.apply(this,arguments)}}
 let shown='';
 function paint(){if(window.__NOUI)return;const host=document.getElementById('fbattle');if(!host)return;const a=current(),key=a?a.k+':'+a.start:'';host.dataset.mutation=a?a.k:'';

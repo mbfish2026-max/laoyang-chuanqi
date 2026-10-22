@@ -67,11 +67,11 @@ function install(){if(installed)return;installed=true;
  const feasible=acFeasible;acFeasible=function(id,ms){if(id==='hq'&&active('fashen',6)&&castable(id)&&clsCdLeft(id)<=0)return ms.length>0;return feasible.apply(this,arguments)};
  const cooldown=clsCdLeft;clsCdLeft=function(id){const left=cooldown.apply(this,arguments);return id==='hq'&&active('fashen',6)&&ACT[id]!=null?Math.max(0,left-SKM[id].cd/2):left};
  const tc=rollTC;rollTC=function(m){const out=tc.apply(this,arguments);if(!m||!m.boss||!pools[m.key])return out;
- const r=record(),n=r.kills[m.key]=(r.kills[m.key]||0)+1,all=parts(m.key);
+ const r=record(),replay=!!m.cqLootReplay,n=r.kills[m.key]=(r.kills[m.key]||0)+(replay?0:1),all=parts(m.key);
  out.forEach(remember);
- let candidate=null;if(n%300===0){const own=all.filter(p=>SETS[p.set].ccls===curCls());candidate=own.find(p=>!r.seen[p.id])||own[(n/300-1)%own.length]}
+ let candidate=null;if(!replay&&n%300===0){const own=all.filter(p=>SETS[p.set].ccls===curCls());candidate=own.find(p=>!r.seen[p.id])||own[(n/300-1)%own.length]}
  else if(rnd()<.025)candidate=pick(all);
- if(candidate){const it=CQMir2Equip.createContent(candidate.id,m.lv||60);if(n%300===0)it.cqSetGuarantee=1;out.push(it);remember(it)}return out;
+ if(candidate){const it=CQMir2Equip.createContent(candidate.id,m.lv||60);if(!replay&&n%300===0)it.cqSetGuarantee=1;out.push(it);remember(it)}return out;
  };
  const bag=addBag;addBag=function(it){remember(it);if(it&&it.cqSetGuarantee&&!bagFits(it)){record().pending.push(it);return false}return bag.apply(this,arguments)};
  const hero=renderHero;renderHero=function(){const r=hero.apply(this,arguments),p=document.querySelector('#panel');if(p&&!p.querySelector('.mir2-set-entry'))p.insertAdjacentHTML('beforeend','<button class="btn mir2-set-entry" style="min-height:44px;min-width:44px;white-space:nowrap" onclick="CQMir2Sets.show()">套装图鉴</button>');return r};

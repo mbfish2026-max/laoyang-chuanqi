@@ -10,3 +10,11 @@
 - 场景使用静态红/灰绿/金色遮罩，进入闪光及逃跑烟尘各播一次；显示异变剩余时间及猪逃跑时间。沿用现有卡片结构，没有新增可点击控件。
 
 短测：`node tests/mir2_mutation_test.js`（直接推进时钟），`python3 tests/pw_mutation.py`（Chromium/WebKit、新角色/旧档、390×844）。截图和报告输出到 `/workspace/design/laoyang_m1_shots/codex_mutate/`。
+
+## batch3 集成
+
+与 R03 套装共存时，血月第二次掉落使用临时 `cqLootReplay` 标记，结算后在 finally 中恢复。套装随机掉落仍可再次抽取，但击杀累计及300杀保底只结算一次；专测覆盖299→300杀、仅一件保底及标记清理。
+
+本窗口集成短验收：166个JS文件 node --check 通过；mir2_sets 35、mir2_summon 11、mir2_mutation 22、cq_migrate 10、cq_sysapi 34、mir2_equipment 587、cq_battle 219项通过。三项功能均完成 Chromium/WebKit × 新档/旧档 390×844 截图检查；汇总报告位于 `/workspace/design/laoyang_m1_shots/batch3/`，原图分别位于同级 `codex_sets/`、`codex_summon/`、`codex_mutate/`。本次以窗口短验收清单为准，未完成整套 tests/*_test.js；误启动的全量任务已中止，未完成长时英雄预算模拟。
+
+pw_baseline.py 单次默认矩阵通过：Chromium/WebKit × 390×844/375×667，0问题。报告：`/workspace/design/laoyang_m1_shots/batch3/baseline-report.json`。

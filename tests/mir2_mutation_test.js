@@ -19,6 +19,10 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../cq/cq_move.js'),'utf8'),
 G(`var moving={idx:14,ref:{mutationPig:true,mutationMoveAt:now+5000}};var board={roleIdx:26,roleMoveT:1000,mons:[moving],_pets:[]};CQ.MOVE.update(board,.1)`);
 ok(G('moving.idx===14'),'5秒前不移动');
 G('now+=5000;CQ.MOVE.update(board,.1)');ok(G('moving.idx!==14&&CQ.MOVE.cheb(moving.idx,26)>2'),'5秒向远离玩家格移动');
+G("force('blood');S.mir2Sets={kills:{zumalord:299},seen:{},pending:[]};var setBoss=mkMon('zumalord',40);setBoss.boss=true;var bloodLoot=rollTC(setBoss)");
+ok(G('S.mir2Sets.kills.zumalord===300'),'血月双掉落只记一次套装击杀');
+ok(G('bloodLoot.filter(it=>it.cqSetGuarantee).length===1'),'血月300杀保底只发一次');
+ok(G('!Object.hasOwn(setBoss,"cqLootReplay")'),'第二次掉落标记结算后清理');
 G(`var rolls=0;rollTC=function(){rolls++;return [{uid:S.uid++}]};force('blood')`);
 vm.runInContext(fs.readFileSync(path.join(__dirname,'../cq/mutation_cq.js'),'utf8'),T.ctx);
 G('var doubled=rollTC({})');ok(G('rolls===2&&doubled.length===2'),'血月掉落独立结算两次');
