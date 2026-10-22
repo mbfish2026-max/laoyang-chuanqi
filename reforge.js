@@ -10,7 +10,7 @@ const RF_ART=['bg','equip_frame','panel_old','panel_new','btn','btn_down','spark
 const RF={art:0,MAX:10,gold:n=>5000*(n+1)*(n+1),ess:n=>5*(n+1),tab:'eq',busy:0};
 (function(){if(typeof Image==='undefined'||window.__NOUI)return;let n=0,bad=0;RF_ART.forEach(k=>{const im=new Image();im.onload=()=>{if(++n===RF_ART.length&&!bad){RF.art=1;const m=document.querySelector('#modal .rf3');if(m)m.classList.add('rfart')}};im.onerror=()=>{bad=1};im.src='assets/ui2/reforge/'+k+'.webp'})})();
 function rfKind(it){if(!it||it.k||it.rw!=null)return null;if(it.anc&&it.ax&&Object.keys(it.ax).length)return'anc';if(it.q===3||it.q===4)return'rare';return null}
-function rfLines(it){const k=rfKind(it);if(!k)return[];if(k==='anc')return Object.keys(it.ax).filter(x=>x in it.m);return Object.keys(it.m).filter(x=>x!=='sockp'&&typeof it.m[x]==='number')}
+function rfLines(it){const k=rfKind(it);if(!k)return[];if(k==='anc')return Object.keys(it.ax).filter(x=>x in it.m&&!it.rf?.bless?.[x]);return Object.keys(it.m).filter(x=>x!=='sockp'&&typeof it.m[x]==='number'&&!it.rf?.bless?.[x])}
 function rfTxt(k,v){return(MODT[k]||k+' {v}').replace('{v}',v).replace('+-','-')}
 function rfCands(it,key){const b=BASEM[it.b],kind=rfKind(it),al=kind==='anc'?99:alvlOf(it.il||it.ilvl||S.lvl||1,b.q||1);const out=[],seen=new Set([key]);
  // 修（RF_SEED=8）：部位词缀池太小（头盔只有 8 种属性），物品已占 7 种时只能出 1 个候选 → 本部位池凑不满 3 个时，依次用全等级池、护甲/戒指底材的词缀池补足，保证 3 个互不相同且不与现有词缀重复
@@ -23,12 +23,12 @@ function rfCanPay(n){return S.gold>=RF.gold(n)&&matCount('ess')>=RF.ess(n)}
 function rfSnd(k){try{const A=window.AUDIO;if(A&&A.reforge){A.reforge(k);return}if(A&&A.playLootTier){const t={perfect:'ancient',pick:'rare'}[k];if(t)A.playLootTier(t)}}catch(e){}}
 function rfSt(it){if(!it.rf)it.rf={k:null,n:0,off:null};return it.rf}
 // 锁定一条（不扣费）
-function rfLock(uid,key){const f=findItem(uid),it=f&&f.it;if(!it||!rfKind(it))return false;const R0=rfSt(it);if(R0.off)return false;
+function rfLock(uid,key){const f=findItem(uid),it=f&&f.it;if(!it||!rfKind(it))return false;const R0=rfSt(it);if(R0.off||R0.boff)return false;
  if(R0.k&&R0.k!==key){toast('已锁定其他词缀，只能重铸那一条');return false}if(!rfLines(it).includes(key))return false;R0.k=key;save&&save();if(!window.__NOUI)rfMain(uid);return true}
 // 付费并生成候选（纯逻辑，UI 另做动画）
 function rfRoll(uid,key){const f=findItem(uid),it=f&&f.it;if(!it||f.stash)return toast('物品需在身上或背包中');if(!rfKind(it))return false;const R0=rfSt(it);key=key||R0.k;
- if(R0.n>=RF.MAX)return toast('已达淬锋上限');if(!key)return toast('先点选一条词缀');if(R0.k&&key!==R0.k)return toast('只能重铸已锁定的词缀');if(!rfLines(it).includes(key))return false;
- if(!rfCanPay(R0.n))return toast(`需要 ${fmt(RF.gold(R0.n))} 金币 + ${RF.ess(R0.n)} 残骸精华`);
+ if(R0.n>=rfLimit(it))return toast('已达淬锋上限');if(!key)return toast('先点选一条词缀');if(R0.k&&key!==R0.k)return toast('只能重铸已锁定的词缀');if(!rfLines(it).includes(key))return false;
+ if(R0.boff)return false;if(!rfCanPay(R0.n))return toast(`需要 ${fmt(RF.gold(R0.n))} 金币 + ${RF.ess(R0.n)} 残骸精华`);
  const c=rfCands(it,key);if(!c.length)return toast('该部位没有可用的候选词缀');S.gold-=RF.gold(R0.n);takeMat('ess',RF.ess(R0.n));R0.k=key;R0.n++;R0.off=c;R0.at=Date.now();save&&save();return true}
 function rfPick(uid,i){const f=findItem(uid),it=f&&f.it;if(!it||!it.rf||!it.rf.off)return false;const R0=it.rf;let res=null;
  if(i>=0){const[k,v,lo,hi]=R0.off[i]||[];if(!k)return false;const old=R0.k;delete it.m[old];it.m[k]=v;if(it.ax){delete it.ax[old];it.ax[k]=[lo,hi]}R0.k=k;res=[k,v,lo,hi];log(`淬锋精铸：<b>${rfTxt(k,v)}</b>`)}
@@ -36,14 +36,14 @@ function rfPick(uid,i){const f=findItem(uid),it=f&&f.it;if(!it||!it.rf||!it.rf.o
 // ---------- 界面 ----------
 function rfEligible(where){const L=where==='eq'?SLOTS.map(s=>S.eq[s]).filter(Boolean):S.bag;return L.filter(it=>rfKind(it))}
 function rfPage(){const L=rfEligible(RF.tab);const tb=[['eq','身上'],['bag','背包']].map(([k,n])=>`<button class="${RF.tab===k?'on':''}" onclick="RF.tab='${k}';render()">${n} ${rfEligible(k).length}</button>`).join('');
- return`<div class="gp rfshop"><h3>⚒ 淬锋精铸 <span class="r dim">精华 ${matCount('ess')}</span></h3><div class="dim">在锻炉中重铸装备上的一条词缀：魔法/稀有任选一条，上古/至臻只限额外词缀。首次锁定后只能重铸这一条，每件最多 ${RF.MAX} 次。</div>
- <div class="stabs rftabs">${tb}</div>${L.length?`<div class="grid">${L.map(it=>{const r=it.rf||{n:0};return`<div class="shc">${cell(it,`rfMain(${it.uid})`)}<small class="rfn ${r.off?'pend':''}">${r.off?'待选择':(r.n||0)+'/'+RF.MAX}</small></div>`}).join('')}</div>`:'<div class="dim rfempty">没有可淬锋的装备（需魔法/稀有，或带额外词缀的上古/至臻）</div>'}</div>`}
+ return`<div class="gp rfshop"><h3>⚒ 淬锋精铸 <span class="r dim">精华 ${matCount('ess')}</span></h3><div class="dim">在锻炉中重铸装备上的一条词缀：魔法/稀有任选一条，上古/至臻只限额外词缀。首次锁定后重铸同一条；龙魂祝福随机1–3条，可保留旧值。魔法7次、稀有10次、更高15次，共用次数。</div>
+ <div class="stabs rftabs">${tb}</div>${L.length?`<div class="grid">${L.map(it=>{const r=it.rf||{n:0};return`<div class="shc">${cell(it,`rfMain(${it.uid})`)}<small class="rfn ${r.off?'pend':''}">${r.off?'待选择':(r.n||0)+'/'+rfLimit(it)}</small></div>`}).join('')}</div>`:'<div class="dim rfempty">没有可淬锋的装备（需魔法/稀有，或带额外词缀的上古/至臻）</div>'}</div>`}
 {const f=renderShop;renderShop=function(){const r=f.apply(this,arguments);try{const P=$('#panel'),t=P.querySelector('.stabs');if(t&&!t.querySelector('.rft'))t.insertAdjacentHTML('beforeend',`<button class="rft ${SHT==='rf'?'on':''}" onclick="SHT='rf';render()">重铸</button>`);
  if(SHT==='rf'){t.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.classList.contains('rft')));let n=t.nextElementSibling;while(n){const x=n.nextElementSibling;n.remove();n=x}t.insertAdjacentHTML('afterend',rfPage())}}catch(e){console.warn(e)}return r}}
 function rfFrame(it){return`<div class="rfbox" style="--c:${itemColor(it)}"><div class="rfic">${itemIcon(it)}</div><b style="color:${itemColor(it)}">${itemName(it)}</b><small class="dim">${it.anc===2?'至臻':it.anc?'上古':it.q===4?'稀有':'魔法'}</small></div>`}
-function rfHead(it){const n=(it.rf||{}).n||0;return`<div class="mtitle">⚒ 淬锋精铸 <small class="dim">${n}/${RF.MAX}</small></div>`}
+function rfHead(it){const n=(it.rf||{}).n||0;return`<div class="mtitle">⚒ 淬锋精铸 <small class="dim">${n}/${rfLimit(it)}</small></div>`}
 function rfMain(uid,anim){const f=findItem(uid),it=f&&f.it;if(!it||!rfKind(it))return;const R0=it.rf||{k:null,n:0,off:null};const n=R0.n||0,L=rfLines(it);
- const btn=n>=RF.MAX?`<button class="btn rfgo" disabled>已达上限 ${n}/${RF.MAX}</button>`:`<button class="btn gold rfgo" ${R0.k&&rfCanPay(n)?'':'disabled'} onclick="rfGo(${uid})"><b>重 铸</b><small>${fmt(RF.gold(n))}◈ + ${RF.ess(n)} 精华 · ${n+1}/${RF.MAX}</small></button>`;
+ const btn=n>=rfLimit(it)?`<button class="btn rfgo" disabled>已达上限 ${n}/${rfLimit(it)}</button>`:`<button class="btn gold rfgo" ${R0.k&&rfCanPay(n)?'':'disabled'} onclick="rfGo(${uid})"><b>重 铸</b><small>${fmt(RF.gold(n))}◈ + ${RF.ess(n)} 精华 · ${n+1}/${rfLimit(it)}</small></button>`;
  let right;
  if(!R0.k)right=`<div class="dim">点一条词缀锁定：</div>${L.map(k=>`<div class="rfl" data-k="${k}" onclick="rfLock(${uid},'${k}')">${rfTxt(k,it.m[k])}</div>`).join('')}`;
  else{const off=R0.off||[];right=`<div class="rfsec">原词条</div><div class="rfl lk rfcur ${anim===2?'rfnew':''}" data-k="${R0.k}">${rfTxt(R0.k,it.m[R0.k])} <i>🔒</i></div>
@@ -57,3 +57,22 @@ function rfGo(uid){if(RF.busy)return;if(!rfRoll(uid))return;const el=document.qu
 // 详情：淬锋次数 + 锁定词缀
 {const f=showItem;showItem=function(uid){const r=f.apply(this,arguments);try{const fi=findItem(uid),it=fi&&fi.it;const p=document.querySelector('#modal .ipanel');if(it&&it.rf&&it.rf.n&&p&&!p.querySelector('.rftag')){
  const h=`<div class="sec rftag">淬锋 ${it.rf.n}/${RF.MAX} · 锁定：<b>${rfTxt(it.rf.k,it.m[it.rf.k])}</b></div>`;const b=p.querySelector('.btns');if(b)b.insertAdjacentHTML('beforebegin',h);else p.insertAdjacentHTML('beforeend',h)}}catch(e){console.warn(e)}return r}}
+
+// 龙魂祝福并入淬锋：共用 rf.n 次数，不另设养成入口。
+function rfLimit(it){return it.anc||it.q>=5?15:it.q===4?10:7}
+function rfBlessEligible(it){return !!(it&&!it.k&&it.rw==null&&BASEM[it.b]&&it.q>=3)}
+function rfBlessRoll(uid){
+ const f=findItem(uid),it=f&&f.it;if(!rfBlessEligible(it)||f.stash)return false;
+ const r=rfSt(it);if(r.n>=rfLimit(it)||r.off||r.boff||!rfCanPay(r.n))return false;
+ const pool=['maxdmg','mag','tao','def','mdef','ar','dex','luck'].filter(k=>k!==r.k);const count=R(1,3),offer={};
+ for(let i=0;i<count;i++){const k=pool.splice(R(0,pool.length-1),1)[0];offer[k]=k==='luck'?1:R(1,2)}
+ S.gold-=RF.gold(r.n);takeMat('ess',RF.ess(r.n));r.n++;r.boff=offer;save();return true;
+}
+function rfBlessClear(it){const r=it.rf;if(!r)return;for(const[k,v]of Object.entries(r.bless||{})){it.m[k]=(it.m[k]||0)-v;if(it.cqBonus)it.cqBonus[k]=(it.cqBonus[k]||0)-v}delete r.bless;delete r.boff}
+function rfBlessPick(uid,accept){const f=findItem(uid),it=f&&f.it,r=it&&it.rf;if(!r||!r.boff)return false;
+ const offer=r.boff;if(accept){rfBlessClear(it);r.bless=offer;it.cqBonus=it.cqBonus||{};for(const[k,v]of Object.entries(offer)){it.m[k]=(it.m[k]||0)+v;it.cqBonus[k]=(it.cqBonus[k]||0)+v}}
+ delete r.boff;calc();save();return true;
+}
+function rfBlessHTML(it){const r=it.rf||{n:0},txt=o=>Object.entries(o||{}).map(([k,v])=>rfTxt(k,v)).join('、')||'无';return `<section class="b6bless"><h3>龙魂祝福 · ${r.n}/${rfLimit(it)}</h3><p>随机 1–3 条固定属性，共用淬锋次数。原祝福：${txt(r.bless)}</p>${r.boff?`<p>候选：${txt(r.boff)}</p><button class="btn" onclick="rfBlessPick(${it.uid},false);rfMain(${it.uid})">保留旧祝福</button><button class="btn gold" onclick="rfBlessPick(${it.uid},true);rfMain(${it.uid})">采用新祝福</button>`:`<button class="btn" ${r.n>=rfLimit(it)||r.off||!rfCanPay(r.n)?'disabled':''} onclick="if(rfBlessRoll(${it.uid}))rfMain(${it.uid})">祝福 ${fmt(RF.gold(r.n))}金 / ${RF.ess(r.n)}精华</button>`}</section>`}
+{const f=rfMain;rfMain=function(uid,anim){const x=findItem(uid),it=x&&x.it;if(!rfBlessEligible(it))return f.apply(this,arguments);if(rfKind(it)){f.apply(this,arguments);const p=document.querySelector('#modal .rfst');if(p)p.insertAdjacentHTML('beforeend',rfBlessHTML(it))}else modal(`<div class="b6panel"><h3>淬锋精铸</h3><p>${itemName(it)}</p>${rfBlessHTML(it)}<button class="btn" onclick="closeM()">关闭</button></div>`)}}
+{const f=rfEligible;rfEligible=function(where){const list=f.apply(this,arguments);for(const it of (where==='eq'?Object.values(S.eq):S.bag))if(rfBlessEligible(it)&&!list.includes(it))list.push(it);return list}}

@@ -174,7 +174,7 @@
   function applyHeji(ev){ ev.hits.forEach(function(x){ x.got = Host.hit(x.m, x.d, 'cqheji') || 0; if (ev.combo.stun) Host.stun(x.m, ev.combo.stun); if (ev.combo.dot) dots.push({m: x.m, d: Math.round(x.d * ev.combo.dot), n: 5, t: 1}); });
     if (ev.combo.heal) { Host.healPct(ev.combo.heal); core.unit.hp = Math.min(core.unit.maxhp, core.unit.hp + core.unit.maxhp * ev.combo.heal); }
     ev.applied = true; emit('playHeji', ev); }
-  function coreStep(dt){ var hc = heroCore(); if (!hc) return; dpsTick(dt);
+  function coreStep(dt){ if(window.CQB6&&CQB6.dungeon().state==='battle')return; var hc = heroCore(); if (!hc) return; dpsTick(dt);
     dots = dots.filter(function(o){ o.t -= dt; if (o.t > 0) return true; o.t = 1; if (!(o.m.hp > 0)) return false; Host.hit(o.m, o.d, 'cqheji'); emit('onDot', o); return --o.n > 0; });
     var ev = hc.tick(dt, coreHost);
     if (ev && ev.cast && ev.cast.dot && ev.cast.hits) ev.cast.hits.forEach(function(x){ dots.push({m: x.t, d: Math.max(1, Math.round(ev.cast.dot.per * .2)), n: ev.cast.dot.sec, t: 1}); });   /* cls_hero 施毒术等：持续伤害按原版 20%/秒 */

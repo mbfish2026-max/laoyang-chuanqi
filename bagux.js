@@ -99,6 +99,7 @@ function cqbRender(){if(!S.pst)migrateChar(curChar()||{name:'战士',id:1});drai
  const cap=bag?BAG_SZ:P.length*48,used=bag?slotsUsed(S.bag):stashTotal(P),cost=bag?null:cqStashCost(sh?'s':'p');
  const chips=(pairs,active,fn)=>pairs.map(([k,t])=>`<button class="${active===k?'on':''}" onclick="${fn}('${k}')">${t}</button>`).join('');
  $('#panel').innerHTML=`<section class="cqbag"><header><span>行囊</span><small>${bag?'背包':sh?'共享仓库':'个人仓库'} ${used}/${cap}</small></header>
+ ${bag&&window.CQB6?'<div class="b6entry"><button class="btn" onclick="CQB6.fuseUI()">三合一融合</button></div>':''}
  <div class="cqb-actions"><button onclick="cqbSort()">排序</button><button onclick="cqbRecycleMenu()">回收</button><button class="${CQ_BAG_UI.lock?'on':''}" onclick="CQ_BAG_UI.lock=!CQ_BAG_UI.lock;render()">${CQ_BAG_UI.lock?'完成锁定':'锁定'}</button></div>
  <nav class="cqb-tabs bagv">${chips([['bag','背包'],['pst','个人仓库'],['shared','共享仓库']],STV,'cqbTab')}</nav>
  ${sh?`<div class="cqb-chips cqclsf">${chips(CQ_CLSF,CQ_BAG_UI.cls,'cqbCls')}</div>`:''}
