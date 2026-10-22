@@ -181,7 +181,7 @@
     if (ev) { if (ev.type === 'heji') applyHeji(ev); else emit('onHeroEvent', ev); }
     // 英雄受伤：有怪时每 hurtT 秒，hurtP 概率被一只活怪打一下（战斗页的格子站位只做表现）
     var T = CQ.HERO_TUNE; hurtT -= dt; if (hurtT <= 0) { hurtT = T.hurtT * (0.85 + Math.random() * 0.3);
-      var ms = heroAttackers(); if (ms.length) { var m = ms[Math.floor(Math.random() * ms.length)], d = m.dmg ? m.dmg[0] + Math.random() * (m.dmg[1] - m.dmg[0]) : 3; var r = hc.hurt(d, coreHost); if (r) emit('onHeroEvent', {type: 'herohurt', m: m, dmg: r.dmg, dead: r.dead}); } }
+      var ms = heroAttackers().filter(function(m){ return !m.mutationPig; }); if (ms.length) { var m = ms[Math.floor(Math.random() * ms.length)], d = m.dmg ? m.dmg[0] + Math.random() * (m.dmg[1] - m.dmg[0]) : 3; var r = hc.hurt(d, coreHost); if (r) emit('onHeroEvent', {type: 'herohurt', m: m, dmg: r.dmg, dead: r.dead}); } }
     saveT += dt; if (saveT > 15) { saveT = 0; hc.persist(); } }
   CQ._coreStep = coreStep;
   CQ.heroHejiNow = function(){ var hc = heroCore(); var r = hc.doHeji(coreHost, true); if (r.ok) applyHeji(r); return r; };

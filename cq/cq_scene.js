@@ -227,13 +227,14 @@
     st.uiT -= dt; if (st.uiT <= 0) { st.uiT = .1; renderUI(now); }
   }
   function monCard(m){ var cls = 'card spawn' + (m.boss ? ' boss' : m.fl === 'champ' ? ' elite' : m.fl === 'uniq' ? ' cuniq' : '');
-    var e = h('div', cls, '<div class="in"><div class="bd"></div>' + (m.boss ? '<div class="ctag">首领</div>' : '') + '<img class="fig" alt="" src="' + esc(CQ.Host.monArt(m)) + '" style="animation-delay:-' + ((m.uid * 7) % 26 / 10) + 's">' +
+    var e = h('div', cls + (m.mutationPig ? ' mutation-pig' : ''), '<div class="in"><div class="bd"></div>' + (m.boss ? '<div class="ctag">首领</div>' : '') + '<img class="fig" alt="" src="' + esc(CQ.Host.monArt(m)) + '" style="animation-delay:-' + ((m.uid * 7) % 26 / 10) + 's">' +
       '<div class="clv">Lv.' + (m.lv || 1) + '</div><div class="cnm">' + esc(m.n) + '</div><div class="hb"><s></s><i></i></div></div>');
+    if (m.mutationPig) e.querySelector('.in').insertAdjacentHTML('beforeend','<span class="mutation-pig-art">🐖<small>▣</small></span>');
     var im = e.querySelector('img.fig'); im.onerror = function(){ var u = im.getAttribute('src'), nx; CQ.artBad(u); nx = CQ.Host.monArt(m); if (nx && nx !== u) im.src = nx; else im.onerror = null; };   // 缺图逐级兜底（结果缓存）
     e.style.transform = 'translate(-200px,-200px)'; st.R.units.appendChild(e); CQ.FX.once(e, 'spawn', false, 600);
     var v = st.views[m.uid]; if (v) { v.hbI = e.querySelector('.hb i'); v.hbS = e.querySelector('.hb s'); }
     return e; }
-  function killView(v){ v.dead = true; var el = v.el; CQ.FX.once(el, 'die', true, 800);
+  function killView(v){ v.dead = true; var el = v.el; CQ.FX.once(el, v.ref.mutationEscaped ? 'mutation-smoke' : 'die', true, 800);
     st.b.mons.splice(st.b.mons.indexOf(v), 1); delete st.views[v.uid]; if (st.b._tgt === v) st.b._tgt = null; }
 
   // ---------- UI（10Hz） ----------

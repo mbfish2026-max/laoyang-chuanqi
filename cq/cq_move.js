@@ -66,7 +66,16 @@
     if (b.roleMoveT <= 0) { b.roleMoveT = walk;
       if (!roleTarget(b)) { var t = nearestMon(b, b.roleIdx); var e = t ? t.idx : Math.floor(Math.random() * N);
         var n = stepToward(b, b.roleIdx, e); if (n >= 0) { b.roleIdx = n; } } }
-    b.mons.forEach(function(m){ if (m.dead || m.idx == null) return; m.moveT = (m.moveT || 0) - dt; if (m.moveT > 0) return; m.moveT = (m.walk_spd || 1.6) + Math.random() * .6;
+    b.mons.forEach(function(m){ if (m.dead || m.idx == null) return;
+      if (m.ref && m.ref.mutationPig) {
+        var now = Date.now(); if (now >= (m.ref.mutationMoveAt || 0)) {
+          m.ref.mutationMoveAt = now + 5000;
+          var occupied = occ(b), here = xy(m.idx), best = m.idx, distance = cheb(m.idx, b.roleIdx);
+          for (var cell = 0; cell < N; cell++) { var p = xy(cell);
+            if (!occupied[cell] && Math.abs(p[0]-here[0])+Math.abs(p[1]-here[1]) === 1 && cheb(cell,b.roleIdx) > distance) { best=cell; distance=cheb(cell,b.roleIdx); }
+          } m.idx=best;
+        } return;
+      } m.moveT = (m.moveT || 0) - dt; if (m.moveT > 0) return; m.moveT = (m.walk_spd || 1.6) + Math.random() * .6;
       if (m.stunned) return;
       if (monCanAttack(b, m)) return;
       var tg = b.roleIdx, bd = cheb(m.idx, b.roleIdx); (b._pets || []).forEach(function(p){ if (p.hp > 0 && p.idx != null && cheb(m.idx, p.idx) < bd) { bd = cheb(m.idx, p.idx); tg = p.idx; } });
