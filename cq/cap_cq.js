@@ -8,6 +8,7 @@ function statMul(){const w=S&&S.eq&&S.eq.weapon;if(!w)return 1;const B=CQ_BAL.bu
  if(w.anc)m*=1+B.anc*(w.anc>=2?1:0.67);
  if(w.rf&&(w.rf.n|0)>0)m*=1+B.rf*Math.min(1,(w.rf.n|0)/10);
  if(S.reb)m*=1+B.reb*Math.min(1,S.reb/(CQ_BAL.rebirthMax||10));
+ if(window.CQSoul)m*=CQSoul.damageMul||1;
  return m}
 CQ_BAL.statMul=statMul;
 CQ_BAL.curMul=src=>CAP.last.wrap*statMul();

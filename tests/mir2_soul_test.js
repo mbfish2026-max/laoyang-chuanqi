@@ -1,0 +1,23 @@
+'use strict';
+const T=require('./cq_harness')('mir2_soul_test'),{G,ok}=T;
+ok(!T.loadErr.length,'load '+T.loadErr.join(';'));
+G(`S=newSave();load();CQSys.createChar('器魂测试','zs');var w=makeBase(BASEM.swdtulong,40);S.eq.weapon=w;calc()`);
+ok(G('CQSoul.eligible(w)&&!CQSoul.eligible(makeBase(BASEM.swd1,1))'),'极品武器资格');
+G(`CQSoul.credit({},w);CQSoul.credit({fl:'champ'},w);var boss={boss:1};CQSoul.credit(boss,w);CQSoul.credit(boss,w)`);
+ok(G('w.soulKills')===24,'权重与同次击杀去重');
+for(const [i,n] of [1000,10000,50000,200000].entries()){G(`w.soulKills=${n-1};CQSoul.credit({},w)`);ok(G('CQSoul.stage(w)')===i+1,'阶段 '+n)}
+ok(G('CQSoul.multiplier(w,1)<=1.1&&CQSoul.flat(w)>0'),'累计预算');
+G(`var other=makeBase(BASEM.swdtulong,40);S.bag.push(other);S.eq.weapon=other;CQSoul.credit({},other)`);
+ok(G('other.soulKills===1&&w.soulKills===200000'),'同种武器独立');
+G(`S.bag.push(w);var saved=JSON.stringify(S);S=JSON.parse(saved);w=S.bag.find(x=>x.uid===w.uid)`);
+ok(G('w.soulKills===200000&&w.soulSeen===4'),'存档保留阶段');
+G(`S.eq.weapon=w;S.bag=S.bag.filter(x=>x.uid!==w.uid);S.gold=1e9;addMat('heitie',100);cqEnhance(w.uid,{roll:0})`);
+ok(G('w.soulKills===200000&&w.en===1'),'强化保留');
+ok(G(`JSON.stringify(CQSoul.profile(w))!==JSON.stringify(CQSoul.profile(makeBase(BASEM.swdcaijuezhizhang,40)))`),'武器魂效不同');
+G(`var seen;var oldHit=hitMon;var mon={hp:1e6,max:1e6,def:0,res:{},lv:1};hitMon(mon,{phys:100},'test')`);
+ok(G('CQ_BAL.capLast().stat>=1.04&&CQ_BAL.capLast().stat<=1.15'),'cap 纳入器魂');
+G(`w.q=3;w.req=1;w.m.maxdmg=2;S.lvl=60;addMat('ess',1000);rfRoll(w.uid,'maxdmg');rfPick(w.uid,0)`);
+ok(G('w.soulKills===200000'),'淬锋保留');
+G(`unequip('weapon');depositUid(w.uid,'p');var stored=findItem(w.uid);withdrawUid(w.uid);equip(w.uid)`);
+ok(G('S.eq.weapon.uid===w.uid&&S.eq.weapon.soulKills===200000'),'卸装、仓库、重装保留');
+T.done();
