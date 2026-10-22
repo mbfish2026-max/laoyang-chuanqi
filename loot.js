@@ -68,7 +68,7 @@ const _lt_off=offline;offline=function(){const a=STATS.rcy,g=STATS.rcyG,e=STATS.
  const box=document.querySelector('#modal .gp .grid');for(const d of document.querySelectorAll('#modal .gp>.dim'))if(n&&d.textContent.startsWith('自动出售'))d.remove();if(box)box.insertAdjacentHTML('beforebegin',`<div class="g">自动回收 ${n} 件：+${STATS.rcyG-g} 金币，+${STATS.rcyE-e} 黑铁碎片${m?`；自动存仓 ${m} 件`:''}</div>`)};
 // 炼金匣「精华重铸」已删除（legacy_prune 批次2）
 // ---------- 设置面板 ----------
-function rcyUI(){ensureLoot();const r=S.rcy;const ck=(on,fn,t)=>`<button class="btn ${on?'on':''}" aria-pressed="${!!on}" onclick="${fn};rcyUI()">${t}</button>`;
+function rcyUI(){ensureLoot();const r=S.rcy;const ck=(on,fn,t)=>`<button class="btn ${on?'on':''} ${t.length>5?'rcy-wide':''}" aria-pressed="${!!on}" onclick="${fn};rcyUI()">${t}</button>`;
  const threshold=(field,label)=>`<label class="rcy-limit">${label}<select aria-label="${label}" onchange="S.rcy.${field}=+this.value">${[0,5,10,15,20,25,30,35,40,45,50,55,60,61].map(n=>`<option value="${n}" ${r[field]===n?'selected':''}>${n?'低于 '+n+' 级':'不限'}</option>`).join('')}</select></label>`;
  modal(`<div class="mtitle">自动回收设置</div><div class="gp rcy">
  <div class="row"><b>自动回收</b>${ck(r.on,'S.rcy.on^=1',r.on?'已开启':'已关闭')}</div>
