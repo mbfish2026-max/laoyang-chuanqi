@@ -3,7 +3,8 @@
 // 超过 CQ_BAL.capMul(1.8) 时等比压回。英雄/合击/召唤物伤害由玩家伤害推算，同样按玩家总倍率封顶（src 映射：cqhero→hero，cqheji→combo，cqpet→summon）。
 (function(){
 const CAP={out:null,depth:0,last:{mul:1,stat:1,wrap:1,capped:false}};
-function statMul(){const w=S&&S.eq&&S.eq.weapon;if(!w)return 1;const B=CQ_BAL.budget;let m=1;
+function statMul(){const w=S&&S.eq&&S.eq.weapon||{};const B=CQ_BAL.budget;let m=1;
+ if(window.CQFirstdrop)m*=1+CQFirstdrop.bonus();
  if(w.en&&typeof cqEnhPct==='function')m*=1+Math.min(cqEnhPct(w.en),B.enh*100)/100;
  if(w.anc)m*=1+B.anc*(w.anc>=2?1:0.67);
  if(w.rf&&(w.rf.n|0)>0)m*=1+B.rf*Math.min(1,(w.rf.n|0)/10);
