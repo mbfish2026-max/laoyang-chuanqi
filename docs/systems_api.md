@@ -33,15 +33,15 @@
 - `CQSys.hero.skToggle(id, on?) → {ok,on}|{err}`：`on=true` 开启，`false` 关闭，省略则切换；合击 id 为 `heji`。关闭后自动/手动合击均不施放。
 - `CQSys.hero.skState() → {技能id:1}`：返回关闭表副本，默认全开，随存档恢复。
 - `CQSys.heroMode(mode?)`：省略读取；可设置 `attack/follow/rest/recall`，跟随不攻击，休息不涨怒气，收回不在场。
-- `CQSys.heroGainXp(n)`：由 `gainXp` 接入；英雄独立累计经验，英雄等级不超过主角等级，满当前上限不囤经验。
+- `CQSys.heroGainXp(n)`：由 `gainXp` 接入；英雄独立累计经验，英雄等级不超过主角等级，到达当前上限后停止接收经验，升级当次最多保留至下一级所需经验减1。
 - 存档 `v:2 → v:3`：`heroMigrate()` 在读写档时幂等执行，旧佣兵 mage→法、archer→道、guard/barb→战；保留已有英雄。装备按职业/等级移交，溢出退背包、个人仓库或 `S.migBox`，锁定标记保留；删除旧佣兵字段。
 - `CQSys.heroSet({name?, rage?, autoHeji?}) → hero`
-- `CQSys.heroEquip(uid) → {ok, slot} | {err}`（从背包移入；职业锁定底材按英雄职业校验）/ `CQSys.heroUnequip(slot) → {ok} | {err:'背包已满'}`
-- `CQSys.heroStats() → {cls, lvl, atkMin, atkMax, def, mdef, hp, takesDmg, heroK}`：英雄装备 + 等级 × `CQ_BAL.hero.cls[cls]`（占位系数，**待职业/数值方确认**）；`takesDmg=1`，英雄可受伤，阵亡后30秒自动复活
+- `CQSys.heroEquip(uid,side?) → {ok, slot} | {err}`（从背包移入；职业锁定底材按英雄职业校验）/ `CQSys.heroUnequip(slot) → {ok} | {err:'背包已满'}`
+- `CQSys.heroStats() → {cls, lvl, atkMin, atkMax, def, mdef, hp, takesDmg, heroK}`：英雄装备 + 等级 × `CQ_BAL.hero.cls[cls]`（当前职业系数，完整平衡仍待R16验收）；`takesDmg=1`，英雄可受伤，阵亡后30秒自动复活
 
 ## 玩家属性 / 装备
 - `CQSys.equipAttrs()`：玩家已穿装备属性合计（含强化）；`CQSys.itemCls(it)`：物品职业
-- `CQSys.power() → int` 战力：已穿装备 `power(it)` 之和 + 英雄装备 ×0.5 + 等级×20，再乘转生倍率（`cqCapMul` 封顶 1.8）
+- `CQSys.power() → int` 战力：已穿装备 `power(it)` 之和 + 英雄装备 ×0.5 + 成长等级 `combatLevel()`×20，再乘按十转归一化的转生倍率（`cqCapMul` 封顶 1.8）
 
 ## 技能冷却（职业 Bot 填）
 - 登记表 `window.CQ_SKCD[技能id] = 冷却秒数`
@@ -49,7 +49,7 @@
 - `CQSys.skillCooldown(id) → {id, cd, left, ready, placeholder}`；`placeholder:true` 表示该技能尚未登记冷却，战斗侧可继续用兜底
 
 ## 怪物 → 传奇立绘
-- `CQSys.monArt(key) → {id, src:'assets/cq/ui/<id>.png'} | null`；对照表 `window.CQ_MONART`（第 1 章怪物/首领已映射到现有 5 张立绘，可直接赋值扩充）
+- `CQSys.monArt(key) → {id, src:'assets/cq/ui/<id>.png'} | null`；对照表 `window.CQ_MONART`（基础映射；`mir2_maps.js` 等后加载映射会扩充/覆盖）
 
 ## 元宝（账号级 `ACCT.yb`，进云存档，跨角色共享）
 - `CQSys.currency() → {gold, yb}`；`CQSys.ybAdd(n, why) → 余额`；`CQSys.ybSpend(n, why) → bool`
@@ -92,8 +92,8 @@
 ## M2 系统接口（cq-20261021f 之后）
 
 ### 1. 首领真实时间刷新（cq/m2_cq.js）
-- 刷新间隔 `CQ_BAL.bossRt`：小首领 600 秒，章节首领 1800 秒，后期章节首领 3600 秒。状态存在 `S.bossRt[key]`（下次刷新的时间戳）。
-- `bossCd(key)` 返回剩余秒数，`bossList()` 列出所有首领及状态，`bossGo(key)` 前往该首领所在地图。
+- 刷新间隔 `CQ_BAL.bossRt`：小首领600秒、章节首领1800秒、后期默认3600秒；`CQ_BOSSRT[key]` 优先覆盖具体首领。`S.bossRt[key]` 保存 `{k,n,ready}`，其中k为上次击杀毫秒时间戳。
+- `CQSys.bossRt(key)` 返回含left/ready的刷新状态，`bossList()` 列出所有首领及状态，`bossGo(key)` 前往该首领所在地图。
 - spawnWave 被包装过：首领没刷新时这一波不出首领，`bossInfo().rt` 显示倒计时。
 - 事件：`bossKill`、`bossReady`、`bossWait`（用 `CQSys.on` 订阅，或监听 window 的 `cq:bossKill` 等）。
 
@@ -101,22 +101,21 @@
 - 小怪击杀按 `kills × 0.2` 计算。首领按离线时长内的刷新次数结算，有战力判定，掉落减半，最多 6 只。离线收益最多计 8 小时。
 - 结果写在 `S.cqOff`，同时触发 `offline` 事件，并显示 `offPanel()` 面板。
 
-### 3. 第 2、3 章（cq/data_cq2.js）
-- 第 2 章比奇（12–22 级）：骷髅洞一/二/三层 → 沃玛森林 → 森林深处 → 尸王殿。
-- 第 3 章矿区（22–30 级）：南部/东部矿区 → 采矿所一/二层 → 黑铁矿坑 → 石墓深处。
-- 章节终点任务是 a2q6、a3q6，带 `fin`。每个首领有 2 件专属暗金装备（UNIQUES 的 `boss` 字段）。
-- **修复**：第 1 章的 q1–q6 原来没有 `act`，q6 也没有 `fin`，所以打完半兽统领后不会调用 `unlockAfter`，cls_sim 一直提示「已到达最终章节」。现已补上。旧存档由迁移 v2 处理（`CQ_SV=2`）：已完成 q6 的存档补解锁第 2 章，并给 bossRt、summons、cqBooks 填默认值。
+### 3. 当前七章地图
+- `cq/data_cq.js` / `data_cq2.js` 为基础，`cq/mir2_maps.js` 在其后覆盖：第2章终点沃玛教主，第3章终点触龙神；第4–7章为祖玛寺庙、赤月峡谷、牛魔寺庙、魔龙城，并含石墓、封魔等支线。
+- `ACTS[a].mainEnd` 区分主线终点和追加支线；不要用 zones 最后一项推断通关。`CQMir2Maps.locate(id)` 查稳定地图ID，旧档位置/首领别名与解锁由该模块迁移。
+- `CQ_SV=6`；地图/装备/成长另有各自幂等迁移标记。详见 `docs/mir2_wire_map.md`。
 
 ### 4. 技能书（职业 Bot 对接）
 - 物品 id 格式：`book_<cls>_<技能id>`，以 mats 形式存放，例如 `book_zs_csjs`、`book_ds_ysh`。技能 id 和 cls_zs/fs/ds.js 的 CLS_SKILLS 一致。
-- `CQ_BOOKS[id] = {cls, sk, lv, n}`：`sk` 是职业技能 id，`lv` 是学习所需等级（等于技能的 r）。
-- 接口：`bookDef(id)`、`bookKnown(cls,sk)`、`bookCount(id)`、`bookLearn(id)`、`bookDropFor(monster)`。
+- `CQ_BOOKS[id] = {id, cls, sk, lv, n}`（表键为 `<cls>_<技能id>`，材料键加 `book_` 前缀）：`sk` 是职业技能 id，`lv` 是学习所需等级（等于技能的 r）。
+- 接口：`bookDef(id)`、`bookKnown(id)`、`bookCount(id)`、`bookLearn(id)`、`bookDropFor(monster)`。
 - 职业 Bot 用 `onBookLearn(fn)` 注册回调。学习时会调用 `fn(cls, sk, def)`，由职业侧把技能写进自己的技能表。系统侧只负责扣书和检查等级/职业。
 - 掉落：包装了 `rollTC`，按怪物等级掉出本章节对应的技能书。物品详情里会出现「学习」按钮。
 
 ### 5. 召唤物（战斗 / 职业 Bot 对接）
-- 数据存在 `S.summons`。接口：`summonAdd(type, lv)`、`summonRemove(i)`、`summonSetLv(i, lv)`、`summonStats(i)`（返回 hp/dmg/ar/def）、`summonDie(i)`、`summonRevive(i)`、`summonEquipCollar(i, item)`（项圈槽，暂时用护身符类物品）。
-- 数量上限 `summonCap(type)`：狗 1、骷髅 1、宠物 1（技能 10 级以上为 2）。
+- 数据存在 `S.summons`。接口：`summonAdd(kind,{lv,mon?,sk?})`、`summonRemove(id)`、`summonSetLv(id,lv)`、`summonStats(id)`（含 hp/atk/def/alive/reviveLeft）、`summonDie(id)`、`summonRevive(id)`、`summonEquipCollar(id,uid)`。使用持久字符串ID，不是数组下标；只有神兽可装备项圈，暂用项链类背包物品（当前无独立卸下接口，移除召唤物时退还项圈）。
+- 数量上限 `summonCap(kind,skLv)`：狗 1、骷髅 1、宠物技能1–6级为1、7级起为2（未学为0）。
 - 战斗侧造成伤害时调用 `hitMon(m, d, 'cqpet')`。系统在 30 秒窗口内把召唤物的伤害占比限制在 `CQ_BAL.summon.share`（0.6）以内。
 
 ### 6. 伤害封顶 CQ_BAL.cap
@@ -131,12 +130,13 @@
 - `cqCapMul(p)` 读 `CQ_BAL.capMul`（CQ_BAL.cap 现在是函数，别再当数字用）。
 - 测试：tests/cq_balance_test.js 在全部拉满的情况下验证实际结算倍率 ≤ 1.8，英雄和召唤物的伤害也会封顶。
 
-### 7. 后期加点 / 后期技能
-- late.js：`LATE_MAIN`/`LATE_K`/`LATE_SHARE` 补上了 zs（力量）、fs/ds（精神），比例和 classes.js 的 clsLateFix 一致。
-- late_mods.js：删除了暗黑 2 的 60/75 级职业技能，只保留通用的后期内容。
+### 7. 60级与固定转生
+- `cq/mir2_progression.js` 覆盖旧魂阶接口，停止产生/分配自由点。旧档已生效属性保留；新规则不开放属性点/技能点。
+- `CQSys.progression()` 返回 `{lvl,cap:60,reb,max:10,xp,need,reward}`；`CQSys.rebirth()` 返回 `{ok:1,reb}` 或 `{err}`，`rebirthUI()` 展示固定奖励。
+- 1–50使用1.76原表，51–60外推。50后显示等级压缩旧成长，迁移保留旧等级成长下限；60后经验进入 `S.rebXp`，固定转生不清等级或装备。
 
-### 8. 怪物立绘 CQSys.monArt(key)
-- 映射表 `CQ_MONART` 按 web-replica `assets/config/monster.txt` 的 name→model 对照。例：鸡 1001、鹿 1002、多钩猫 1003、钉耙猫 1004、稻草人 1005、半兽人 1006、半兽战士 1008、毒蜘蛛 1009、红蛇/虎蛇 1025。
+### 8. 怪物立绘 CQSys.monArt(key)（基础层历史映射）
+- 以下是基础层历史映射说明，不是素材来源验收结论；当前新增地图图源由 `mir2_maps.js` 注册。映射表 `CQ_MONART` 按 web-replica `assets/config/monster.txt` 的 name→model 对照。例：鸡 1001、鹿 1002、多钩猫 1003、钉耙猫 1004、稻草人 1005、半兽人 1006、半兽战士 1008、毒蜘蛛 1009、红蛇/虎蛇 1025。
 - 第 2/3 章：骷髅 1013、掷斧骷髅 1014、骷髅战士 1015、骷髅精灵 2001、僵尸 1023、爬行僵尸 1024、洞蛆 1022、山洞蝙蝠 1012、盔甲虫 1034、森林雪人 1007、食人花 1011、电僵尸 2002。
 - 没有图的怪（首领 model 是占位 1001，或者图片文件不存在）返回 `null`，战斗侧自己用 emoji，不要退到骷髅。美术2 的立绘 `assets/cq/ui/mdl_mst_<key>.png` 按怪物 key 直接映射（钉耙猫王、红蛇王、半兽统领、骷髅精英、千年树妖、尸王、电僵王、石墓尸王，以及 imp、shaman…wraith、shroom、sporer、hopper、cowbeast、cowbrute 等 50 个 key）。第 1–3 章的怪和首领目前都有图（千年树妖、尸王、电僵王、石墓尸王用 mdl_mst_<key>）；新怪没图时 monArt 返回 null。召唤物 pet_* 立绘由战斗开发接。
 
@@ -144,7 +144,7 @@
 - **自动回收保护**：可装备、并且战力高于身上同部位的装备（或者该部位还空着）不回收，由 `S.rcy.keepBetter` 控制，默认开，设成 0 关闭。戒指和两个戒指位里战力较低的那个比。
 - **回收品质默认值**：魔法（q3）和稀有（q4）默认不回收。迁移 `S.rcy.dv=4` 只做一次，新旧角色都生效。之前 dv=3 把稀有也设成了回收，这次一起纠正；迁移之后玩家自己勾选的设置会保留。
 - **掉落判定**：普通难度第 1–2 章，非首领的掉落判定 `DENSITY.drop` 从 0.6 改为 1.0；金币按同一系数计算，所以也一起提高。第 3 章起仍是 0.6。
-- **技能书**（cq/m2_cq.js）：`bookLearn` 未学会的技能直接学会（1 级），已学会的 +1 级，最高 `CQ_BAL.book.maxLv=20`，不消耗技能点，结果写进 `S.sk[技能id]`，返回值里有 `{from,to}`。之后再调用职业 Bot 的 `onBookLearn(b)`，回调里 `b.from`/`b.to` 能看到升级前后的等级。挂机（`S.autoSk`）时 `autoTick` 会自动用掉本职业、等级够的书。技能满 20 级的书不再掉。
+- **技能书**（cq/m2_cq.js）：最高9级。`bookLearn` 按职业、下一级角色需求、熟练度及本数校验，不消耗技能点；返回升级前后 `{from,to}` 并通知 `onBookLearn`。`S.autoSk` 开启时自动使用满足条件的本职业技能书；满级书不再掉落。以 `clsSkReq` / `CQSys.skReq` 为准，不沿用历史20级描述。
 - **挂机自动强化**：`S.cqAE={on,max:3,keep:300}`，可以用 `CQSys.autoEnh(on,max)` 设置，强化界面里也有开关。挂机时每 5 秒强化一件已穿装备：等级最低的先强化，同级先强化武器；金币扣完要留够 keep，黑铁矿要够。不使用祝福油。统计在 `S.cqAEn`（强化次数）和 `S.cqGoldIn`（累计金币收入）。
 - **重铸候选**：部位词缀池太小时（比如头盔只有 8 种属性），会依次用全等级池、护甲池、首饰池补足，保证 3 个候选互不相同。tests/cq_reforge_seed_test.js 用固定种子 8/1/2/3/13/21/34/55 回归。
 - 模拟：`CLS=zs|fs|ds node tests/cq_bal_sim.js [小时]`，输出金币收入、强化等级、技能书数、回收数和被保护的件数。
@@ -173,3 +173,21 @@
 
 ### 存档迁移 v4
 旧存档里已结算的 `S.cqOff`（无 claimed）视为已领取，不能补领双倍；`ACCT.cqSign` 缺省 `{n:0,last:''}`。
+
+## 当前集成入口（master b042567，2026-10-22核对）
+
+`CQSys.api===1` 是接口版本，不是功能进度或存档版本；`CQSys.sv()` 当前返回6。本文开头加载顺序为基础层节选，完整顺序查 `index.html`。`CQ.MISSING` 仍有旧说明，不能据此判断英雄或系统未落地。
+
+| 系统 | 实现 / 接线说明 |
+|---|---|
+| 传奇装备、赤月以上四档、旧装迁移 | `mir2_equipment.js` / `mir2_equipment_migrate.js` / `mir2_loot.js`；`mir2_wire_equip.md` |
+| 套装机制、300杀补缺、满包保底领取 | `mir2_sets.js`；`mir2_wire_sets.md`（奖励为原创，对应首领额外池不限制难度） |
+| 赌石、十连与保底 | `gamble_cq.js`；`mir2_wire_gamble.md` |
+| 本地模拟首爆/三榜/称号 | `firstdrop_cq.js`；`mir2_wire_firstdrop.md`，不是云端多人榜 |
+| 四阶段物品器魂 | `soul_cq.js`；`mir2_wire_soul.md` |
+| 召唤身份/项圈实际战斗接线 | `summon_keep.js:skpWire` / `CQSys.summonSync()`；`mir2_wire_summon.md` |
+| 现实时间三异变 | `mutation_cq.js`；`mutation_cq.md`，替代旧血月触发 |
+| 高纯黑铁/强化转移/双手镯 | `enhance.js` / `cqEnhTransfer(fromUid,toUid)`；`systems_m1.md` |
+| 淬炼/融合/红龙圣地及传奇终局 | `mir2_b6.js`、`eg_*`、`uber.js`；`mir2_b6.md` / `mir2_batch4_acceptance.md` |
+
+规则：1.80英雄合击、1.76基础数据；无内功心法/宝石镶嵌。功能测试与历史接线验收不代替最终九流派、60–80小时通关、素材来源和云端验收；剩余项见 `remaining_todo.md`。
