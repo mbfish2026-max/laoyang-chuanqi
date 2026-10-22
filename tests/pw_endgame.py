@@ -1,5 +1,5 @@
 """R13 short UI acceptance: Chromium/WebKit, 390×844, fresh/legacy saves."""
-import os, sys, json
+import os, sys, json, re
 from pathlib import Path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pw_baseline as b
@@ -14,12 +14,14 @@ try:
    browser=getattr(p,engine).launch()
    for legacy in [False,True]:
     ctx=browser.new_context(viewport={'width':390,'height':844},is_mobile=True,device_scale_factor=1)
-    ctx.add_init_script('window.__NOSHOWLOGIN=1')
-    page=ctx.new_page();page.route('**/*supabase*/**',lambda r:r.abort())
-    page.goto(url+'/index.html');page.wait_for_timeout(700)
-    page.evaluate('''legacy=>{PWRF.paused=1;CL_GATE=false;S=newSave();load();CQSys.createChar('终局验收','zs');S.auto=0;CL_GATE=false;document.querySelectorAll('.login-overlay,#loginOverlay,#applock').forEach(e=>e.remove());if(legacy){S.eg={mj:{cur:35,best:34},uber:{k:{t:2,h:3,d:4},o:{horn:1,eye:1,brain:1},wins:2}};S=JSON.parse(JSON.stringify(S));}calc();TAB='eg';cqPg.fl('more');EGT='rift';render();}''',legacy)
+    ctx.route(re.compile(r'https://[a-z0-9]+\.supabase\.co/.*'),b.Cloud('ok').handle)
+    ctx.add_init_script('localStorage.setItem("cq_sb_auth",'+json.dumps(json.dumps(b.fake_session()))+')')
+    page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+    page.goto(url+'/index.html');page.wait_for_timeout(3500)
+    page.evaluate('''legacy=>{PWRF.paused=1;CL_GATE=false;CQSys.createChar('终局验收','zs');document.body.classList.remove('nochar');S.auto=0;CL_GATE=false;document.querySelectorAll('.login-overlay,#loginOverlay,#applock').forEach(e=>e.remove());if(legacy){S.eg={mj:{cur:35,best:34},uber:{k:{t:2,h:3,d:4},o:{horn:1,eye:1,brain:1},wins:2}};S=JSON.parse(JSON.stringify(S));}calc();TAB='eg';cqPg.fl('more');EGT='rift';render();}''',legacy)
     tag=f'{engine}_{"old" if legacy else "new"}'
     page.screenshot(path=f'{out}/{tag}_locked.png')
+    assert page.evaluate('!lfGated()&&!document.body.classList.contains("nochar")')
     assert page.evaluate('!!egMjLock()&&!!ubLock()')
     page.evaluate('''()=>{S.Q=S.Q||{};S.Q[2]=S.Q[2]||{};S.Q[2][ACTS[ACTS.length-1].fq]=1;TAB='eg';cqPg.fl('more');EGT='mj';render();}''')
     page.wait_for_timeout(150)
@@ -55,7 +57,9 @@ try:
     page.screenshot(path=f'{out}/{tag}_result.png')
     page.locator('#modal').click(position={'x':2,'y':2});page.wait_for_timeout(250)
     assert page.locator('#modal').evaluate('(e)=>e.classList.contains("hide")')
-    results.append({'browser':engine,'legacy':legacy,'pass':True})
+    assert not errors,errors
+    assert '请先登录账号' not in page.locator('#app').inner_text()
+    results.append({'browser':engine,'legacy':legacy,'pass':True,'errors':errors})
     ctx.close()
    browser.close()
 finally:
