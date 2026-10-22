@@ -1,0 +1,42 @@
+// R17: all cloud I/O is an in-memory stub; never contacts Supabase.
+const fs=require('fs');
+const T=require('./cq_harness')('mir2_cloud_test'),{G,ok,ctx}=T;
+ctx.TextEncoder=TextEncoder;ctx.TextDecoder=TextDecoder;
+G(fs.readFileSync(require('path').join(__dirname,'../cloud.js'),'utf8'));
+(async()=>{
+ G(`var row=null,failWrite=false,filters=[],writes=0;
+ SB={from(table){if(table!=='cq_saves')throw Error('wrong table');let op='read',body,eqs=[];const q={select(){return q},eq(k,v){eqs.push([k,v]);return q},maybeSingle(){return q},update(d){op='update';body=d;return q},insert(d){op='insert';body=d;return q},then(resolve){filters=eqs;if(op==='read')return Promise.resolve(resolve({data:row,error:null}));writes++;if(failWrite)return Promise.resolve(resolve({error:{message:'network'}}));if(op==='insert'&&row)return Promise.resolve(resolve({error:{code:'23505'}}));if(op==='update'&&(!row||!eqs.every(([k,v])=>row[k]===v)))return Promise.resolve(resolve({data:[]}));row={...(row||{}),...JSON.parse(JSON.stringify(body)),user_id:'qa'};return Promise.resolve(resolve({data:[{updated_at:row.updated_at,version:row.version}]}))}};return q}};
+ CU={id:'qa'};CL.ready=0;S=newSave();load();calc();CQSys.createChar('云验战士','zs');S.gold=12345;save();var firstId=ACCT.cur;
+ var item=genItem(10,{q:3});ACCT.shared[0].push(item);save();
+ `);
+ await G('upload()');
+ ok(G("row.data.fmt===1&&!!row.data.acct&&!!row.data.chars[firstId]&&!!row.data.extra&&row.user_id==='qa'"),'cq_saves row and account payload');
+ G(`CQSys.createChar('云验法师','fs');S.gold=67890;save();var secondId=ACCT.cur;switchChar(firstId)`);
+ ok(G('S.gold===12345&&ACCT.shared.flat().some(x=>x.uid===item.uid)'),'switch preserves character and shared stash');
+ await G('upload()');G('importAccount(row.data);switchChar(secondId);CL.ready=1');
+ ok(G('S.gold===67890&&ACCT.shared.flat().some(x=>x.uid===item.uid)'),'cloud roundtrip preserves both characters and stash');
+ G('row.version++;var before=JSON.stringify(row)');
+ ok(await G('upload()')==='kicked'&&G('JSON.stringify(row)===before&&CL.kicked===1'),'atomic version conflict cannot overwrite');
+ G('CL.kicked=0;CLOUD.remoteAt=null;CLOUD.ver=0');
+ ok(await G('upload()')==='kicked','concurrent initial insert conflict stops writing');
+ G('CL.kicked=0;CLOUD.remoteAt=row.updated_at;CLOUD.ver=row.version;failWrite=true');
+ try{await G('upload()')}catch(e){}
+ ok(G('CL.dirty===1'),'failed upload retains dirty state');
+ G(`failWrite=false;CL.token='stub';CL.dirty=1;var pendingResolve;fetch=(url,opt)=>{globalThis.beaconURL=url;return new Promise(r=>pendingResolve=r)};`);
+ const pending=G('clBeacon()');
+ ok(G('CL_BUSY===1&&beaconURL.includes("version=eq.")'),'beacon shares write mutex and version condition');
+ const n=G('writes');await G('syncNow()');ok(G('writes')===n,'sync cannot race pending beacon');
+ G('clDirty();pendingResolve({ok:true,json:async()=>[{updated_at:"ack",version:99}]})');await pending;
+ ok(G('CL.dirty===1&&CLOUD.remoteAt==="ack"&&CL_BUSY===0'),'ack preserves edits made during beacon');
+ G('fetch=async()=>{throw Error("offline")};CL.dirty=1');await G('clBeacon()');
+ ok(G('CL.dirty===1&&CL.state==="err"&&CLOUD.remoteAt==="ack"'),'beacon failure retains progress and previous revision');
+ G('fetch=async()=>({ok:true,json:async()=>[]});CL.dirty=1');await G('clBeacon()');
+ ok(G('CL.kicked===1'),'beacon empty CAS response kicks stale device');
+ G(`CL.kicked=0;legacyExport=()=>null;CL.ready=0`);
+ ok(await G('firstSync()')==='down'&&G('CL.ready===1&&CL.state==="ok"'),'firstSync reads existing cloud account');
+ G(`CL.kicked=0;legacyExport=()=>row.data;var cleared=0;legacyClear=()=>cleared++;CLOUD.remoteAt=null;upload=async()=>{clKick();return 'kicked'}`);
+ ok(await G('firstSync()')==='kicked'&&G('cleared===0'),'migration conflict keeps legacy source');
+ G(`var pages=[[]],counter={n:1};unionPages(pages,[[{uid:900,name:'a'},{uid:900,name:'b'}]],counter);`);
+ ok(G('pages.flat().length===2&&new Set(pages.flat().map(x=>x.uid)).size===2&&counter.n>=901'),'merged stash uid allocator advances beyond imported ids');
+ T.done();
+})().catch(e=>{console.error(e);process.exitCode=1});

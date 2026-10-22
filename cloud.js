@@ -3,7 +3,7 @@
 // cloud.js — Supabase 云存档（唯一存储）：必须登录才能游玩；游戏数据只在内存 GS 与云端 public.cq_saves.data，不写 localStorage。
 // 同步：有改动时每 20 秒防抖上传；切后台/关页面/切角色/锁定/暗金套装掉落立即上传；失败指数退避重试并显示状态。
 // 多设备：写前比对云端 updated_at，若被其他设备更新 → 本机显示「已在其他设备登录」并停止写入（绝不覆盖较新的云端）。
-// 旧本机存档迁移（静默）：云端无存档→上传本机；云端有→按角色合并（同角色取等级/经验高者，共享仓库取物品多者），成功后删除本机旧键。
+// 旧本机存档迁移（静默）：云端无存档→上传本机；云端有→按角色合并（同角色取等级/经验高者，共享仓库合并去重），成功后删除本机旧键。
 // ===================================================================================
 const SB_URL='https://yzhjhyroekrcdqqjrlgm.supabase.co',SB_KEY='sb_publishable_RLRQQmjYDEVhdg2dhAMmEg_qQGh38vh',SB_CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 let SB=null,CU=null,CLOUD={},CL_BUSY=0,CL_ERR='',CL_PROFILE=null;
@@ -44,7 +44,7 @@ function chProg(o){return o?[o.lvl||0,o.xp||0,o.kills||0]:[0,0,0]}
 function progGT(a,b){for(let i=0;i<3;i++){if(a[i]!==b[i])return a[i]>b[i]}return false}
 function hasProgress(d){return!!d&&d.acct.chars.some(c=>{const o=d.chars[c.id];return o&&(o.lvl>1||o.xp||o.kills)})||!!d&&(d.acct.shared||[]).some(p=>p.length)}
 function itemCount(sh){return(sh||[]).reduce((n,p)=>n+p.length,0)}
-// 合并：同角色(同 id 且同名同职业)取等级/经验高者；不同角色都保留（id 冲突则重新编号）；共享仓库取物品更多者
+// 合并：同角色(同 id 且同名同职业)取等级/经验高者；不同角色都保留（id 冲突则重新编号）；共享仓库合并去重
 function mergeAccounts(base,add){const r=JSON.parse(JSON.stringify(base));r.acct.nid=Math.max(r.acct.nid||1,add.acct.nid||1,...r.acct.chars.map(c=>c.id+1),...add.acct.chars.map(c=>c.id+1));
  r.acct.suid=Math.max(r.acct.suid||0,add.acct.suid||0);
  for(const c of add.acct.chars){const o=add.chars[c.id];if(!o)continue;const ex=r.acct.chars.find(x=>x.id===c.id);
@@ -57,7 +57,7 @@ function mergeAccounts(base,add){const r=JSON.parse(JSON.stringify(base));r.acct
 // 仓库并集：相同物品(内容完全一致)去重；uid 冲突但内容不同 → 重新编号后保留；按页放入，满 48 格顺延，绝不丢弃
 function unionPages(dst,src,ctr,_){const seen=new Set(),uids=new Set();for(const p of dst)for(const it of p){seen.add(JSON.stringify(it));uids.add(it.uid)}
  for(const it of dst.flat())ctr.n=Math.max(ctr.n,it.uid||0);
- for(const p of src||[])for(const it0 of p||[]){const key=JSON.stringify(it0);if(seen.has(key))continue;seen.add(key);const it=JSON.parse(key);if(it.uid!=null&&uids.has(it.uid))it.uid=++ctr.n;uids.add(it.uid);
+ for(const p of src||[])for(const it0 of p||[]){const key=JSON.stringify(it0);if(seen.has(key))continue;seen.add(key);const it=JSON.parse(key);if(it.uid!=null&&uids.has(it.uid))it.uid=++ctr.n;uids.add(it.uid);ctr.n=Math.max(ctr.n,it.uid||0);
   let i=dst.findIndex(pg=>pg.length<48);if(i<0){dst.push([]);i=dst.length-1}dst[i].push(it)}}
 function legacyClear(){for(const k of legacyKeys())try{localStorage.removeItem(k)}catch(e){}}
 // ---------- 认证 ----------
@@ -83,12 +83,12 @@ async function firstSync(){clSetState('busy');const rem=await fetchRemote(true);
  if(d){CLOUD.remoteAt=rem.updated_at;CLOUD.ver=rem.version||1}else{CLOUD.remoteAt=null;CLOUD.ver=0}
  if(leg)d=d?mergeAccounts(d,leg):leg;
  if(d){CL.inSync=1;try{importAccount(d)}finally{CL.inSync=0}}CL.ready=1;
- if(!rem||leg){await upload();if(leg)legacyClear()}else{legacyClear();CL.dirty=0;CLOUD.last=Date.now();clSetState('ok')}
+ if(!rem||leg){const result=await upload();if(result==='kicked')return result;if(leg)legacyClear()}else{legacyClear();CL.dirty=0;CLOUD.last=Date.now();clSetState('ok')}
  if(leg&&!window.__NOUI)toast('本机旧存档已迁移到云端');return rem?(leg?'merge':'down'):'up'}
 // 上传（带版本检查：云端被其他设备更新 → 停止写入）
 async function upload(){if(CL.kicked)return'kicked';const d=exportAccount();CL.dirty=0;const at=new Date().toISOString(),ver=(CLOUD.ver||0)+1;let r;
  try{if(CLOUD.remoteAt){// 原子条件更新：仅当云端仍是本机上次看到的版本时才写入
-   r=await SB.from('cq_saves').update({data:d,version:ver,updated_at:at}).eq('user_id',CU.id).eq('updated_at',CLOUD.remoteAt).select('updated_at,version');if(r.error)throw r.error;if(!r.data||!r.data.length){clKick();return'kicked'}}
+   r=await SB.from('cq_saves').update({data:d,version:ver,updated_at:at}).eq('user_id',CU.id).eq('updated_at',CLOUD.remoteAt).eq('version',CLOUD.ver).select('updated_at,version');if(r.error)throw r.error;if(!r.data||!r.data.length){clKick();return'kicked'}}
   else{r=await SB.from('cq_saves').insert({user_id:CU.id,data:d,version:ver,updated_at:at}).select('updated_at,version');if(r.error){if(r.error.code==='23505'){clKick();return'kicked'}throw r.error}}}
  catch(e){CL.dirty=1;throw e}
  CLOUD.remoteAt=r.data[0].updated_at;CLOUD.ver=r.data[0].version||ver;CLOUD.last=Date.now();CL.lastUp=Date.now();CL_ERR='';CL.fail=0;CL.warned=0;clSetState('ok');return'up'}
@@ -101,9 +101,15 @@ async function syncNow(manual){if(!CU||!SB||!CL.ready||CL.kicked)return null;if(
 function flushNow(){save();return syncNow()}
 function clSyncSoon(){if(!CL.ready)return;clearTimeout(CL._soon);CL._soon=setTimeout(flushNow,800)}
 // 关页面兜底：keepalive 直接写 REST（体积 <60KB 时）
-function clBeacon(){if(!CU||!CL.ready||CL.kicked)return;try{save();if(!CL.dirty)return;const d=exportAccount();const at=new Date().toISOString();const body=JSON.stringify({user_id:CU.id,data:d,version:(CLOUD.ver||0)+1,updated_at:at});
- const tok=CL.token;if(!tok||!CLOUD.remoteAt||body.length>60000){syncNow();return}
- fetch(SB_URL+'/rest/v1/cq_saves?user_id=eq.'+CU.id+'&updated_at=eq.'+encodeURIComponent(CLOUD.remoteAt),{method:'PATCH',keepalive:true,headers:{apikey:SB_KEY,Authorization:'Bearer '+tok,'Content-Type':'application/json',Prefer:'return=minimal'},body}).catch(()=>{});CLOUD.remoteAt=at;CLOUD.ver++;CL.dirty=0}catch(e){}}
+async function clBeacon(){if(!CU||!CL.ready||CL.kicked||CL_BUSY)return;try{save();if(!CL.dirty)return;const d=exportAccount();const at=new Date().toISOString(),ver=(CLOUD.ver||0)+1;
+ const body=JSON.stringify({data:d,version:ver,updated_at:at});
+ const tok=CL.token;if(!tok||!CLOUD.remoteAt||new TextEncoder().encode(body).length>60000){return syncNow()}
+ CL_BUSY=1;CL.dirty=0;clSetState('busy');
+ try{const r=await fetch(SB_URL+'/rest/v1/cq_saves?user_id=eq.'+encodeURIComponent(CU.id)+'&updated_at=eq.'+encodeURIComponent(CLOUD.remoteAt)+'&version=eq.'+CLOUD.ver,{method:'PATCH',keepalive:true,headers:{apikey:SB_KEY,Authorization:'Bearer '+tok,'Content-Type':'application/json',Prefer:'return=representation'},body});
+  if(!r.ok)throw new Error('离页同步失败');const rows=await r.json();if(!rows.length){clKick();return}
+  CLOUD.remoteAt=rows[0].updated_at;CLOUD.ver=rows[0].version;CL.lastUp=Date.now();CLOUD.last=CL.lastUp;CL_ERR='';CL.fail=0;CL.warned=0;clSetState('ok')
+ }catch(e){CL.dirty=1;clSetState('err');clSyncSoon()}finally{CL_BUSY=0}
+ }catch(e){CL.dirty=1}}
 // ---------- 界面 ----------
 let CL_GATE=0;
 function loginUI(tab){tab=tab||'in';CL_GATE=1;modal(`<div class="mtitle">老羊传奇 · 账号</div><div class="gp login">
