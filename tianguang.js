@@ -17,8 +17,4 @@ function tgSound(t){try{if(typeof AUDIO!=='undefined'&&AUDIO&&typeof AUDIO.playL
 function tgFire(list){const b=tgBest(list);if(!b)return null;TG.last=b.t;tgPillar(b.t);if(TG.TOP[b.t])tgBanner(b.it,b.t);tgSound(b.t);return b.t}
 if(typeof offline==='function'){const f=offline;offline=function(){TG.busy++;try{return f.apply(this,arguments)}finally{TG.busy--}}}
 {const f=rollTC;rollTC=function(){const o=f.apply(this,arguments);if(window.__NOUI||TG.busy||typeof document==='undefined')return o;try{tgFire(o)}catch(e){console.warn(e)}return o}}
-// ---------- 拾取过滤：至少保留 上古 / 符文≥X / 未收录（一行） ----------
-{const f=shouldRecycle;shouldRecycle=function(it,isNew){const r=S.rcy;if(r&&it&&it.k==='rune'&&r.keepHR&&it.r+1>=(r.hrMin||TG.HR))return false;return f(it,isNew)}}
-function tgRcyRow(){const r=S.rcy,b=(on,fn,t)=>`<button class="btn xs ${on?'on':''}" onclick="${fn};rcyUI()">${t}</button>`;const x=r.hrMin||TG.HR;
- return`<div class="row tgkeep"><b>至少保留</b><span>${b(r.keepAnc!==0,'S.rcy.keepAnc=S.rcy.keepAnc===0?1:0','上古')}${b(r.keepHR,'S.rcy.keepHR=S.rcy.keepHR?0:1',`符文≥${x}`)}<button class="btn xs" onclick="S.rcy.hrMin=Math.max(1,(S.rcy.hrMin||${TG.HR})-1);rcyUI()">－</button><button class="btn xs" onclick="S.rcy.hrMin=Math.min(33,(S.rcy.hrMin||${TG.HR})+1);rcyUI()">＋</button>${b(r.keepNew,'S.rcy.keepNew^=1','未收录')}</span></div>`}
-{const f=rcyUI;rcyUI=function(){f.apply(this,arguments);try{const h=[...document.querySelectorAll('#modal .rcy h4')].find(x=>x.textContent.indexOf('保护')>=0);if(h&&!document.querySelector('#modal .tgkeep'))h.insertAdjacentHTML('beforebegin',tgRcyRow())}catch(e){console.warn(e)}}}
+// 回收设置统一由 loot.js 提供。

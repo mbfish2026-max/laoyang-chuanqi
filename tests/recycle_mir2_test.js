@@ -1,0 +1,26 @@
+// 传奇回收：存档迁移、保护优先级、筛选条件及实际回收。
+const T=require('./cq_harness')('recycle_mir2_test');const {G,ok}=T;
+G(`S=newSave();ensureLoot();S.cls='zs';S.diff=2;S.lvl=60;calc();EGM=null`);
+G(`S.bag=[];S.rcy={dv:3,on:0,q:{0:1,3:1,4:1},c:{sword:1,armor:1},keepSock:1,sk:{n:{weapon:3}},mode:'ess'};var locked={uid:999,b:'swd1',q:1,lk:1};S.bag=[locked];ensureLoot()`);
+ok(G('S.rcy.v===2&&S.rcy.on===0&&S.rcy.q[1]===1&&S.rcy.q[3]===1&&S.rcy.c.weapon===1&&!S.rcy.sk&&S.bag[0]===locked'),'旧档迁移只换算设置、不改背包');
+G(`S.rcy.q[3]=0;ensureLoot()`);ok(G('S.rcy.q[3]===0'),'迁移只执行一次');
+G(`S.rcy=rcyDefault();S.rcy.on=1;S.rcy.keepBetter=0;S.rcy.keepNew=0;for(const [q] of RCY_Q)S.rcy.q[q]=1;var sample={uid:888,b:'swd1',q:1,req:10,name:'木剑'};`);
+for(const extra of ['{lk:1}','{set:"zuma_zs"}','{q:6}','{blk:"orclord"}','{anc:1}','{anc:2}','{b:"swdtulong"}','{b:"wandshihunfazhang"}','{b:"swdnuzhan"}'])ok(G(`!shouldRecycle({...sample,...${extra}},false)`),'保护 '+extra);
+ok(G(`(()=>{const u=UNIQUES.find(u=>u.boss);return !shouldRecycle({...sample,b:u.b,name:u.n,cqContentId:u.id,q:5},false)})()`),'数据表首领专属保护');
+G(`S.rcy.keepNew=1`);ok(G(`!shouldRecycle({...sample,q:5,name:'未收录'},false)`),'背包内未收录极品也保护');
+G(`S.rcy.keepNew=0;S.rcy.classes.any=0`);ok(G('!shouldRecycle(sample,false)'),'职业筛选');
+G(`S.rcy.classes.any=1;S.rcy.nonClass=1;S.cls='zs'`);ok(G(`!shouldRecycle(sample,false)&&shouldRecycle({...sample,b:'wand1'},false)`),'仅回收非本职业，保留通用');
+G(`S.rcy.nonClass=0;S.rcy.levelBelow=10`);ok(G(`!shouldRecycle(sample,false)&&shouldRecycle({...sample,req:9},false)`),'等级严格低于阈值');
+G(`S.rcy.levelBelow=0;S.rcy.tierBelow=5`);ok(G(`shouldRecycle(sample,false)&&!shouldRecycle({...sample,b:'swd2'},false)`),'基础装备档位阈值');
+G(`S.rcy.tierBelow=0;S.bag=[sample,{...sample,uid:889,lk:1}];var before=matCount('ess');recycleNow()`);
+ok(G(`S.bag.some(x=>x.uid===889)&&!S.bag.some(x=>x.uid===888)&&matCount('ess')>before`),'实际回收产出碎片并保留锁定');
+G(`var oldStats=STATS.rcy;var guarded={...sample,uid:890,lk:1};S.bag.push(guarded);doRecycle(guarded);cqbRecycle(guarded.uid)`);
+ok(G(`STATS.rcy===oldStats&&S.bag.includes(guarded)`),'直接回收与单件入口也保护锁定装备');
+G(`var setGuard={...sample,uid:891,set:'zuma_zs'};S.bag.push(setGuard);cqbRecycle(setGuard.uid)`);
+ok(G('S.bag.includes(setGuard)'),'单件入口保护套装');
+G(`var hadMode=S.rcy.on;recycleNow()`);ok(G('S.rcy.on===hadMode&&S.bag.includes(guarded)&&S.bag.includes(setGuard)'),'重复回收不丢保护装备且恢复自动开关');
+G(`var originalFits=bagFits;bagFits=()=>false;var fullLock={...sample,uid:992,lk:1};addBag(fullLock);bagFits=originalFits`);
+ok(G('S.bag.includes(fullLock)'),'背包已满时也不丢锁定装备');
+G(`bagFits=()=>false;S.rcy.keepNew=1;var unseen={...sample,uid:993,q:5,name:'图鉴未收录测试品'};addBag(unseen);bagFits=originalFits`);
+ok(G('S.bag.includes(unseen)&&S.codex[unseen.name]===1'),'背包已满时保留未收录极品并收录图鉴');
+T.done();
