@@ -36,5 +36,5 @@ ok(G(`(()=>{const it={b:'rin',q:5,name:'不存在的旧物品',m:{life:3}};retur
 // 回收保护
 G(`ensureLoot();S.rcy.on=1;S.rcy.q[4]=1;S.rcy.q[5]=1;for(const k in S.rcy.c)S.rcy.c[k]=1;S.rcy.keepNew=0;S.rcy.keepSkill=0;S.rcy.keepBetter=0;`);
 ok(G(`(()=>{const it=genItem(85,{q:5});it.anc=1;return shouldRecycle(it,false)===false})()`),'保留上古默认开');
-ok(G(`(()=>{S.rcy.keepAnc=0;const it=genItem(85,{q:5});it.m={};it.anc=1;return shouldRecycle(it,false)===true})()`),'关闭后可回收');
+ok(G(`(()=>{S.rcy.keepAnc=0;const it=genItem(85,{q:5});it.m={};it.anc=1;return shouldRecycle(it,false)===false})()`),'上古保护不可关闭');
 console.log(`ancient_test: ${pass} pass, ${fail} fail`);process.exit(fail?1:0);

@@ -70,7 +70,7 @@ function cqbPage(p){if(STV==='bag')BGP=p;else{CQ_BAG_UI.page=p;if(CQ_BAG_UI.type
 function cqbTap(uid){if(CQ_BAG_UI.lock){toggleLock(uid);closeM();render()}else showItem(uid)}
 function cqbSort(){if(STV==='bag'){BGP=0;autoSortBag()}else{CQ_BAG_UI.page=0;autoSortStash(STV==='shared'?1:0)}}
 function cqbRecycleMenu(){modal(`<div class="mtitle">装备回收</div><div class="gp"><p>一键回收按当前设置处理背包装备，锁定物品始终保留。</p><div class="btns c"><button class="btn gold" onclick="closeM();recycleNow()">一键回收</button><button class="btn" onclick="rcyUI()">自动回收设置</button><button class="btn" onclick="closeM()">返回</button></div></div>`)}
-function cqbRecycle(uid){const f=findItem(uid);if(!f||f.slot||f.it.k||f.it.lk)return;
+function cqbRecycle(uid){const f=findItem(uid);if(!f||f.slot||f.it.k||rcyProtected(f.it))return;
  if(!confirm('回收「'+itemName(f.it)+'」？'))return;ensureLoot();const a=f.stash?pagesOf(f.where)[f.pg]:S.bag;const i=a.indexOf(f.it);if(i<0)return;a.splice(i,1);doRecycle(f.it);calc();save();if(f.stash&&f.where==='s'){acctSave();if(typeof clSyncSoon==='function')clSyncSoon()}closeM();render()}
 function cqbCompare(uid){
  const f=findItem(uid),cur=f&&!f.it.k&&!f.slot&&cmpTarget(f.it);if(!cur)return showItem(uid);
@@ -117,7 +117,7 @@ function cqbInstall(){const oldRender=renderBag;renderBag=function(){if(window._
  // 详情默认单栏，点击「对比」时才启用现成对比属性面板。
  const busy=CMP_BUSY;if(!CQ_BAG_UI.compare)CMP_BUSY=1;let r;try{r=oldShow.apply(this,arguments)}finally{CMP_BUSY=busy}
  const m=document.getElementById('modal'),box=m.querySelector('.btns.c');if(!box||f.it.k||f.slot)return r;
- const uid0=f.it.uid;box.classList.add('cqb-detail-actions');box.innerHTML=`<button class="btn gold" onclick="${f.stash?'stEquip':'equip'}(${uid0})" ${canEquip(f.it)?'':'disabled'}>穿戴</button><button class="btn" onclick="cqbCompare(${uid0})" ${cmpTarget(f.it)?'':'disabled'}>对比</button><button class="btn" onclick="toggleLock(${uid0})">${f.it.lk?'解锁':'锁定'}</button><button class="btn" onclick="cqbRecycle(${uid0})" ${f.it.lk?'disabled':''}>回收</button>`;
+ const uid0=f.it.uid;box.classList.add('cqb-detail-actions');box.innerHTML=`<button class="btn gold" onclick="${f.stash?'stEquip':'equip'}(${uid0})" ${canEquip(f.it)?'':'disabled'}>穿戴</button><button class="btn" onclick="cqbCompare(${uid0})" ${cmpTarget(f.it)?'':'disabled'}>对比</button><button class="btn" onclick="toggleLock(${uid0})">${f.it.lk?'解锁':'锁定'}</button><button class="btn" onclick="cqbRecycle(${uid0})" ${rcyProtected(f.it)?'disabled':''}>回收</button>`;
  const extra=document.createElement('div');extra.className='cqb-transfer';extra.innerHTML=f.stash?`<button class="btn" onclick="fromStash(${uid0})">取回背包</button><button class="btn" onclick="stashToStash(${uid0})">转${f.where==='s'?'个人':'共享'}仓库</button>`:`<button class="btn" onclick="depositUid(${uid0},'p')">存个人仓库</button><button class="btn" onclick="depositUid(${uid0},'s')">存共享仓库</button>`;box.before(extra);if(!f.stash){box.insertAdjacentHTML('beforeend',`<button class="btn" onclick="cqEnhUI(${uid0})">强化</button>`);if(typeof cqEnhActions==='function')cqEnhActions(uid0)}return r};
  if(typeof TAB!=='undefined'&&TAB==='bag'&&!window.__NOUI)renderBag();
 }

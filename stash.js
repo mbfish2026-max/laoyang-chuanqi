@@ -108,7 +108,7 @@ const _st_show=showItem;showItem=function(uid){_st_show(uid);if(window.__NOUI)re
 // ---------- 背包容量（按格）与卸装 ----------
 unequip=function(k){if(slotsUsed(S.bag)>=BAG_SZ)return toast('背包已满');S.bag.push(S.eq[k]);delete S.eq[k];calc();closeM();render()};
 // ---------- 自动存仓（拾取时；自动回收优先，见 loot.js） ----------
-const AST_T={mat:'材料',unique:'暗金',set:'套装',rare:'稀有'};// 宝石/符文/珠宝/护身符/凹槽底材 已删除（legacy_prune 批次2）
+const AST_T={mat:'材料',unique:'极品',set:'套装',rare:'稀有'};// 宝石/符文/珠宝/护身符/凹槽底材 已删除（legacy_prune 批次2）
 function astType(it){if(it.k==='gem')return'gem';if(it.k==='rune')return'rune';if(it.k==='mat')return'mat';const b=BASEM[it.b];if(b.s==='jewel')return'jewel';if(b.s==='charm')return'charm';
  if(it.q===5)return'unique';if(it.q===6)return'set';if(it.q===4)return'rare';if(it.sock&&it.q<=2&&it.rw==null)return'sock';return null}
 let AST_WARN=0;const STATS={rcy:0,rcyG:0,rcyE:0,ast:0};

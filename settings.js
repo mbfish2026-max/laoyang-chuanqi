@@ -22,7 +22,7 @@ window.setUI=function(){const o=grab();if(!o)return;
  const d=document.createElement('div');d.innerHTML=o.game;const md=d.querySelector('.mdset');const rs=[...d.querySelectorAll('button')].find(b=>/重置存档/.test(b.textContent));
  const mdH=md?md.outerHTML:'';if(md)md.remove();if(rs)rs.remove();
  [...d.querySelectorAll('.dim')].filter(e=>/自动出售/.test(e.textContent)).forEach(e=>e.remove());
- const rcy=`<div class="row"><span>自动回收规则<br><small class="dim">品质、凹槽底材等条件（背包页开关保留）</small></span><button class="btn sm" onclick="rcyUI()">设置</button></div>`;
+ const rcy=`<div class="row"><span>自动回收规则<br><small class="dim">品质、部位、职业、等级与档位（背包页开关保留）</small></span><button class="btn sm" onclick="rcyUI()">设置</button></div>`;
  const chs=typeof charUI==='function'&&!/切换角色/.test(o.acct)?`<div class="btns"><button class="btn sm gold" onclick="charUI()">🔄 切换角色</button></div>`:'';
  const rsH=rs?`<div class="btns"><button class="btn sm" onclick="${rs.getAttribute('onclick')}">重置存档</button></div>`:'';
  modal(`<div id="setM"><div class="mtitle">⚙ 设置</div>`+sec('游戏',mdH)+sec('战斗 / 自动',auto+d.innerHTML)+(typeof rcyUI==='function'?sec('拾取回收',rcy):'')+sec('声音',o.audio)+sec('显示 / 省电',o.pwr)+sec('账号',o.acct+chs+rsH)+`<div class="btns c"><button class="btn sm" onclick="closeM()">关闭</button></div></div>`)};
