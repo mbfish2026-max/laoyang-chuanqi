@@ -1,9 +1,11 @@
-// 真实 step 战斗：玩家三职业 × 英雄三职业，每组合 60 分钟。
+// 真实 step 战斗：玩家三职业 × 英雄三职业，每组合默认 15 分钟（HERO_MINUTES 可设 15–30）。
 const {execFileSync}=require('child_process'),path=require('path'),assert=require('assert');
+const minutes=Number(process.env.HERO_MINUTES||15);
+assert(Number.isFinite(minutes)&&minutes>=15&&minutes<=30,'短测分钟数须在 15–30');
 const rows=[];
 for(const cls of ['zs','fs','ds'])for(const hero of ['zs','fs','ds']){
- const o=JSON.parse(execFileSync(process.execPath,[path.join(__dirname,'..','cq','cq_hero_balance_sim.js'),'60',cls,hero],{timeout:180000}).toString().trim().split('\n').pop());
- assert.strictEqual(o.hero,hero);assert.strictEqual(o.min,60);
+ const o=JSON.parse(execFileSync(process.execPath,[path.join(__dirname,'..','cq','cq_hero_balance_sim.js'),String(minutes),cls,hero],{timeout:180000}).toString().trim().split('\n').pop());
+ assert.strictEqual(o.hero,hero);assert.strictEqual(o.min,minutes);
  assert(Number.isFinite(o.share.both)&&o.share.both>0&&o.share.both<=0.25,`${cls}/${hero} share=${o.share.both}`);
  assert(o.hejiN>0,`${cls}/${hero} 未释放合击`);
  assert(o.skShare>0,`${cls}/${hero} 未释放英雄技能`);
