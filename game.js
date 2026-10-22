@@ -30,6 +30,9 @@ function itemLocal(it){const b=BASEM[it.b],m=allMods(it),o={};
  if(b.def){o.def=Math.floor(it.def*(1+(m.edef||0)/100))+(m.def||0)}return o}
 function itemReq(it){const b=BASEM[it.b];let l=it.req||0;
  const f=it.q===0?0.8:1;return{lv:l,str:Math.floor((b.str||0)*f),dex:Math.floor((b.dex||0)*f)}}
+// 双手镯保留 shield/gloves 存档键；底材可穿任一侧。
+function cqBrace(b){return !!b&&b.cat==='bracelet'}
+function cqEquipSlot(b,auto){if(!cqBrace(b))return slotOf(b);const ks=['shield','gloves'].filter(k=>!auto||typeof isLk!=='function'||!isLk(S.eq[k]));return ks.find(k=>!S.eq[k])||ks.sort((a,b)=>power(S.eq[a])-power(S.eq[b]))[0]}
 function canEquip(it){const r=itemReq(it),A=ST?ST.attr:S.at;if(BASEM[it.b]&&BASEM[it.b].cls&&typeof curCls==='function'&&(BASEM[it.b].ccls||'zs')!==curCls())return false;return S.lvl>=r.lv&&A.str>=r.str&&A.dex>=r.dex}
 function itemName(it){if(!it)return'损坏物品';return it.name||'未知物品'}
 function itemColor(it){if((it.q===1||it.q===2)&&it.sock)return'#a0a0a0';return QC[it.q]}
@@ -418,8 +421,8 @@ function showItem(uid){const f=findItem(uid);if(!f)return;const it=f.it;
  <div class="btns c">${f.slot?`<button class="btn" onclick="unequip('${f.slot}')">卸下</button>`:`<button class="btn gold" onclick="equip(${uid})" ${ok?'':'disabled'}>${ok?'装备':'需求不足'}</button>`}
  ${S.imbue&&!f.slot&&(it.q===1||it.q===2)&&!it.soc.length?`<button class="btn gold" onclick="imbue(${uid})">灌注</button>`:''}
  ${f.slot?'':`<button class="btn" onclick="sell(${uid})">出售 ${sellPrice(it)}◈</button>`}<button class="btn" onclick="closeM()">关闭</button></div></div>`)}
-function equip(uid){const f=findItem(uid);if(!f||f.slot)return;const it=f.it,b=BASEM[it.b];let k=slotOf(b);if(k==='ring')k=!S.eq.ring1?'ring1':!S.eq.ring2?'ring2':'ring1';
- S.bag.splice(f.i,1);if(S.eq[k])S.bag.push(S.eq[k]);S.eq[k]=it;calc();H.life=Math.min(H.life,ST.life);closeM();render()}
+function equip(uid,side){const f=findItem(uid);if(!f||f.slot)return;const it=f.it,b=BASEM[it.b];let k=cqBrace(b)&&['shield','gloves'].includes(side)?side:cqEquipSlot(b);if(k==='ring')k=!S.eq.ring1?'ring1':!S.eq.ring2?'ring2':'ring1';
+ if(!k||!canEquip(it))return;S.bag.splice(f.i,1);if(S.eq[k])S.bag.push(S.eq[k]);S.eq[k]=it;calc();H.life=Math.min(H.life,ST.life);closeM();render()}
 function unequip(k){if(S.bag.length>=40)return toast('背包已满');S.bag.push(S.eq[k]);delete S.eq[k];calc();closeM();render()}
 function sell(uid){const f=findItem(uid);if(!f||f.slot)return;S.gold+=sellPrice(f.it);S.bag.splice(f.i,1);closeM();render()}
 function sellJunk(){let g=0;S.bag=S.bag.filter(it=>{if(!it.k&&it.q<=3&&!it.sock&&it.rw==null){g+=sellPrice(it);return false}return true});S.gold+=g;toast('出售获得 '+g+' 金币');render()}
@@ -458,7 +461,7 @@ const SK_FILL=()=>bl('bs')<20?['bs','sm','rs','te']:[...['ba','bw','bp'].filter(
 function autoTick(){let ch={};ch=0;const learned=[];for(const[k,c]of[['hp',30],['mp',30]])while(S.pot[k]<8&&S.gold>=c*4&&cqSpend(c))S.pot[k]++
  const PL=(typeof clsSkPlan==='function'&&clsSkPlan())||{order:SK_ORDER,fill:SK_FILL};
  if(S.autoSk)while(S.kp>0){const done={};const id=PL.order.find(x=>{done[x]=(done[x]||0)+1;return bl(x)<done[x]&&canLearn(x)})||PL.fill().find(canLearn);if(!id)break;S.sk[id]=bl(id)+1;S.kp--;ch=1;learned.push(SKM[id].n)}if(learned.length)log('自动加点：'+learned.join('、'));
- if(S.autoEq)for(const it of S.bag.slice()){if(!it||it.k||!BASEM[it.b]||!canEquip(it))continue;const b=BASEM[it.b];let k=slotOf(b);if(k==='ring')k=!S.eq.ring1?'ring1':!S.eq.ring2?'ring2':(power(S.eq.ring1)<power(S.eq.ring2)?'ring1':'ring2');
+ if(S.autoEq)for(const it of S.bag.slice()){if(!it||it.k||!BASEM[it.b]||!canEquip(it))continue;const b=BASEM[it.b];let k=cqEquipSlot(b,true);if(!k)continue;if(k==='ring')k=!S.eq.ring1?'ring1':!S.eq.ring2?'ring2':(power(S.eq.ring1)<power(S.eq.ring2)?'ring1':'ring2');
   if(!S.eq[k]||power(it)>power(S.eq[k])){const i=S.bag.indexOf(it);S.bag.splice(i,1);if(S.eq[k])S.bag.push(S.eq[k]);S.eq[k]=it;ch=1;log(`自动换装：<span style="color:${itemColor(it)}">${itemName(it)}</span>`)}}
  if(ch){calc();if(TAB!=='fight')render()}}
 function needStr(){let n=0;for(const it of S.bag)if(it&&!it.k&&BASEM[it.b]){const r=itemReq(it);if(r.lv<=S.lvl+3&&r.str<=ST.attr.str+10)n=Math.max(n,r.str)}return Math.min(n,60)}

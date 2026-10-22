@@ -25,7 +25,7 @@ if(typeof shouldRecycle==='function'){const f=shouldRecycle;shouldRecycle=functi
 // 3) 角色自动换装：锁定的背包物品不自动穿；已穿戴的锁定物品不被替换
 lkHide('autoTick');
 {const f=autoTick;autoTick=function(){LK.inAuto=1;try{return f.apply(this,arguments)}finally{LK.inAuto=0}}}
-{const f=canEquip;canEquip=function(it){if(LK.inAuto&&it&&!it.k){const b=BASEM[it.b];if(b){const k=slotOf(b);if(k==='ring'){if(isLk(S.eq.ring1)&&isLk(S.eq.ring2))return false}else if(isLk(S.eq[k]))return false;if(b.th&&isLk(S.eq.shield))return false;if(k==='shield'&&isLk(S.eq.weapon))return false}}return f(it)}}
+{const f=canEquip;canEquip=function(it){if(LK.inAuto&&it&&!it.k){const b=BASEM[it.b];if(b){const k=slotOf(b);if(cqBrace(b)){if(!cqEquipSlot(b,true))return false}else if(k==='ring'){if(isLk(S.eq.ring1)&&isLk(S.eq.ring2))return false}else if(isLk(S.eq[k]))return false;if(b.th&&isLk(S.eq.shield))return false;if(k==='shield'&&isLk(S.eq.weapon))return false}}return f(it)}}
 // ---------- 界面 ----------
 {const f=cell;cell=function(it,on){const h=f(it,on);return it&&it.lk?h.replace(/<\/div>$/,'<i class="lkic">🔒</i></div>'):h}}
 {const f=showItem;showItem=function(uid,...r){f(uid,...r);if(typeof document==='undefined'||window.__NOUI)return;const it=lkFind(uid);if(!it)return;const box=document.querySelector('#modal .btns.c');if(!box||box.querySelector('[data-lk]'))return;
