@@ -1,0 +1,36 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "processing": "Resize to 360x240 landscape WebP quality 90 with centered crop.",
+  "images": [
+    {
+      "id": "zone_2_7",
+      "scene": "沃玛寺庙二层，古老石砌地下祭祀厅，羊角石雕，幽绿火把",
+      "source": "/home/box/.codex/generated_images/01a163b6-0b05-7cd2-9bd9-12bb394af6b5/exec-94de696e-6521-4aa3-8d4c-5dd6cb4655de.png",
+      "prompt": "Use case: stylized-concept. Asset type: small landscape game map thumbnail. Original retro Chinese fantasy MMORPG environment, painterly isometric scene reminiscent of early 2000s Chinese fantasy, no copying existing game assets. Scene: 沃玛寺庙二层，古老石砌地下祭祀厅，羊角石雕，幽绿火把. Clear readable environment at 100px wide, warm muted stone palette, atmospheric light, landscape framing. No characters, no text, no UI, no border, no watermark."
+    },
+    {
+      "id": "zone_2_8",
+      "scene": "沃玛寺庙三层，深邃地下教主祭坛，巨大石柱，暗红火盆",
+      "source": "/home/box/.codex/generated_images/01a163b6-0b05-7cd2-9bd9-12bb394af6b5/exec-719e6003-714a-4217-a754-c7c64bc379eb.png",
+      "prompt": "Use case: stylized-concept. Asset type: small landscape game map thumbnail. Original retro Chinese fantasy MMORPG environment, painterly isometric scene reminiscent of early 2000s Chinese fantasy, no copying existing game assets. Scene: 沃玛寺庙三层，深邃地下教主祭坛，巨大石柱，暗红火盆. Clear readable environment at 100px wide, warm muted stone palette, atmospheric light, landscape framing. No characters, no text, no UI, no border, no watermark."
+    },
+    {
+      "id": "zone_3_7",
+      "scene": "毒蛇矿区，废弃矿道，木支架，矿车，潮湿绿石",
+      "source": "/home/box/.codex/generated_images/01a163b6-0b05-7cd2-9bd9-12bb394af6b5/exec-b0977f21-b2b5-47da-a76a-226428e28023.png",
+      "prompt": "Use case: stylized-concept. Asset type: small landscape game map thumbnail. Original retro Chinese fantasy MMORPG environment, painterly isometric scene reminiscent of early 2000s Chinese fantasy, no copying existing game assets. Scene: 毒蛇矿区，废弃矿道，木支架，矿车，潮湿绿石. Clear readable environment at 100px wide, warm muted stone palette, atmospheric light, landscape framing. No characters, no text, no UI, no border, no watermark."
+    },
+    {
+      "id": "zone_3_8",
+      "scene": "蜈蚣洞，天然岩洞，蜿蜒沙土地面，褐色岩壁和少量虫壳",
+      "source": "/home/box/.codex/generated_images/01a163b6-0b05-7cd2-9bd9-12bb394af6b5/exec-0a3a6f15-aa61-4447-8016-b9e767b6e33a.png",
+      "prompt": "Use case: stylized-concept. Asset type: small landscape game map thumbnail. Original retro Chinese fantasy MMORPG environment, painterly isometric scene reminiscent of early 2000s Chinese fantasy, no copying existing game assets. Scene: 蜈蚣洞，天然岩洞，蜿蜒沙土地面，褐色岩壁和少量虫壳. Clear readable environment at 100px wide, warm muted stone palette, atmospheric light, landscape framing. No characters, no text, no UI, no border, no watermark."
+    },
+    {
+      "id": "zone_3_9",
+      "scene": "死亡山谷，荒凉石谷，枯树和巨大白骨，灰褐色山壁",
+      "source": "/home/box/.codex/generated_images/01a163b6-0b05-7cd2-9bd9-12bb394af6b5/exec-fbc7b4ca-4dbf-4754-9458-fb7389421eda.png",
+      "prompt": "Use case: stylized-concept. Asset type: small landscape game map thumbnail. Original retro Chinese fantasy MMORPG environment, painterly isometric scene reminiscent of early 2000s Chinese fantasy, no copying existing game assets. Scene: 死亡山谷，荒凉石谷，枯树和巨大白骨，灰褐色山壁. Clear readable environment at 100px wide, warm muted stone palette, atmospheric light, landscape framing. No characters, no text, no UI, no border, no watermark."
+    }
+  ]
+}
