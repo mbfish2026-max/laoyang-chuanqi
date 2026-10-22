@@ -27,7 +27,7 @@ G('var r=hero.doHeji(host,true)');
 ok(G('r.ok')&&G('r.hits.length')===2,'群体合击命中全部目标');
 ok(G('hero.h.rage')===0&&G('hero.h.hejiCd')===CQ_T('hejiCd'),'合击后怒气清零、冷却 HERO_TUNE.hejiCd 秒');
 ok(G('r.total')>=Math.round(135*3.2*.9)-2&&G('r.total')<=Math.round(135*3.2*1.1)+2,'无 DPS 兜底：合击总伤=(玩家上限+英雄上限)×倍率，去掉等级加成');
-G('host.dps=()=>1000;hero.h.rage=100;hero.h.hejiCd=0;var r2=hero.doHeji(host,true)');ok(G('r2.total')>=1000*6*.9-2&&G('r2.total')<=1000*6.8*1.1+2,'合击总伤 ≈ 玩家 6–6.8 秒 DPS');
+G('host.dps=()=>1000;hero.h.rage=100;hero.h.hejiCd=0;var r2=hero.doHeji(host,true)');ok(G('r2.total')>=1000*6*.9-2&&G('r2.total')<=1000*6.8*1.1+2,'合击总伤 ≈ 玩家 6–6.8 秒 DPS（冷却 30 秒）');
 G('hits.length=0;hero._fr=0;hero.unit.atkT=0;hero.h.skOff={zys:1,lhhf:1,sds:1};hero.tick(.01,host);hero.h.skOff={}');ok(G('hits[0][1]')>=Math.floor(1000*CQ_T('dpsK')*1.6*.9)-1&&G('hits[0][1]')<=Math.ceil(1000*CQ_T('dpsK')*1.6*1.1),'英雄普攻 = 玩家 DPS×dpsK×1.6 秒');
 G('delete host.dps;hero.h.hejiCd=0');
 ok(!G('hero.doHeji(host,true).ok'),'冷却中不能再次合击');
