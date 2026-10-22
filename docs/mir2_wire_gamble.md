@@ -2,7 +2,7 @@
 
 加载 `cq/gamble_cq.css`、`cq/gamble_cq.js`，放在 mir2 装备 install / 全部 killMon 包装之后（index 已接）。独占模块包装 killMon 和 renderShop，不改装备定义与旧赌博。
 
-- 商店自动添加「盟重赌石坊」按钮；地图集成者在盟重安全区 NPC 按钮调用 `CQGamble.open()`。地图入口暂由主线窗口接线，本分支未改共享地图页面。
+- 商店自动添加「盟重赌石坊」按钮；地图集成者在盟重安全区 NPC 按钮调用 `CQGamble.open()`。集成后在各章营地卡片提供「盟重赌石坊」入口（现有地图无独立盟重安全区）；调用 `CQGamble.open()`，不改变传送与章节解锁规则。
 - `CQGamble.drop(mon, random?)`：正常击杀包装调用；首领/章节首领 35%、精英 champ/uniq 8%，普通怪/复活怪无掉落。档位按 act=0..7 对应基础、沃玛、祖玛、赤月、魔龙、强化魔龙、白金、星王。后续地图可改为调用 `receive(tier, slot)` 显式指定。接入离线奖励时调用 drop，不重复包装。
 - `receive(tier, slot)`：只接收当前职业有完整套装结果池的部位；沃玛/祖玛主要为首饰，不编造不存在的头盔/武器。未鉴定物独立保存在 `S.cqGamble.pending`，不占装备背包；不承诺固定怪物掉落部位。
 - `pool(tier,slot,cls)` 使用 BASES 的 cqTier/ccls，套装采用 SETITEMS 稳定 content ID；上古/至臻复用 ancApply，不另造装备品质数据。禁用原生成器随机上古，确保公布概率独立生效。
