@@ -85,6 +85,7 @@
     role: function(){ var S = G('S') || {}, ST = G('ST') || {}, H = G('H') || {}, cls = (has('curCls') ? G('curCls')() : S.cls) || 'zs';
       var lv = S.lvl || 1, xn = has('xpNeed') ? G('xpNeed') : null, xp = 0;
       if (xn) { var a = xn(lv), b = xn(lv + 1); xp = b > a ? (S.xp - a) / (b - a) * 100 : 0; }
+      if (lv >= 60) { var pg = SYS(); if (pg && pg.progression) { var pr = pg.progression(); xp = pr.reb >= pr.max ? 100 : Math.max(0, Math.min(100, pr.xp / pr.need * 100)); } }
       var r = {name: S.name || (has('clsName') ? G('clsName')() : '勇士'), clsName: has('clsName') ? G('clsName')() : '', cls: cls, lvl: lv, hp: H.life || 0, maxhp: ST.life || 1, mp: H.mana || 0, maxmp: ST.mana || 1,
         xpPct: xp, gold: S.gold || 0, yb: null, power: null};
       var C = SYS(); if (C) { try { if (C.currency) { var cu = C.currency(); r.gold = cu.gold; r.yb = cu.yb; } if (C.power) r.power = C.power(); } catch (e) {} }

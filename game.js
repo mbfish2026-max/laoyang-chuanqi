@@ -169,7 +169,7 @@ function killMon(m){m.hp=0;S.kills=(S.kills||0)+1;killWin.push(GT);
  log(`击杀 <span class="${m.boss?'bossn':m.fl}">${m.n}</span>，经验+${xp}${names.length?'，获得 '+names.join('、'):''}`);
  for(const it of drops){groundLoot(it);addBag(it)}
  if(m.boss)bossKilled(m)}
-function gainXp(x){S.xp+=x;while(S.lvl<99&&S.xp>=xpNeed(S.lvl+1)){S.lvl++;calc();H.life=ST.life;H.mana=ST.mana;toast(`升级！等级 ${S.lvl}：属性自动成长`);log(`<b style="color:#ffd76a">升到 ${S.lvl} 级</b>`)}}
+function gainXp(x){S.xp+=x;while(S.lvl<60&&S.xp>=xpNeed(S.lvl+1)){S.lvl++;calc();H.life=ST.life;H.mana=ST.mana;toast(`升级！等级 ${S.lvl}：属性自动成长`);log(`<b style="color:#ffd76a">升到 ${S.lvl} 级</b>`)}}
 // --- TC 掉落 ---
 function rollTC(m){const t=m.actboss?{p:7,nd:0}:m.boss?{p:5,nd:15}:m.fl==='uniq'?{p:3,nd:40}:m.fl==='champ'?{p:2,nd:60}:{p:1,nd:100};
  const out=[],bm=m.boss?983:0;for(let i=0;i<t.p;i++){const e=wpick([['nd',t.nd],['gold',30],['junk',25],['eq',22],['good',4+(m.boss?8:0)]],x=>x[1])[0];
@@ -217,10 +217,10 @@ function heroAct(){const ms=liveMon();const L=x=>slvl(x);
   else if(sk==='bs'){const tg3=[tg,...ms.filter(m=>m!==tg)].slice(0,3);for(const m of tg3)hitMon(m,{magic:R(v.dmg[0],v.dmg[1])},'hero','#f0ead0');fx('spear',tg3)}
   else if(sk==='bx'){hitMon(tg,{magic:R(v.dmg[0],v.dmg[1])},'hero','#cfe');fx('spirit',[tg])}
   else if(sk==='pn'){for(const m of ms)hitMon(m,{pois:R(v.dmg[0],v.dmg[1])},'hero','#6f6');fx('nova',ms)}
-  else if(sk==='pd'){if(hitChance(ST.ar,tg.def,S.lvl,tg.lv))hitMon(tg,{pois:R(v.dmg[0],v.dmg[1]),phys:(window.CQMir2Equip?CQMir2Equip.rollAttack([ST.wmin,ST.wmax]):R(ST.wmin,ST.wmax))},'hero','#6f6');fx('stab',[tg])}
+  else if(sk==='pd'){if(hitChance(ST.ar,tg.def,combatLevel(),tg.lv))hitMon(tg,{pois:R(v.dmg[0],v.dmg[1]),phys:(window.CQMir2Equip?CQMir2Equip.rollAttack([ST.wmin,ST.wmax]):R(ST.wmin,ST.wmax))},'hero','#6f6');fx('stab',[tg])}
   return 1}
  // 普攻
- const tg=target(ms);if(hitChance(ST.ar,tg.def*(1-ST.tdef/100),S.lvl,tg.lv)){const d=hitMon(tg,{phys:(window.CQMir2Equip?CQMir2Equip.rollAttack([ST.wmin,ST.wmax]):R(ST.wmin,ST.wmax)),fire:ST.fire,cold:ST.cold,light:ST.light?R(1,ST.light):0,pois:ST.pois},'hero','#fff');
+ const tg=target(ms);if(hitChance(ST.ar,tg.def*(1-ST.tdef/100),combatLevel(),tg.lv)){const d=hitMon(tg,{phys:(window.CQMir2Equip?CQMir2Equip.rollAttack([ST.wmin,ST.wmax]):R(ST.wmin,ST.wmax)),fire:ST.fire,cold:ST.cold,light:ST.light?R(1,ST.light):0,pois:ST.pois},'hero','#fff');
   if(d){H.life=Math.min(ST.life,H.life+d*ST.ll/100);H.mana=Math.min(ST.mana,H.mana+d*ST.ml/100)}}fx('slash',[tg]);return 2}
 function summonFromCorpse(){if(!CORPSE.length)return 0;const L=x=>slvl(x);
  if(castable('rv')&&cntA('rev')<SV('rv',L('rv')).n){const c=CORPSE.pop();const T=MONS[c.key];if(T){spend('rv');const sm=L('sm'),m=mkMon(c.key,c.lv);addAlly('rev',{n:'复生·'+T.n,ic:T.ic,a:T.a,hp:m.max*3*(1+0.1*sm),dmg:m.dmg.map(x=>x*(1+0.1*sm)),until:GT+180});fx('summon');return 1}}
@@ -228,6 +228,8 @@ function summonFromCorpse(){if(!CORPSE.length)return 0;const L=x=>slvl(x);
  if(castable('rm')&&cntA('mage')<SV('rm',L('rm')).n){CORPSE.pop();spend('rm');const v=SV('rm',L('rm'));addAlly('mage',{n:'骨巫',hp:v.life,dmg:v.dmg,el:pick(['fire','cold','light','pois']),ranged:1});fx('summon');return 1}
  return 0}
 function target(ms){const at=ms.find(m=>curseOf(m,'at'));if(at)return at;const b=ms.find(m=>m.boss);return b||ms[0]}
+function combatAccuracy(n){return n}
+function combatLevel(){return S.lvl||1}
 function hitChance(ar,def,al,dl){const c=clamp(200*ar/(ar+Math.max(1,def))*al/(al+dl),5,95);return rnd()*100<c}
 // --- 主循环 ---
 function step(dt){GT+=dt;for(const a of ALLY)if(a.hitT>0)a.hitT=Math.max(0,a.hitT-dt);const ms=liveMon();
@@ -244,7 +246,7 @@ function step(dt){GT+=dt;for(const a of ALLY)if(a.hitT>0)a.hitT=Math.max(0,a.hit
   a.t-=dt;if(a.t>0)continue;a.t=a.kind==='mage'?1.6:1.2;const ms2=liveMon();if(!ms2.length)continue;const m=target(ms2);
   const d=R(Math.round(a.dmg[0]),Math.round(a.dmg[1]))*(1+ST.sumdmg/100);
   if(a.kind==='mage'){hitMon(m,{[a.el==='pois'?'pois':a.el]:a.el==='pois'?d*3:d},a,{fire:'#f84',cold:'#8cf',light:'#ff6',pois:'#6f6'}[a.el]);fxLine(a.uid,m.uid,{fire:'#f84',cold:'#8cf',light:'#ff6',pois:'#6f6'}[a.el])}
-  else if(hitChance(30+S.lvl*8,m.def,S.lvl,m.lv)){hitMon(m,{[a.el||'phys']:d},a,'#dfd');if(a.sub==='cg')m.slow=GT+3}}
+  else if(hitChance(combatAccuracy(30+combatLevel()*8),m.def,combatLevel(),m.lv)){hitMon(m,{[a.el||'phys']:d},a,'#dfd');if(a.sub==='cg')m.slow=GT+3}}
  // 怪物
  for(const m of ms){if(m.hp<=0)continue;if(m.pois&&m.pois.left>0){const v=Math.min(m.pois.left,dt);m.hp-=m.pois.dps*v;m.pois.left-=v;if(m.hp<=0){killMon(m);continue}}
   if(m.hitT>0)m.hitT-=dt;if(m.stun>0){m.stun-=dt;continue}if(curseOf(m,'tr'))continue;
@@ -254,7 +256,7 @@ function step(dt){GT+=dt;for(const a of ALLY)if(a.hitT>0)a.hitT=Math.max(0,a.hit
   if(curseOf(m,'cf')){const o=liveMon().filter(x=>x!==m);if(o.length){hitMon(pick(o),{phys:dmg},null,'#fa0')}continue}
   const at=liveMon().find(x=>x!==m&&curseOf(x,'at'));if(at){hitMon(at,{phys:dmg},null,'#fa0');continue}
   const allies=ALLY.filter(a=>a.hp>0);const wall=allies.find(a=>a.kind==='wall');let tg=wall||(allies.length&&rnd()<0.7?pick(allies):'hero');
-  if(tg==='hero'){if(!hitChance(m.ar,ST.def,m.lv,S.lvl)){floatHero('闪避','#aaa');continue}
+  if(tg==='hero'){if(!hitChance(m.ar,ST.def,m.lv,combatLevel())){floatHero('闪避','#aaa');continue}
    if(ST.block&&BASEM[S.eq.shield?.b]?.block&&rnd()*100<ST.block){floatHero('格挡','#ccc');continue}
    let el=m.el||'phys',v=dmg;if(el==='phys'){v=Math.max(1,v-ST.dr);const ab=Math.min(H.abs,v);H.abs-=ab;v-=ab}else v=Math.round((window.CQMir2Equip?CQMir2Equip.magicGuard(v,el):v)*(1-ST.res[el]/100));
    if(v>0){H.life-=v;floatHero('-'+v,'#f44')}if(!m.ranged&&ST.thorns)hitMon(m,{phys:ST.thorns},'hero','#fa0');
@@ -283,6 +285,9 @@ let TAB='fight',LOGS=[],SKT=0,BAGF='all';
 function log(h){LOGS.push(h);if(LOGS.length>60)LOGS.shift();LOGDIRTY=1}let LOGDIRTY=1;
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1800)}
 function bar(v,m,cls){const p=m>0?clamp(v/m*100,0,100):0;return`<div class="bar ${cls}"><i style="width:${p}%"></i><span>${fmt(Math.max(0,v))}/${fmt(m)}</span></div>`}
+function combatXpBar(){
+ if(S.lvl>=60&&window.CQSys&&CQSys.progression){const p=CQSys.progression();return bar(p.reb>=p.max?p.need:p.xp,p.need,'xp')}
+ return bar(S.xp-xpNeed(S.lvl),xpNeed(S.lvl+1)-xpNeed(S.lvl),'xp')}
 function monCard(m){const cur=m.cur&&m.cur.until>GT?`<em class="cur">${SKM[m.cur.id].n.slice(0,2)}</em>`:'';
  return`<div class="mc ${m.fl} ${m.hitT>0?'hit':''} ${m.stun>0?'stun':''}" id="c${m.uid}"><b class="lv">${m.lv}</b>${cur}${m.pois&&m.pois.left>0?'<em class="psn">毒</em>':''}
  <div class="pt">${art(m.a,m.ic)}</div><div class="nm">${m.n}</div>${bar(m.hp,m.max,'hp')}</div>`}
@@ -292,7 +297,7 @@ function questLine(){const z=zoneData();const q=z.quest||Object.keys(QUESTS).fin
 function renderFight(){const z=zoneData(),boss=MON.find(m=>m.boss&&m.hp>0),tgt=boss||liveMon()[0];
  $('#ftop').innerHTML=`<div class="zt"><span class="zn">${ACTS[S.act].n.split('·')[1]} · ${z.n}</span><span class="wv">第 ${Math.min(S.wave,z.w)}/${z.w} 波${z.boss?' · 首领':''}</span></div>
  <div class="tg">${tgt?`<span class="${tgt.boss?'bossn':''}">${tgt.n}（${tgt.lv}级）</span>`+bar(tgt.hp,tgt.max,'hp big'):'<span class="dim">搜寻敌人中……</span>'}</div>
- <div class="xpb"><b>EXP</b>${bar(S.xp-xpNeed(S.lvl),xpNeed(S.lvl+1)-xpNeed(S.lvl),'xp')}<span class="lvt">Lv.${S.lvl}</span><span class="gold">◈${fmt(S.gold)}</span></div>`;
+ <div class="xpb"><b>EXP</b>${combatXpBar()}<span class="lvt">Lv.${S.lvl}</span><span class="gold">◈${fmt(S.gold)}</span></div>`;
  const ms=MON.filter(m=>m.hp>0);$('#mgrid').innerHTML=ms.map(monCard).join('')+(ms.length?'':'<div class="empty">· 静 ·</div>');
  $('#arow').innerHTML=`<div class="ac hero" id="chero"><b class="lv">${S.lvl}</b><div class="pt">${heroArt()}</div><div class="nm">${clsName()}</div>${H.abs>0?`<div class="abs">骨铠 ${Math.round(H.abs)}</div>`:''}</div>`+ALLY.map(allyCard).join('')+`<div class="corpse">尸体×${CORPSE.length}</div>`;
  setVar($('#orbL'),'--p',clamp(H.life/ST.life,0,1).toFixed(3));setVar($('#orbR'),'--p',clamp(H.mana/ST.mana,0,1).toFixed(3));
@@ -480,7 +485,7 @@ function init(){load();calc();H.life=ST.life;H.mana=ST.mana;loadAssets();
  for(const k of['hp','mp','rej','tp'])$('#pb_'+k).onclick=()=>usePot(k);
  if(S.lvl===1&&!S.kills){log('欢迎来到暮土。'+clsName()+'，从<b>荒血原野</b>开始你的旅程。');}
  offline();render();requestAnimationFrame(loop);document.addEventListener('visibilitychange',save)}
-const dbg={speed:n=>SPEED=n,lvl:n=>{while(S.lvl<n)gainXp(xpNeed(S.lvl+1)-S.xp)},zone:i=>{S.unl=Math.max(S.unl,i);goZone(i)},loot:(n,ml=12,mf=300)=>{for(let i=0;i<n;i++)addBag(genItem(ml,{mf}))},
+const dbg={speed:n=>SPEED=n,lvl:n=>{while(S.lvl<Math.min(60,n))gainXp(xpNeed(S.lvl+1)-S.xp)},zone:i=>{S.unl=Math.max(S.unl,i);goZone(i)},loot:(n,ml=12,mf=300)=>{for(let i=0;i<n;i++)addBag(genItem(ml,{mf}))},
  give:it=>addBag(it),offline:h=>{S.last=Date.now()-h*3600e3;offline()}};
 // 延迟到 DOMContentLoaded，让后续脚本(acts.js)先完成扩展
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();

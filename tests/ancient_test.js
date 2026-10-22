@@ -2,13 +2,15 @@
 // 校验 ancient.js：区间上移、概率、至臻全满/完美、回收保护、旧存档兼容
 const fs=require('fs'),vm=require('vm'),path=require('path');const root=path.join(__dirname,'..');
 const stub=()=>new Proxy(function(){},{get:(t,k)=>k===Symbol.toPrimitive?()=>'' :k==='readyState'?'loading':stub(),apply:()=>stub(),construct:()=>stub(),set:()=>true});
-const store={};const ctx={console:{log(){},warn(){},error:console.error},Math,Date,JSON,setTimeout:()=>0,setInterval:()=>0,clearInterval(){},clearTimeout(){},requestAnimationFrame:()=>0,
+// Fixed PRNG keeps probabilistic coverage repeatable across full-suite runs.
+let seed=20261021;const testMath=Object.create(Math);testMath.random=()=>{seed=(seed+0x6D2B79F5)>>>0;let t=seed;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};
+const store={};const ctx={console:{log(){},warn(){},error:console.error},Math:testMath,Date,JSON,setTimeout:()=>0,setInterval:()=>0,clearInterval(){},clearTimeout(){},requestAnimationFrame:()=>0,
  localStorage:{getItem:k=>store[k]??null,setItem:(k,v)=>{store[k]=v},removeItem:k=>{delete store[k]}},document:stub(),Image:function(){return stub()},navigator:{},location:{search:''},addEventListener(){},performance:{now:()=>Date.now()},confirm:()=>true};
 ctx.window=ctx;vm.createContext(ctx);ctx.__NOUI=1;ctx.__NOSHOWLOGIN=1;
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');const files=[...html.matchAll(/<script src="([^"?]+)/g)].map(m=>m[1]).filter(f=>!/^(cloud|login_flow|audio|power|ui_art|icon2|art2_)/.test(f));
 for(const f of files)try{vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),ctx,{filename:f})}catch(e){if(f==='ancient.js')throw e}
 const G=s=>vm.runInContext(s,ctx);let pass=0,fail=0;const ok=(c,m)=>{if(c)pass++;else{fail++;console.log('  ✗ '+m)}};
-G(`S=newSave();try{load()}catch(e){};S.lvl=85;S.diff=2;calc();EGM=null;`);
+G(`load();CQSys.createChar('上古验证','zs');S.lvl=85;S.diff=2;calc();EGM=null;`);
 const U=G("UNIQUES.findIndex(u=>Object.values(u.m).some(v=>Array.isArray(v)&&v[0]>=10&&!/^(allsk|sk_)/.test('')))");
 ok(U>=0,'找到带区间暗金');
 // 上古区间

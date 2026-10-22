@@ -22,11 +22,11 @@ clsDef('fs',[
   v:(L,sy)=>{const d=CLS_DR(18,28,6,9,L,sy),n=L>=15?6:5;return{dmg:d,n,slow:3,txt:`冰暴轰击最多 ${n} 个敌人：${clsFsTx(d,'cold')}，减速 3 秒，冷却 3 秒`}}},
 ]);
 // 诱惑之光：宝宝 = 被诱惑怪物本身（种类随地图），ALLY.kind='cqpet'；最多 v.max 只；宝宝死亡后 60 秒内不能再诱惑
-CLS_TY.charm=function(s,v,ms){const c=ms.filter(m=>!m.boss&&!m.fl&&m.lv<=S.lvl+v.lv&&!(m.uniq||m.champ));if(!c.length)return[];const m=c[0];
+CLS_TY.charm=function(s,v,ms){const c=ms.filter(m=>!m.boss&&!m.fl&&m.lv<=combatLevel()+v.lv&&!(m.uniq||m.champ));if(!c.length)return[];const m=c[0];
  if(rnd()*100>=v.p){floatHero('诱惑失败','#aaa');return[m]}
  const k=v.k*(1+(ST.sdmg||0)/200);m.hp=0;m.fade=0.3;addAlly('cqpet',{sub:s.id,mkey:m.key,art:m.key,n:'宝宝·'+m.n,ic:m.ic,hp:m.max*k*2,dmg:m.dmg.map(x=>x*k),el:'phys'});H.charmN=clsPetN(s.id);floatHero('诱惑成功','#e0c0ff');return[m]};
 CLS_TY.charm.ok=function(s,ms){const v=SV(s.id,slvl(s.id)),n=clsPetN(s.id);if(n<(H.charmN||0))H.charmDeadT=GT;H.charmN=n;
- return n<v.max&&GT-(H.charmDeadT??-1e9)>=60&&ms.some(m=>!m.boss&&!m.fl&&m.lv<=S.lvl+v.lv)};
+ return n<v.max&&GT-(H.charmDeadT??-1e9)>=60&&ms.some(m=>!m.boss&&!m.fl&&m.lv<=combatLevel()+v.lv)};
 CLS_PRI.charm=1;
 {const f=resetRuntime;resetRuntime=function(){f();H.charmN=0}}
 CLS_DEF.fs.sk={hqs:1};CLS_DEF.fs.life0=65;CLS_DEF.fs.lpl=3;CLS_DEF.fs.lpv=2.5;// 生存：基础生命 40→65、每级 1.5→3、每点体力 2→2.5
@@ -49,7 +49,7 @@ clsDef('fs',[
  {id:'hbz',n:'寒冰掌',r:36,t:2,col:1,ty:'bolt',el:'cold',ic:'✦',cqfx:'bingpaoxiao',cd:6,mana:()=>20,mir2:true,v:(L,sy)=>{const d=CLS_DR(30,50,8,12,L,sy);return{dmg:d,n:5,slow:3,stun:1,txt:'寒冰掌：'+d.join('-')+'点伤害'}}},
  {id:'mth',n:'灭天火',r:38,t:2,col:1,ty:'bolt',el:'fire',ic:'✦',cqfx:'huoqiang',cd:6,mana:()=>60,mir2:true,v:(L,sy)=>{const d=CLS_DR(65,110,12,18,L,sy);return{dmg:d,n:5,txt:'灭天火：'+d.join('-')+'点伤害'}}},
  {id:'lxhy',n:'流星火雨',r:47,t:2,col:1,ty:'aoe',el:'fire',ic:'✦',cqfx:'huoqiang',cd:6,mana:()=>65,mir2:true,v:(L,sy)=>{const d=CLS_DR(50,80,10,18,L,sy);return{dmg:d,n:5,dps:8+L*2,bdur:4,txt:'流星火雨：'+d.join('-')+'点伤害'}}},
- {id:'fss',n:'分身术',r:45,t:2,col:1,ty:'pet',el:'magic',ic:'✦',cqfx:'linghunhuofu',cd:6,mana:()=>45,mir2:true,heroOnly:true,v:(L,sy)=>{const a=8+L*2+(S.lvl||1);return{hp:180+L*35,pd:[a,a*2],max:1,pn:'法师分身',el:'magic',txt:'分身术：召唤独立伙伴'}}},
+ {id:'fss',n:'分身术',r:45,t:2,col:1,ty:'pet',el:'magic',ic:'✦',cqfx:'linghunhuofu',cd:6,mana:()=>45,mir2:true,heroOnly:true,v:(L,sy)=>{const a=8+L*2+combatLevel();return{hp:180+L*35,pd:[a,a*2],max:1,pn:'法师分身',el:'magic',txt:'分身术：召唤独立伙伴'}}},
 ]);
 clsBookRule('fs',{dhq:{on:'大火球',or:19},sxyd:{on:'瞬息移动',or:19},blhy:{on:'爆裂火焰',or:22},hq:{on:'火墙',or:24},jgdy:{on:'疾光电影',or:26},dylg:{on:'地狱雷光',or:30},sys:{on:'圣言术',or:32},hbz:{on:'寒冰掌',or:36},mth:{on:'灭天火',or:38},lxhy:{on:'流星火雨',or:47},fss:{on:'分身术',or:45}});
 clsRegister();
@@ -58,7 +58,7 @@ for(const [id,mp] of Object.entries({hqs:4,kjhh:8,yhzg:6,dyh:19,ldsh:16,mfd:44,b
 // 不死识别只读取种类资料，不对首领执行秒杀。
 const mir2Undead=m=>/skel|zombie|corpse|骷髅|僵尸|尸王|恶灵/.test((m.key||'')+' '+(m.n||''));
 {const f=CLS_TY.bolt;CLS_TY.bolt=function(s,v,ms,tg){
- if(s.id==='sys'&&tg&&!tg.boss&&!tg.uniq&&!tg.champ&&!tg.fl&&mir2Undead(tg)&&tg.lv<=S.lvl+2&&rnd()<Math.min(.65,.15+slvl(s.id)*.05)){hitMon(tg,{magic:tg.hp},'hero');return[tg]}
+ if(s.id==='sys'&&tg&&!tg.boss&&!tg.uniq&&!tg.champ&&!tg.fl&&mir2Undead(tg)&&tg.lv<=combatLevel()+2&&rnd()<Math.min(.65,.15+slvl(s.id)*.05)){hitMon(tg,{magic:tg.hp},'hero');return[tg]}
  if(s.id==='mth'&&tg&&typeof tg.mana==='number')tg.mana=Math.max(0,tg.mana-(10+3*slvl(s.id)));
  return f.apply(this,arguments);
 }}

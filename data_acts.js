@@ -11,8 +11,8 @@ Object.assign(DIFFS[2],{n:'地狱',pen:-100,hp:1.15,dmg:0.9,exp:5.5,dxp:0.10,loc
 // 区域怪物等级：普通 ml → 噩梦 36..68 / 地狱 67..85 线性映射（普通最高 45）
 function mlD(ml,d){if(!d)return ml;return d===1?Math.round(36+(ml-1)*32/44):Math.round(67+(ml-1)*18/44)}
 
-// ---------- 经验表（30 级以后改为接近原版走势的近似：31→70 每级 ×1.1476，70→99 每级 ×1.0444） ----------
-xpNeed=function(l){if(l<XPT.length)return XPT[l];const b=XPT[XPT.length-1];if(l<=70)return Math.floor(b*Math.pow(1.1476,l-30));return Math.floor(b*Math.pow(1.1476,40)*Math.pow(1.0444,l-70))};
+// ---------- 经验表（由共享传奇表统一提供） ----------
+// 经验表由 data.js 的传奇累计表提供。
 // 怪物经验额外成长（mlvl>12 起，近似）
 // 怪物密度：每波小怪数量倍率；单怪血量/经验/掉落相应下调（首领不受影响）。离线结算经 mkMon/rollTC 读取同一组值
 const DENSITY={n:1.75,cap:12,hp:0.52,dmg:0.6,exp:0.62,drop:0.6};

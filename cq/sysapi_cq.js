@@ -61,13 +61,13 @@ CS.ybAdd=(n,why)=>{n=Math.floor(+n||0);if(n<=0)return CS.currency().yb;ACCT.yb=(
 CS.ybSpend=(n,why)=>{n=Math.floor(+n||0);if(n<=0||(ACCT.yb|0)<n)return false;ACCT.yb-=n;acctSave();CS.emit('yb',{d:-n,why,yb:ACCT.yb});return true};
 // ---------- 战力 ----------
 CS.power=()=>{let p=0;for(const it of Object.values(S.eq||{}))if(it)p+=power(it);for(const it of Object.values(CS.hero().eq))p+=Math.round(power(it)*0.5);
-  return Math.round((p+(S.lvl||1)*20)*cqCapMul(1+(S.reb||0)*CQ_BAL.budget.reb))};
+  return Math.round((p+combatLevel()*20)*cqCapMul(1+Math.min(CQ_BAL.rebirthMax,S.reb||0)/CQ_BAL.rebirthMax*CQ_BAL.budget.reb))};
 // ---------- 英雄伤害占比上限（CQ_BAL.budget.hero：英雄普攻 cqhero + 合击 cqheji ≤ 总伤害 20%，滑动 30 秒窗口） ----------
 const SH={win:30,b:[]};// [秒桶, 本体, 英雄]
 function shBucket(){const t=Math.floor(now()/1e3);let b=SH.b[SH.b.length-1];if(!b||b[0]!==t){b=[t,0,0];SH.b.push(b);while(SH.b.length&&SH.b[0][0]<=t-SH.win)SH.b.shift()}return b}
 function shAdd(h,v){if(!(v>0))return;shBucket()[h?2:1]+=v}
 CS.heroShare=()=>{let p=0,h=0;shBucket();for(const b of SH.b){p+=b[1];h+=b[2]}return{player:p,hero:h,share:p+h>0?h/(p+h):0,cap:CQ_BAL.budget.hero,win:SH.win}};
-function heroCap(d){const st=CS.heroShare();if(!(st.player>0))return d;/* 窗口内本体尚无伤害（开战瞬间/测试）不截断 */const room=Math.max(0,cqHeroDmgCap(st.player)-st.hero);let tot=0;for(const k in d)tot+=+d[k]||0;
+function heroCap(d){const st=CS.heroShare();if(!(st.player>0))return d;/* 窗口内本体尚无伤害（开战瞬间/测试）不截断 */const room=Math.max(0,Math.floor(cqHeroDmgCap(st.player)-st.hero));let tot=0;for(const k in d)tot+=+d[k]||0;
  if(tot<=room)return d;const k2=tot>0?room/tot:0,o={};for(const k in d)o[k]=(+d[k]||0)*k2;CS.emit('heroCapped',{want:tot,got:room});return o}
 CS._heroReset=()=>{SH.b.length=0};
 // ---------- 正式暴击标记（替代全局 CRIT） ----------

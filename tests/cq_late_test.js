@@ -10,7 +10,7 @@ for(const c of ['zs','fs','ds']){G(`CQSys.createChar('t','${c}');calc();window._
  const a0=JSON.parse(G('_a0')),a1=JSON.parse(G('JSON.stringify(S.at)'));const k=G(`LATE_MAIN.${c}[0]`);
  ok(G('S.sp')===0&&a1[k]>a0[k]&&a1[k]===G(`agAutoAt('${c}',20).${k}`),`${c} 主属性 ${k} 随等级自动成长: ${a0[k]}→${a1[k]}`)}
 // 旧存档：已删除技能 id 退还技能点；mcast 词缀不显示不报错
-G(`CQSys.createChar('t','zs');calc();window._kp=S.kp;S.sk.xzs_boom=3;S.skPr=0;calc()`);
-ok(G('S.sk.xzs_boom')===undefined&&G('S.kp')===G('_kp')+3,'已删除技能 xzs_boom 退还 3 技能点');
+G(`CQSys.createChar('t','zs');calc();window._gold=S.gold;S.sk.xzs_boom=3;S.skPr=0;calc()`);
+ok(G('S.sk.xzs_boom')===undefined&&G('S.kp')===0&&G('S.gold')===G('_gold')+G('3*AG_GOLD.kp(S.lvl)'),'已删除技能折金币，不新增技能点');
 ok(!/mcast|连发/.test(G(`modsTxt({mcast:2,str:5})`)),'旧 mcast 词缀忽略');
 T.done();

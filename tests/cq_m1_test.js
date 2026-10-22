@@ -41,7 +41,7 @@ ok(G("ACTS[0].zones.every(z=>z.mons.every(k=>MONS[k])&&(!z.boss||BOSSES[z.boss])
 ok(G("ACTS[0].zones.every((z,i,a)=>!i||z.ml>=a[i-1].ml)&&ACTS[0].zones[6].ml===12"),'等级段 1→12 递增');
 ok(G("BOSSES.orclord.actboss===1&&BOSSES.orclord.n==='半兽统领'"),'章节首领 半兽统领');
 // ---------- 数值框架 ----------
-ok(G('CQ_BAL.lvlCap')===60&&G('xpNeed(60)')>1e15&&G('xpNeed(59)')<1e15,'等级上限 60');
+ok(G('CQ_BAL.lvlCap')===60&&G('xpNeed(60)')<1e15&&G('xpNeed(60)')>G('xpNeed(59)'),'等级上限 60');
 ok(G('cqEnhPct(9)')===54&&G('cqEnhPct(3)')===12&&G('cqEnhPct(6)')===30,'强化累计加成 12/30/54%');
 ok(Math.abs(G('cqBudgetProduct()')-2.071)<0.01,'预算乘积（方案数值）= 2.07，需由 CQ_BAL.cap 截断到 1.8');
 ok(G('cqCapMul(3)')===1.8&&G('cqCapMul(1.2)')===1.2,'总倍率截断 1.8');

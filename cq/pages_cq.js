@@ -26,10 +26,10 @@ function roleTop(){const c=cls(),por=`assets/char/${c}_portrait.webp`;
  return `<div class="cqpg cqrole"><div class="cqpanel"><div class="cqttl">装备<span class="r">10 部位 · 点击查看/强化</span></div>
  <div class="eqw"><div class="por" style="background-image:url(${por})"></div><div class="col L">${EQL.map(slot).join('')}</div><div class="col R">${EQR.map(slot).join('')}</div>
  <div class="nm">${esc(S.name||'')}　Lv.${S.lvl} ${CLSN[c]||''}</div><div class="pw">战力 <b>${num(pw())}</b></div></div></div>
- <div class="cqpanel"><div class="cqttl">属性<span class="r">剩余属性点 <b class="g">${S.sp|0}</b></span></div>
+ <div class="cqpanel"><div class="cqttl">属性<span class="r">自动成长 · <b class="g">${S.reb||0} 转</b></span></div>
  <div class="kv">${attrs().map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join('')}</div></div>
- <div class="acts"><button class="cqbtn gold" onclick="cqPg.autoEquip()">一键换装</button><button class="cqbtn" onclick="cqPg.smith()">铁匠强化</button><button class="cqbtn${S.sp?'':' dis'}" onclick="cqPg.toAttr()">分配属性点</button><button class="cqbtn" onclick="charUI()">切换职业</button></div>
- <div class="cqttl cqmore">详细<span class="r">加点 · 设置 · 加成汇总</span></div></div>`}
+ <div class="acts"><button class="cqbtn gold" style="min-height:44px;min-width:44px;white-space:nowrap" onclick="cqPg.autoEquip()">一键换装</button><button class="cqbtn" style="min-height:44px;min-width:44px;white-space:nowrap" onclick="cqPg.smith()">铁匠强化</button><button class="cqbtn cqreb-entry" style="min-height:44px;min-width:44px;white-space:nowrap" onclick="CQSys.rebirthUI()">转生</button><button class="cqbtn" style="min-height:44px;min-width:44px;white-space:nowrap" onclick="charUI()">切换职业</button></div>
+ <div class="cqttl cqmore">详细<span class="r">成长 · 设置 · 加成汇总</span></div></div>`}
 // 一键换装：系统接口 CQSys.equip.autoBest（docs/systems_api.md §福利 / 一键换装）
 function autoEquip(){const E=window.CQSys&&CQSys.equip;if(!E||!E.autoBest){if(ok('toast'))toast('一键换装暂不可用');return null}
  const r=E.autoBest();if(ok('toast'))toast(r&&r.changed?`已换上 ${r.changed} 件更好的装备 · 战力 ${num(r.power&&r.power.before)}→${num(r.power&&r.power.after)}`:(r&&r.reason)||'没有更强的装备');render();return r}
@@ -81,6 +81,7 @@ function flTabs(){return `<div class="stabs sm cqfltabs">${FLN.map(([k,n])=>`<bu
 const TOPT={merc:1,hero:1,bag:1,shop:1,skill:1,eg:1,map:1};
 function topData(){const c=cls(),cur=(window.CQSys&&CQSys.currency)?CQSys.currency():{gold:S.gold,yb:null};const st=ST||{},h=(typeof H!=='undefined'&&H)||{};
  let xp=0;try{const a=xpNeed(S.lvl),b=xpNeed(S.lvl+1);xp=b>a?Math.max(0,Math.min(100,(S.xp-a)/(b-a)*100)):100}catch(e){}
+ if(S.lvl>=60&&window.CQSys&&CQSys.progression){const p=CQSys.progression();xp=p.reb>=p.max?100:Math.max(0,Math.min(100,p.xp/p.need*100))}
  return {cls:c,lvl:S.lvl|0,name:S.name||'',power:pw(),hp:st.life?Math.max(0,Math.min(100,(+h.life||0)/st.life*100)):0,mp:st.mana?Math.max(0,Math.min(100,(+h.mana||0)/st.mana*100)):0,xp,gold:cur.gold|0,yb:cur.yb}}
 function topEl(){let e=document.getElementById('cqtopx');if(e)return e;const P=document.getElementById('panel');if(!P)return null;
  e=document.createElement('div');e.id='cqtopx';e.className='cqtopx hide';

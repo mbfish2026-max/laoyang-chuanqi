@@ -146,7 +146,7 @@ const QAC={};const useCls=c=>{if(QAC[c])G(`switchChar(${QAC[c]})`);else QAC[c]=G
  const P='cqPg._t';ok(G('typeof cqPg')==='object'&&G('renderHero.__cqpg&&renderSkills.__cqpg&&renderEG.__cqpg')===1,'包装 renderHero/renderSkills/renderEG');
  const sl=JSON.parse(G(`JSON.stringify(${P}.EQL.concat(${P}.EQR))`));ok(sl.length===10&&new Set(sl).size===10&&sl.every(k=>G('SLOTS').includes(k)),'装备人偶只用现有 10 部位：'+sl.join(','));
  const role=G(`${P}.roleTop()`);ok((role.match(/class="cqslot/g)||[]).length===10,'角色页 10 个装备格');
- ok(['一键换装','铁匠强化','分配属性点','切换职业'].every(t=>role.includes(t))&&/战力 <b>/.test(role)&&/剩余属性点/.test(role),'角色页按钮/战力/属性点');
+ ok(['一键换装','铁匠强化','转生','切换职业'].every(t=>role.includes(t))&&/战力 <b>/.test(role)&&/自动成长/.test(role)&&/min-height:44px/.test(role),'角色页按钮/战力/固定成长转生');
  ok(/CQSys\.equip/.test(src)&&/autoBest\(\)/.test(src),'一键换装走 CQSys.equip.autoBest');
  for(const c of['zs','fs','ds']){useCls(c);const h=G(`${P}.skillPage()`),L=G(`${P}.skList().length`);
   ok(L>=6&&(h.match(/class="sk2/g)||[]).length===L,c+' 技能页列出本职业全部技能 '+L);ok(/ic_sk_\d+\.png/.test(h)&&/自动释放顺序/.test(h),c+' 技能页图标+自动释放顺序');}

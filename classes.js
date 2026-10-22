@@ -9,7 +9,7 @@
 // 平衡系数表（按角色等级线性插值）：dk=技能伤害系数、mk=近战伤害系数、ek=对首领/精英额外系数；各职业文件填写 CLS_BAL[cls]={dk,mk,ek}
 const CLS_BAL={};
 function clsEK(m){const t=(CLS_BAL[curCls()]||{}).ek;return(t&&m&&(m.boss||m.fl==='uniq'||m.fl==='champ'))?clsBalK(t):1}
-function clsBalK(t){const l=(typeof S!=='undefined'&&S&&S.lvl)||1;if(l<=t[0][0])return t[0][1];for(let i=1;i<t.length;i++)if(l<=t[i][0]){const[a,x]=t[i-1],[b,y]=t[i];return x+(y-x)*(l-a)/(b-a)}return t[t.length-1][1]}
+function clsBalK(t){const l=(typeof S!=='undefined'&&S&&combatLevel())||1;if(l<=t[0][0])return t[0][1];for(let i=1;i<t.length;i++)if(l<=t[i][0]){const[a,x]=t[i-1],[b,y]=t[i];return x+(y-x)*(l-a)/(b-a)}return t[t.length-1][1]}
 const CLS_DEF={
  zs:{n:'战士',ic:'⚔',glyph:'⚔',grow:{str:2.8,dex:0.3,vit:2.5,ene:0},at:{str:30,dex:20,vit:25,ene:10},life0:55,lpl:2,lpv:4,mana0:10,mpl:1,mpe:1,trees:['剑术','战技','体魄'],
   sk:{jbjs:1},eq:['swd1','shd1'],ww:1,main:['str',5],autoEne:()=>false},
@@ -68,11 +68,11 @@ function clsOthers(ms,tg){return[tg,...ms.filter(m=>m!==tg)]}
 function clsCC(m,v){if(!m||m.hp<=0)return;if(v.slow)m.slow=Math.max(m.slow||0,GT+v.slow);if(v.stun&&!m.boss)m.stun=Math.max(m.stun||0,v.stun)}
 // 近战：武器伤害 × (1+pct%) + flat；o.el 转换元素(如狂暴→魔法)
 function clsMelee(m,pct,flat,o){o=o||{};if(!m||m.hp<=0)return 0;const db=m.dbf&&m.dbf.until>GT?m.dbf:null;const df=m.def*(1-ST.tdef/100)*(1-((db&&db.def)||0)/100);
- if(!o.sure&&!hitChance(ST.ar*(1+(o.ar||0)/100),df,S.lvl,m.lv))return 0;let k=1+(pct||0)/100;if(ST.bcrit&&rnd()*100<ST.bcrit)k*=2;
+ if(!o.sure&&!hitChance(ST.ar*(1+(o.ar||0)/100),df,combatLevel(),m.lv))return 0;let k=1+(pct||0)/100;if(ST.bcrit&&rnd()*100<ST.bcrit)k*=2;
  const base=Math.max(1,(clsWRoll()*k+(flat||0))*clsMk()*clsEK(m));const d=o.el?hitMon(m,{[o.el]:base},'hero',CLS_ELC[o.el]):hitMon(m,{phys:base,fire:ST.fire,cold:ST.cold,light:ST.light?R(1,ST.light):0,pois:ST.pois},'hero','#fff');
  if(d){H.life=Math.min(ST.life,H.life+d*(ST.ll+(ST.bll||0))/100);H.mana=Math.min(ST.mana,H.mana+d*ST.ml/100+(CLS_DEF[curCls()].hitMana||0));clsCC(m,o)}return d}// hitMana：职业每次近战命中回蓝
 // 近战职业武器权重（ww:1，战士）：伤害 = 20% 实际武器 + 80% 等级基准武器(2+0.9×等级)，基准同样吃力量/精通/增益倍率
-const CLS_WW=0.2;const clsWW=()=>!!CLS_DEF[curCls()].ww;function clsWRef(){return(2+0.9*S.lvl)*(ST.wmul||1)}
+const CLS_WW=0.2;const clsWW=()=>!!CLS_DEF[curCls()].ww;function clsWRef(){return(2+0.9*combatLevel())*(ST.wmul||1)}
 function clsWRoll(){const w=window.CQMir2Equip?CQMir2Equip.rollAttack([ST.wmin,ST.wmax]):R(ST.wmin,ST.wmax);return clsWW()?CLS_WW*w+(1-CLS_WW)*clsWRef():w}
 function clsWAvg(){const w=(ST.wmin+ST.wmax)/2;return clsWW()?CLS_WW*w+(1-CLS_WW)*clsWRef():w}
 function setBuff(id,v,g){H.cbs=H.cbs||{};if(g)for(const k in H.cbs)if(k!==id&&H.cbs[k].g===g)delete H.cbs[k];H.cbs[id]=Object.assign({},v,{g,until:GT+(v.dur||30)});calc()}
