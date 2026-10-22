@@ -88,3 +88,11 @@ const btn=b>=SKMX()?'<button class="cqbtn xs dis" disabled>满级</button>':lk?
 - 图标使用 built-in imagegen 逐技能生成，26张独立圆形透明图位于 `assets/cq/icon/sk_*.png`；提示词模板、逐技能主题及原图SHA256见 `mir2_skill_art.json`。技能书图保持原样。
 - 扩展样式补齐技能列表按钮、自动释放排序箭头与开关的44px触控区域；自动释放说明完整换行显示。
 - 报告与截图：`/workspace/design/laoyang_m1_shots/codex_mir2_skill/`，图标总览 `icon_contact_sheet.png`。
+
+## 二次审核：胶囊开关回归修复
+
+自动释放开关移除可见控件上的 44px 最小宽高，恢复公共 CSS 的 38×20 胶囊与 16×16 圆钮；透明 `::before` 向上下扩展12px、左右扩展3px，实际点击区域为44×44。排序网格仍为开关预留44px列，避免与相邻箭头触控区域重叠。
+
+专项 UI 验证新增胶囊、圆钮与透明触控区域尺寸断言，并从胶囊外上下各10px点击验证开关状态切换；同时检查英雄页内部胶囊保持38×20、外层按钮及战斗栏按钮触控区域≥44px。对照 `codex_hero/`、`codex_skillbar/` 的 master 截图复核。公共文件未修改。
+
+本次复测：改动 JS 的 `node --check`、全部38个 `tests/*_test.js` 与战斗测试（39/39）通过；`pw_baseline.py` 四组通过、问题0条；技能专项 Chromium/WebKit × 新旧档 × 三职业12组通过，共96张截图（含开关关闭态）。

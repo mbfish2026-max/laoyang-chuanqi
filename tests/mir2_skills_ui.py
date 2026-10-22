@@ -44,7 +44,17 @@ def main():
      assert p.locator('.sk2').count()>=(9 if cls=='zs' else 10)
      p.locator('.sk2').filter(has_text={'fs':'流星火雨','ds':'噬血术','zs':'逐日剑法'}[cls]).scroll_into_view_if_needed();shot('skill_new')
      p.locator('.ord').first.scroll_into_view_if_needed();shot('auto_order')
-     assert p.locator('.ord .ar,.ord .sw').evaluate_all('(es)=>es.every(e=>e.getBoundingClientRect().width>=44&&e.getBoundingClientRect().height>=44)')
+     assert p.locator('.ord .ar').evaluate_all('(es)=>es.every(e=>e.getBoundingClientRect().width>=44&&e.getBoundingClientRect().height>=44)')
+     # Visible capsule stays 38×20; transparent ::before owns the 44×44 hit area.
+     assert p.locator('.ord .sw').evaluate_all("""es=>es.every(e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e),hit=getComputedStyle(e,'::before'),knob=getComputedStyle(e,'::after');return r.width===38&&r.height===20&&s.borderRadius==='10px'&&hit.top==='-12px'&&hit.left==='-3px'&&knob.width==='16px'&&knob.height==='16px'&&knob.top==='2px'})""")
+     toggle=p.locator('.ord .sw').first
+     toggle.scroll_into_view_if_needed();box=toggle.bounding_box();was=toggle.get_attribute('class')
+     p.mouse.click(box['x']+box['width']/2,box['y']-10)
+     assert p.locator('.ord .sw').first.get_attribute('class')!=was
+     shot('auto_order_off')
+     toggle=p.locator('.ord .sw').first;box=toggle.bounding_box()
+     p.mouse.click(box['x']+box['width']/2,box['y']+box['height']+10)
+     assert p.locator('.ord .sw').first.get_attribute('class')==was
      if cls=='ds':
       assert p.evaluate("acSmartTxt('zys').includes('生命低于')&&acSmartTxt('zhkl').includes('无召唤物')&&acSmartTxt('zhss').includes('无召唤物')&&acSmartTxt('sds').includes('未中毒')&&acSmartTxt('lhhf').includes('攻击技能')")
      p.evaluate("cqPg.sk('bar');cqPg.barPick(0)");shot('battle_picker')
@@ -53,8 +63,10 @@ def main():
      p.evaluate("TAB='merc';render()");p.locator('.hpskill').last.scroll_into_view_if_needed();shot('hero_skills')
      p.locator('.hpskill').filter(has_text={'fs':'分身术','ds':'召唤月灵','zs':'开天斩'}[cls]).scroll_into_view_if_needed();shot('hero_exclusive')
      assert p.locator('.hptoggle').evaluate_all('(es)=>es.every(e=>{const r=e.getBoundingClientRect();return r.height>=44&&r.width>=44&&e.scrollHeight<=e.clientHeight+2})')
+     assert p.locator('.hpsw').evaluate_all("es=>es.every(e=>{const r=e.getBoundingClientRect();return r.width===38&&r.height===20})")
      p.evaluate("id=>{TAB='fight';CQSys.setBattleSkill(0,id);MON=[mkMon(ACTS[0].zones[1].mons[0],60)];MON[0].hp=MON[0].max=1e9;H.mana=ST.mana;H.castT=0;for(const k in ACT)delete ACT[k];render()}",newsk)
      p.wait_for_timeout(400);p.locator('.cqb .csk[data-sk="0"]').click();shot('battle_cast')
+     assert p.locator('.cqb .csk').evaluate_all('es=>es.every(e=>{const r=e.getBoundingClientRect();return r.width>=44&&r.height>=44})')
      assert p.evaluate('id=>clsCdLeft(id)>0',newsk)
      assert not errors,errors
      rows.append({'browser':engine,'save':kind,'class':cls,'passed':True});print(tag,'PASS',flush=True);ctx.close()
