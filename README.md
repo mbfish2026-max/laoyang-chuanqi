@@ -5,7 +5,7 @@
 - **来源**：从 [idle-arpg](https://github.com/mbfish2026-max/idle-arpg) 当前 main 干净复制（**不保留** git 历史）
 - **来源 commit**：`a1501db3062fe437d509df517def1ae60edeaca7`
 - **本地路径**：`/workspace/laoyang-chuanqi`
-- **版本**：`cq-20261021q`
+- **版本**：`cq-20261021r`
 - **存档前缀**：`cq_` / SW 缓存名 `cq-*`（与暗夜 `anye-` 隔离）
 - **云存档表**：`public.cq_saves`（见 `sql/laoyang_saves.sql`，需管理员在 Supabase 执行）
 
