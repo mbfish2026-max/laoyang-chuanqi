@@ -26,16 +26,20 @@ function buxTryClose(){const m=document.getElementById('modal');if(!m||m.classLi
  document.addEventListener('click',e=>{if(!isBg(e.target))return;e.stopPropagation();if(BUX.downBg){BUX.downBg=0;buxTryClose()}},true);
  document.addEventListener('keydown',e=>{if(e.key==='Escape')buxTryClose()})})();
 // ---------- 网格左右滑动翻页 ----------
-function buxPage(grid,dir){const sg=grid.classList.contains('sgrid');let v,n;
+function buxPage(grid,dir){if(grid.classList.contains('cqb-grid')){const bag=STV==='bag',sh=STV==='shared',filtered=CQ_BAG_UI.type!=='all'||(sh&&CQ_BAG_UI.cls!=='all');
+ const P=sh?ACCT.shared:S.pst,size=bag?40:48;
+ const all=groups(bag?S.bag:P.flat()).filter(g=>(CQ_BAG_UI.type==='all'||cqbType(g.it)===CQ_BAG_UI.type)&&(!sh||cqClsMatch(g.it,CQ_BAG_UI.cls)));
+ const n=bag||filtered?Math.max(1,Math.ceil(all.length/size)):P.length,cur=bag?BGP:CQ_BAG_UI.page,nx=Math.max(0,Math.min(n-1,cur+dir));
+ if(nx!==cur)cqbPage(nx);return}const sg=grid.classList.contains('sgrid');let v,n;
  if(sg){const sh=STV==='shared';if(STF.q!=='all'||STF.t!=='all'||STF.s)return;v=sh?'SHP':'STP';n=(sh?ACCT.shared:S.pst).length}
  else{const pg=grid.parentElement&&grid.parentElement.querySelector('.pager');if(!pg||grid.closest('.stash2'))return;v='BGP';n=+((pg.textContent.match(/\/(\d+)页/)||[])[1]||1)}
  const cur=window[v]!==undefined?window[v]:eval(v),nx=Math.max(0,Math.min(n-1,cur+dir));if(nx===cur)return;eval(v+'='+nx);render();if(!window.__NOUI)toast(`第 ${nx+1}/${n} 页`)}
 {let sx=0,sy=0,g=null,t0=0;
- document.addEventListener('touchstart',e=>{const t=e.touches[0];g=e.touches.length===1&&e.target.closest&&e.target.closest('#panel .buxswipe');if(g){sx=t.clientX;sy=t.clientY;t0=Date.now()}},{passive:true});
+ document.addEventListener('touchstart',e=>{const t=e.touches[0];g=e.touches.length===1&&e.target.closest&&e.target.closest('#panel .buxswipe,#panel .cqb-grid');if(g){sx=t.clientX;sy=t.clientY;t0=Date.now()}},{passive:true});
  document.addEventListener('touchend',e=>{if(!g)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy,G=g;g=null;
   if(Math.abs(dx)>50&&Math.abs(dx)>1.6*Math.abs(dy)&&Date.now()-t0<800){BUX.swiped=Date.now();buxPage(G,dx<0?1:-1)}},{passive:true})}
 // ---------- 长按快捷菜单 ----------
-function buxUid(cell){const s=cell.getAttribute('onclick')||'';const m=/(?:showItem|depositUid|withdrawUid|qtyUI|stTap)\((\d+)/.exec(s);return m?+m[1]:null}
+function buxUid(cell){const s=cell.getAttribute('onclick')||'';const m=/(?:cqbTap|showItem|depositUid|withdrawUid|qtyUI|stTap)\((\d+)/.exec(s);return m?+m[1]:null}
 function buxImbue(uid){imbue(uid);render();if(findItem(uid))buxQuick(uid)}
 function buxQuick(uid){const f=findItem(uid);if(!f)return;const it=f.it,lk=!!it.lk,b=[];
  b.push(`<button class="btn gold" onclick="showItem(${uid})">${!it.k&&!f.slot&&typeof cmpTarget==='function'&&cmpTarget(it)?'详情 / 对比':'详情'}</button>`);

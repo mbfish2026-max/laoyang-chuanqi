@@ -11,3 +11,6 @@
 .buxcap.hi{color:#ffb050;border-color:#a06020}.buxcap.full{color:#ff6050;border-color:#a02010}
 #panel .buxswipe{touch-action:pan-y}
 #panel .cell{-webkit-touch-callout:none}
+/* 仓库长按菜单：六个操作分两列，保留完整文字与触控高度。 */
+#modal.sheet .buxq .buxbtns{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px!important;flex-wrap:wrap!important}
+#modal.sheet .buxq .buxbtns .btn{min-width:44px;min-height:44px;white-space:nowrap;font-size:13px!important;padding:4px!important}
