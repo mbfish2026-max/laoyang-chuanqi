@@ -1,7 +1,8 @@
-/* 传奇回收设置：390px 触控与横向按钮行 */
+/* 传奇回收设置：按钮网格换行，长标签独占一行。 */
 #modal:has(.rcy){padding:18px;box-sizing:border-box}
 #modal:has(.rcy) .mb{width:100%;max-width:354px;max-height:90vh;overflow:auto;box-sizing:border-box;border:1px solid #c9a14a;background:#211b18}
-.rcy .btns{flex-wrap:nowrap!important;overflow-x:auto;justify-content:flex-start;white-space:nowrap;padding-bottom:4px}
+#modal .rcy .btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px;overflow:visible}
+#modal .rcy .btns .rcy-wide{grid-column:1/-1}
 #modal .rcy .btn{flex-shrink:0;min-height:44px;min-width:44px;white-space:nowrap;font-size:13px}
 .rcy-limit{display:flex;align-items:center;justify-content:space-between;margin:8px 0;min-height:44px}
 .rcy-limit select{-webkit-appearance:none;appearance:none;padding:8px 12px;border-radius:4px;min-height:44px;min-width:125px;background:#30251e;color:#e9d5a5;border:1px solid #c9a14a}
