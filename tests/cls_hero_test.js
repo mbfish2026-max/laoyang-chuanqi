@@ -1,6 +1,6 @@
 // 英雄职业侧：技能表/书学习/熟练度/开关/AI/道士召唤：node tests/cls_hero_test.js
 const T=require('./cq_harness')('cls_hero_test');const{G,ok}=T;
-G(`S=newSave();load();CQSys.createChar('t','zs');calc();S.lvl=30;CQSys.heroCreate('ds','小道');S.hero.lvl=30;calc()`);
+G(`S=newSave();load();CQSys.createChar('t','ds');calc();S.lvl=30;CQSys.heroCreate('ds','小道');S.hero.lvl=30;calc()`);
 ok(G('heroCls()')==='ds','英雄职业 ds');
 ok(G(`JSON.stringify(heroSkList('zs'))`)==='["gsjs","csjs","bywd","ymcz","lhjf","htsd","szh","zrjf","ktz"]'&&G(`heroSkList('fs').length`)===17&&G(`JSON.stringify(heroSkList('ds'))`)==='["zys","lhhf","sds","zhkl","zhss","htsd","jtys","yld","sszjs","qtzls","wjzq","xlqs","kmz","zhyl","qgb","sxs"]','三英雄技能表');
 ok(G(`JSON.stringify(heroAutoAt('ds',11))`)===G(`JSON.stringify(clsAutoAt('ds',11))`)&&G('HERO_LIFEK')===0.8,'属性复用成长表');
