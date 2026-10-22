@@ -7,3 +7,14 @@
 .ubtab .row span{white-space:nowrap}.ubmy{color:#b05cff}.ubul{color:#e8b84a}.ubex{color:#c9f;border:1px solid #74c;border-radius:3px;padding:0 4px;font-size:11px}
 .ubtag{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px}
 .cell.myth{box-shadow:inset 0 0 0 2px #b05cff,0 0 5px #b05cff88}
+
+/* R13: phone portrait controls and long descriptions */
+.ubp .btn,.mjp .btn,.mjent .btn{min-height:44px;min-width:44px;white-space:nowrap}
+.ubkeys{flex-wrap:wrap;gap:6px}
+.ubtab h3 .r{float:none;display:block;white-space:normal}
+.ubtab .row span{white-space:normal;min-width:0}
+.mjp .row{flex-wrap:wrap;gap:6px}
+.ubp,.ubsoul,.ubtab,.mjp{overflow-wrap:anywhere}
+
+#modal .ubbtn .btn,#modal .mjresult .btn{min-height:44px;min-width:44px;white-space:nowrap}
+.egtabs button{min-height:44px;white-space:nowrap}

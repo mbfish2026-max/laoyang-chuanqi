@@ -8,10 +8,20 @@ ctx.window=ctx;vm.createContext(ctx);ctx.__NOUI=1;ctx.__NOSHOWLOGIN=1;
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');const files=[...html.matchAll(/<script src="([^"?]+)/g)].map(m=>m[1]).filter(f=>!/^(cloud|login_flow|audio|power|ui_art|icon2|art2_)/.test(f));
 for(const f of files)try{vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),ctx,{filename:f})}catch(e){if(f==='uber.js')throw e}
 const G=s=>vm.runInContext(s,ctx);let pass=0,fail=0;const ok=(c,m)=>{if(c)pass++;else{fail++;console.log('  ✗ '+m)}};
-G(`S=newSave();try{load()}catch(e){};S.lvl=90;calc();EGM=null;`);
+G(`S=newSave();try{load()}catch(e){};CQSys.createChar('终局单测','zs');S.lvl=60;calc();EGM=null;`);
 ok(!!G("ubLock()"),'未通关地狱时锁定');
 G(`egHellDone=()=>true;egMj().best=19`);ok(/20/.test(G("ubLock()")),'秘境 19 层仍锁定');G(`egMj().best=20`);ok(G("ubLock()")===null,'地狱+秘境20 解锁');
 ok(G("JSON.stringify(egUb())")===G("JSON.stringify(UB_DEF())"),'旧存档自动补 EG().uber');
+// 幽冥圣域层数、旧档与在途挑战保护
+G(`egMj().cur=1;egMj().best=0;S.reb=0`);ok(G("egMjCap()")===20,'零转开放20层');
+G(`S.reb=10`);ok(G("egMjCap()")===150,'十转开放150层');
+G(`S.reb=0;egMj().cur=76;egMj().best=75;delete egMj().legacyCap`);ok(G("egMjCap()")===76,'旧档进度不回退');
+G(`egMj().cur=1;egMj().best=20;egMj().legacyCap=0;egMjStart(1);var oldRun=EGM;egMjStart(1)`);ok(G("EGM===oldRun"),'圣域不能覆盖在途挑战');G(`egLeave(1)`);
+// 抵达门槛不能靠胜场继续升层；升转后才继续。
+G(`egMj().cur=20;egMj().best=20;egMj().legacyCap=0;egMj().auto=0;egMjAfter({L:20},'up')`);ok(G("egMj().cur")===20,'20层胜场不能绕过转生门槛');
+G(`S.reb=1;egMjAfter({L:20},'up')`);ok(G("egMj().cur")===21&&G("egMjCap()")===33,'一转开放下一层');
+G(`S.reb=10;egMj().cur=150;egMjAfter({L:150},'up')`);ok(G("egMj().cur")===150,'150层封顶');
+G(`S.reb=0;egMj().cur=1;egMj().best=20`);
 // 掉率
 G(`EGM={k:'mj',L:20}`);ok(G("ubKeyChance({egMjBoss:1})[1]")===0.08,'毁灭 20 层 8%');G(`EGM={k:'mj',L:45}`);ok(Math.abs(G("ubKeyChance({egMjBoss:1})[1]")-0.12)<1e-9,'45 层 12%');G(`EGM={k:'mj',L:200}`);ok(G("ubKeyChance({egMjBoss:1})[1]")===0.16,'上限 16%');
 G(`EGM={k:'rift',T:9}`);ok(G("ubKeyChance({egGuard:1})")===null,'虚隙 9 层无');G(`EGM={k:'rift',T:10}`);ok(G("ubKeyChance({egGuard:1})[1]")===0.1,'虚隙 10 层 10%');
@@ -24,14 +34,17 @@ G(`egUb().k={t:1,h:1,d:1};S.diff=2;calc();H.life=ST.life`);G(`ubPrison()`);ok(G(
 G(`nextWave()`);const gm=JSON.parse(G("JSON.stringify(MON.map(m=>({n:m.n,k:m.key,hp:m.max})))"));ok(gm.length===1&&/^abyss_g/.test(gm[0].k),'守魂者 '+gm[0].n);
 const core=G("UB.GATE[EGM.g].c");G(`MON[0].hp=0;killMon(MON[0])`);ok(G(`egUb().o.${core}`)===1,'击败守魂者得魂核 '+core);G(`EGM&&egLeave(1)`);
 // 暗渊（英雄暂停出手 H.castT：职业技能伤害较高时会随机打死某个魂，导致后续断言取不到目标）
-G(`egUb().o={horn:1,eye:1,brain:1};ubAbyss();nextWave()`);ok(G("EGM.k")==='uba'&&G("MON.length")===3&&G("MON.every(m=>m.uber===true)"),'三魂同场 m.uber');
+G(`egUb().o={horn:1,eye:1,brain:1};ubAbyss();nextWave()`);ok(G("EGM.k")==='uba'&&G("MON.length")===1&&G("MON.every(m=>m.uber===true)"),'首阵单独出场 m.uber');
 const hpr=G("(()=>{const b=egMjBossHP(30,EG_MJ.ml(30));return MON[0].max/b})()");ok(Math.abs(hpr-1.5)<0.01,'生命 = 秘境30层之主 ×1.5');
-ok(JSON.stringify(G("MON.map(m=>m.n)"))===JSON.stringify(['血噬·厄罗','焚世·巴戈','噩魇·缪渊']),'三魂原创名');
+ok(JSON.stringify(G("EGM.souls.map(m=>m.n)"))===JSON.stringify(['魔龙教主','魔龙战将','暗之魔龙教主']),'传奇三阶段名称');
 G(`H.castT=1e9;ST.res.cold=10;ST.nofreeze=0;H.life=1e12;UB.nova=GT;var lk=0;for(let i=0;i<3;i++)step(0.05);lk=UB.lock>GT`);ok(G("lk"),'冰抗<75 寒魂新星冻结');
+G(`var first=MON[0];first.hp=0;killMon(first);`);ok(G("EGM.stage===1&&MON.length===1&&MON[0].ubS==='abyss_s2'"),'击败魔龙进入护卫阵');
 G(`const b=MON.find(m=>m.ubS==='abyss_s2');b.hp=b.max*0.49;step(0.05)`);ok(G("MON.some(m=>m.ubClone)"),'巴戈 50% 召残影');
 const dr=G("(()=>{const b=MON.find(m=>m.ubS==='abyss_s2');b._ph=b.hp;const h0=b.hp;b.hp-=1000;H.life=1e12;step(0.01);return h0-b.hp})()");ok(dr>400&&dr<=520,'残影存活本体减伤 50% → '+Math.round(dr));
-G(`UB.cage=GT;H.life=1e12;step(0.01)`);ok(G("UB.lock>GT+1.5")&&G("heroAct()")===0,'魇牢禁锢英雄');
-const en=G("(()=>{const a=MON.find(m=>m.ubS==='abyss_s3');const d0=a.dmg[0];const s=MON.find(m=>m.ubS==='abyss_s1');s.hp=0;killMon(s);return a.dmg[0]/d0})()");ok(Math.abs(en-1.2)<1e-6,'一魂陨落其余 +20%');
+const en=G("(()=>{const a=EGM.souls[2];const d0=a.dmg[0];const s=MON.find(m=>m.ubS==='abyss_s2');s.hp=0;killMon(s);return a.dmg[0]/d0})()");ok(Math.abs(en-1.2)<1e-6,'过阵后首领 +20%');
+ok(G("EGM.stage===2&&MON.length===1&&MON[0].ubS==='abyss_s3'"),'护卫全灭进入暗之形态');
+G(`UB.cage=GT;H.life=1e12;step(0.01)`);ok(G("UB.lock>GT+1.5")&&G("heroAct()")===0,'龙威禁锢英雄');
+G(`UB.nova=GT;var fireHP=H.life;step(0.01)`);ok(G("H.life<fireHP"),'暗之形态全屏雷火');
 // 老羊传奇：符文/宝石掉落改为黑铁矿（进材料不进背包），背包件数下限 4→1（黑铁矿叠堆）
 G(`var bag0=S.bag.length;for(const m of MON.filter(m=>m.ubS)){m.hp=0;killMon(m)}`);ok(G("egUb().wins")===1&&G("S.bag.length-bag0")>=1,'三魂全灭结算掉落 '+G("S.bag.length-bag0"));
 ok(G("S.bag.some(x=>x.ub)")&&G("S.bag.some(x=>x.k==='mat'&&x.id==='heitie'&&x.n>=3)"),'必掉终极 + 高阶符文折算黑铁矿（老羊传奇）');
@@ -39,6 +52,7 @@ G(`EGM&&egLeave(1)`);
 // 失败返还
 G(`egUb().o={horn:1,eye:1,brain:1};ubAbyss();nextWave();EGM.t=181;step(0.01)`);ok(!G("EGM&&!EGM.end")&&G("egUb().o.horn+egUb().o.eye+egUb().o.brain")===1,'超时失败返还 1 魂核');G(`EGM&&egLeave(1)`);
 // 物品
+ok(G("!ubMake('crown',{anc:0}).sock"),'新终极装备不生成宝石孔');
 const w=JSON.parse(G("(()=>{const c={};for(let i=0;i<20000;i++){const k=ubPickItem();c[k]=(c[k]||0)+1}return JSON.stringify(c)})()"));const my=(w.crown+w.armor+w.ring)/20000;ok(Math.abs(my-0.15)<0.015,'神话合计 15% → '+my.toFixed(3));
 ok(G("['crown','armor','ring'].every(k=>ubMake(k,{anc:0}).myth===1)")&&!G("ubMake('torch').myth"),'神话 it.myth=1');
 ok(G("tgTier(ubMake('ring'))")==='mythic','神话 = 紫色天光 mythic');
