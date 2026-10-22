@@ -76,7 +76,7 @@ function offPanelPg(){let st=null;try{st=OF()&&OF().state()}catch(e){}
 function flTabs(){return `<div class="stabs sm cqfltabs">${FLN.map(([k,n])=>`<button class="${FLT===k?'on':''}" onclick="cqPg.fl('${k}')">${n}${(k==='sign'&&(signState()||{}).canClaim)||(k==='off'&&cqPg._offDot())?'<em class="dot"></em>':''}</button>`).join('')}</div>`}
 // ---------------- 顶栏（设计稿 live.js topbar()：头像 / Lv+名字+战力 / 血蓝条 / 金币元宝 / 菜单）----------------
 // 与战斗页 #cqStage .cqb .top 同一组件外观（样式同 cq.css .cqb .top），这里给 角色(含背包/商店/佣兵)/技能/福利 页单独挂一份；地图页、战斗页不显示。
-const TOPT={hero:1,bag:1,shop:1,skill:1,eg:1,map:1};
+const TOPT={merc:1,hero:1,bag:1,shop:1,skill:1,eg:1,map:1};
 function topData(){const c=cls(),cur=(window.CQSys&&CQSys.currency)?CQSys.currency():{gold:S.gold,yb:null};const st=ST||{},h=(typeof H!=='undefined'&&H)||{};
  let xp=0;try{const a=xpNeed(S.lvl),b=xpNeed(S.lvl+1);xp=b>a?Math.max(0,Math.min(100,(S.xp-a)/(b-a)*100)):100}catch(e){}
  return {cls:c,lvl:S.lvl|0,name:S.name||'',power:pw(),hp:st.life?Math.max(0,Math.min(100,(+h.life||0)/st.life*100)):0,mp:st.mana?Math.max(0,Math.min(100,(+h.mana||0)/st.mana*100)):0,xp,gold:cur.gold|0,yb:cur.yb}}

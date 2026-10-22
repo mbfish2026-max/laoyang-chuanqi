@@ -80,13 +80,13 @@ if(typeof window!=='undefined'){
 (function(){
 if(typeof document==='undefined'||window.__NOUI)return;
 const NAV=[['fight','battle','战斗'],['hero','role','角色'],['skill','skill','技能'],['map','map','地图'],['fuli','fuli','福利']];
-const GRP={hero:'hero',bag:'hero',shop:'hero',eg:'fuli',fuli:'fuli'};
-// 旧页签书签回到角色页，专用英雄页在后续任务实现。
-const SUB=[['hero','角色'],['bag','背包'],['shop','商店']];
+const GRP={hero:'hero',bag:'hero',shop:'hero',merc:'hero',eg:'fuli',fuli:'fuli'};
+// 英雄页沿用旧佣兵子页签键，存档与界面名称均为英雄。
+const SUB=[['hero','角色'],['bag','背包'],['shop','商店'],['merc','英雄']];
 window.CQ_NAV=NAV.map(n=>n[2]);
 function go(t){if(t==='fuli')t='eg';TAB=t;render();try{PWRF.kick()}catch(e){}}
 window.cqNavGo=go;
-function sync(){if(TAB==='merc'){TAB='hero';render();return}const nav=document.getElementById('tabs');if(!nav)return;const g=GRP[TAB]||TAB;
+function sync(){const nav=document.getElementById('tabs');if(!nav)return;const g=GRP[TAB]||TAB;
   nav.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t===g));
   const P=document.getElementById('panel');if(!P)return;
   if(GRP[TAB]==='hero'&&!P.querySelector(':scope>.cqsubnav'))P.insertAdjacentHTML('afterbegin',`<div class="stabs cqsubnav">${SUB.map(([k,n])=>`<button class="${TAB===k?'on':''}" data-st="${k}">${n}</button>`).join('')}</div>`);}

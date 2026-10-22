@@ -124,7 +124,7 @@ ok(!/iterations\s*:\s*Infinity|infinite/i.test(js.replace(/\/\/.*$/mg,'')),'JS �
  ok(/\[\['fight','battle','战斗'\],\['hero','role','角色'\],\['skill','skill','技能'\],\['map','map','地图'\],\['fuli','fuli','福利'\]\]/.test(bm),'底栏五项顺序与设计稿一致');
  ok(['battle','role','skill','map','fuli'].every(n=>fs.existsSync(path.join(root,'assets/cq/ui/nav_'+n+'.png'))),'底栏图标资源存在');
  ok(/#tabs\.cqnav\{[^}]*flex-wrap:nowrap/.test(bc)&&/#tabs\.cqnav button\{[^}]*white-space:nowrap/.test(bc),'底栏不换行');
- ok(/\['bag','背包'\],\['shop','商店'\]\]/.test(bm)&&!/\['merc','佣兵'\]/.test(bm),'背包/商店在角色页子页签可达，佣兵入口暂时隐藏');}
+ ok(/\['bag','背包'\],\['shop','商店'\],\['merc','英雄'\]\]/.test(bm)&&!/\['merc','佣兵'\]/.test(bm),'背包/商店在角色页子页签可达，英雄入口恢复');}
 // 测试角色：一律 CQSys.createChar(name,cls) 新建（每职业一个，之后 switchChar 切回），不直接改 S.cls
 const QAC={};const useCls=c=>{if(QAC[c])G(`switchChar(${QAC[c]})`);else QAC[c]=G(`CQSys.createChar('QA_${c}','${c}')`);return QAC[c]};
 // ---------- 技能栏（设计稿 4 格 + 名称 + 图标，按当前职业，换职业即刷新） ----------
