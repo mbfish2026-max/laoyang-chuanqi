@@ -8,7 +8,7 @@
 const _itm_load=load;
 load=function(){_itm_load();if(!S.stash)S.stash=[];
  // 法力过紧修正：新角色的初始魔杖改为魔法品质（+10法力 / 法力回复+15%），仅作用于 1 级零经验的新档
- {const w=S.eq.weapon;if(S.lvl===1&&!S.xp&&w&&w.q===1&&!w.af){w.q=3;w.m={mana:10,mregen:15};w.af=['冥想'];w.name='冥想之'+((BASEM[w.b]||{}).n||'魔杖')}}
+ {const w=S.eq.weapon;if(!window.CQMir2Equip&&S.lvl===1&&!S.xp&&w&&w.q===1&&!w.af){w.q=3;w.m={mana:10,mregen:15};w.af=['冥想'];w.name='冥想之'+((BASEM[w.b]||{}).n||'魔杖')}}
 for(const k of SLOTS)if(S.eq[k]&&!S.eq[k].name&&!S.eq[k].k)S.eq[k].name=(BASEM[S.eq[k].b]||{}).n;
  if(!window.CQ_DATA)for(const arr of[S.bag,S.stash])for(const it of arr)if(!it.k&&!BASEM[it.b])it.b=BASES.find(b=>b.s===(it.b||'').replace(/\d.*/,''))?.id||'wand1'};
 
