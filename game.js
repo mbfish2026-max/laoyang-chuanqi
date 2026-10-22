@@ -264,7 +264,7 @@ function step(dt){GT+=dt;for(const a of ALLY)if(a.hitT>0)a.hitT=Math.max(0,a.hit
    let el=m.el||'phys',v=dmg;if(el==='phys'){v=Math.max(1,v-ST.dr);const ab=Math.min(H.abs,v);H.abs-=ab;v-=ab}else v=Math.round((window.CQMir2Equip?CQMir2Equip.magicGuard(v,el):v)*(1-ST.res[el]/100));
    if(v>0){H.life-=v;floatHero('-'+v,'#f44')}if(!m.ranged&&ST.thorns)hitMon(m,{phys:ST.thorns},'hero','#fa0');
    if(!m.ranged&&curseOf(m,'im'))hitMon(m,{phys:dmg*m.cur.p/100},'hero','#f60')}
-  else{const a=tg;let v=dmg;if(m.el&&m.el!=='phys')v*=1-a.res/100;else v=Math.max(1,v-(a.def||0));a.hp-=Math.round(v);a.hitT=0.25;floatNum('a'+a.uid,Math.round(v),'#f66');
+  else{const a=tg;let v=dmg;if(m.el&&m.el!=='phys')v*=1-a.res/100;else v=Math.max(1,v-(a.def||0));if(typeof mir2PetGuard==='function')v=mir2PetGuard(v,m.el);a.hp-=Math.round(v);a.hitT=0.25;floatNum('a'+a.uid,Math.round(v),'#f66');
    if(!m.ranged&&a.th)hitMon(m,{phys:dmg*a.th/100},a,'#ccc');if(!m.ranged&&curseOf(m,'im'))hitMon(m,{phys:dmg*m.cur.p/100},'hero','#f60')}}
  ALLY=ALLY.filter(a=>a.hp>0);MON=MON.filter(m=>m.hp>0||m.fade>0);
  if(H.life<=0)return die();

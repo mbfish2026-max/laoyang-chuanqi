@@ -22,7 +22,7 @@ function skpWire(CS){
  const oldReset=resetRuntime;resetRuntime=function(){capture();owner=null;return oldReset.apply(this,arguments)};
  const oldStep=step;step=function(dt){project();const pets=ALLY.filter(managed);const r=oldStep(dt);for(const a of pets){const s=list().find(s=>s.id===a.summonId);if(s){s.hp=Math.max(0,a.hp);if(a.hp<=0&&!s.deadAt)CS.summonDie(s.id)}}capture();return r};
  const oldPet=CLS_TY.pet;CLS_TY.pet=function(s,v){if(!['zhkl','zhss'].includes(s.id))return oldPet.apply(this,arguments);
-  capture();let record=list().find(x=>x.kind==='dog'||x.kind==='skel');if(record&&record.deadAt&&CS.summonStats(record.id).reviveLeft>0)return[];
+  capture();let record=list().find(x=>S.stream===2?x.sk===s.id:(x.kind==='dog'||x.kind==='skel'));if(record&&record.deadAt&&CS.summonStats(record.id).reviveLeft>0)return[];
   const kind=s.id==='zhss'?'dog':'skel';if(!record){const r=CS.summonAdd(kind,{sk:s.id,lv:slvl(s.id)});if(!r.ok)return[];record=r.summon}
   record.kind=kind;record.sk=s.id;record.lv=slvl(s.id);record.base={hp:v.hp,dmg:v.pd};record.deadAt=0;record.hp=Math.max(record.hp||0,v.hp);
   ALLY=ALLY.filter(a=>!managed(a)||a.summonId!==record.id);project();return[]};

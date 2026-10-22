@@ -4,7 +4,7 @@
 body.cq-on #fbattle{flex:1 1 auto;min-height:0;padding:0;background-image:none!important}
 body.cq-on #ftop,body.cq-on #flog,body.cq-on #skbar,body.cq-on #hud,body.cq-on #fquest,body.cq-on #fzone{display:none!important}
 body.cq-on #fbattle>.fl,body.cq-on #fbattle>.cloot,body.cq-on #fbattle .tgbeam,body.cq-on #fbattle .dlbeam{display:none!important}
-body.cq-on #cqStage{top:0;background:#120a06}
+body.cq-on #cqStage{position:absolute;top:0;background:#120a06}
 #cqStage.cq-paused *{animation-play-state:paused!important}
 #cqStage .cqb{position:absolute;left:0;top:0;width:390px;transform-origin:0 0;overflow:hidden;font-family:"PingFang SC","Noto Sans CJK SC","Noto Sans SC",sans-serif;color:#f3e6c8;-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none}
 .cqb *{box-sizing:border-box}
