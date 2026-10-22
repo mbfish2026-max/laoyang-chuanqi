@@ -95,7 +95,8 @@
     st.heroHb = h('div', 'hhb', '<i></i>'); st.heroEl.querySelector('.in').appendChild(st.heroHb); st.heroRv = h('div', 'hrv'); st.heroEl.querySelector('.in').appendChild(st.heroRv);
     CQ.FX.attach(st.R.canvas, DW, 600); CQ.FX.preload();
     layout(); if (W0.ResizeObserver) { st.ro = new ResizeObserver(layout); st.ro.observe(stage); }
-    renderSide(); start();
+    // 旧档英雄可能在战场挂载前已恢复，没有后续 hero 事件；首次构建也要同步组合图标。
+    artSync(); renderSide(); start();
   }
   // 换角色/换职业（stash newChar/switchChar、转职）后刷新角色卡名字与形象：renderUI 10Hz 比对 name|cls，变了才动 DOM
   function refreshRole(){ var r = CQ.Host.role(), k = r.name + '|' + r.cls; if (st._roleK === k) return; var first = st._roleK == null; st._roleK = k; if (first) return;

@@ -32,6 +32,11 @@ def main():
        p.screenshot(path=f'{OUT}/{tag}_{page}.png')
       p.locator('.hpcombo').evaluate('(e)=>e.scrollIntoView({block:"center"})')
       shot('hero')
+      # 强制覆盖英雄已恢复、之后才挂载战场的旧档启动顺序。
+      # 挂载须同步初始化图标，不能依赖后续 hero 事件或角色变化。
+      if kind=='legacy':
+       p.evaluate("()=>{const stage=CQ.Scene.state().stage;CQ.Scene.unmount();CQ.Scene.mount(stage)}")
+       assert p.locator('.heji img').get_attribute('src').endswith('heji_'+fx+'.png'),tag
       p.evaluate("TAB='fight';render()");p.wait_for_timeout(500)
       p.wait_for_function("fx=>document.querySelector('.heji img')?.getAttribute('src').endsWith('heji_'+fx+'.png')",arg=fx)
       shot('battle')
