@@ -9,6 +9,7 @@ ROOT=Path(__file__).resolve().parents[1]
 def wired(rel,src):
  if rel=='cq/pages_cq.js':
   src=src.replace('s.cls===c&&skOfCls(s)','skOfCls(s)')
+  src=src.replace("const btn=lk?", "const btn=b>=SKMX()?'<button class=\"cqbtn xs dis\" disabled>满级</button>':lk?")
   src=src.replace('${UI}sk/ic_sk_${n}.png','${SKM[id]&&SKM[id].mir2?n:UI+"sk/ic_sk_"+n+".png"}')
  if rel=='cq_bridge.js':src=src.replace("return SK_ICON[id] ?","return G('SKM')[id]&&G('SKM')[id].mir2 ? 'assets/cq/icon/sk_'+id+'.png' : SK_ICON[id] ?")
  if rel=='cq/hero_page.js':src=src.replace('${U}sk/ic_sk_${ic}.png','${SKM[s.id].mir2?ic:U+"sk/ic_sk_"+ic+".png"}')
@@ -38,8 +39,14 @@ def main():
      def shot(name):
       p.wait_for_timeout(200);p.evaluate("document.querySelector('#toast')?.classList.remove('on')");assert p.locator('img[src*="assets/cq/icon/sk_"]').evaluate_all('(es)=>es.every(e=>e.complete&&e.naturalWidth>0)');p.screenshot(path=f'{OUT}/{tag}_{name}.png');assert p.evaluate('document.documentElement.scrollWidth<=390')
      p.evaluate("TAB='skill';render();cqPg.sk('list')");shot('skill')
+     assert p.locator('.sk2 button').evaluate_all('(es)=>es.every(e=>e.textContent==="满级"&&e.disabled&&!e.hasAttribute("onclick")&&e.getBoundingClientRect().height>=44&&e.getBoundingClientRect().width>=44&&e.scrollHeight<=e.clientHeight+2)')
+     assert '本游戏设计值' not in p.locator('#panel').inner_text()
      assert p.locator('.sk2').count()>=(9 if cls=='zs' else 10)
      p.locator('.sk2').filter(has_text={'fs':'流星火雨','ds':'噬血术','zs':'逐日剑法'}[cls]).scroll_into_view_if_needed();shot('skill_new')
+     p.locator('.ord').first.scroll_into_view_if_needed();shot('auto_order')
+     assert p.locator('.ord .ar,.ord .sw').evaluate_all('(es)=>es.every(e=>e.getBoundingClientRect().width>=44&&e.getBoundingClientRect().height>=44)')
+     if cls=='ds':
+      assert p.evaluate("acSmartTxt('zys').includes('生命低于')&&acSmartTxt('zhkl').includes('无召唤物')&&acSmartTxt('zhss').includes('无召唤物')&&acSmartTxt('sds').includes('未中毒')&&acSmartTxt('lhhf').includes('攻击技能')")
      p.evaluate("cqPg.sk('bar');cqPg.barPick(0)");shot('battle_picker')
      assert p.locator('.cqbarchoices button').evaluate_all('(es)=>es.every(e=>{const r=e.getBoundingClientRect();return r.height>=44&&r.width>=44&&e.scrollHeight<=e.clientHeight+2})')
      bd=p.evaluate(base.JS_BACKDROP);p.wait_for_timeout(350);p.mouse.click(*bd);assert p.locator('#modal').evaluate("e=>e.classList.contains('hide')")

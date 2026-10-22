@@ -39,17 +39,17 @@ clsRegister();
 function clsMir2Fs(){
 // Mir2 扩展：倍率/未知耗蓝为本游戏设计值；新增技能 1/4/7 级对应原版三级。
 clsDef('fs',[
- {id:'dhq',n:'大火球',r:19,t:2,col:1,ty:'bolt',el:'fire',ic:'✦',cqfx:'huoqiang',cd:6,mana:()=>14,mir2:true,v:(L,sy)=>{const d=CLS_DR(16,28,4,6,L,sy);return{dmg:d,n:5,txt:'大火球：'+d.join('-')+'点伤害（本游戏设计值）'}}},
- {id:'sxyd',n:'瞬息移动',r:19,t:2,col:1,ty:'buff',el:'magic',ic:'✦',cqfx:'linghunhuofu',cd:6,mana:()=>18,mir2:true,g:'sxyd',v:(L,sy)=>{return{dodge:15+L*2,dur:12+L,txt:'瞬息移动：增强护持，持续 '+(12+L)+' 秒（本游戏设计值）'}}},
- {id:'blhy',n:'爆裂火焰',r:22,t:2,col:1,ty:'aoe',el:'fire',ic:'✦',cqfx:'huoqiang',cd:6,mana:()=>16,mir2:true,v:(L,sy)=>{const d=CLS_DR(25,45,8,12,L,sy);return{dmg:d,n:5,txt:'爆裂火焰：'+d.join('-')+'点伤害（本游戏设计值）'}}},
+ {id:'dhq',n:'大火球',r:19,t:2,col:1,ty:'bolt',el:'fire',ic:'✦',cqfx:'huoqiang',cd:6,mana:()=>14,mir2:true,v:(L,sy)=>{const d=CLS_DR(16,28,4,6,L,sy);return{dmg:d,n:5,txt:'大火球：'+d.join('-')+'点伤害'}}},
+ {id:'sxyd',n:'瞬息移动',r:19,t:2,col:1,ty:'buff',el:'magic',ic:'✦',cqfx:'linghunhuofu',cd:6,mana:()=>18,mir2:true,g:'sxyd',v:(L,sy)=>{return{dodge:15+L*2,dur:12+L,txt:'瞬息移动：增强护持，持续 '+(12+L)+' 秒'}}},
+ {id:'blhy',n:'爆裂火焰',r:22,t:2,col:1,ty:'aoe',el:'fire',ic:'✦',cqfx:'huoqiang',cd:6,mana:()=>16,mir2:true,v:(L,sy)=>{const d=CLS_DR(25,45,8,12,L,sy);return{dmg:d,n:5,txt:'爆裂火焰：'+d.join('-')+'点伤害'}}},
  {id:'hq',n:'火墙',r:24,t:2,col:1,ty:'burn',el:'fire',ic:'✦',cqfx:'huoqiang',cd:6,mana:()=>39,mir2:true,v:(L,sy)=>{return{dps:8+L*3,bdur:4+L/3,n:5,txt:'火墙：持续灼烧 '+(4+L/3).toFixed(1)+' 秒'}}},
- {id:'jgdy',n:'疾光电影',r:26,t:2,col:1,ty:'cone',el:'light',ic:'✦',cqfx:'leidianshu',cd:6,mana:()=>58,mir2:true,v:(L,sy)=>{const d=CLS_DR(28,48,9,14,L,sy);return{dmg:d,n:5,txt:'疾光电影：'+d.join('-')+'点伤害（本游戏设计值）'}}},
- {id:'dylg',n:'地狱雷光',r:30,t:2,col:1,ty:'aoe',el:'light',ic:'✦',cqfx:'leidianshu',cd:6,mana:()=>50,mir2:true,v:(L,sy)=>{const d=CLS_DR(32,52,10,16,L,sy);return{dmg:d,n:5,txt:'地狱雷光：'+d.join('-')+'点伤害（本游戏设计值）'}}},
- {id:'sys',n:'圣言术',r:32,t:2,col:1,ty:'bolt',el:'magic',ic:'✦',cqfx:'linghunhuofu',cd:6,mana:()=>70,mir2:true,v:(L,sy)=>{const d=CLS_DR(12,24,3,5,L,sy);return{dmg:d,n:5,txt:'圣言术：'+d.join('-')+'点伤害（本游戏设计值）'}}},
- {id:'hbz',n:'寒冰掌',r:36,t:2,col:1,ty:'bolt',el:'cold',ic:'✦',cqfx:'bingpaoxiao',cd:6,mana:()=>20,mir2:true,v:(L,sy)=>{const d=CLS_DR(30,50,8,12,L,sy);return{dmg:d,n:5,slow:3,stun:1,txt:'寒冰掌：'+d.join('-')+'点伤害（本游戏设计值）'}}},
- {id:'mth',n:'灭天火',r:38,t:2,col:1,ty:'bolt',el:'fire',ic:'✦',cqfx:'huoqiang',cd:6,mana:()=>60,mir2:true,v:(L,sy)=>{const d=CLS_DR(65,110,12,18,L,sy);return{dmg:d,n:5,txt:'灭天火：'+d.join('-')+'点伤害（本游戏设计值）'}}},
- {id:'lxhy',n:'流星火雨',r:47,t:2,col:1,ty:'aoe',el:'fire',ic:'✦',cqfx:'huoqiang',cd:6,mana:()=>65,mir2:true,v:(L,sy)=>{const d=CLS_DR(50,80,10,18,L,sy);return{dmg:d,n:5,dps:8+L*2,bdur:4,txt:'流星火雨：'+d.join('-')+'点伤害（本游戏设计值）'}}},
- {id:'fss',n:'分身术',r:45,t:2,col:1,ty:'pet',el:'magic',ic:'✦',cqfx:'linghunhuofu',cd:6,mana:()=>45,mir2:true,heroOnly:true,v:(L,sy)=>{const a=8+L*2+(S.lvl||1);return{hp:180+L*35,pd:[a,a*2],max:1,pn:'法师分身',el:'magic',txt:'分身术：召唤独立伙伴（本游戏设计值）'}}},
+ {id:'jgdy',n:'疾光电影',r:26,t:2,col:1,ty:'cone',el:'light',ic:'✦',cqfx:'leidianshu',cd:6,mana:()=>58,mir2:true,v:(L,sy)=>{const d=CLS_DR(28,48,9,14,L,sy);return{dmg:d,n:5,txt:'疾光电影：'+d.join('-')+'点伤害'}}},
+ {id:'dylg',n:'地狱雷光',r:30,t:2,col:1,ty:'aoe',el:'light',ic:'✦',cqfx:'leidianshu',cd:6,mana:()=>50,mir2:true,v:(L,sy)=>{const d=CLS_DR(32,52,10,16,L,sy);return{dmg:d,n:5,txt:'地狱雷光：'+d.join('-')+'点伤害'}}},
+ {id:'sys',n:'圣言术',r:32,t:2,col:1,ty:'bolt',el:'magic',ic:'✦',cqfx:'linghunhuofu',cd:6,mana:()=>70,mir2:true,v:(L,sy)=>{const d=CLS_DR(12,24,3,5,L,sy);return{dmg:d,n:5,txt:'圣言术：'+d.join('-')+'点伤害'}}},
+ {id:'hbz',n:'寒冰掌',r:36,t:2,col:1,ty:'bolt',el:'cold',ic:'✦',cqfx:'bingpaoxiao',cd:6,mana:()=>20,mir2:true,v:(L,sy)=>{const d=CLS_DR(30,50,8,12,L,sy);return{dmg:d,n:5,slow:3,stun:1,txt:'寒冰掌：'+d.join('-')+'点伤害'}}},
+ {id:'mth',n:'灭天火',r:38,t:2,col:1,ty:'bolt',el:'fire',ic:'✦',cqfx:'huoqiang',cd:6,mana:()=>60,mir2:true,v:(L,sy)=>{const d=CLS_DR(65,110,12,18,L,sy);return{dmg:d,n:5,txt:'灭天火：'+d.join('-')+'点伤害'}}},
+ {id:'lxhy',n:'流星火雨',r:47,t:2,col:1,ty:'aoe',el:'fire',ic:'✦',cqfx:'huoqiang',cd:6,mana:()=>65,mir2:true,v:(L,sy)=>{const d=CLS_DR(50,80,10,18,L,sy);return{dmg:d,n:5,dps:8+L*2,bdur:4,txt:'流星火雨：'+d.join('-')+'点伤害'}}},
+ {id:'fss',n:'分身术',r:45,t:2,col:1,ty:'pet',el:'magic',ic:'✦',cqfx:'linghunhuofu',cd:6,mana:()=>45,mir2:true,heroOnly:true,v:(L,sy)=>{const a=8+L*2+(S.lvl||1);return{hp:180+L*35,pd:[a,a*2],max:1,pn:'法师分身',el:'magic',txt:'分身术：召唤独立伙伴'}}},
 ]);
 clsBookRule('fs',{dhq:{on:'大火球',or:19},sxyd:{on:'瞬息移动',or:19},blhy:{on:'爆裂火焰',or:22},hq:{on:'火墙',or:24},jgdy:{on:'疾光电影',or:26},dylg:{on:'地狱雷光',or:30},sys:{on:'圣言术',or:32},hbz:{on:'寒冰掌',or:36},mth:{on:'灭天火',or:38},lxhy:{on:'流星火雨',or:47},fss:{on:'分身术',or:45}});
 clsRegister();

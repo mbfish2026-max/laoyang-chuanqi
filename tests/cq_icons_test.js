@@ -1,9 +1,11 @@
 // cq/icons_cq.js：技能书/装备底材/UI 杂项图标路径全部真实存在，查找优先新图、无图回退。node tests/cq_icons_test.js
 const fs=require('fs'),path=require('path');const T=require('./cq_harness')('cq_icons_test');const{G,ok}=T;const root=path.join(__dirname,'..');
+G(fs.readFileSync(path.join(root,'cq/mir2_skills.js'),'utf8'));
+G("S=newSave();load();CQSys.createChar('图标集成','fs');mir2SkillsWire()");
 const I=JSON.parse(G('JSON.stringify({books:CQ_ICONS.books,eqs:CQ_ICONS.eqs,ui:CQ_ICONS.ui})'));
 const paths=[...I.books.map(b=>'assets/cq/icon/book_'+b+'.png'),...I.eqs.map(e=>'assets/cq/icon/eq_'+e+'.png'),...Object.values(I.ui)];
 for(const p of paths)ok(fs.existsSync(path.join(root,p)),'文件存在 '+p);
-ok(I.books.length===19&&I.eqs.length===15,'19 本书 + 15 件底材');
+ok(I.books.length===45&&I.eqs.length===15,'45 本书 + 15 件底材');
 for(const e of I.eqs)ok(G(`!!BASEM['${e}']`),'底材 id 存在于 BASEM: '+e);
 // 反向：assets/cq/icon 下的 book_/eq_ 文件都被接入
 for(const f of fs.readdirSync(path.join(root,'assets/cq/icon')).filter(f=>/^(book|eq)_.*\.png$/.test(f)))ok(paths.includes('assets/cq/icon/'+f),'已接入 '+f);

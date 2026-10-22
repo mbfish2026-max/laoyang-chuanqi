@@ -35,4 +35,14 @@ for(const c of ['zs','fs','ds'])for(const hc of ['zs','fs','ds']){
  G(`CQSys.createChar('预算${c}${hc}','${c}');S.lvl=60;S.autoSk=0;CQSys.heroCreate('${hc}');S.hero.lvl=60;mir2SkillsWire();heroSkInit();for(const id of heroSkList())S.hero.sk[id]={lv:9,exp:0};calc();CQSys._heroReset();GT+=200;MON=[mkMon(ACTS[0].zones[1].mons[0],1)];MON[0].hp=MON[0].max=1e12;hitMon(MON[0],{magic:10000},'player');for(const id of heroSkList())heroCast(id,10000,{targets:()=>MON,hit:(m,d)=>hitMon(m,{magic:d},'cqhero'),healHero:()=>{}});hitMon(MON[0],{magic:100000},'cqheji');for(const a of ALLY.filter(a=>a.owner==='hero'))hitMon(MON[0],{magic:10000},a)`);
  ok(G('CQSys.heroShare().share<=.25+1e-9'),'新增满级技能+英雄宠物+合击预算 '+c+'/'+hc);
 }
+for(const id of ['zys','qtzls'])ok(G(`acSmartTxt('${id}').includes('生命低于')`),'治疗条件说明 '+id);
+for(const id of ['zhkl','zhss','fss','zhyl'])ok(G(`acSmartTxt('${id}').includes('无召唤物')`),'召唤条件说明 '+id);
+ok(G("acSmartTxt('sds').includes('未中毒')"),'施毒条件说明');
+ok(G("acSmartTxt('lhhf').includes('攻击技能')"),'火符攻击说明');
+for(const id of [...Object.values(ids).flatMap(x=>x.split(' ')),'htsd']){
+ ok(G(`!SV('${id}',9).txt.includes('设计值')`),'无开发备注 '+id);
+ const skill=fs.readFileSync(path.join(__dirname,'../assets/cq/icon/sk_'+id+'.png'));
+ const book=fs.readFileSync(path.join(__dirname,'../assets/cq/icon/book_'+id+'.png'));
+ ok(!skill.equals(book),'技能与书图独立 '+id);
+}
 T.done();

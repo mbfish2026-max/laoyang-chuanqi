@@ -1,137 +1,216 @@
 {
   "generator": "built-in imagegen",
-  "style": "original dark Chinese fantasy bronze-trim leather spellbook; no copyrighted art copied",
-  "processing": "downsample to 128px; same original book emblem used for skill and book icon",
+  "style": "original dark Chinese fantasy circular bronze-silver relief skill emblem; original leather spellbooks reserved for book items",
+  "processing": "skill sources downsampled to 128px RGBA; book icons unchanged; distinct skill/book mapping",
   "assets": [
     {
       "id": "dhq",
-      "source_sha256": "b8c96e852c70c262fac74ba1ba7c958cd3e9a59b0a023d0fdc47a1fbf731ab7d",
-      "source_file": "exec-c75c291d-a751-4ca5-8455-19aa265a0ff4.png"
+      "book_source_sha256": "b8c96e852c70c262fac74ba1ba7c958cd3e9a59b0a023d0fdc47a1fbf731ab7d",
+      "book_source_file": "exec-c75c291d-a751-4ca5-8455-19aa265a0ff4.png",
+      "skill_source_file": "exec-4f8c1539-e7e0-433e-9c4e-87f030da93a1.png",
+      "skill_source_sha256": "a8d2a01bf03fde74025e1ab75b82c33f258e445764eba4cfa464e56482400c88",
+      "subject": "large fireball"
     },
     {
       "id": "sxyd",
-      "source_sha256": "b9323c9222da5f33de1af2372360200be33ddcac7309c5f386f67bbb89d4fb99",
-      "source_file": "exec-bdf2b65c-e1b4-4635-bb89-b734f77bb657.png"
+      "book_source_sha256": "b9323c9222da5f33de1af2372360200be33ddcac7309c5f386f67bbb89d4fb99",
+      "book_source_file": "exec-bdf2b65c-e1b4-4635-bb89-b734f77bb657.png",
+      "skill_source_file": "exec-e6972bd2-d4fd-41d2-bbcf-71df5d7cb7cd.png",
+      "skill_source_sha256": "7bbc22c73923f702491e4a67767bff865394c880c50370a92ca5dfc402882b97",
+      "subject": "teleporting silhouette"
     },
     {
       "id": "blhy",
-      "source_sha256": "726a6c75be6d9dbdf6eebb26d1329d62c84f91c9daade9e3e60faf28c1dc08e1",
-      "source_file": "exec-fc8be1dc-1c0f-4ed6-a7d1-6c61bc490227.png"
+      "book_source_sha256": "726a6c75be6d9dbdf6eebb26d1329d62c84f91c9daade9e3e60faf28c1dc08e1",
+      "book_source_file": "exec-fc8be1dc-1c0f-4ed6-a7d1-6c61bc490227.png",
+      "skill_source_file": "exec-5bbad9e0-3134-45b0-9aa0-7e506da0aefb.png",
+      "skill_source_sha256": "6e749bdf2ebdcd199761cf6734773a7794836044e815d9ac8064a8bf24037c75",
+      "subject": "exploding flames"
     },
     {
       "id": "hq",
-      "source_sha256": "fa6d2ae009a8d9c155079341843c66c8a833f3cb345ac9a8f03d6cec70d74a53",
-      "source_file": "exec-14b741c5-2155-46c9-9bc0-93939620b03f.png"
+      "book_source_sha256": "fa6d2ae009a8d9c155079341843c66c8a833f3cb345ac9a8f03d6cec70d74a53",
+      "book_source_file": "exec-14b741c5-2155-46c9-9bc0-93939620b03f.png",
+      "skill_source_file": "exec-f014955d-a3e5-42e6-ac2a-6aebc93f730c.png",
+      "skill_source_sha256": "07211ff28af7496efe3fde2dbef2d2fc41b5bc1f212a97fc1b0a74db52147027",
+      "subject": "wall of flame"
     },
     {
       "id": "jgdy",
-      "source_sha256": "7af711ba592647291ac1d72c9e06b7283a5e7072c0b318e09b6bf2d5b1e425b0",
-      "source_file": "exec-3d84da2a-4c64-49f8-8522-cfb983930b7b.png"
+      "book_source_sha256": "7af711ba592647291ac1d72c9e06b7283a5e7072c0b318e09b6bf2d5b1e425b0",
+      "book_source_file": "exec-3d84da2a-4c64-49f8-8522-cfb983930b7b.png",
+      "skill_source_file": "exec-009aa10d-05f3-40eb-a500-ff326856f910.png",
+      "skill_source_sha256": "799f8515192c102990b0f5a9191ab88c611ea9d486199a1de78a57c692ec93dc",
+      "subject": "straight lightning beam"
     },
     {
       "id": "dylg",
-      "source_sha256": "0dfc5095e27db8807f3eb87848582ee87eb3912adb983111a69b5fd6be26021d",
-      "source_file": "exec-3326e15b-aee9-4337-a526-ed249ba97e5f.png"
+      "book_source_sha256": "0dfc5095e27db8807f3eb87848582ee87eb3912adb983111a69b5fd6be26021d",
+      "book_source_file": "exec-3326e15b-aee9-4337-a526-ed249ba97e5f.png",
+      "skill_source_file": "exec-6c94082f-0f9e-429c-8fb6-69e6b0c72f21.png",
+      "skill_source_sha256": "30efe9b51186c5309633afd4ca88cc8b6da1cb4d940ded519b0c3bd5c5c16017",
+      "subject": "ring of lightning"
     },
     {
       "id": "sys",
-      "source_sha256": "f0e1544cb3cec5903d876944532371d088b745a6333fa08679b5b34a2b2940b7",
-      "source_file": "exec-f278e9ea-7250-4e82-9d92-5a3433a879ff.png"
+      "book_source_sha256": "f0e1544cb3cec5903d876944532371d088b745a6333fa08679b5b34a2b2940b7",
+      "book_source_file": "exec-f278e9ea-7250-4e82-9d92-5a3433a879ff.png",
+      "skill_source_file": "exec-b8bed883-f2cb-4aee-9c88-f43f88c724b0.png",
+      "skill_source_sha256": "9bfab89daf8ae1217fb108a26c9b49293e9bd1936825a17c0fed69b0a67ba6f7",
+      "subject": "holy exorcism rune"
     },
     {
       "id": "hbz",
-      "source_sha256": "639e484edabda11e905336d66e80fa08620ac71bc5b88fa619ee9c2ee654135b",
-      "source_file": "exec-cae582f9-c398-4f68-b0d3-2c05245db18d.png"
+      "book_source_sha256": "639e484edabda11e905336d66e80fa08620ac71bc5b88fa619ee9c2ee654135b",
+      "book_source_file": "exec-cae582f9-c398-4f68-b0d3-2c05245db18d.png",
+      "skill_source_file": "exec-1b16f47f-a083-441c-9a43-7a5e23649d22.png",
+      "skill_source_sha256": "db5626727ef20f0f9251d7090702a7c68d0477595656c1c04a8bf82ab599662d",
+      "subject": "icy palm"
     },
     {
       "id": "mth",
-      "source_sha256": "0a1e713f21fc3cce99be06bea8884fb6d3a961a0502de9d6fa68967108ff790f",
-      "source_file": "exec-2a9948a2-e012-409f-bf4a-866f24573d45.png"
+      "book_source_sha256": "0a1e713f21fc3cce99be06bea8884fb6d3a961a0502de9d6fa68967108ff790f",
+      "book_source_file": "exec-2a9948a2-e012-409f-bf4a-866f24573d45.png",
+      "skill_source_file": "exec-0f1824b3-18a2-4fb9-80b6-ef98a6939d36.png",
+      "skill_source_sha256": "ed30350c9aecbf95dd86c22e56073a3c97348c61c84359131ad7724d900f5b3e",
+      "subject": "soul consuming fire"
     },
     {
       "id": "lxhy",
-      "source_sha256": "30f5ccfcf1a8f3de8f10bb6585dc35a7b10863950c987dd8b2c194b53baa9948",
-      "source_file": "exec-53f0b478-2a32-4462-b773-db07a28a82fa.png"
+      "book_source_sha256": "30f5ccfcf1a8f3de8f10bb6585dc35a7b10863950c987dd8b2c194b53baa9948",
+      "book_source_file": "exec-53f0b478-2a32-4462-b773-db07a28a82fa.png",
+      "skill_source_file": "exec-0518d352-0eb6-4fb9-b602-31f817f160bf.png",
+      "skill_source_sha256": "0c341dd20ce07eb995a44826e225086f8ab8a13889f42ca4f96d6c6c38e72514",
+      "subject": "meteor fire rain"
     },
     {
       "id": "fss",
-      "source_sha256": "299751404d806ae876980fc7ffd2aa32a1fa4c882b341e523055bf41cec52ae3",
-      "source_file": "exec-ff361ced-3611-4de9-834d-e680fdb03a45.png"
+      "book_source_sha256": "299751404d806ae876980fc7ffd2aa32a1fa4c882b341e523055bf41cec52ae3",
+      "book_source_file": "exec-ff361ced-3611-4de9-834d-e680fdb03a45.png",
+      "skill_source_file": "exec-b53b8748-319d-4ea4-97a0-f7f9610dd02f.png",
+      "skill_source_sha256": "70a463735deb9e9da5e1632138e4d9ad57464f051134cd275f0dca241d9db585",
+      "subject": "two wizard silhouettes"
     },
     {
       "id": "jslzf",
-      "source_sha256": "f0aefeb1be44480aa511557d0e4cdd172734718033bd5b1756f8950a0eb850fc",
-      "source_file": "exec-38fca5f4-3c78-4a51-827f-22b90d3ea463.png"
+      "book_source_sha256": "f0aefeb1be44480aa511557d0e4cdd172734718033bd5b1756f8950a0eb850fc",
+      "book_source_file": "exec-38fca5f4-3c78-4a51-827f-22b90d3ea463.png",
+      "skill_source_file": "exec-0831adda-6d5d-4022-97ef-71dfcdc73561.png",
+      "skill_source_sha256": "fafcad1462e2ac393b347920b36a4642a00756bd90eb06710373cb16999c8981",
+      "subject": "spirit sword aura"
     },
     {
       "id": "jtys",
-      "source_sha256": "0274e812969925b031d8d3468c9695f3cd787909dd1def4bd31fb5f2b86d4aec",
-      "source_file": "exec-6b4447f2-aba7-409e-9129-9307d939c1f5.png"
+      "book_source_sha256": "0274e812969925b031d8d3468c9695f3cd787909dd1def4bd31fb5f2b86d4aec",
+      "book_source_file": "exec-6b4447f2-aba7-409e-9129-9307d939c1f5.png",
+      "skill_source_file": "exec-a3d7dfd8-2ad2-41b6-a207-2a8ee7b3df28.png",
+      "skill_source_sha256": "aff80e9d21be6a21c69733bd33fbdc09f1f8b2aa8a5f8d2d18f18ccaf35a0667",
+      "subject": "invisible group silhouettes"
     },
     {
       "id": "yld",
-      "source_sha256": "f31dd005ece2816b820b0bebf1257e3c34d066bc7cd04f77c85e7cbe5402072e",
-      "source_file": "exec-3b041b28-4dfd-4da8-baac-0c7e5b17fad0.png"
+      "book_source_sha256": "f31dd005ece2816b820b0bebf1257e3c34d066bc7cd04f77c85e7cbe5402072e",
+      "book_source_file": "exec-3b041b28-4dfd-4da8-baac-0c7e5b17fad0.png",
+      "skill_source_file": "exec-b6a04ccf-67c6-4a4d-9c20-652a7c05596b.png",
+      "skill_source_sha256": "8109fd04c7af064c8d8ff4db997e41011aab5e9ebc49624ca41826100dc6bc26",
+      "subject": "spectral shield"
     },
     {
       "id": "sszjs",
-      "source_sha256": "a547a53983b088e047879f5a4ac9b7cd310f902adca547997e2fef3693156b82",
-      "source_file": "exec-a353a1c1-f05c-463a-bc96-ac8d883a0a32.png"
+      "book_source_sha256": "a547a53983b088e047879f5a4ac9b7cd310f902adca547997e2fef3693156b82",
+      "book_source_file": "exec-a353a1c1-f05c-463a-bc96-ac8d883a0a32.png",
+      "skill_source_file": "exec-cbe86bb8-2775-49bd-ae52-54b2f1c7e118.png",
+      "skill_source_sha256": "3703c71f3603872fa94b9d02cc69e6bbc505c189d0d8d9fb62836a8058592116",
+      "subject": "holy armored shield"
     },
     {
       "id": "xlqs",
-      "source_sha256": "761f6fa22e5bb307429abe00f28ea765aecda0c814ac46e526a7f0b333773b98",
-      "source_file": "exec-e106f450-4b38-4e81-b560-d3f3ff2af6df.png"
+      "book_source_sha256": "761f6fa22e5bb307429abe00f28ea765aecda0c814ac46e526a7f0b333773b98",
+      "book_source_file": "exec-e106f450-4b38-4e81-b560-d3f3ff2af6df.png",
+      "skill_source_file": "exec-5852b67e-62d4-4c5a-bc2e-08ac1121859f.png",
+      "skill_source_sha256": "7ea801df6cb3c9c5412dbc13bcd6b866e9f4a23de9b6ac39ba1e85ad0cfa345a",
+      "subject": "glowing insight eye"
     },
     {
       "id": "kmz",
-      "source_sha256": "fbdb9cf51ddb0b56effc178d08438194deb64311baf9c2b133bfdf0388c61c59",
-      "source_file": "exec-01f3ee2f-118c-45e8-8d4b-9a889e78b9e6.png"
+      "book_source_sha256": "fbdb9cf51ddb0b56effc178d08438194deb64311baf9c2b133bfdf0388c61c59",
+      "book_source_file": "exec-01f3ee2f-118c-45e8-8d4b-9a889e78b9e6.png",
+      "skill_source_file": "exec-3a9fdc65-9acc-4b8e-8575-f0f65d89ec63.png",
+      "skill_source_sha256": "0226677faaefeb9fc1845e16036d8bf8a44d8564d2a7d6304f25b0f64c7265a7",
+      "subject": "binding magic ring"
     },
     {
       "id": "qtzls",
-      "source_sha256": "0e946dfb610b11414b9eabac7ac2a8cdf32b83a4fadeac045db050cdaeea2926",
-      "source_file": "exec-2f68b956-13d5-467d-aea1-f26224b5663a.png"
+      "book_source_sha256": "0e946dfb610b11414b9eabac7ac2a8cdf32b83a4fadeac045db050cdaeea2926",
+      "book_source_file": "exec-2f68b956-13d5-467d-aea1-f26224b5663a.png",
+      "skill_source_file": "exec-caa7d84f-7caf-4389-9926-7aaf45b2768e.png",
+      "skill_source_sha256": "48864bb47ade3886d7485ce949ebbab2bb60feae21127cb1adcf0d623567c50b",
+      "subject": "healing green radiance"
     },
     {
       "id": "qgb",
-      "source_sha256": "c4bd6c3fd8353d930f58c998054db7bedeeffb65db7602beb8f70ff194bca5ef",
-      "source_file": "exec-89416521-2e1b-4246-81b7-7bfe3adc2ec3.png"
+      "book_source_sha256": "c4bd6c3fd8353d930f58c998054db7bedeeffb65db7602beb8f70ff194bca5ef",
+      "book_source_file": "exec-89416521-2e1b-4246-81b7-7bfe3adc2ec3.png",
+      "skill_source_file": "exec-e6e2b4a9-cd3d-4285-8233-14d6e0cb78a3.png",
+      "skill_source_sha256": "8777178c5db3b8a93cccee66b21abbe6883a6b5bf5561af4faf62a209f97986a",
+      "subject": "repelling energy wave"
     },
     {
       "id": "wjzq",
-      "source_sha256": "d796f929c81990ba2b9f82d00567342fa7a9740d56f2e891ba3a3172578365ec",
-      "source_file": "exec-c04a1396-e055-43dc-9781-74a65cbd448e.png"
+      "book_source_sha256": "d796f929c81990ba2b9f82d00567342fa7a9740d56f2e891ba3a3172578365ec",
+      "book_source_file": "exec-c04a1396-e055-43dc-9781-74a65cbd448e.png",
+      "skill_source_file": "exec-b3d66a84-0c78-40cd-a444-5d6de56db0d3.png",
+      "skill_source_sha256": "ad2e2ab3ad57588ea8b27f35e52ada27866a331cc7c176c31645c5f8eb2d8106",
+      "subject": "taoist yin yang energy"
     },
     {
       "id": "sxs",
-      "source_sha256": "305a84b0dd48dbe4c2f655f3a0f2557c29c261868ddec84a2ff2d52ac4c31e4d",
-      "source_file": "exec-0f09bc24-8f89-4c9d-9f87-6b1702ba36fc.png"
+      "book_source_sha256": "305a84b0dd48dbe4c2f655f3a0f2557c29c261868ddec84a2ff2d52ac4c31e4d",
+      "book_source_file": "exec-0f09bc24-8f89-4c9d-9f87-6b1702ba36fc.png",
+      "skill_source_file": "exec-6652fa1e-e4cd-4243-8e8c-daddcd51050e.png",
+      "skill_source_sha256": "c1e178ac7fae5c766570089fe86c70150b8eae96932b67ba10d4c36078361af7",
+      "subject": "crimson life draining talisman"
     },
     {
       "id": "zhyl",
-      "source_sha256": "b73d6b23c6e3abb007be5ab1e9911a0904bd71dcd53b8746b66e42dceb47657b",
-      "source_file": "exec-28dff667-c9c2-48d1-98e5-bd93451f1862.png"
+      "book_source_sha256": "b73d6b23c6e3abb007be5ab1e9911a0904bd71dcd53b8746b66e42dceb47657b",
+      "book_source_file": "exec-28dff667-c9c2-48d1-98e5-bd93451f1862.png",
+      "skill_source_file": "exec-ad236cad-639d-4aa4-ac1a-537db54cd8fd.png",
+      "skill_source_sha256": "c3e580d1e207bce44ca5445372842ad381c39721ed97f7ae5aa2fd0daacf8219",
+      "subject": "crescent moon spirit"
     },
     {
       "id": "szh",
-      "source_sha256": "c02d09efd69d5ebd679016d519031bdda6af0dd0df0bdb75eadba275e0d6c33a",
-      "source_file": "exec-8247f10e-c3c9-42d5-a08f-372811142942.png"
+      "book_source_sha256": "c02d09efd69d5ebd679016d519031bdda6af0dd0df0bdb75eadba275e0d6c33a",
+      "book_source_file": "exec-8247f10e-c3c9-42d5-a08f-372811142942.png",
+      "skill_source_file": "exec-685ccac5-fd0b-43d9-be63-ac95f45e1cde.png",
+      "skill_source_sha256": "ff293cf70ba7ec9098266f5fb0d4a8dd783a5b5422360ef86ac7b9d0c670ded4",
+      "subject": "roaring lion"
     },
     {
       "id": "zrjf",
-      "source_sha256": "3584b163950010024f34f125af3386a25f6c4b16aa55d99f8dee92213f291260",
-      "source_file": "exec-d9d57c7f-7fd2-4702-9c44-b8bee8b23aa7.png"
+      "book_source_sha256": "3584b163950010024f34f125af3386a25f6c4b16aa55d99f8dee92213f291260",
+      "book_source_file": "exec-d9d57c7f-7fd2-4702-9c44-b8bee8b23aa7.png",
+      "skill_source_file": "exec-70b5b594-479b-4b9a-9e34-3ababf8a9226.png",
+      "skill_source_sha256": "0bd8b4e264645ffeb2a5a0e8f6cfe9dfaa980cdac436081f99ec62c05c5a6117",
+      "subject": "sun cleaving sword"
     },
     {
       "id": "ktz",
-      "source_sha256": "bf40a45a1438d9e7908c78d3e5e6ea14bd63402e8ba0079c6f349779a5e4077a",
-      "source_file": "exec-f98309cf-96a7-40d4-9c7c-f6aabfc685b1.png"
+      "book_source_sha256": "bf40a45a1438d9e7908c78d3e5e6ea14bd63402e8ba0079c6f349779a5e4077a",
+      "book_source_file": "exec-f98309cf-96a7-40d4-9c7c-f6aabfc685b1.png",
+      "skill_source_file": "exec-411b51ec-61f3-4607-8d96-affb7a1225be.png",
+      "skill_source_sha256": "832b3a62467c5bd045ea524b9268cb24fc6b10902cd93cd7be5126ba1e4dc47b",
+      "subject": "heaven splitting blade"
     },
     {
       "id": "htsd",
-      "source_sha256": "d1a5923bdfe5792a234f2dddb61979bda12c7d7ce93b39138bd9394cd0e85fb0",
-      "source_file": "exec-057e1e51-25ff-4692-afb2-bff27ce10197.png"
+      "book_source_sha256": "d1a5923bdfe5792a234f2dddb61979bda12c7d7ce93b39138bd9394cd0e85fb0",
+      "book_source_file": "exec-057e1e51-25ff-4692-afb2-bff27ce10197.png",
+      "skill_source_file": "exec-70f4cd9c-c906-4072-843c-744faf6646b8.png",
+      "skill_source_sha256": "e90a519adfa0a8fd35408a2ac448ea061f8d66b8109ac03c197ced2a508d0bcd",
+      "subject": "protective energy dome"
     }
-  ]
+  ],
+  "prompt_template": "Use case: stylized-concept. Create one original Chinese dark fantasy RPG circular skill icon: {subject}. Match old isometric mobile RPG skill icons: weathered silver bronze circular rim, black charcoal recessed center, pale ivory and muted gold relief emblem, restrained magical colored accent. Centered circle fills square, readable at 44px, transparent outside circle. No book, no text, no letters, no watermark. Original art only. Save asset for skill {id}."
 }

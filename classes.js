@@ -151,8 +151,9 @@ function clsGroupPick(g){let b=null,bv=-1;for(const s of CLS_SKILLS){if(s.g!==g|
  if(CLS_SINGLE.has(s.ty)){const b=clsBest(new Set([...CLS_SINGLE,...CLS_AOE]),ms);return b===id}return 1}}
 {const f=acCast;acCast=function(id,ms){const s=SKM[id];if(!s||!s.cls)return f(id,ms);return clsCast(id,ms)}}
 {const f=acSmartTxt;acSmartTxt=function(id){const s=SKM[id];if(!s||!s.cls)return f(id);
- if(s.ty==='buff')return'增益未生效时施放';if(s.ty==='turret')return'未在场时召出';if(s.ty==='debuff'||s.ty==='wcry')return`怪物≥${s.sm}或有精英/首领，且未受此效果`;if(s.ty==='static')return'有敌人生命高于40%';
- return CLS_AOE.has(s.ty)?`怪物≥${s.sm}或有精英/首领，且为当前伤害最高的技能`:'当前伤害最高的单体技能'}}
+ if(s.ty==='heal')return'自身生命低于75%或召唤物生命低于60%时治疗';if(s.ty==='pet')return'无召唤物或数量未满时召唤，同组优先高级召唤物';if(s.ty==='pois')return'目标未中毒或毒效即将结束时施放';if(s.ty==='burn')return'目标未受持续灼烧或灼烧即将结束时施放';if(s.ty==='charm')return'有符合诱惑条件的目标时施放';if(s.ty==='passive')return'被动生效，无需释放';
+ if(s.ty==='buff')return'增益未生效或即将结束时施放';if(s.ty==='turret')return'未在场时召出';if(s.ty==='debuff'||s.ty==='wcry')return`怪物≥${s.sm}或有精英/首领，且未受此效果`;if(s.ty==='static')return'有敌人生命高于40%';
+ return CLS_AOE.has(s.ty)?`怪物≥${s.sm}或有精英/首领，且为当前伤害最高的技能`:'选择当前伤害最高的攻击技能，冷却就绪且法力足够时施放'}}
 // ---------- 属性：被动/增益（game.js calc 末尾调用） ----------
 // 旧存档清理（一次）：不属于本职业的已学技能（例如旧版战士自动学到的召唤/骨系技能）退还技能点；空技能的角色补本职业初始技能
 // 旧存档清理（一次）：已删除模块（late_mods 魔改技能 x*_ 等）残留的技能 id，不在 SKM 中的退还技能点
@@ -262,6 +263,6 @@ function clsPetSweep(){if(!CLS_PETS.size)return;const live=new Set(ALLY.filter(a
 {const f=resetRuntime;resetRuntime=function(){const r=f.apply(this,arguments);clsPetSweep();return r}}
 
 // Shared shield: one runtime ID, per-profession books; design values.
-function clsMir2Shared(){clsDef('zs',[{id:'htsd',n:'护体神盾',shared:true,mir2:true,r:39,t:2,col:2,ty:'buff',g:'htsd',ic:'🛡',cqfx:'mofadun',cd:30,mana:()=>30,v:L=>({dr:12+L,dur:6+L/3,txt:'护体神盾：短时减伤 '+(12+L)+'%（本游戏设计值）'})}]);
+function clsMir2Shared(){clsDef('zs',[{id:'htsd',n:'护体神盾',shared:true,mir2:true,r:39,t:2,col:2,ty:'buff',g:'htsd',ic:'🛡',cqfx:'mofadun',cd:30,mana:()=>30,v:L=>({dr:12+L,dur:6+L/3,txt:'护体神盾：短时减伤 '+(12+L)+'%'})}]);
 clsBookRule('zs',{htsd:{on:'护体神盾',or:39}});clsRegister();
 }

@@ -64,19 +64,27 @@ function skImg(id){
 
 技能挂机化说明：瞬息移动为战斗内短时闪避，不跳过地图进度；心灵启示转为洞察弱点；圣言术对符合等级的不死普通怪可净化，对首领正常结算魔法伤害、绝不秒杀；疾光对不死目标 +50%；新增控制沿用首领免疫规则。英雄护体神盾 34 级可学，英雄达到 39 级且已学盾时主角自动获得一级，反复计算不累加。
 
-## 共享图标测试接线（明确的旧断言冲突）
+## 审核修复接线（2026-10-22）
 
-原 `tests/cq_icons_test.js` 同时写死 `I.books.length===19` 和“目录中所有 book_ 文件必须在该 19 本清单中”。新增 26 本后，这两项无法同时成立；本块没有编辑该共享文件。合并者需在测试 harness 载入后临时加载技能扩展并调用 `mir2SkillsWire()`，再把数量断言改为 `I.books.length===45`（19+26），装备数量仍为 15；保留全部正向路径存在与反向覆盖断言。
+`cq/pages_cq.js` 的 `skillPage` 中，将 `const btn=lk?` 替换为：
 
-本块提供 `python3 tests/mir2_skills_regression.py`：逐一运行所有 Node 测试，仅对上述图标测试在内存应用扩展加载与 19→45 的断言接线，不写共享文件。原样 Node 回归结果与临时集成结果分别保存在 `node_tests.json` / `integrated_node_tests.json`，不能把原样图标测试声称为通过。
+```js
+const btn=b>=SKMX()?'<button class="cqbtn xs dis" disabled>满级</button>':lk?
+```
 
-## 本块验证结果（2026-10-22）
+后续原表达式保持不变。此项修正原有页面问题，所有原有及新增技能均使用同一上限判断；满级按钮无 onclick、原生 disabled。公共页面不在本块修改，专项 Playwright 在内存使用该精确替换。
 
-- 改动 JS 全部 `node --check` 通过；技能专项 128 项断言通过。
-- 原样 `tests/*_test.js` + `cq/cq_battle_test.js`：38/39 个脚本通过，唯一失败为上述旧图标反向清单（新增 26 本未在旧 19 本注册表中）。战斗测试 219 项通过。
-- 临时集成 `python3 tests/mir2_skills_regression.py`：39/39 个脚本通过，图标测试保留全部文件存在/目录反向覆盖检查，清单变为 45 本。
-- `python3 tests/pw_baseline.py`：Chromium/WebKit × 390×844、375×667，问题 0 条。
-- 专项 UI：Chromium/WebKit × 新档/旧档 × 三职业，共 12 组、72 张截图；检查新图成功加载、视口无横溢、配置按钮和英雄开关至少 44px、按钮不换行、弹窗空白关闭、战斗栏新技能成功释放。
-- 既有 60 分钟九组合模拟：英雄+合击占比 18.59%–22.84%；新增满级技能、英雄召唤物和合击真实伤害预算九组合断言全部 ≤25%。未改首领数据。
+技能图 `assets/cq/icon/sk_<id>.png` 使用独立 imagegen 圆形浮雕图标；书物品继续使用原 `book_<id>.png`。技能列表、战斗栏和英雄共用技能图路径，材料映射只走书图。生成提示词与来源见 `assets/cq/icon/mir2_skill_art.json`。
 
-报告及截图均在 `/workspace/design/laoyang_m1_shots/codex_mir2_skill/`。公共接线及共享测试断言由最终合并窗口实施，本块没有修改这些公共文件。
+玩家描述已去掉开发备注，设计数值出处仅保留在源码注释和本文档。`classes.js` 自动施法说明按真实类型与条件显示：治疗自身低于75%或召唤物低于60%，召唤数量未满（同组优先高级），施毒未中毒或即将结束，增益未生效或即将结束；攻击参与伤害选择。未调整战斗数值。
+
+图标回归测试已直接加载本块扩展，使用45本完整清单并保留文件存在与目录反向覆盖检查；不再临时替换测试断言。
+
+## 本次审核验证结果
+
+- 6 个改动 JS 文件 `node --check` 通过；`tests/*_test.js` 全部38个脚本与 `node cq/cq_battle_test.js` 通过（共39/39）；技能专项188项通过，战斗219项通过。
+- `python3 tests/pw_baseline.py`：Chromium/WebKit × 390×844、375×667，问题0条。
+- `python3 tests/mir2_skills_ui.py`：Chromium/WebKit × 新旧档 × 三职业，390×844；覆盖圆形技能图、满级禁用、玩家文案、自动释放说明、战斗释放、弹窗空白关闭与触控尺寸，共84张页面截图。同目录覆盖旧截图。
+- 图标使用 built-in imagegen 逐技能生成，26张独立圆形透明图位于 `assets/cq/icon/sk_*.png`；提示词模板、逐技能主题及原图SHA256见 `mir2_skill_art.json`。技能书图保持原样。
+- 扩展样式补齐技能列表按钮、自动释放排序箭头与开关的44px触控区域；自动释放说明完整换行显示。
+- 报告与截图：`/workspace/design/laoyang_m1_shots/codex_mir2_skill/`，图标总览 `icon_contact_sheet.png`。
