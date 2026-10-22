@@ -9,7 +9,7 @@
 // ===================================================================================
 // ---------- P0 回收保护 ----------
 window.CQ_RCYBETTER=0;
-function cqBetterThanWorn(it){try{if(!it||it.k||!BASEM[it.b]||(typeof canEquip==='function'&&!canEquip(it)))return false;const b=BASEM[it.b];let k=slotOf(b);
+function cqBetterThanWorn(it){try{if(!it||it.k||!BASEM[it.b]||(typeof canEquip==='function'&&!canEquip(it)))return false;const b=BASEM[it.b];let k=cqEquipSlot(b);
  if(k==='ring'){const r1=S.eq.ring1,r2=S.eq.ring2;if(!r1||!r2)return true;return power(it)>Math.min(power(r1),power(r2))}
  if(!k||!SLOTS.includes(k))return false;const w=S.eq[k];return !w||power(it)>power(w)}catch(e){return false}}
 {const f=shouldRecycle;shouldRecycle=function(it,isNew){if(S.rcy&&S.rcy.keepBetter!==0&&cqBetterThanWorn(it)){CQ_RCYBETTER++;return false}return f.apply(this,arguments)}}

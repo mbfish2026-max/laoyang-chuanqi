@@ -6,7 +6,7 @@
 // 戒指：与两只戒指中战力较低的那只对比（自动换装也替换那只）。
 // ===================================================================================
 let CMP_BUSY=0;
-function cmpTarget(it){const b=BASEM[it.b];if(!b||it.k)return null;let k=slotOf(b);if(!k)return null;
+function cmpTarget(it){const b=BASEM[it.b];if(!b||it.k)return null;let k=cqEquipSlot(b);if(!k)return null;
  if(k==='ring'){const a=S.eq.ring1,c=S.eq.ring2;if(!a||!c)return a||c||null;return power(a)<=power(c)?a:c}return S.eq[k]||null}
 // 物品的可比较数值：伤害均值/防御/格挡 + 全部词缀（增强伤害/防御等已折算进本地数值）
 function cmpStats(it){const b=BASEM[it.b],m=allMods(it),l=itemLocal(it),o={};

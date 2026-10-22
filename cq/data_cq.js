@@ -7,8 +7,8 @@
 // ===================================================================================
 window.CQ_DATA=1;
 // ---------- 部位：内部键沿用暗夜（避免改装备/对比/仓库逻辑），显示名换成传奇 10 部位 ----------
-// shield→左手镯、gloves→右手镯、amulet→项链；两只手镯是各自的底材组（手镯 / 护腕），见 docs/systems_m1.md
-Object.assign(SLOTN,{weapon:'武器',armor:'衣服',helm:'头盔',amulet:'项链',shield:'手镯',gloves:'护腕',ring1:'戒指',ring2:'戒指',belt:'腰带',boots:'鞋子'});
+// shield→左手镯、gloves→右手镯、amulet→项链；两侧手镯共享可穿底材，保留旧槽键，见 docs/systems_m1.md
+Object.assign(SLOTN,{weapon:'武器',armor:'衣服',helm:'头盔',amulet:'项链',shield:'左手镯',gloves:'右手镯',ring1:'戒指',ring2:'戒指',belt:'腰带',boots:'鞋子'});
 // ---------- 品质：0/2/7/8 不再产出（破旧/超强/合成/符文之语），保留下标以兼容旧逻辑 ----------
 QN.splice(0,QN.length,'普通','普通','普通','精良','稀有','极品','套装','—','—');
 QC.splice(0,QC.length,'#e8e0d0','#e8e0d0','#e8e0d0','#6f8fff','#f2e05a','#c8a050','#3fdc4f','#e8e0d0','#e8e0d0');

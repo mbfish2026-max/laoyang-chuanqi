@@ -11,7 +11,7 @@ ok(G("typeof rollGem")==='undefined','宝石掉落已删除');
 ok(G("Object.values(TCS).every(t=>!t.runes)"),'TC 无符文必掉');
 ok(G("BASES.every(b=>!['orb','bhelm','head','charm','jewel'].includes(b.cat))"),'无 D2 职业底材/护身符/珠宝');
 // ---------- 10 部位 ----------
-const slots=G('JSON.stringify(SLOTS.map(k=>SLOTN[k]))');ok(slots==='["武器","手镯","头盔","衣服","护腕","腰带","鞋子","项链","戒指","戒指"]','10 部位显示名：'+slots);
+const slots=G('JSON.stringify(SLOTS.map(k=>SLOTN[k]))');ok(slots==='["武器","左手镯","头盔","衣服","右手镯","腰带","鞋子","项链","戒指","戒指"]','10 部位显示名：'+slots);
 for(const s of ['weapon','shield','helm','armor','gloves','belt','boots','amulet','ring'])ok(G(`BASES.filter(b=>b.s==='${s}'&&b.q<=12).length`)>=1,'第 1 章等级段有底材：'+s);
 ok(G("BASES.every(b=>ITYPES[b.cat]&&ITYPES[b.cat].length)"),'每个底材类别都有词缀类型');
 ok(G("BASEM.swd1.n==='木剑'&&BASEM.arm1.n==='布衣'"),'木剑/布衣');

@@ -51,6 +51,7 @@ function boot(){
     // 插在 ftop 后，占满原战场区
     const top=document.getElementById('ftop');
     if(top&&top.nextSibling)fb.insertBefore(stage,top.nextSibling);else fb.appendChild(stage);
+    if(typeof cqEnhEntry==='function')cqEnhEntry();
   }
   hideAnYeBattle();mountPlaceholder();showVersionChip();
 }

@@ -12,7 +12,10 @@ const CQ_SV=6;// 角色存档结构版本；每次结构变更 +1 并在 CQ_MIG 
 // ---------- 材料 ----------
 Object.assign(MATS.ess,{n:'黑铁碎片',c:'#9aa4b0',d:'回收装备所得。用途：淬锋精铸。'});
 Object.assign(MATS,{
- heitie:{n:'黑铁矿',c:'#8c8c99',d:'怪物掉落的矿石。用途：铁匠强化（每级需要 等级+1 块）。'},
+ heitie:{n:'黑铁矿',c:'#8c8c99',d:'普通怪物、精英与首领掉落；纯度10（旧矿同等），强化每级需要 等级+1 块。'},
+ heitie15:{n:'黑铁矿·纯度15',c:'#9bb9d4',d:'精英和首领掉落；强化成功率增加 5 个百分点。'},
+ heitie20:{n:'黑铁矿·纯度20',c:'#e8c568',d:'首领掉落；强化成功率增加 10 个百分点。'},
+ zhuanyi:{n:'转移石',c:'#bca5ff',d:'首领掉落。把强化转给同部位装备，损失一级，原装备归零。'},
  zhufu:{n:'祝福油',c:'#ffd76a',d:'强化时勾选使用：失败不掉级（每次消耗 1 瓶）。'},
  ckq:{n:'仓库扩充券',c:'#7fd0ff',d:'共享仓库第 3 页起扩容所需。首领小概率掉落。'}});
 function cqTakeMat(id,n){if(matCount(id)<n)return false;for(let i=S.bag.length-1;i>=0&&n>0;i--){const x=S.bag[i];if(x.k!=='mat'||x.id!==id)continue;const t=Math.min(n,x.n||0);x.n-=t;n-=t;if(x.n<=0)S.bag.splice(i,1)}return true}
@@ -23,12 +26,12 @@ function cqTakeMat(id,n){if(matCount(id)<n)return false;for(let i=S.bag.length-1
   if(b&&b.bm&&!it.bmd){it.bmd=1;for(const k in b.bm){const v=Array.isArray(b.bm[k])?R(b.bm[k][0],b.bm[k][1]):b.bm[k];if(v)it.m[k]=(it.m[k]||0)+v}}}
  return it}}
 // ---------- 黑铁矿（原符文/宝石掉落位） ----------
-const cqOre=n=>({uid:S.uid++,k:'mat',id:'heitie',n:n||1});
+const cqOre=(n,p)=>({uid:S.uid++,k:'mat',id:p>=20?'heitie20':p>=15?'heitie15':'heitie',n:n||1});
 function cqJewBase(lv){const c=BASES.filter(b=>b.jew&&b.q<=Math.max(3,lv));return c.length?pick(c):BASEM.rin}
 rollGood=function(m){return rnd()<0.7?genItem(m.lv,{base:cqJewBase(m.lv),mf:ST.mf,fac:m._fac}):cqOre(1+(m.boss?R(1,2):0))};
 // 首领 / 精英额外：黑铁矿、祝福油、仓库扩充券
-{const f=rollTC;rollTC=function(m){const out=f(m)||[];try{if(m.boss||m.actboss){if(rnd()<0.5)out.push(cqOre(R(1,3)));if(rnd()<0.08)out.push({uid:S.uid++,k:'mat',id:'zhufu',n:1});if(rnd()<0.02)out.push({uid:S.uid++,k:'mat',id:'ckq',n:1})}
- else if(m.fl==='uniq'||m.fl==='champ'){if(rnd()<0.15)out.push(cqOre(1))}else if(rnd()<0.03)out.push(cqOre(1))}catch(e){}return out}}
+{const f=rollTC;rollTC=function(m){const out=f(m)||[];try{if(m.boss||m.actboss){if(rnd()<0.5)out.push(cqOre(R(1,3)));if(rnd()<0.5)out.push(cqOre(R(1,3),rnd()<0.25?20:15));if(rnd()<0.1)out.push({uid:S.uid++,k:'mat',id:'zhuanyi',n:1});if(rnd()<0.08)out.push({uid:S.uid++,k:'mat',id:'zhufu',n:1});if(rnd()<0.02)out.push({uid:S.uid++,k:'mat',id:'ckq',n:1})}
+ else if(m.fl==='uniq'||m.fl==='champ'){if(rnd()<0.15)out.push(cqOre(1));if(rnd()<0.15)out.push(cqOre(1,15))}else if(rnd()<0.03)out.push(cqOre(1))}catch(e){}return out}}
 // ---------- 等级上限 ----------
 // 60 级阈值必须可达，60 级后经验由 mir2_progression 分流。
 // ---------- 存档迁移 ----------

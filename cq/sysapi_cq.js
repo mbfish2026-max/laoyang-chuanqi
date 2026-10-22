@@ -19,8 +19,8 @@ CS.heroProfs=()=>['zs','fs','ds'];
 CS.heroUnlock=()=>!!CS.hero().cls||(S.lvl||1)>=22;
 CS.heroCreate=(cls,name)=>{const h=CS.hero();if(h.cls)return{err:'已有英雄'};if(!CS.heroUnlock())return{err:'22级解锁英雄'};if(!['zs','fs','ds'].includes(cls))return{err:'职业无效'};
   h.cls=cls;h.name=(name||'').trim().slice(0,12)||({zs:'战士',fs:'法师',ds:'道士'}[cls]+'英雄');h.lvl=1;h.xp=0;h.t=now();save();CS.emit('hero',h);return{ok:1,hero:h}};
-CS.heroEquip=uid=>{const h=CS.hero();const i=S.bag.findIndex(x=>x.uid===uid);if(i<0)return{err:'背包无此物品'};const it=S.bag[i],b=BASEM[it.b];if(!b||it.k)return{err:'不可装备'};
-  const c=CS.itemCls?CS.itemCls(it):null;if(c&&c!==h.cls)return{err:'职业不符'};const s=b.s;const old=h.eq[s];S.bag.splice(i,1);h.eq[s]=it;if(old)S.bag.push(old);save();CS.emit('hero',h);return{ok:1,slot:s}};
+CS.heroEquip=(uid,side)=>{const h=CS.hero();const i=S.bag.findIndex(x=>x.uid===uid);if(i<0)return{err:'背包无此物品'};const it=S.bag[i],b=BASEM[it.b];if(!b||it.k)return{err:'不可装备'};
+  const c=CS.itemCls?CS.itemCls(it):null;if(c&&c!==h.cls)return{err:'职业不符'};const s=cqBrace(b)?(['shield','gloves'].includes(side)?side:!h.eq.shield?'shield':!h.eq.gloves?'gloves':power(h.eq.shield)<=power(h.eq.gloves)?'shield':'gloves'):b.s;const old=h.eq[s];S.bag.splice(i,1);h.eq[s]=it;if(old)S.bag.push(old);save();CS.emit('hero',h);return{ok:1,slot:s}};
 CS.heroUnequip=s=>{const h=CS.hero();const it=h.eq[s];if(!it)return{err:'空'};if(typeof bagFits==='function'&&!bagFits(it))return{err:'背包已满'};delete h.eq[s];S.bag.push(it);save();CS.emit('hero',h);return{ok:1}};
 CS.heroStats=()=>{const h=CS.hero(),K=CQ_BAL.hero,lv=Math.min(h.lvl||1,S.lvl||1,CQ_BAL.lvlCap);let mn=0,mx=0,def=0,mdef=0,hp=0;
   for(const it of Object.values(h.eq)){const l=itemLocal(it),m=allMods(it);mn+=l.min||0;mx+=l.max||0;def+=l.def||0;mdef+=m.mdef||0;hp+=m.life||0}

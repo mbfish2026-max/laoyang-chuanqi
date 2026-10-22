@@ -13,10 +13,10 @@ const isTH=it=>!!(it&&!it.k&&BASEM[it.b]&&BASEM[it.b].th);
 const _i2_icon=itemIcon;itemIcon=function(it){if(it.k==='mat')return`<i class="ii">✷</i>`;if(!it.k){const b=BASEM[it.b];const g={bow:'🏹',xbow:'🏹',polearm:'🔱',spear:'🔱',jav:'🎯',throw:'🔪',axe:'🪓',mace:'🔨',staff:'🦯',jewel:'💎',scha:'🧿',mcha:'🧿',lcha:'🧿'}[b&&b.cat];if(g)return`<i class="ii ${b.s==='charm'?'chm c'+b.sz:''}">${g}</i>`}return _i2_icon(it)};
 
 // ---------- 装备限制：双手武器与副手互斥 ----------
-const _i2_equip=equip;equip=function(uid){const f=findItem(uid);if(!f||f.slot)return;const it=f.it,b=BASEM[it.b];
+const _i2_equip=equip;equip=function(uid,side){const f=findItem(uid);if(!f||f.slot)return;const it=f.it,b=BASEM[it.b];
  let off=null;if(b.th&&S.eq.shield)off='shield';else if(b.s==='shield'&&isTH(S.eq.weapon))off='weapon';
  if(off){if(slotsUsed(S.bag)>=BAG_SZ)return toast('背包已满，无法卸下'+(off==='shield'?'副手':'双手武器'));S.bag.push(S.eq[off]);delete S.eq[off]}
- _i2_equip(uid)};
+ _i2_equip(uid,side)};
 const _i2_auto=autoTick;autoTick=function(){const hide=S.bag.filter(it=>!it.k&&(isTH(it)||(isTH(S.eq.weapon)&&BASEM[it.b].s==='shield')));
  if(!hide.length)return _i2_auto();const set=new Set(hide);S.bag=S.bag.filter(x=>!set.has(x));try{_i2_auto()}finally{for(const x of hide)S.bag.push(x)}};
 

@@ -66,14 +66,15 @@ CS.offline={state:offState,claim:offClaim,cost:()=>S.cqOff?offCost(S.cqOff):null
 const ITM=it=>it?{uid:it.uid,name:itemName(it),q:it.q,power:power(it)}:null;
 function eqOk(it){return it&&!it.k&&BASEM[it.b]&&canEquip(it)}
 function autoBest(dryRun){if(!S||!S.eq)return{ok:false,reason:'无角色'};const plan=[];const used=new Set();
- for(const k of SLOTS){if(k==='ring1'||k==='ring2')continue;let best=S.eq[k]||null,bp=best?power(best):-1;
+ for(const k of SLOTS){if(k==='ring1'||k==='ring2'||k==='shield'||k==='gloves')continue;let best=S.eq[k]||null,bp=best?power(best):-1;
   for(const it of S.bag)if(eqOk(it)&&slotOf(BASEM[it.b])===k&&power(it)>bp){best=it;bp=power(it)}
   if(best&&best!==S.eq[k]){plan.push({slot:k,from:S.eq[k]||null,to:best});used.add(best)}}
  // 戒指：已穿两枚 + 背包所有可穿戒指，取战力前二
- const pool=[S.eq.ring1,S.eq.ring2].filter(Boolean).concat(S.bag.filter(it=>eqOk(it)&&slotOf(BASEM[it.b])==='ring'));pool.sort((a,b)=>power(b)-power(a));
- const top=pool.slice(0,2);const keep={};for(const k of['ring1','ring2'])if(S.eq[k]&&top.includes(S.eq[k]))keep[k]=S.eq[k];
- const newR=top.filter(it=>it!==S.eq.ring1&&it!==S.eq.ring2);
- for(const k of['ring1','ring2'])if(!keep[k]&&newR.length){const it=newR.shift();plan.push({slot:k,from:S.eq[k]||null,to:it})}
+ for(const ks of [['ring1','ring2'],['shield','gloves']]){
+ const pool=ks.map(k=>S.eq[k]).filter(Boolean).concat(S.bag.filter(it=>eqOk(it)&&(ks[0]==='ring1'?slotOf(BASEM[it.b])==='ring':cqBrace(BASEM[it.b]))));pool.sort((a,b)=>power(b)-power(a));
+ const top=pool.slice(0,2),keep={};for(const k of ks)if(S.eq[k]&&top.includes(S.eq[k]))keep[k]=S.eq[k];
+ const fresh=top.filter(it=>!ks.some(k=>S.eq[k]===it));for(const k of ks)if(!keep[k]&&fresh.length)plan.push({slot:k,from:S.eq[k]||null,to:fresh.shift()});
+ }
  const changes=plan.map(p=>({slot:p.slot,from:ITM(p.from),to:ITM(p.to),gain:power(p.to)-(p.from?power(p.from):0)}));
  if(!changes.length)return{ok:true,changed:0,changes:[],dryRun:!!dryRun,reason:'没有更强的装备'};
  if(dryRun)return{ok:true,changed:changes.length,changes,dryRun:true};

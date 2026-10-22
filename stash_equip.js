@@ -7,7 +7,7 @@
 function stEquipable(it){if(!it||it.k)return false;const b=BASEM[it.b];if(!b||b.jew)return false;if(typeof isCharm==='function'&&(isCharm(it)||isJewel(it)))return false;return !!slotOf(b)&&b.s!=='charm'&&b.s!=='jewel'}
 function stEquip(uid){const f=findItem(uid);if(!f||!f.stash)return false;const it=f.it,b=BASEM[it.b];if(!stEquipable(it))return false;
  if(!canEquip(it)){if(!window.__NOUI)toast('需求不足');return false}
- let k=slotOf(b);if(k==='ring')k=!S.eq.ring1?'ring1':!S.eq.ring2?'ring2':'ring1';
+ let k=cqEquipSlot(b);if(k==='ring')k=!S.eq.ring1?'ring1':!S.eq.ring2?'ring2':'ring1';
  const old=S.eq[k]||null,off=b.th&&S.eq.shield?'shield':(b.s==='shield'&&typeof isTH==='function'&&isTH(S.eq.weapon))?'weapon':null;
  const P=pagesOf(f.where),page=P[f.pg];page.splice(page.indexOf(it),1);
  // 需要进背包的件数：副手/双手被挤下 + 换下的若原页放不下
