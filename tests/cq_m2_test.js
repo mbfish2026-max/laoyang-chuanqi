@@ -3,18 +3,18 @@ const T=require('./cq_harness')('cq_m2_test');const{G,ok}=T;
 ok(!T.loadErr.some(e=>e.startsWith('cq/')),'cq/ 载入无错 '+T.loadErr.join(';'));
 G(`S=newSave();load();S.lvl=20;calc()`);ok(G('CQSys.m2')===1,'M2 就绪');
 // ---- 第 2–3 章数据
-ok(G('ACTS[1].n')==='第二章 · 比奇'&&G('ACTS[1].camp')==='比奇城'&&G('ACTS[1].zones.length')===6,'第 2 章地图链 6 张');
-ok(G('ACTS[2].n')==='第三章 · 矿区'&&G('ACTS[2].zones.length')===6,'第 3 章地图链 6 张');
+ok(G('ACTS[1].n')==='第二章 · 比奇'&&G('ACTS[1].camp')==='比奇城'&&G('ACTS[1].zones.length')===8,'第 2 章地图链 8 张');
+ok(G('ACTS[2].n')==='第三章 · 矿区'&&G('ACTS[2].zones.length')===9,'第 3 章地图链 9 张');
 ok(G('ACTS[1].zones.every(z=>z.mons.every(k=>MONS[k]))&&ACTS[2].zones.every(z=>z.mons.every(k=>MONS[k]))'),'怪物 key 全部存在');
 const ml=JSON.parse(G('JSON.stringify([ACTS[1].zones.map(z=>z.ml0||z.ml),ACTS[2].zones.map(z=>z.ml0||z.ml)])'));
-ok(ml[0][0]===12&&ml[0][5]===22&&ml[1][0]===22&&ml[1][5]===30,'等级段 12–22 / 22–30 '+JSON.stringify(ml));
+ok(ml[0][0]===12&&ml[0].at(-1)===22&&ml[1][0]===22&&ml[1].at(-1)===30,'等级段 12–22 / 22–30 '+JSON.stringify(ml));
 ok(G(`['skelspirit','treedemon','zombieking','elezombieking','stonezombieking'].every(k=>BOSSES[k])`)&&G('BOSSES.zombieking.actboss')===1&&G('BOSSES.stonezombieking.actboss')===1,'首领 5 个，两个章节首领');
 ok(G(`ACTS[1].fq==='a2q6'&&QUESTS.a2q6.fin&&QUESTS.a3q6.fin&&!/符文|卡萨尔/.test(JSON.stringify([QUESTS.a2q1,QUESTS.a2q2,QUESTS.a2q6,QUESTS.a3q6]))`),'任务改写');
 ok(G(`['skelspirit','treedemon','zombieking','elezombieking','stonezombieking'].every(k=>UNIQUES.filter(u=>u.boss===k&&BASEM[u.b]).length===2)`),'每首领 2 件专属且底材存在');
 ok(G(`(blBuild(),['zombieking','stonezombieking'].every(k=>BOSS_LOOT[k]&&BOSS_LOOT[k].length===2))`),'bossloot 读到专属');
 G(`S.act=1;S.zone=0;S.wave=0;MON=[]`);let n=0;for(let i=0;i<20;i++){G('MON=[];spawnWave()');n+=G('MON.length')}ok(n>0,'第 2 章刷怪正常');
 // ---- 首领真实时间刷新
-ok(G(`CQSys.bossCd('skelspirit')`)===600&&G(`CQSys.bossCd('zombieking')`)===1800&&G(`CQSys.bossCd('stonezombieking')`)===3600,'周期 10/30/60 分钟');
+ok(G(`CQSys.bossCd('skelspirit')`)===600&&G(`CQSys.bossCd('zombieking')`)===3600&&G(`CQSys.bossCd('stonezombieking')`)===3600,'周期 10/60/60 分钟');
 ok(G(`CQSys.bossRt('skelspirit').ready`)===true,'未击杀过 = 已刷新');
 G(`window._ev=[];['bossKill','bossReady','bossWait'].forEach(e=>CQSys.on(e,d=>_ev.push(e+':'+d.key)))`);
 G(`S.act=1;S.zone=1;S.wave=0;MON=[];const m=mkMon('skelspirit',16);m.qb=1;MON.push(m);killMon(m)`);

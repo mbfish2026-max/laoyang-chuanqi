@@ -185,7 +185,7 @@
     if (!done) { var H = C && C.hero ? C.hero() : null; if (H) { H.skOff = H.skOff || {}; if (off) H.skOff.heji = 1; else delete H.skOff.heji; } else { st.hero.h.skOff = st.hero.h.skOff || {}; if (off) st.hero.h.skOff.heji = 1; else delete st.hero.h.skOff.heji; } try { if (typeof save === 'function') save(); } catch (e) {} }
     onHeroChange(); }
   CQ.heroHejiToggle = function(off){ if (st) heroHejiToggle(off); };
-  function onHeroChange(){ if (!st) return; st.hero.reload(); artSync(); var nm = st.heroEl.querySelector('.hn'); if (nm) txt(nm, st.hero.h.name); var img = st.heroEl.querySelector('img'); if (img) { var src = UI + (heroArt(st.hero.h.prof)) + '.png'; if (img.getAttribute('src') !== src) img.setAttribute('src', src); }
+  function onHeroChange(){ if (!st) return; if (CQ.heroCore) st.hero = CQ.heroCore(); st.hero.reload(); artSync(); var nm = st.heroEl.querySelector('.hn'); if (nm) txt(nm, st.hero.h.name); var img = st.heroEl.querySelector('img'); if (img) { var src = UI + (heroArt(st.hero.h.prof)) + '.png'; if (img.getAttribute('src') !== src) img.setAttribute('src', src); }
     st._pres = null; if (st.R.hpanel) { st.R.hpanel._h = ''; renderHeroPanel(); } renderSide(); }
   function onBossEnrage(d){ if (!st) return; var w = h('div', 'warn', '<span>首领狂暴 · 伤害 ×' + ((d && d.mul) || 1.5) + '</span>'); st.R.root.appendChild(w); CQ.FX.once(w, null, true, 3000); }
   function renderHeroPanel(){ var p = st.R.hpanel; if (!p.classList.contains('on')) return;

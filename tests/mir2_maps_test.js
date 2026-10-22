@@ -1,9 +1,9 @@
-// Load this block temporarily: shared index / harness deliberately remain untouched.
+// Test the actual integrated index/runtime, without temporary extension injection.
 const fs=require('fs'),path=require('path');
 const T=require('./cq_harness')('mir2_maps_test'),{G,ok}=T;
 G('load();CQSys.createChar("地图验证","zs")');
-const old=JSON.parse(G('JSON.stringify(BOSSES)')),equipment=G('JSON.stringify([BASES,UNIQUES,SETS,SETITEMS])');
-for(const f of ['cq/mir2_maps.js','cq/mir2_loot.js'])G(fs.readFileSync(path.join(__dirname,'..',f),'utf8'));
+const baseline=require('./cq_harness')('mir2_pre_map',{exclude:['cq/mir2_maps.js','cq/mir2_loot.js']});
+const old=JSON.parse(baseline.G('JSON.stringify(BOSSES)')),equipment=baseline.G('JSON.stringify([BASES,UNIQUES,SETS,SETITEMS])');
 G('CQMir2Maps.install();CQMir2Loot.install();CQMir2Maps.fresh(S);applyDiff()');
 ok(!T.loadErr.some(e=>e.startsWith('cq/')),'CQ scripts load');
 ok(G('ACTS.length')===7,'seven chapters');
@@ -40,11 +40,16 @@ G('S.diff=0;S.act=3;S.zone=ACTS[3].mainEnd;S.unl=S.zone;S.q={};S.Q[0]=S.q;S.clea
 ok(G('!!S.q.a4q6&&S.act===4&&S.zone===0&&S.auto===1'),'main endpoint advances without entering appended branches');
 G('S.act=6;S.zone=4;S.unl=4;S.q={};S.Q[0]=S.q;S.auto=0;zoneClear()');ok(G('S.q.a7q5&&S.q.a7q6'),'both quests at dragon hall complete');
 ok(G('CQMir2Loot.pool("zombieking").some(r=>r.id==="book_fs_mfd")&&CQMir2Loot.pool("niumoking").some(r=>r.id==="wandxiaoyaoshan")'),'reference drops use contract IDs');
+ok(G("Object.keys(CQMir2Loot.rows).every(k=>CQMir2Loot.pool(k).every(r=>!r.id.startsWith('book_')||r.resolved))"),'all skill book references resolve after skill integration');
 ok(G('Object.values(CQMir2Loot.rows).every(rows=>rows.every(([id,n])=>typeof id==="string"&&n>0))'),'valid drop weights');
 // Resolve and materialize a stable equipment reference without redefining it in the map block.
 G(`window._roll=rollTC;window._random=Math.random;Math.random=()=>0;window._it=rollTC(Object.assign(mkMon('skelspirit',30),{boss:1}));Math.random=_random`);
 ok(G('_it.some(it=>it.b==="wand4")'),'reference pool participates in actual loot generation');
 
+G(`window._pool=CQMir2Loot.rows.__pending;CQMir2Loot.rows.__pending=[['mir2_equipment_pending',1]];window._rng=Math.random;Math.random=()=>0;window._safe=rollTC(Object.assign(mkMon('redsnakeking',10),{key:'__pending',boss:1}));Math.random=_rng;delete CQMir2Loot.rows.__pending`);
+ok(G("CQMir2Loot.resolve('mir2_equipment_pending')===null&&_safe.every(it=>it&&(it.k?!!MATS[it.id]:!!BASEM[it.b]))"),'pending equipment references skip safely without empty items');
+G("window._late=CQMir2Loot.resolve('book_future_integration');MATS.book_future_integration={n:'test'}");
+ok(G("_late===null&&CQMir2Loot.resolve('book_future_integration').type==='book'"),'late definitions are resolved dynamically without a negative cache');G('delete MATS.book_future_integration');
 const assets=G('CQMir2Maps.artFiles');
 ok(Object.keys(assets).length===68&&Object.values(assets).every(p=>fs.existsSync(path.join(__dirname,'..',p))),'68 generated creature sprites exist');
 for(const c of G('CQMir2Maps.chapters'))ok(fs.existsSync(path.join(__dirname,'..',c.bg))&&fs.existsSync(path.join(__dirname,'..',c.thumb)),'chapter '+(c.act+1)+' scene and thumbnail exist');
@@ -59,7 +64,7 @@ for(let d=0;d<3;d++)oldPositions.forEach((zs,a)=>zs.forEach((id,z)=>{
  G('window._position=CQMir2Maps.migrate('+JSON.stringify(raw)+')');
  ok(G('ACTS[_position.act].zones[_position.zone].id')===id&&G('_position.cleared[_position.zone]===1&&_position.unl>=_position.zone'),'legacy '+d+'/'+a+'/'+z+' -> '+id);
 }));
-G('CQMir2Maps.installSaveHooks();CQSys.createChar("持久迁移","zs")');ok(G('S.mir2Mig.maps===1&&!S.mir2MapLegacy'),'new characters start marked without legacy snapshot');
+G('CQSys.createChar("持久迁移","zs")');ok(G('S.mir2Mig.maps===1&&!S.mir2MapLegacy'),'new characters start marked without legacy snapshot');
 G('delete S.mir2Mig;S.act=2;S.zone=5;S.unl=5;S.ZN={"0_2":5};S.UN={"0_2":5};S.CL={"0_2":{5:1}};S.Q={0:{a3q6:1}};S.q=S.Q[0];S.cleared=S.CL["0_2"];save();load()');
 ok(G('ACTS[S.act].zones[S.zone].id==="cqshimu7"&&S.mir2Mig.maps===1'),'real persisted save load migrates across chapters');
 G('save();window._loaded=JSON.stringify(Object.assign({},S,{last:0}));load()');ok(G('JSON.stringify(Object.assign({},S,{last:0}))===_loaded'),'second persisted reload is identical except baseline last-login timestamp');

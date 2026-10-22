@@ -6,8 +6,9 @@ module.exports=function(name,opt){opt=opt||{};
  const store={};const ctx={console:{log(){},warn(){},error:console.error},Math:SMath,Date,JSON,setTimeout:()=>0,setInterval:()=>0,clearInterval(){},clearTimeout(){},requestAnimationFrame:()=>0,
   localStorage:{getItem:k=>store[k]??null,setItem:(k,v)=>{store[k]=v},removeItem:k=>{delete store[k]},key:()=>null,length:0},document:stub(),Image:function(){return stub()},navigator:{},location:{search:''},addEventListener(){},performance:{now:()=>Date.now()},confirm:()=>true};
  ctx.window=ctx;vm.createContext(ctx);ctx.__NOUI=1;ctx.__NOSHOWLOGIN=1;
- const html=fs.readFileSync(path.join(root,'index.html'),'utf8');const files=[...html.matchAll(/<script src="([^"?]+)/g)].map(m=>m[1]).filter(f=>!/^(cloud|login_flow|audio|power|ui_art|icon2|art2_|cq\/battle_mount)/.test(f));
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');const files=[...html.matchAll(/<script src="([^"?]+)/g)].map(m=>m[1]).filter(f=>!(opt.exclude||[]).includes(f)).filter(f=>!/^(cloud|login_flow|audio|power|ui_art|icon2|art2_|cq\/battle_mount)/.test(f));
  const loadErr=[];for(const f of files)try{vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),ctx,{filename:f})}catch(e){loadErr.push(f+': '+e.message)}
+ if(ctx.CQMir2Maps)vm.runInContext('CQMir2Maps.install();CQMir2Maps.registerArt();CQMir2Loot.install()',ctx);
  if(ctx.mir2SkillsWire)vm.runInContext('mir2SkillsWire()',ctx);
  const G=s=>vm.runInContext(s,ctx);let pass=0,fail=0;const ok=(c,m)=>{if(c)pass++;else{fail++;console.log('  ✗ '+m)}};
  return{G,ok,loadErr,ctx,done(){console.log(`${name}: ${pass} pass, ${fail} fail`);process.exitCode=fail?1:0}}};

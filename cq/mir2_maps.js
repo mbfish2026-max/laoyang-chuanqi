@@ -2112,7 +2112,7 @@ const artFiles={
  "molongfake": "assets/cq/ui/mdl_mst_molongfake.png",
  "cqbullhead": "assets/cq/ui/mdl_mst_cqbullhead.png"
 };
-function registerArt(){window.CQ_MONART=window.CQ_MONART||{};for(const k of Object.keys(artFiles))CQ_MONART[k]="mdl_mst_"+k;CQ_MONART.rakecatelite="mdl_mst_rakecatking";CQ_MONART.orcelite="mdl_mst_orclord";for(const c of chapters){const key="bg_"+ids[c.act][0];ASSETS[key]=c.bg;if(typeof IMG!=="undefined")IMG[key]=c.bg;}}
+function registerArt(){window.CQ_MONART=window.CQ_MONART||{};for(const k of Object.keys(artFiles))CQ_MONART[k]="mdl_mst_"+k;CQ_MONART.rakecatelite="mdl_mst_rakecatking";CQ_MONART.orcelite="mdl_mst_orclord";for(const c of chapters){for(const id of ids[c.act]){const key="bg_"+id;ASSETS[key]=c.bg;if(typeof IMG!=="undefined")IMG[key]=c.bg;}}}
 // UI adapter kept here so shared page files remain merger-owned.
 let view=0;
 function mapHTML(){

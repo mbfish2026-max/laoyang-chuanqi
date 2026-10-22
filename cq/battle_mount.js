@@ -63,7 +63,7 @@ function loadEngine(){
 }
 // 角色/技能/福利 设计稿页（cq/pages_cq.*，独立于战斗引擎加载）
 function loadPages(){if(document.getElementById('cqpgcss'))return;const l=document.createElement('link');l.id='cqpgcss';l.rel='stylesheet';l.href='cq/pages_cq.css?v='+VER;document.head.appendChild(l);
-  const s=document.createElement('script');s.src='cq/pages_cq.js?v='+VER;document.body.appendChild(s)}
+  const s=document.createElement('script');s.src='cq/pages_cq.js?v='+VER;s.onload=function(){function connectMaps(){if(window.CQMir2Maps&&window.cqPg&&window.CQ&&CQ.Host){CQMir2Maps.installUI()}else{setTimeout(connectMaps,50)}}setTimeout(connectMaps,0)};document.body.appendChild(s)}
 function boot2(){boot();loadEngine();loadPages()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot2);else boot2();
 // 切页签暂停/恢复

@@ -168,17 +168,18 @@ const QAC={};const useCls=c=>{if(QAC[c])G(`switchChar(${QAC[c]})`);else QAC[c]=G
  ok(/#cqtopx\{[^}]*flex-wrap:nowrap/.test(css)&&/#cqtopx \.ccur div\{[^}]*white-space:nowrap/.test(css),'顶栏不换行');
  ok(/setInterval\(\(\)=>\{try\{if\(TOPT\[TAB\]/.test(src)&&/render\.__cqtop/.test(src),'顶栏 render 后与 0.5s 轮询刷新');}
 // ---------- 地图页（设计稿 p7_map） ----------
-{useCls('zs');G('S.lvl=7;calc()');const P='cqPg._t';ok(G('renderMap.__cqpg')===1,'包装 renderMap');ok(G(`${P}.MAPN`)===3,'传奇版 3 章');
- const h=G(`${P}.mapPage('')`);ok((h.match(/class="z /g)||[]).length===19,'列出 19 张具体地图');ok((h.match(/class="chc /g)||[]).length===4&&/敬请期待/.test(h),'3 张章节卡 + 第四章敬请期待');
- ok(['一 · 新手村','二 · 比奇','三 · 矿区','首领刷新'].every(t=>h.includes(t)),'章节页签 + 首领刷新');
- ok(/钉耙猫王/.test(h)&&/半兽统领/.test(h)&&/尸王/.test(h)&&/石墓尸王/.test(h)&&/Lv\.12/.test(h)&&/怪物：鸡 \/ 鹿/.test(h),'首领/等级/怪物取真实数据');
- ok(/章节首领 30 分钟/.test(h)&&/· 10 分钟/.test(h),'刷新周期取 CQSys.bossRt');
+{useCls('zs');G('S.lvl=7;calc();CQMir2Maps.installUI();MAPD=0;CQMir2Maps.show(0)');const P='cqPg._t';ok(G('CQMir2Maps.installUI.done')===1,'实际地图适配器已安装');ok(G('ACTS.length')===7,'传奇版七章');
+ const h=G('CQMir2Maps.mapHTML()'),allh=G('ACTS.map((a,i)=>{CQMir2Maps.show(i);return CQMir2Maps.mapHTML()}).join("")');G('CQMir2Maps.show(0)');
+ ok((allh.match(/onclick="CQMir2Maps.preview\(/g)||[]).length===G('ACTS.reduce((n,a)=>n+a.zones.length,0)'),'列出全部七章具体地图');ok((h.match(/data-mir2-ch=/g)||[]).length===7&&!/敬请期待/.test(h),'七章导航均可查看');
+ ok(['一 · 新手村','二 · 比奇','三 · 矿区','七 · 魔龙城','首领刷新'].every(t=>h.includes(t)),'章节页签 + 首领刷新');
+ ok(/钉耙猫头目/.test(allh)&&/半兽人头目/.test(allh)&&/尸王/.test(allh)&&/石墓尸王/.test(allh)&&/Lv\.12/.test(allh)&&/鸡 \/ 鹿/.test(allh),'首领/头目/等级/怪物取真实数据');
+ ok(G("CQSys.bossList().every(b=>b.cd===CQSys.bossRt(b.key).cd)")&&G("CQSys.bossList().some(b=>b.cd===600)&&CQSys.bossList().some(b=>b.cd===3600)"),'刷新列表周期取 CQSys.bossRt');
  ok(G(`${P}.zState(0,0,0)`)==='here'&&G(`${P}.zState(0,1,0)`)==='lk'&&G(`${P}.zState(1,0,0)`)==='lk','状态：挂机中/未解锁');
  G('S.unl=2;S.cleared={0:1}');ok(G(`${P}.zState(0,0,0)`)==='here'&&G(`${P}.zState(0,1,0)`)==='open'&&G(`${P}.zState(0,2,0)`)==='open','状态：已解锁');
  G('goZone(1)');ok(G(`${P}.zState(0,0,0)`)==='done','状态：已通关');
-G('TAB="map"');ok(G('cqPg.travel(0,2,0)')===true&&G('S.zone')===2&&G('TAB')==='fight','点地图 → 传送挂机（goZone + 回战斗页）');
- ok(G('cqPg.travel(0,5,0)')===false&&G('S.zone')===2,'未解锁地图不能传送');
- G('S.actU=S.actU||{};S.actU[0]=1');ok(G('cqPg.travel(1,0,0)')===true&&G('S.act')===1&&G('S.zone')===0,'跨章节传送（goAct）');G('goAct(0,0,1)');
+G('TAB="map"');ok(G('CQMir2Maps.travel(0,2,0)')===true&&G('S.zone')===2&&G('TAB')==='fight','点地图 → 传送挂机（goZone + 回战斗页）');
+ ok(G('CQMir2Maps.travel(0,5,0)')===false&&G('S.zone')===2,'未解锁地图不能传送');
+ G('S.actU=S.actU||{};S.actU[0]=1');ok(G('CQMir2Maps.travel(1,0,0)')===true&&G('S.act')===1&&G('S.zone')===0,'跨章节传送（goAct）');G('goAct(0,0,1)');
  ok(G('cqPg._t.TOPT.map')===1,'地图页带顶栏');
  const br=fs.readFileSync(path.join(root,'cq_bridge.js'),'utf8');ok(/openMap: function\(\)\{ var b = document\.querySelector\('#tabs button\[data-t=map\]'\)/.test(br),'openMap 钩子仍点底栏地图');}
 // ---------- 地图页 主线任务行 ----------
@@ -224,8 +225,9 @@ if(G("typeof heroSkPick")==='function'){// 职业开发 cls_hero.js 接入（分
  ok(G('c3&&c3.skill')==='火球术'&&G('hit3.every(s=>s==="cqhero")'),'有 cls_hero 时用 heroSkPick/heroCast 施法（初始火球术）');
  G(`S.hero.skOff={hqs:1};hc3.h.skOff=S.hero.skOff;for(const k in HERO_CD)delete HERO_CD[k];hc3.unit.atkT=0;var c4=hc3.tick(.01,h3)`);ok(G('c4&&c4.skill')===null&&G('c4.dmg')>0,'关闭后 heroSkPick 不选，改普攻');
  G(`hc3.h.skOff={heji:1};hc3.h.autoHeji=true;hc3.h.rage=100;hc3.h.hejiCd=0;hc3.unit.atkT=9;var c5=hc3.tick(.01,h3)`);ok(!(G('c5')&&G('c5.type')==='heji'),'skOff.heji 时不自动合击');}
-{const fs3=require('fs'),src=fs3.readFileSync(root+'/cq/pages_cq.js','utf8');const n=G('ACTS.slice(0,3).reduce((s,a)=>s+a.zones.length,0)');let all=true;for(let a=0;a<3;a++)for(let i=0;i<G(`ACTS[${a}].zones.length`);i++)if(!fs3.existsSync(`${root}/assets/cq/map/zone_${a+1}_${i+1}.webp`))all=false;
- ok(n===19&&all,'19 张区域缩略图 zone_<章>_<区>.webp 与 ACTS[0..2] 一一对应（从 1 起）');
+{const fs3=require('fs'),src=fs3.readFileSync(root+'/cq/pages_cq.js','utf8');
+ const chapters=G('CQMir2Maps.chapters');
+ ok(chapters.length===4&&chapters.every(c=>fs3.existsSync(root+'/'+c.thumb)&&fs3.existsSync(root+'/'+c.bg)),'第四至七章场景与章节缩略图均使用存在的原创素材');
  ok(/zThumb\(a,i,'zth'\)/.test(src)&&/zThumb\(a,i,'zhead'\)/.test(src)&&/onerror="this\.style\.display='none'"/.test(src),'区域行与传送弹窗用同一张缩略图，缺图隐藏');
  ok(/c\.a>=2\?`assets\/cq\/map\/chapter_\$\{c\.a\+1\}\.webp`/.test(src)&&/chapter_4\.webp/.test(src)&&fs3.existsSync(root+'/assets/cq/map/chapter_3.webp')&&fs3.existsSync(root+'/assets/cq/map/chapter_4.webp'),'第 3/4 章卡片用 chapter_3/4.webp，1/2 章保留 stage_1001/1002');
  ok(!/1017/.test(src)&&/mdl_mst_\$\{b\}\.png/.test(src),'首领头像直接 mdl_mst_<key>.png，无 skelspirit→1017 兜底');}

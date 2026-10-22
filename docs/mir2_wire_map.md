@@ -125,3 +125,17 @@ CQMir2Loot.resolve('set_shengzhan_helm');
 - 截图/报告：`/workspace/design/laoyang_m1_shots/codex_mir2_map/`；baseline 另在 `test-artifacts/worktree/`。
 
 素材全部由内置 imagegen 生成，未使用外部版权图片。原图生成目录 `01a161ba-522b-7dd2-a652-cd47c339bb8a`；保存到本块 assets 路径。atlas 仅按等分网格提取并缩小，保留生成的透明 alpha。提示词组与提取顺序见 `assets/cq/map/mir2_art_manifest.json`。
+
+## mir2-int 实际接线与阶段边界
+
+`index.html` 已按加载顺序接入地图与掉落扩展，美术在 sysapi 后登记。`newSave` 标记 fresh；统一读档先执行技能迁移，再调用纯地图迁移，成功返回才替换 S，清空 MON/CORPSE、重新 applyDiff/calc 并保存。没有调用临时 `installSaveHooks()`。
+
+页面与 CQ.Host 就绪后安装七章地图适配器。第四至七章每个区域背景键均注册为实际存在的原创场景图。共享回归已改用七章导航及真实迁移后的首领位置，保留原首领数值。
+
+装备块未合并，未解析引用仍保留在资料池中并动态解析；缺失定义安全跳过，不伪造物品，不生成空掉落。专项覆盖缺失引用及后续定义可即时解析。待解析清单输出到 `/workspace/design/laoyang_m1_shots/codex_mir2_int1/pending_equipment.json`，这是本次按用户约定保留的集成边界。
+
+`tests/pw_mir2_maps.py` 已取消 index 路由注入与临时存档包装，直接验证实际运行时和统一迁移；`--node-suite` 不再使用临时美术 preloader，并检查全部 JS。截图与报告集中在 `/workspace/design/laoyang_m1_shots/codex_mir2_int1/`。
+
+最终集成验证：全部 142 个 JS 语法检查、39 个 `tests/*_test.js` 加战斗测试（40/40）通过；技能专项 189 项、地图专项 251 项（独立载入合并前定义比较首领及装备）、战斗 219 项通过。基线 Chromium/WebKit × 两尺寸问题 0 条；技能、地图、技能栏、英雄、块 1 合击 UI 均通过双浏览器新旧档组合。九职业组合英雄与合击合计最高 22.71%，合击最高 14.15%。
+
+战场英雄变更事件先同步 CQ.heroCore 的当前主角职业再刷新组合图标，确保切换角色后图标同步；块 1 回归的正式名称修正为“噬魂沼泽”。全部技能书掉落引用已解析，89 个装备引用待装备块提供正式定义。

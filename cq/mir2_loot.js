@@ -33,7 +33,7 @@ const rows={
    8000
   ],
   [
-   "book_ds_qtzy",
+   "book_ds_qtzls",
    6000
   ],
   [
@@ -141,7 +141,7 @@ const rows={
    800
   ],
   [
-   "book_ds_qtzy",
+   "book_ds_qtzls",
    800
   ],
   [
@@ -739,7 +739,7 @@ const rows={
    850
   ],
   [
-   "book_ds_qtzy",
+   "book_ds_qtzls",
    800
   ],
   [
@@ -1367,7 +1367,7 @@ function install(){if(install.done)return;install.done=1;const f=rollTC;rollTC=f
   // Exact definition construction, no duplicate equipment data in this module.
   let it=r.type==='base'?genItem(m.lv||S.lvl,opt):null;
   if(r.type!=='base') {it=makeBase(r.base,m.lv||S.lvl);it.q=opt.q;it.name=r.def.n;it.req=r.def.rq||r.base.q;it.m=rollMods(r.def.m||{});finishDefense(it,r.base);if(r.type==='set')it.set=r.def.set;}
-  result.push(it);
+  if(it)result.push(it);
  }return result;};}
 window.CQMir2Loot={rows,pool,resolve,install};
 })();

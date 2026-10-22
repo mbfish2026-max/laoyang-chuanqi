@@ -1,15 +1,12 @@
-"""Block 3: inject only owned extensions; Chromium/WebKit, 390x844, real new/legacy reloads."""
+"""Block 3: actual integrated runtime; Chromium/WebKit, 390x844, real new/legacy reloads."""
 import json,os,re,sys,subprocess,tempfile
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 import pw_baseline as base
-OUT=Path('/workspace/design/laoyang_m1_shots/codex_mir2_map')
+OUT=Path('/workspace/design/laoyang_m1_shots/codex_mir2_int1/map')
 ROOT=Path(base.REPO)
 def main():
  OUT.mkdir(parents=True,exist_ok=True);srv,url=base.start_server();report=[]
- html=(ROOT/'index.html').read_text()
- html=re.sub(r'(<script src="cq/data_cq2.js[^>]*></script>)',r'\1<script src="cq/mir2_maps.js"></script>',html)
- html=html.replace('</body>','<script src="cq/mir2_loot.js"></script><script>CQMir2Maps.install();CQMir2Maps.installSaveHooks();CQMir2Maps.registerArt();CQMir2Loot.install();</script></body>')
  try:
   with sync_playwright() as pw:
    for engine in ['chromium','webkit']:
@@ -17,14 +14,13 @@ def main():
     for kind in ['new','legacy']:
      ctx=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,has_touch=True,service_workers='block')
      ctx.route('https://*.supabase.co/**',base.Cloud('ok').handle)
-     ctx.route('**/index.html',lambda route:route.fulfill(status=200,content_type='text/html',body=html))
      ctx.add_init_script('localStorage.setItem("cq_sb_auth",'+json.dumps(json.dumps(base.fake_session()))+')')
      p=ctx.new_page();errors=[];bad=[]
      p.on('pageerror',lambda e:errors.append(str(e)))
      p.on('response',lambda r:bad.append(r.url) if r.status>=400 and '/assets/cq/' in r.url else None)
      def ready():
       p.wait_for_function("typeof CL!=='undefined'&&CL.ready&&window.cqPg&&window.CQ&&CQ.Host",timeout=30000)
-      p.wait_for_timeout(400);p.evaluate('CQMir2Maps.installUI()')
+      p.wait_for_function('CQMir2Maps.installUI.done===1',timeout=30000);p.wait_for_timeout(400)
      p.goto(url+'/index.html');ready()
      p.evaluate("CQSys.createChar('地图验收','zs');closeM();S.auto=0;save()")
      assert p.evaluate('S.mir2Mig.maps===1')
@@ -70,36 +66,21 @@ def main():
  (OUT/'ui_report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
  print('PASS',sum(r['screenshots'] for r in report),'screenshots')
 def node_suite():
- # Shared registry is merger-owned. Inject only its exact pending art registrations
- # into existing harness contexts; leave ACTS/QUESTS unchanged for legacy tests.
- preload=r"""
-const Module=require('module'),fs=require('fs'),path=require('path');
-const original=Module._load;
-const src=fs.readFileSync(path.join(process.cwd(),'cq/mir2_maps.js'),'utf8');
-const files=JSON.parse(src.match(/const artFiles=(\{[\s\S]*?\});\nfunction registerArt/)[1]);
-Module._load=function(request,parent,isMain){
- const value=original.apply(this,arguments);
- if(/cq_harness$/.test(request))return function(...args){const T=value(...args);
-  T.G('Object.assign(CQ_MONART,'+JSON.stringify(Object.fromEntries(Object.keys(files).map(k=>[k,'mdl_mst_'+k])))+')');return T;};
- return value;
-};
-"""
  OUT.mkdir(parents=True,exist_ok=True);results=[];syntax=[]
- with tempfile.TemporaryDirectory(prefix='mir2-map-check-') as tmp:
-  hook=Path(tmp)/'register-art.cjs';hook.write_text(preload)
-  for f in ['cq/mir2_maps.js','cq/mir2_loot.js','tests/mir2_maps_test.js']:
-   r=subprocess.run(['node','--check',f],cwd=ROOT,capture_output=True,text=True);syntax.append({'test':f,'code':r.returncode,'output':r.stdout+r.stderr})
-  for f in sorted(ROOT.glob('tests/*_test.js'))+[ROOT/'cq/cq_battle_test.js']:
-   r=subprocess.run(['node','--require',str(hook),str(f)],cwd=ROOT,capture_output=True,text=True)
-   row={'test':str(f.relative_to(ROOT)),'code':r.returncode,'output':r.stdout+r.stderr,'temporary_art_registration':True};results.append(row)
-   print(row['test'],r.returncode,flush=True)
+ for f in sorted(ROOT.rglob('*.js')):
+  if 'node_modules' in f.parts or '.git' in f.parts:continue
+  r=subprocess.run(['node','--check',str(f)],cwd=ROOT,capture_output=True,text=True);syntax.append({'test':str(f.relative_to(ROOT)),'code':r.returncode,'output':r.stdout+r.stderr})
+ for f in sorted(ROOT.glob('tests/*_test.js'))+[ROOT/'cq/cq_battle_test.js']:
+  r=subprocess.run(['node',str(f)],cwd=ROOT,capture_output=True,text=True)
+  row={'test':str(f.relative_to(ROOT)),'code':r.returncode,'output':r.stdout+r.stderr};results.append(row)
+  print(row['test'],r.returncode,flush=True)
  (OUT/'node_results.json').write_text(json.dumps(results,ensure_ascii=False,indent=2))
  (OUT/'syntax_results.json').write_text(json.dumps(syntax,ensure_ascii=False,indent=2))
  if any(r['code'] for r in results+syntax):
   for r in results+syntax:
    if r['code']:print(r['test'],r['output'])
   raise SystemExit(1)
- print('PASS',len(results),'Node commands; temporary art registration only')
+ print('PASS',len(results),'Node commands; integrated runtime')
 if __name__=='__main__':
  if '--node-suite' in sys.argv:node_suite()
  else:main()

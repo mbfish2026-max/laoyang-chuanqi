@@ -3,7 +3,7 @@ import json, os
 from playwright.sync_api import sync_playwright
 import pw_baseline as base
 OUT='/workspace/design/laoyang_m1_shots/codex_mir2_b1'
-COMBOS=[('zs','zs','破魂斩','pohunzhan'),('zs','fs','雷霆一击','leitingyiji'),('zs','ds','劈星斩','pixingzhan'),('fs','fs','火龙气焰','huolongqiyan'),('fs','ds','末日审判','morishenpan'),('ds','ds','噬魂沟泽','shihunzhaoze')]
+COMBOS=[('zs','zs','破魂斩','pohunzhan'),('zs','fs','雷霆一击','leitingyiji'),('zs','ds','劈星斩','pixingzhan'),('fs','fs','火龙气焰','huolongqiyan'),('fs','ds','末日审判','morishenpan'),('ds','ds','噬魂沼泽','shihunzhaoze')]
 def main():
  os.makedirs(OUT,exist_ok=True);srv,url=base.start_server();report=[]
  try:

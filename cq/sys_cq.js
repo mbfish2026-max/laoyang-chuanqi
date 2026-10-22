@@ -51,9 +51,10 @@ const CQ_MIG=[
   if(typeof clsSk9==='function')clsSk9();else if(!S.sk9&&S.sk){for(const id in S.sk){const v=S.sk[id]|0;if(v>0)S.sk[id]=Math.min(9,Math.ceil(1+(v-1)*8/19))}}
   S.sk9=1;if(!S.skx)S.skx={}},
 ];
-function cqMigrate(){if(!S)return 0;const from=S.sv||0;for(let v=from;v<CQ_SV;v++)CQ_MIG[v]();S.sv=CQ_SV;if(typeof mir2SkillsMigrate==='function')mir2SkillsMigrate(S);return CQ_SV-from}
-{const f=load;load=function(){const r=f.apply(this,arguments);try{if(cqMigrate()&&typeof calc==='function')calc()}catch(e){console.warn('cqMigrate',e)}return r}}
-{const f=newSave;newSave=function(){const s=f();s.sv=CQ_SV;s.eq={};s.sk9=1;s.atb={};s.skx={};delete s.autoAt;return s}}
+function cqMigrate(){if(!S)return 0;const from=S.sv||0;for(let v=from;v<CQ_SV;v++)CQ_MIG[v]();S.sv=CQ_SV;if(typeof mir2SkillsMigrate==='function')mir2SkillsMigrate(S);
+ if(window.CQMir2Maps){const mapped=CQMir2Maps.migrate(S);if(mapped!==S){S=mapped;MON=[];CORPSE=[];}applyDiff();}return CQ_SV-from}
+{const f=load;load=function(){const r=f.apply(this,arguments);try{if(S){cqMigrate();if(typeof calc==='function')calc();save()}}catch(e){console.warn('cqMigrate',e)}return r}}
+{const f=newSave;newSave=function(){const s=f();s.sv=CQ_SV;s.eq={};s.sk9=1;s.atb={};s.skx={};delete s.autoAt;if(window.CQMir2Maps)CQMir2Maps.fresh(s);return s}}
 // ---------- 自动成长（docs/auto_growth_plan.md，照原版传奇之旅：升级不给属性点/技能点） ----------
 // S.at 由「职业初始值 + floor(每级成长 × (等级-1)) + S.atb 固定加成（任务/转生）」推导，每次 calc 前写回；不再手动/自动加点。
 // 成长表：职业开发可在 CLS_DEF[c].grow 或全局 clsAutoAt(c,L) 提供，缺省用 AG_GROW。
