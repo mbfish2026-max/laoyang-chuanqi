@@ -10,12 +10,12 @@
 .clsc>i.fx3 img.fx3p{width:56px;height:56px;border-radius:8px;object-fit:cover;object-position:50% 20%;border:1px solid #8a6a3a;display:block;background:#0d0907}
 
 /* ===== UI2 批次一：面板/弹窗/按钮/导航/标题（assets/ui2，手绘生成图九宫格；静态图，无动画/filter） ===== */
-.gp,.ipanel{border:12px solid transparent;border-image:url(assets/ui2/panel_9s.webp) 56 fill / 24px / 6px stretch;background:none;border-radius:0;box-shadow:none;padding:8px 8px 14px;margin:14px 12px}
-.gp:before,.gp:after,.ipanel:before,.ipanel:after{display:block;content:'';position:absolute;left:50%;width:46px;height:28px;margin-left:-23px;top:-17px;background:url(assets/ui2/panel_orn_t.webp) center/contain no-repeat;pointer-events:none;text-shadow:none}
-.gp:after,.ipanel:after{top:auto;bottom:-17px;right:auto;background-image:url(assets/ui2/panel_orn_b.webp)}
+.gp,.ipanel{position:relative;border:2px solid #987332;border-image:none;background:linear-gradient(135deg,#301510,#100d0b 55%,#25110d);border-radius:2px;box-shadow:inset 0 0 0 2px #4a251a,inset 0 0 18px #000,0 2px 8px #000;padding:12px 10px 14px;margin:14px 12px}
+.gp:before,.gp:after,.ipanel:before,.ipanel:after{display:block;content:'';position:absolute;left:50%;width:64px;height:28px;margin-left:-32px;top:-17px;background:url(assets/cq/ui/clean/panel_orn.webp) center/contain no-repeat;pointer-events:none}
+.gp:after,.ipanel:after{top:auto;bottom:-17px;transform:rotate(180deg)}
 #modal .mb>.gp,#modal .ipanel{margin:16px 10px}
-.gp h3{border:0;border-image:url(assets/ui2/title_9s.webp) 24 80 fill / 10px 30px stretch;padding:8px 26px;margin:0 -2px 8px;min-height:36px;line-height:1.3;text-shadow:0 1px 2px #000,0 0 4px #000;flex-wrap:wrap;gap:4px}
-.mtitle{background:none;border-image:url(assets/ui2/title_9s.webp) 24 80 fill / 12px 36px stretch;padding:9px 36px;margin:6px 10px 0;text-shadow:0 1px 2px #000}
+.gp h3,.mtitle{border:0;border-image:none;border-bottom:1px solid #987332;background:linear-gradient(90deg,transparent,#62201988,transparent);padding:10px 8px;margin:0 0 8px;min-height:44px;box-sizing:border-box;line-height:1.3;color:#e7c47b;text-shadow:0 1px 2px #000}
+.btns{flex-wrap:nowrap;overflow-x:auto}.btn,#fzone button,.stabs button{white-space:nowrap;flex-shrink:0}
 .btn,#fzone button,.stabs button{border:1px solid transparent;border-image:url(assets/ui2/btn_9s.webp) 14 fill / 7px stretch;background:none;border-radius:0;box-shadow:none;text-shadow:0 1px 2px #000;color:#f2dca6;min-height:44px;min-width:44px}
 .btn.xs,.btn.sm{min-height:44px;padding:4px 8px;font-size:13px;white-space:nowrap}
 .btn:active,#fzone button:active,.stabs button:active{border-image-source:url(assets/ui2/btn_down_9s.webp);filter:none;color:#d8c08a}

@@ -1,10 +1,10 @@
 // audio_cq.js — 传奇原版采样层（占位）：在 audio.js 程序化合成之上，优先播放 assets/audio/cq/ 下的原 Cocos 传奇工程音频。
-// 有采样的场景/事件用采样，缺的自动回落到 audio.js 合成音（地下城、首领战、血月、品质拾取、强化等）。
+// 有采样的场景/事件用采样，缺的静默回退，不播放旧合成音（地下城、首领战、血月、品质拾取、强化等）。
 // 音量/静音沿用 S.audio（走 audio.js 的 musBus/sfxBus）；首次触摸解锁由 audio.js 负责，本层只在 ctx running 后解码播放。
 // 注意：设计方案 §10 规定原拆包素材只做占位，正式上线前需替换为 AI 生成音频——替换时同名覆盖文件即可。
 (function(){'use strict';
 const B='assets/audio/cq/';
-// 场景 → BGM（null = 无原版素材，用合成曲）
+// 场景 → BGM（null = 静默安全回退）
 const BGM={login:'bgm_login',town:'bgm_town',field:'bgm_field',dungeon:null,boss:null,bloodmoon:null};
 // 简单事件音效
 const SFX={click:'ui_click',gold:'game_coin',level:'game_levelup',die:'game_die',zone:'game_exmap',pot:'game_usedrugs',equip:'ui_weapon',door:'bgsound_openDoor',attack:'skill/s999'};
@@ -23,15 +23,15 @@ function stopBgm(){const c=ctx();if(!bg||!c)return;const o=bg;bg=null;bgKey=null
 function loginOpen(){const m=document.querySelector('#modal:not(.hide) .mtitle');return!!(m&&/登录|选择角色|新建角色|创建角色/.test(m.textContent))}
 function cqScene(s){if(loginOpen())return'login';if(s==='boss'||s==='uber')return'boss';
  try{if(typeof bmHere==='function'&&bmHere())return'bloodmoon'}catch(e){}
- if(s==='town')return'town';return'field'}
+ if(s==='dungeon')return'dungeon';if(s==='town')return'town';return'field'}
 // audio.js tick 每 250ms 调用；返回 true 表示由采样接管（合成曲不排程）
-function scene(s){if(!ok())return false;const n=BGM[cqScene(s)];if(!n||buf[n]===false){want=null;stopBgm();return false}
+function scene(s){if(!ok())return true;const n=BGM[cqScene(s)];if(!n||buf[n]===false){want=null;stopBgm();return true}
  if(bgKey!==n){want=n;if(buf[n])startBgm(n);else load(n)}return true}
 function play(n,vol,gap){if(!n||!ok())return false;if(buf[n]===false)return false;if(!buf[n]){load(n);return false}
  const now=performance.now();if(gap&&now-(last[n]||0)<gap)return true;last[n]=now;
  const c=ctx(),s=c.createBufferSource(),g=c.createGain();s.buffer=buf[n];g.gain.value=vol||1;s.connect(g);g.connect(K().bus());s.start();return true}
-function sfx(name){return play(SFX[name],name==='click'?0.6:1,name==='attack'?90:0)}
-function skill(id){const s=typeof SKM!=='undefined'&&SKM[id];if(!s)return false;return play(KIND[s.kind]||EL[s.el]||(s.kind==='attack'||s.kind==='spell'?EL[s.el||'magic']:null),1,70)}
+function sfx(name){play(SFX[name],name==='click'?0.6:1,name==='attack'?90:0);return true}
+function skill(id){const s=typeof SKM!=='undefined'&&SKM[id];if(!s)return true;play(KIND[s.kind]||EL[s.el]||(s.kind==='attack'||s.kind==='spell'?EL[s.el||'magic']:null),1,70);return true}
 function pre(){if(!ok())return;Object.values(SFX).concat(Object.values(EL),Object.values(KIND)).forEach(load)}
 document.addEventListener('pointerdown',()=>setTimeout(pre,300),{once:true,capture:true,passive:true});
 function wrap(n,after){const f=window[n];if(typeof f!=='function')return;window[n]=function(){const r=f.apply(this,arguments);try{after(r,arguments)}catch(e){}return r}}

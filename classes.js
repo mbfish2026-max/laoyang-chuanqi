@@ -23,7 +23,7 @@ function clsLateFix(){try{if(typeof LATE_MAIN!=='undefined'){for(const c of['zs'
 const curCls=()=>(S&&CLS_DEF[S.cls])?S.cls:'zs';
 function clsBase(){return CLS_DEF[curCls()]}
 function clsName(){return clsBase().n}
-function heroArt(cls){const c=curCls();return c==='zs'?art('hero','🧙‍♂️',cls):`<img class="art ${cls||''}" src="assets/char/${c}_portrait.webp" alt="${clsBase().n}" onerror="this.outerHTML='<span class=&quot;glyph&quot;>${clsBase().glyph}</span>'">`}// 法师/道士：美术立绘 assets/char/{id}_portrait.webp
+function heroArt(cls){const c=curCls();return c==='zs'?art('hero','⚔',cls):`<img class="art ${cls||''}" src="assets/char/${c}_portrait.webp" alt="${clsBase().n}" onerror="this.outerHTML='<span class=&quot;glyph&quot;>${clsBase().glyph}</span>'">`}// 法师/道士：美术立绘 assets/char/{id}_portrait.webp
 function trees(){return clsBase().trees}
 function skOfCls(s){return!!s&&!s.heroOnly&&(s.shared||s.cls===curCls())}// 只认本职业技能：无 cls 的旧技能不再默认算战士（修：战士自动学到旧召唤技能）
 // 新角色/重置角色：按职业写入初始属性/技能/装备（只执行一次）

@@ -1,7 +1,7 @@
 'use strict';
 // ===== 美术资源映射：替换 assets/ 下同名文件即可生效；缺失时使用程序占位绘制 =====
 const ASSETS={
- hero:'assets/char/necromancer_idle.webp',
+ hero:'assets/char/zs_portrait.webp',
  skeleton:'assets/summon/skeleton_warrior.webp', skmage:'assets/summon/skeleton_mage.webp',
  golem_cg:'assets/summon/golem_clay.webp', golem_bg:'assets/summon/golem_blood.webp', golem_ig:'assets/summon/golem_iron.webp', golem_fg:'assets/summon/golem_fire.webp', bonewall:'assets/summon/bone_wall.webp', revive:'assets/summon/revive.webp',
  m_imp:'assets/monster/imp.webp', m_shaman:'assets/monster/imp_shaman.webp', m_rat:'assets/monster/quill_rat.webp', m_zombie:'assets/monster/zombie.webp', m_skel:'assets/monster/skeleton_enemy.webp',
@@ -10,7 +10,6 @@ const ASSETS={
  bg_moor:'assets/bg/moor.png', bg_cave:'assets/bg/cave.png', bg_grave:'assets/bg/graveyard.png', bg_forest:'assets/bg/forest.png', bg_village:'assets/bg/ruined_village.png',
  bg_tower:'assets/bg/tower.png', bg_monastery:'assets/bg/monastery.png', bg_jail:'assets/bg/jail.png', bg_cathedral:'assets/bg/cathedral.png', bg_catacomb:'assets/bg/catacomb.png',
  sk_sheet0:'assets/icon/skills_summon.png', sk_sheet1:'assets/icon/skills_bone.png', sk_sheet2:'assets/icon/skills_curse.png',
- items:'assets/icon/items_sheet.png', runes:'assets/icon/runes_gems_sheet.png', ui_stone:'assets/ui/stone_panel.png', ui_frame:'assets/ui/gold_frame.png',
 };
 // 精灵表：每张 skills_*.png 为 5x2 网格，按技能在本系顺序；items_sheet 4x3 按 SLOTICON 顺序
 const SLOTS=['weapon','shield','helm','armor','gloves','belt','boots','amulet','ring1','ring2'];

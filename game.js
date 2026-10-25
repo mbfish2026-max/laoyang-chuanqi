@@ -340,16 +340,16 @@ let FX_CLR=0;function drawFX(dt){if(!FX.length){if(FX_CLR)return;FX_CLR=1}else F
  c.globalAlpha=1;c.shadowBlur=0;for(let i=FX.length-1;i>=0;i--)if(FX[i].t>=FX[i].life)FX.splice(i,1)}
 
 // ===== 角色页 =====
-function renderHero(){const s=ST,A=s.attr,P=$('#panel');const row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;
- const at=[['str','力量','装备需求 · 武器伤害+1%/点'],['dex','敏捷','命中+5 · 防御+1/4'],['vit','体力','生命+2/点'],['ene','精力','法力+2/点']];
+// Shared by the synchronous detail panel and the dynamically loaded role page.
+function heroDisplayAttrs(){const s=ST||{},r=typeof CQMir2Equip!=='undefined'?CQMir2Equip.equipRanges(S.eq):{},m=window.CQSys&&CQSys.equipAttrs?CQSys.equipAttrs():{};
+ const range=k=>(r[k]||[0,0]).join('-');
+ return [['攻击',(s.wmin||0)+'-'+(s.wmax||0)],['魔法',range('mag')],['道术',range('tao')],['防御',s.def||0],['魔御',range('mdef')],['准确',s.ar||0],['敏捷',(s.attr||{}).dex||0],['幸运',m.luck||0],['生命',s.life||0],['魔法值',s.mana||0]]}
+function renderHero(){const s=ST,P=$('#panel');const row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;
  P.innerHTML=`<div class="gp"><div class="heroart">${heroArt()}</div><h3>${clsName()} · Lv.${S.lvl}</h3><div class="sub">经验 ${fmt(S.xp)} / ${fmt(xpNeed(S.lvl+1))} · 难度 ${DIFFS[S.diff].n}</div>
- <div class="pts">属性随等级自动成长（无属性点 / 技能点；技能靠技能书学习）</div>
- ${at.map(([k,n,d])=>`<div class="attr"><div><b>${n}</b> <span class="v">${A[k]}</span>${A[k]!==S.at[k]?`<span class="plus"> (+${A[k]-S.at[k]})</span>`:''}<div class="dim">${d}</div></div></div>`).join('')}</div>
- <div class="gp"><h3>战斗属性</h3>${row('生命',s.life)+row('法力',s.mana)+row('防御',s.def)+row('命中',s.ar)+row('武器伤害',s.wmin+'-'+s.wmax)+row('施法速度',`${s.fcr}%（断点 ${s.fcrBP}，${Math.round(s.castT*25)}帧）`)+row('攻击速度',s.ias+'%')+
- row('火/冰/电/毒 抗',`<span style="color:#f84">${s.res.fire}</span>/<span style="color:#8cf">${s.res.cold}</span>/<span style="color:#ff6">${s.res.light}</span>/<span style="color:#6f6">${s.res.pois}</span>`)+
- row('寻宝(MF)',s.mf+'%')+row('金币获取',s.gf+'%')+row('生命/法力偷取',s.ll+'% / '+s.ml+'%')+row('格挡',s.block+'%')+row('+全部技能',s.allsk)+row('召唤物伤害/生命',`+${s.sumdmg}% / +${s.sumlife}%`)}</div>
+ <div class="pts">属性随等级自动成长 · 技能靠技能书学习</div></div>
+ <div class="gp"><h3>角色属性</h3>${heroDisplayAttrs().map(([n,v])=>row(n,v)).join('')}</div>
  <div class="gp"><h3>任务</h3>${Object.entries(QUESTS).map(([k,q])=>`<div class="row"><span>${S.q[k]?'✔':'○'} ${q.n}<div class="dim">${q.d}</div></span><b class="dim">${q.rw}</b></div>`).join('')}</div>
- <div class="gp"><h3>设置</h3><div class="btns">${[['autoSk','自动使用技能书'],['autoEq','自动换装(战力更高)']].map(([k,n])=>`<button class="btn sm ${S[k]?'on':''}" onclick="S.${k}^=1;render()">${n}</button>`).join('')}</div><div class="dim">自动出售（无凹槽）：</div><div class="btns">${[0,1,2,3].map(q=>`<button class="btn sm ${S.sell[q]?'on':''}" onclick="S.sell[${q}]^=1;render()" ${q===3?'disabled':''}>${QN[q]}</button>`).join('')}</div>
+ <div class="gp"><h3>设置</h3><div class="btns">${[['autoSk','自动使用技能书'],['autoEq','自动换装(战力更高)']].map(([k,n])=>`<button class="btn sm ${S[k]?'on':''}" onclick="S.${k}^=1;render()">${n}</button>`).join('')}</div><div class="dim">自动出售：</div><div class="btns">${[0,1,2,3].map(q=>`<button class="btn sm ${S.sell[q]?'on':''}" onclick="S.sell[${q}]^=1;render()" ${q===3?'disabled':''}>${QN[q]}</button>`).join('')}</div>
  <button class="btn sm" onclick="resetChar()">重置存档</button></div>`}
 function addStat(){if(typeof toast==='function')toast('属性随等级自动成长')}
 

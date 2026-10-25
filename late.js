@@ -39,11 +39,7 @@ function lateSumK(){const t=LATE_SUMK[lateC()];return t?lateLog(t):1}
 let LATE_DISP=0;
 {const f=syn;syn=function(id){let v=f(id);try{const L=slvl(id);if(L>20)v*=1+LATE_SL*(L-20)}catch(e){}return LATE_DISP?v*LATE_DISP:v}}
 {const f=skPop;skPop=function(...a){LATE_DISP=lateMul();try{return f.apply(this,a)}finally{LATE_DISP=0}}}
-// 角色页
-{const f=renderHero;renderHero=function(...a){const r=f.apply(this,a);if(typeof window!=='undefined'&&window.__NOUI)return r;try{const P=document.getElementById('panel');if(!P)return r;
- const[k,x]=lateMain(),g=P.querySelector('.pts');// 放在首屏「可用属性点」下方
- if(g&&!P.querySelector('.latebn')){const lk=lateLog(LATE_K[lateC()]);g.insertAdjacentHTML('afterend',`<div class="row latebn"><span>属性加成伤害<div class="dim">${LATE_AN[k]}超出初始值每${x}点 +1%${lk!==1?` · 后期成长 ×${lk.toFixed(2)}`:''}</div></span><b>+${latePct()}%</b></div>`)}
- for(const e of P.querySelectorAll('.attr')){const b=e.querySelector('b');if(b&&b.textContent===LATE_AN[k]){const d=e.querySelector('.dim');if(d&&!/伤害\+1%\/\d/.test(d.textContent))d.textContent+=` · 全部伤害+1%/${x}点`}}}catch(e){}return r}}
+// 角色页只展示传奇属性；内部成长计算保持兼容。
 // 详情显示：伤害没有走协同系数的技能（如亡灵召唤物），把伤害区间按倍率换算后替换到文字里
 {const f=SV;SV=function(id,L){const v=f(id,L);if(!LATE_DISP||!v||!Array.isArray(v.dmg))return v;const d0=LATE_DISP;LATE_DISP=0;let raw;try{raw=f(id,L)}finally{LATE_DISP=d0}
  if(raw&&Array.isArray(raw.dmg)&&raw.dmg[0]===v.dmg[0]&&raw.dmg[1]===v.dmg[1]){const n=v.dmg.map(x=>Math.round(x*d0)),o=v.dmg.join('-');if(v.txt&&v.txt.includes(o)){v.txt=v.txt.replace(o,n.join('-'));v.dmg=n}}return v}}

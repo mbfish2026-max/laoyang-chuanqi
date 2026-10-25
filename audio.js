@@ -84,7 +84,7 @@ function playBar(T,t,b,dest){const beat=60/T.bpm,bl=beat*4,ch=T.prog[b%T.prog.le
   if(T.perc>0.5&&(i===1||i===3))noise(dest,{t:tt,dur:0.18,vol:0.05*T.perc,f:1800,q:0.8,wet:0.3});
   if(T.perc>0.9)noise(dest,{t:tt+beat/2,dur:0.05,vol:0.03,type:'highpass',f:6000})}}
  if(T.ex)try{T.ex(T,t,b,dest,beat)}catch(e){}}
-function sched(){if(!ctx||!cur||ctx.state!=='running')return;if(window.AUDIO_CQ&&AUDIO_CQ.scene(cur)){nextBar=Math.max(nextBar,ctx.currentTime+0.05);return}const T=TRACKS[cur];while(nextBar<ctx.currentTime+1.2){playBar(T,nextBar,bar,trackGain);nextBar+=240/T.bpm;bar++}}
+function sched(){if(!ctx||!cur||ctx.state!=='running')return;if(window.AUDIO_CQ)AUDIO_CQ.scene(cur);nextBar=Math.max(nextBar,ctx.currentTime+0.05)}
 function switchTo(k){if(!ctx||!TRACKS[k]||k===cur)return;const t=ctx.currentTime;
  if(trackGain){const old=trackGain;old.gain.cancelScheduledValues(t);old.gain.setValueAtTime(old.gain.value,t);old.gain.linearRampToValueAtTime(0.0001,t+2);setTimeout(()=>{try{old.disconnect()}catch(e){}},6000)}
  trackGain=ctx.createGain();trackGain.gain.setValueAtTime(0.0001,t);trackGain.gain.linearRampToValueAtTime(1,t+2);trackGain.connect(musBus);
@@ -102,30 +102,7 @@ function scene(){try{if(uberForce||window.UBER_ACTIVE||(typeof MON!=='undefined'
 function tick(){if(!ctx||hidden)return;const s=scene();if(s!==cur)switchTo(s);sched()}
 
 // ---------- 音效 ----------
-function sfx(name,arg){if(!ctx||!unlocked||hidden||ctx.state!=='running'||cfg().sm)return;if(window.AUDIO_CQ&&AUDIO_CQ.sfx(name,arg))return;const t=ctx.currentTime,D=sfxBus;
- switch(name){
- case'attack':noise(D,{t,dur:0.12,vol:0.25,f:3000,f2:600,q:1.5});tone(D,{f:180,glide:70,t,dur:0.08,type:'square',vol:0.06,a:0.002,d:0.06,sus:0.1,r:0.05,cut:1200});break;
- case'skill':{const k=arg||'';const fq={teeth:900,spear:700,spirit:520,nova:300,boom:160,cloud:240,summon:220,stab:800,shield:440}[k]||480;
-  if(k==='boom'||k==='nova')noise(D,{t,dur:0.6,vol:0.3,type:'lowpass',f:2000,f2:120,q:0.7,wet:0.4});
-  if(k==='summon'){for(const m of[1,1.5,1.89])tone(D,{f:fq*m,t,dur:0.5,type:'sawtooth',vol:0.05,a:0.08,d:0.3,sus:0.5,r:0.3,cut:900,wet:0.7})}
-  else tone(D,{f:fq*2,glide:fq,t,dur:0.22,type:'triangle',vol:0.12,a:0.005,d:0.15,sus:0.3,r:0.15,wet:0.4});
-  noise(D,{t,dur:0.25,vol:0.08,f:fq*3,f2:fq,q:4,wet:0.3});break}
- case'drop':{const it=arg||{};const q=it.rw!=null?8:(it.q|0);
-  if(it.k==='rune'){[0,7,12].forEach((s,i)=>tone(D,{f:mtof(76+s),t:t+i*0.07,dur:0.4,type:'sine',vol:0.12,a:0.002,d:0.35,sus:0.1,r:0.4,wet:0.6}));break}
-  if(q===5||q===8){ // 暗金/符文之语：低沉轰鸣 + 金属钟群 + 上行闪光，辨识度最高
-   tone(D,{f:55,glide:41,t,dur:1.2,type:'sawtooth',vol:0.18,a:0.01,d:1,sus:0.3,r:0.6,cut:300});
-   noise(D,{t,dur:1.4,vol:0.12,type:'lowpass',f:800,f2:80,wet:0.6});
-   [0,4,7,11,12,16,19,24].forEach((s,i)=>{const tt=t+0.15+i*0.08;for(const m of[1,2.76])tone(D,{f:mtof(67+s)*m,t:tt,dur:1.2,type:'sine',vol:0.09/m,a:0.002,d:1.1,sus:0.05,r:0.8,wet:0.9})});
-   noise(D,{t:t+0.15,dur:1.5,vol:0.05,type:'highpass',f:7000,wet:0.8});break}
-  if(q===6){[0,7,12,19].forEach((s,i)=>tone(D,{f:mtof(72+s),t:t+i*0.09,dur:0.8,type:'triangle',vol:0.1,a:0.003,d:0.7,sus:0.1,r:0.6,wet:0.8}));break}
-  if(q===4||q===7){[0,4,7].forEach((s,i)=>tone(D,{f:mtof(74+s),t:t+i*0.06,dur:0.4,type:'triangle',vol:0.08,a:0.003,d:0.35,sus:0.1,r:0.3,wet:0.5}));break}
-  if(q===3){tone(D,{f:mtof(79),t,dur:0.3,type:'sine',vol:0.08,a:0.003,d:0.25,sus:0.1,r:0.3,wet:0.5});break}
-  if(it.k==='gem'||it.k==='jewel'){tone(D,{f:mtof(84),t,dur:0.3,type:'sine',vol:0.07,a:0.002,d:0.3,sus:0.1,r:0.3,wet:0.5});break}
-  noise(D,{t,dur:0.07,vol:0.06,f:1500,q:2});break}
- case'gold':for(let i=0;i<3;i++)tone(D,{f:2400+Math.random()*800,t:t+i*0.03,dur:0.06,type:'square',vol:0.02,a:0.001,d:0.05,sus:0.1,r:0.05,cut:5000});break;
- case'level':[0,4,7,12,16].forEach((s,i)=>tone(D,{f:mtof(60+s),t:t+i*0.1,dur:0.9,type:'triangle',vol:0.1,a:0.005,d:0.5,sus:0.4,r:0.6,wet:0.7}));
-  tone(D,{f:mtof(48),t,dur:1.4,type:'sawtooth',vol:0.06,a:0.2,d:0.5,sus:0.6,r:0.8,cut:700,wet:0.6});break;
- case'click':tone(D,{f:1100,glide:700,t,dur:0.04,type:'square',vol:0.04,a:0.001,d:0.03,sus:0.1,r:0.02,cut:3000});break}}
+function sfx(name,arg){if(!ctx||!unlocked||hidden||ctx.state!=='running'||cfg().sm)return;if(window.AUDIO_CQ)AUDIO_CQ.sfx(name,arg)}
 // 节流：避免挂机加速时音效刷屏
 const last={};function sfxT(n,a,gap){const now=performance.now();if(now-(last[n]||0)<gap)return;last[n]=now;sfx(n,a)}
 
@@ -266,7 +243,7 @@ const SK={
 const KIND_FB={summon:'rs',golem:'cg',attack:'bs',buff:'ba',cbuff:'bshout',corpse:'ce',wall:'bw',cc:'bp',curse:'ad',melee:'bbash',warcry:'bhowl',spell:'mfb',passive:null};
 const EL_FB={fire:(D,t)=>P.fire(D,t),cold:(D,t)=>P.ice(D,t),light:(D,t)=>P.zap(D,t),pois:(D,t)=>P.hiss(D,t),magic:(D,t)=>P.crack(D,t),phys:(D,t)=>P.slash(D,t)};
 function skillRecipe(id){if(SK[id])return SK[id];const s=typeof SKM!=='undefined'&&SKM[id];if(s){if(s.el&&EL_FB[s.el])return EL_FB[s.el];const f=KIND_FB[s.kind];if(f&&SK[f])return SK[f]}return EL_FB.magic}
-function playSkill(id){if(ctx&&unlocked&&!hidden&&!cfg().sm&&(typeof TAB==='undefined'||TAB==='fight')&&window.AUDIO_CQ&&AUDIO_CQ.skill(id))return;voice('skill',id,0.6,(t,D)=>skillRecipe(id)(D,t))}
+function playSkill(id){if(ctx&&unlocked&&!hidden&&!cfg().sm&&(typeof TAB==='undefined'||TAB==='fight')&&window.AUDIO_CQ)AUDIO_CQ.skill(id)}
 
 // --- 召唤物 / 佣兵 / 命中 / 暴击 / 格挡 ---
 const colEl=c=>({'#f84':'fire','#f60':'fire','#8cf':'cold','#ff6':'light','#6f6':'pois','#8f6':'pois'})[c]||'phys';

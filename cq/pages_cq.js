@@ -19,9 +19,7 @@ function slot(k){const it=S.eq[k],nm=(typeof SLOTN!=='undefined'&&SLOTN[k])||k;
  let img='';try{const u=ok('icon2Url')&&icon2Url(it);img=u?`<img src="${esc(u)}" alt="">`:(ok('itemIcon')?itemIcon(it):'')}catch(e){}
  const c=ok('itemColor')?itemColor(it):'#6b4a24';
  return `<div class="cqslot q${it.q|0}" style="--c:${c}" title="${esc(nm)}" onclick="showItem(${it.uid},'eq')">${img}${it.en?`<div class="en">+${it.en}</div>`:''}<div class="sn">${esc(nm)}</div></div>`}
-function attrs(){const s=ST||{},p=v=>(Math.round((+v||0)*10)/10)+'%';
- return [['攻击',(s.wmin|0)+'-'+(s.wmax|0)],['防御',num(s.def)],['生命',num(s.life)],['魔法值',num(s.mana)],['准确',num(s.ar)],['攻速','+'+p(s.ias)],
-  ['暴击',p(s.bcrit)],['吸血',p(s.ll)],['寻宝','+'+p(s.mf)],['金币','+'+p(s.gf)],['格挡',p(s.block)],['减伤',p(s.dr)]]}
+function attrs(){return heroDisplayAttrs()}
 function roleTop(){const c=cls(),por=`assets/char/${c}_portrait.webp`;
  return `<div class="cqpg cqrole"><div class="cqpanel"><div class="cqttl">装备<span class="r">10 部位 · 点击查看/强化</span></div>
  <div class="eqw"><div class="por" style="background-image:url(${por})"></div><div class="col L">${EQL.map(slot).join('')}</div><div class="col R">${EQR.map(slot).join('')}</div>
