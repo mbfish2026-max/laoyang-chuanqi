@@ -28,10 +28,10 @@ ok(G("oldPref==='1'&&localStorage.getItem('cq-bonus_open')==='1'"),'old preferen
 G(`EG_ACV='cx';var codexHtml=egAchPage()`);
 ok(G("!/全抗|寻宝|经验 \+|暗金/.test(codexHtml)"),'codex only advertises approved rewards');
 // SW activation must leave unrelated games alone, preserving V.
-let activate;const deleted=[];const c={self:{addEventListener(k,f){if(k==='activate')activate=f},clients:{claim(){}}},caches:{keys:async()=>['cq-20261021z','cq-old','anye-old','other'],delete:async k=>deleted.push(k)}};vm.runInNewContext(fs.readFileSync('sw.js','utf8'),c);
+const currentVersion=/V='([^']+)'/.exec(fs.readFileSync('sw.js','utf8'))[1];let activate;const deleted=[];const c={self:{addEventListener(k,f){if(k==='activate')activate=f},clients:{claim(){}}},caches:{keys:async()=>[currentVersion,'cq-old','anye-old','other'],delete:async k=>deleted.push(k)}};vm.runInNewContext(fs.readFileSync('sw.js','utf8'),c);
 (async()=>{
  await new Promise((resolve,reject)=>activate({waitUntil:p=>p.then(resolve,reject)}));
- ok(deleted.length===1&&deleted[0]==='cq-old'&&c.V==='cq-20261021z','SW deletes only its own obsolete caches');
+ ok(deleted.length===1&&deleted[0]==='cq-old'&&c.V===currentVersion,'SW deletes only its own obsolete caches');
  G(fs.readFileSync('cloud.js','utf8'));
  G(`localStorage.setItem('cq_sb_auth','old-token');CL_IDB.get=async()=>null;CL_IDB.set=async()=>null;CL_IDB.del=async()=>null`);
  ok(await G("CL_STORE.getItem('cq-sb_auth')")==='old-token','old local session restored');

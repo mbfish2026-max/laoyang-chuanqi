@@ -23,8 +23,8 @@ ok(G("S.bag.every(x=>x.k!=='rune'&&x.k!=='gem'&&x.b!=='cha_s')"),'背包里符�
 ok(G("S.pst.flat().every(x=>x.b!=='jew')")&&G("S.stash.every(x=>x.k!=='rune')"),'仓库/储物箱已清理');
 ok(G("ACCT.shared.flat().every(x=>x.k!=='gem')"),'共享仓库已清理');
 ok(G("!S.merc&&!S.hero.eq.amulet"),'随从身上的护身符已移除');
-ok(G(`S.eq.weapon&&S.eq.weapon.uid===__wuid&&S.eq.weapon.rw===undefined&&!S.eq.weapon.rwm&&S.eq.weapon.soc.length===0&&S.eq.weapon.sock===0`),'符文之语武器保留本体、去掉符文之语与镶嵌');
-ok(G(`(h=>h&&h.rw===undefined&&h.soc.length===0&&h.name===BASEM[h.b].n)(S.bag.find(x=>x.uid===__huid))`),'背包里的白色符文之语底材：保留本体、名字恢复底材名');
+ok(G(`S.eq.weapon&&S.eq.weapon.uid===__wuid&&S.eq.weapon.rw===undefined&&!S.eq.weapon.rwm&&S.eq.weapon.soc===undefined&&S.eq.weapon.sock===undefined`),'符文之语武器保留本体、去掉符文之语与镶嵌');
+ok(G(`(h=>h&&h.rw===undefined&&h.soc===undefined&&h.name===BASEM[h.b].n)(S.bag.find(x=>x.uid===__huid))`),'背包里的白色符文之语底材：保留本体、名字恢复底材名');
 ok(G(`(()=>{const before=JSON.parse(__keep),it=S.bag.find(x=>x.uid===before.uid);return it&&S.bag.filter(x=>x.uid===before.uid).length===1&&it.en===4&&it.q===before.q&&power(it)>=__keepPower&&sellPrice(it)>=__keepValue&&Object.entries(before.m).every(([k,v])=>allMods(it)[k]>=v)})()`),'普通装备身份、强化、价值与有效属性保留');
 const g1=G('S.gold');G(`save();acctSave();ACCT=null;resetRuntime();acctLoad();load();calc()`);ok(G('S.gold')===g1,'再次载入不重复折算（幂等）');
 G(`TAB='skill';try{SKT=3;render()}catch(e){window.__re='skill:'+e.message}SKT=0;TAB='shop';try{render()}catch(e){window.__re='shop:'+e.message}`);ok(!G('window.__re'),'技能/商店渲染不报错 '+G('window.__re'));

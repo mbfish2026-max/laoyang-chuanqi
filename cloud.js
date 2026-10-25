@@ -26,20 +26,28 @@ function clSetState(st){CL.state=st;if(typeof document==='undefined'||window.__N
  /* 正常状态只显示小 ☁ 图标（屏幕右上角最顶端 13px 空白带；层数已移到顶部居中）；仅离线/被顶号时显示文字 */const M={ok:['☁','#8c8'],busy:['☁','#888'],err:['☁ 离线重试','#e96'],kick:['⚠ 他处登录','#f66'],'':['','']};const m=M[st]||M[''];e.textContent=m[0];e.style.color=m[1];e.title={ok:'已同步',busy:'同步中'}[st]||'';e.style.display=m[0]?'':'none'}
 function clDirty(){CL.dirty=1}
 // ---------- 账号存档导出 / 导入（内存 GS） ----------
+function cleanRankData(raw){const rows=JSON.parse(raw);if(!Array.isArray(rows))return '[]';const rank=rows.map(({se,...row})=>row);return JSON.stringify(window.CQMir2EquipMigrate?CQMir2EquipMigrate.purge({rank},null).state.rank:rank)}
 function exportAccount(){save();const a=JSON.parse(GS.getItem(ACCT_KEY));const chars={};for(const c of a.chars){const r=GS.getItem(CH_PRE+c.id);if(r)chars[c.id]=JSON.parse(r)}
  const extra={};const rk=GS.getItem('cq-eg_rank');if(rk)extra['cq-eg_rank']=rk;
+ if(window.CQMir2EquipMigrate){for(const id of Object.keys(chars)){const p=CQMir2EquipMigrate.purge(chars[id],a);chars[id]=p.state;Object.assign(a,p.account)}if(rk)extra['cq-eg_rank']=cleanRankData(rk)}
  return{fmt:1,acct:a,chars,extra,profile:{nickname:CL_PROFILE&&CL_PROFILE.nickname||''},at:Date.now()}}
-function importAccount(d){if(!d||!d.acct||!d.chars)throw new Error('云端存档格式错误');ST_RESET=1;GS.clear();
+function importAccount(d){if(!d||!d.acct||!d.chars)throw new Error('云端存档格式错误');if(window.CQMir2EquipMigrate)CQMir2EquipMigrate.backup(d);ST_RESET=1;GS.clear();
  GS.setItem(ACCT_KEY,JSON.stringify(d.acct));for(const id in d.chars)GS.setItem(CH_PRE+id,JSON.stringify(d.chars[id]));for(const k in d.extra||{})GS.setItem(k,d.extra[k]);ST_RESET=0;
  ACCT=null;resetRuntime();load();calc();H.life=ST.life;H.mana=ST.mana;if(!window.__NOUI&&typeof offline==='function'){if(CL.inSync){const _m=modal;modal=h=>{CL.offHtml=h};try{offline()}finally{modal=_m}}else offline()}save();if(!window.__NOUI){closeM();render()}}
 function summary(d){if(!d||!d.acct)return'（空）';return d.acct.chars.map(c=>`${c.name} Lv.${(d.chars[c.id]||{}).lvl||c.lvl}`).join('、')}
 // ---------- 旧本机存档（localStorage）读取 / 合并 / 删除 ----------
 function legacyKeys(){const out=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^cq[-_](save_|acct|ch_|ch@|eg_rank|cloud$)/.test(k))out.push(k)}}catch(e){}return out}
-function legacyRead(acctKey,pre){try{const a=JSON.parse(cqRead(localStorage,acctKey));if(!a||!a.chars)return null;const chars={};for(const c of a.chars){const r=cqRead(localStorage,pre+c.id);if(r)chars[c.id]=JSON.parse(r)}return{fmt:1,acct:a,chars}}catch(e){return null}}
+function legacyRead(acctKey,pre){try{const a=JSON.parse(cqRead(localStorage,acctKey));if(!a||!a.chars)return null;const chars={};for(const c of a.chars){const r=cqRead(localStorage,pre+c.id);if(r)chars[c.id]=JSON.parse(r)}
+ const d={fmt:1,acct:a,chars};if(window.CQMir2EquipMigrate){CQMir2EquipMigrate.backup(d);for(const id of Object.keys(chars)){const p=CQMir2EquipMigrate.purge(chars[id],a);chars[id]=p.state;Object.assign(a,p.account)}
+  // Rewrite both aliases after the durable backup; auth keys are outside this path.
+  for(const id of Object.keys(chars))for(const k of new Set([pre+id,cqKey(pre+id),'cq_'+cqKey(pre+id).slice(3)]))if(localStorage.getItem(k)!=null)localStorage.setItem(k,JSON.stringify(chars[id]));
+  for(const k of new Set([acctKey,cqKey(acctKey),'cq_'+cqKey(acctKey).slice(3)]))if(localStorage.getItem(k)!=null)localStorage.setItem(k,JSON.stringify(a));}
+ return d}catch(e){if(e.code==='CQ_BACKUP_FAILED')throw e;console.warn('legacyRead',e);return null}}
+
 function legacyExport(uid){let L=[];const own=uid&&legacyRead('cq_acct@'+uid,'cq_ch@'+uid+'_');if(own)L.push(own);const g=legacyRead('cq_acct','cq_ch_');if(g)L.push(g);
- if(!g){try{const o=JSON.parse(cqRead(localStorage,'cq-save_v2'));if(o&&[2,3].includes(o.v))L.push({fmt:1,acct:{v:1,cur:1,nid:2,suid:1e9,chars:[{id:1,name:o.name||'战士',cls:'战士',lvl:o.lvl||1,t:o.last||0}],shared:[]},chars:{1:o}})}catch(e){}}
+ if(!g){try{const o=JSON.parse(cqRead(localStorage,'cq-save_v2'));if(o&&[2,3].includes(o.v)){if(window.CQMir2EquipMigrate){CQMir2EquipMigrate.backup(o);const p=CQMir2EquipMigrate.purge(o,null);Object.keys(o).forEach(k=>delete o[k]);Object.assign(o,p.state);for(const k of ['cq-save_v2','cq_save_v2'])if(localStorage.getItem(k)!=null)localStorage.setItem(k,JSON.stringify(o))}L.push({fmt:1,acct:{v:1,cur:1,nid:2,suid:1e9,chars:[{id:1,name:o.name||'战士',cls:'战士',lvl:o.lvl||1,t:o.last||0}],shared:[]},chars:{1:o}})}}catch(e){if(e.code==='CQ_BACKUP_FAILED')throw e}}
  L=L.filter(hasProgress);if(!L.length)return null;let d=L[0];for(const x of L.slice(1))d=mergeAccounts(d,x);
- try{const rk=cqRead(localStorage,'cq-eg_rank');if(rk)d.extra={'cq-eg_rank':rk}}catch(e){}return d}
+ try{const rk=cqRead(localStorage,'cq-eg_rank');if(rk){const clean=cleanRankData(rk);d.extra={'cq-eg_rank':clean};for(const k of ['cq-eg_rank','cq_eg_rank'])if(localStorage.getItem(k)!=null)localStorage.setItem(k,clean)}}catch(e){}return d}
 function chProg(o){return o?[o.lvl||0,o.xp||0,o.kills||0]:[0,0,0]}
 function progGT(a,b){for(let i=0;i<3;i++){if(a[i]!==b[i])return a[i]>b[i]}return false}
 function hasProgress(d){return!!d&&d.acct.chars.some(c=>{const o=d.chars[c.id];return o&&(o.lvl>1||o.xp||o.kills)})||!!d&&(d.acct.shared||[]).some(p=>p.length)}
@@ -83,7 +91,7 @@ async function firstSync(){clSetState('busy');const rem=await fetchRemote(true);
  if(d){CLOUD.remoteAt=rem.updated_at;CLOUD.ver=rem.version||1}else{CLOUD.remoteAt=null;CLOUD.ver=0}
  if(leg)d=d?mergeAccounts(d,leg):leg;
  if(d){CL.inSync=1;try{importAccount(d)}finally{CL.inSync=0}}CL.ready=1;
- if(!rem||leg){const result=await upload();if(result==='kicked')return result;if(leg)legacyClear()}else{legacyClear();CL.dirty=0;CLOUD.last=Date.now();clSetState('ok')}
+ if(!rem||leg||Object.values(rem.data.chars||{}).some(s=>s.cqPurgeVersion!==CQMir2EquipMigrate.purgeVersion)){const result=await upload();if(result==='kicked')return result;if(leg)legacyClear()}else{legacyClear();CL.dirty=0;CLOUD.last=Date.now();clSetState('ok')}
  if(leg&&!window.__NOUI)toast('本机旧存档已迁移到云端');return rem?(leg?'merge':'down'):'up'}
 // 上传（带版本检查：云端被其他设备更新 → 停止写入）
 async function upload(){if(CL.kicked)return'kicked';const d=exportAccount();CL.dirty=0;const at=new Date().toISOString(),ver=(CLOUD.ver||0)+1;let r;

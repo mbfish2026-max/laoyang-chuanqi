@@ -47,5 +47,86 @@ function migrate(state,account){const s=JSON.parse(JSON.stringify(state)),a=acco
  let count=0;
  function walk(o){if(!o||typeof o!=='object')return o;if(typeof o.b==='string'&&('uid'in o||'m'in o)){if(!o.k&&(!(o.cqCleanVersion>=2)||!o.cqGuardVersion)){count++;return migrateItem(o)}return o}if(Array.isArray(o))return o.map(walk);for(const k of Object.keys(o))if(!['cqUnknown','cqLegacy','cqOriginalName','cqOriginal','cqCompensation'].includes(k))o[k]=walk(o[k]);return o}
  walk(s);if(a)walk(a);s.mir2Mig=Object.assign({},s.mir2Mig,{equipment:2});return{state:s,account:a,count}}
-window.CQMir2EquipMigrate={item:migrateItem,migrate};
+// Serialization boundary. Backups deliberately never enter GS or cloud payloads.
+const PURGE_VERSION=1, BACKUP_KEY='cq-save-recovery-v1';
+function backup(value){
+ function needed(o){if(typeof o==='string'){try{return needed(JSON.parse(o))}catch(e){return /暗夜|符文|护身符|暗金/.test(o)}}if(!o||typeof o!=='object')return false;
+ if(['rune','gem','jewel','charm'].includes(o.k)||['jew','cha_s','cha_m','cha_l'].includes(o.b)||o.k==='mat'&&/rune|gem|keystone|essence/.test(o.id||''))return true;
+ return Object.entries(o).some(([k,v])=>((['cqLegacy','cqOriginal','rw','lp','rift','secret','season','merc','sock','sockq','kp','sp','res','allres','runes','gems','keystones'].includes(k))&&!!v&&(typeof v!=='object'||Object.keys(v).length>0))||needed(v))}
+ if(!needed(value))return;
+ if(localStorage.getItem(BACKUP_KEY))return;
+ const raw=JSON.stringify({at:Date.now(),data:value});
+ // Fail closed: never destroy the only copy when browser storage is unavailable.
+ try{localStorage.setItem(BACKUP_KEY,raw);
+  if(localStorage.getItem(BACKUP_KEY)!==raw)throw new Error('storage');
+ }catch(cause){const e=new Error('存档备份失败');e.code='CQ_BACKUP_FAILED';throw e}
+}
+const obsolete=new Set(['sock','soc','rw','rwm','sockq','lp','rift','secret','staff','runs','king','season','cqSeasonOld','merc','mercU','autoMerc','cqLegacy','cqOriginal','cqOriginalName','cqUnknown','cqMetaHistory','af','unique','uniq','darkgold','kp','sp','cube','runes','gems','keystones','rune','gem','jewel','charm','alchemy','affixes']);
+const words=/暗夜|暗黑(?!战士)|符文|护身符|炼金|凹槽|暗金|威能|虚隙|秘径|纪元|佣兵|抗性|吸血|魔法物品|技能点|属性点|亡灵|necromancer/gi;
+function purge(state,account){
+ const s=JSON.parse(JSON.stringify(state)),a=account==null?null:JSON.parse(JSON.stringify(account));
+ let gold=0;
+ if(s.merc){const m=s.merc;s.hero=s.hero||{eq:{}};s.hero.eq=s.hero.eq||{};if(!s.hero.cls){s.hero.cls=({mage:'fs',archer:'ds',guard:'zs',barb:'zs'})[m.t]||'zs';s.hero.lvl=m.lvl||1;s.hero.xp=m.xp||0;s.hero.name=m.nm||'英雄'}
+ const seen=new Set([...(s.bag||[]),...Object.values(s.eq||{}),...Object.values(s.hero.eq),...(s.pst||[]).flat()].filter(Boolean).map(x=>x.uid));
+ for(const it of [...Object.values(m.eq||{}),...Object.values(m.prev?.eq||{})])if(it&&!seen.has(it.uid)){(s.bag||(s.bag=[])).push(it);seen.add(it.uid)}}
+ if(s.bon?.res){const r=Math.max(0,+s.bon.res||0);s.bon.def=(s.bon.def||0)+r*4;s.bon.mdef=(s.bon.mdef||0)+r*5;s.bon.attack=(s.bon.attack||0)+r;delete s.bon.res}
+ if(s.sockq)gold+=Math.max(0,+s.sockq||0)*5000;
+ const credit=(n)=>{gold+=Math.max(0,Number(n)||0)};
+ function walk(o){
+  if(!o||typeof o!=='object')return typeof o==='string'?o.replace(words,'旧版'):o;
+  if(Array.isArray(o))return o.map(walk).filter(x=>x!==undefined);
+  if(pruneBad(o)){credit(pruneVal(o)*(o.n||1));return undefined}
+  if(o.k==='mat'&&/rune|gem|keystone|essence/.test(o.id||''))o.id='ess';
+  if(typeof o.b==='string'&&!o.k){
+   if(o.rw!=null&&o.q<=2&&BASEM[o.b])o.name=BASEM[o.b].n;
+   // Read socket resources before the item migrator erases their active copy.
+   const sockets=o.soc?.length?o.soc:(!o.cqPurgeVersion?o.cqOriginal?.soc:null);
+   for(const x of sockets||[])credit(typeof x==='object'?pruneVal(x):50);
+   if(!o.cqVersion||o.cqMigrated||o.cqLegacy)o=migrateItem(o);
+   o.q=o.q<=2?1:o.q===7?4:o.q===8?5:o.q;
+   const target=power(o);
+   for(const field of ['m','cqBest','cqBonus','ax'])if(o[field]){
+    for(const k of Object.keys(o[field]))if(!keep.has(k))delete o[field][k];
+   }
+   // Keep the paid counter and all candidates; convert any late archived modifiers.
+   if(o.rf){const key=k=>keep.has(k)?k:'def';o.rf.k=o.rf.k?key(o.rf.k):o.rf.k;
+    for(const f of ['boff','bless'])if(o.rf[f]){const m={};for(const[k,v]of Object.entries(o.rf[f]))m[key(k)]=(m[key(k)]||0)+Math.max(0,+v||0);o.rf[f]=m}
+    if(o.rf.off)o.rf.off=o.rf.off.map(([k,...v])=>[key(k),...v]);}
+   const deficit=target-power(o);if(deficit>0)o.m.def=(o.m.def||0)+Math.ceil(deficit);
+   o.cqPurgeVersion=PURGE_VERSION;
+  }
+  // Preserve retired progress as neutral numeric counters, never raw snapshots.
+  for(const k of ['secret','rift','season'])if(o[k]&&typeof o[k]==='object'){
+   if(k==='rift')credit((Number(o[k].keys)||Number(o[k].key)||Number(o[k].keystones)||0)*200);
+   const counts=o.retiredProgress||(o.retiredProgress={});const dest=k==='secret'?'path':k==='rift'?'trial':'period';
+   counts[dest]=Object.fromEntries(Object.values(o[k]).filter(v=>typeof v==='number').map((v,i)=>['n'+i,v]));
+  }
+  for(const k of ['runes','gems','keystones'])if(o[k]){const val=o[k];credit(typeof val==='number'?val*200:Object.values(val).reduce((n,v)=>n+(Number(v)||0),0)*200)}
+  if(o.lp){const n=Object.keys(o.lp).length;o.retiredPowerCount=Math.max(o.retiredPowerCount||0,n)}
+  for(const k of Object.keys(o)){
+   if(obsolete.has(k)||/^(allres|[fclp]res|ll|ml|edmg|edef|ias|fcr|lifep|manap|dr|mdr|allsk)$/.test(k)){delete o[k];continue}
+   if(k==='mode'&&o[k]==='season')o[k]='normal';
+   if(k==='t'&&o[k]==='wrift'){o[k]='wboss'}
+   o[k]=walk(o[k]);if(o[k]===undefined)delete o[k];else{const cleanKey=k.replace(words,'旧版');if(cleanKey!==k){o[cleanKey]=o[k];delete o[k]}}
+  }
+  return o;
+ }
+ // Convert unspent points before deleting the obsolete keys.
+ {const L=Math.max(s.lvl||1,s.cqLegacyLevel||1);credit((s.sp||0)*AG_GOLD.sp(L)+(s.kp||0)*AG_GOLD.kp(L));}
+ const out=walk(s);if(a)walk(a);
+ if(gold){out.gold=(out.gold||0)+gold;out.cqPruneG=(out.cqPruneG||0)+gold;}
+ out.cqPurgeVersion=PURGE_VERSION;return{state:out,account:a};
+}
+// Reconcile by UID to retain references held by active dialogs/combat systems.
+function commit(dst,src){
+ if(!dst||!src)return;
+ if(Array.isArray(dst)&&Array.isArray(src)){
+  const byId=new Map(dst.filter(x=>x&&typeof x==='object'&&x.uid!=null).map(x=>[x.uid,x]));
+  const next=src.map((v,i)=>{const old=v&&typeof v==='object'&&v.uid!=null?byId.get(v.uid):dst[i];if(old&&v&&typeof old==='object'&&typeof v==='object'&&Array.isArray(old)===Array.isArray(v)){commit(old,v);return old}return v});
+  dst.splice(0,dst.length,...next);return;
+ }
+ for(const k of Object.keys(dst))if(!(k in src))delete dst[k];
+ for(const[k,v]of Object.entries(src)){if(v&&dst[k]&&typeof v==='object'&&typeof dst[k]==='object'&&Array.isArray(v)===Array.isArray(dst[k]))commit(dst[k],v);else dst[k]=v}
+}
+window.CQMir2EquipMigrate={commit,item:migrateItem,migrate,purge,backup,purgeVersion:PURGE_VERSION};
 })();

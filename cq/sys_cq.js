@@ -62,6 +62,7 @@ function cqMigrate(){if(!S)return 0;const from=S.sv||0;
  if(window.CQMir2EquipMigrate){const migrated=CQMir2EquipMigrate.migrate(S,ACCT);S=migrated.state;ACCT=migrated.account;}
  // Preserve unknown legacy equipment before old schema cleanup can discard it.
  for(let v=from;v<CQ_SV;v++)CQ_MIG[v]();S.sv=CQ_SV;
+ if(window.CQMir2EquipMigrate){const p=CQMir2EquipMigrate.purge(S,ACCT);S=p.state;ACCT=p.account}
  if(window.CQMir2Maps)applyDiff();return CQ_SV-from}
 let cqMigrationFailed=false;
 {const f=load;load=function(){cqMigrationFailed=false;const r=f.apply(this,arguments);const original=S,account=ACCT;try{if(S){S=JSON.parse(JSON.stringify(S));ACCT=JSON.parse(JSON.stringify(ACCT));cqMigrate();if(typeof calc==='function')calc();save();acctSave()}}catch(e){cqMigrationFailed=true;S=original;ACCT=account;console.warn('cqMigrate',e)}return r}}
