@@ -17,6 +17,12 @@ function acctSave(){try{ACCT.t=Date.now();GS.setItem(ACCT_KEY,JSON.stringify(ACC
 function backupAccountSource(extra){if(!window.CQMir2EquipMigrate)return;
  const raw=GS.getItem(ACCT_KEY);let acct;try{acct=JSON.parse(raw)}catch(e){}
  const chars={};for(const c of acct?.chars||[])chars[c.id]=GS.getItem(CH_PRE+c.id);
+ // Daily saves of already-clean data need no new recovery snapshot. Compare
+ // the actual cleanup result too, so late legacy fields still require backup.
+ if(extra&&Object.values(chars).every(raw=>{try{return JSON.parse(raw)?.cqPurgeVersion===CQMir2EquipMigrate.purgeVersion}catch(e){return false}})){
+  const p=CQMir2EquipMigrate.purge(extra.state,extra.account);
+  if(JSON.stringify(p.state)===JSON.stringify(extra.state)&&JSON.stringify(p.account)===JSON.stringify(extra.account))return;
+ }
  CQMir2EquipMigrate.backup({acct:raw,chars,mirror:GS.getItem(KEY),rank:GS.getItem('cq-eg_rank'),extra},ACCT_NS||'guest');
 }
 function acctLoad(){try{ACCT=JSON.parse(GS.getItem(ACCT_KEY))}catch(e){ACCT=null}

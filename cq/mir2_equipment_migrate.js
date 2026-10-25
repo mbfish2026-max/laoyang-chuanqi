@@ -53,16 +53,23 @@ function backup(value,owner){
  const data=JSON.stringify(value);let hash=2166136261;
  for(let i=0;i<data.length;i++)hash=Math.imul(hash^data.charCodeAt(i),16777619)>>>0;
  const account=String(owner??(typeof ACCT_NS!=='undefined'?ACCT_NS:null)??'guest');
- let entries=[];try{const old=JSON.parse(localStorage.getItem(BACKUP_KEY));if(Array.isArray(old?.entries))entries=old.entries.filter(x=>typeof x.raw==='string'&&x.account!=null);else if(old?.data)entries=[{account:'legacy-v1',at:old.at,raw:JSON.stringify(old.data)}]}catch(e){}
- const found=entries.find(x=>x.account===account&&x.hash===hash&&x.raw===data);
- if(found)return;
- entries.push({account,hash,at:Date.now(),raw:data});
- // One atomic storage write; retain at most 32 snapshots / 8 MiB. Never drop
- // the incoming complete source. Quota/verification failure aborts the caller.
- while(entries.length>32||JSON.stringify(entries).length>4*1024*1024){if(entries.length===1){const e=new Error('存档备份失败');e.code='CQ_BACKUP_FAILED';throw e}entries.shift()}
- const raw=JSON.stringify({version:2,entries});
- try{localStorage.setItem(BACKUP_KEY,raw);if(localStorage.getItem(BACKUP_KEY)!==raw)throw Error('storage')}
- catch(cause){const e=new Error('存档备份失败');e.code='CQ_BACKUP_FAILED';throw e}
+ // Each source/batch owns an immutable key. Old v1/v2 recovery data is left
+ // untouched; neither a catalogue rewrite nor another account can evict it.
+ const prefix=BACKUP_KEY+'-fixed-',base=prefix+encodeURIComponent(account)+'-'+hash+'-';
+ try{
+  for(let i=0;;i++){
+   const key=base+i,existing=localStorage.getItem(key);
+   if(existing!=null){
+    try{const entry=JSON.parse(existing);if(entry.account===account&&entry.raw===data)return}catch(e){}
+    continue; // Hash collision or corrupt record: never overwrite it.
+   }
+   const raw=JSON.stringify({version:3,account,hash,at:Date.now(),raw:data});
+   localStorage.setItem(key,raw);
+   if(localStorage.getItem(key)!==raw)throw Error('storage');
+   return;
+  }
+ }catch(cause){const e=new Error('存档备份失败');e.code='CQ_BACKUP_FAILED';throw e}
+
 }
 const words=/暗夜|暗黑(?!战士)|符文|护身符|炼金|凹槽|暗金|威能|虚隙|秘径|纪元|佣兵|抗性|吸血|魔法物品|技能点|属性点|亡灵|necromancer/gi;
 function purge(state,account){
