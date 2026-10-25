@@ -10,7 +10,8 @@ window.CQ_DATA=1;
 // shield→左手镯、gloves→右手镯、amulet→项链；两侧手镯共享可穿底材，保留旧槽键，见 docs/systems_m1.md
 Object.assign(SLOTN,{weapon:'武器',armor:'衣服',helm:'头盔',amulet:'项链',shield:'左手镯',gloves:'右手镯',ring1:'戒指',ring2:'戒指',belt:'腰带',boots:'鞋子'});
 // ---------- 品质：0/2/7/8 不再产出（破旧/超强/合成/符文之语），保留下标以兼容旧逻辑 ----------
-QN.splice(0,QN.length,'普通','普通','普通','精良','稀有','极品','套装','—','—');
+// 数字为兼容ID：1普通、3精良、4稀有、5极品、6套装；上古/至臻由 anc 区分。
+QN.splice(0,QN.length,'普通','普通','普通','精良','稀有','极品','套装','稀有','极品');
 QC.splice(0,QC.length,'#e8e0d0','#e8e0d0','#e8e0d0','#6f8fff','#f2e05a','#c8a050','#3fdc4f','#e8e0d0','#e8e0d0');
 // ---------- 底材 ----------
 // q 需求/出现等级；dmg 攻击区间；def 防御区间；bm 底材自带属性（传奇首饰/手镯的白字）；ccls 职业限定（zs/fs/ds）

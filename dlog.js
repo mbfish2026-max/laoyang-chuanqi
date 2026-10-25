@@ -10,8 +10,8 @@ const MAX=50;
 function rwBase(it){if(it.k||it.rw!=null||!(it.q===1||it.q===2)||!(it.sock>=3)||(it.soc&&it.soc.length))return false;const b=BASEM[it.b];if(!b||b.jew)return false;
  return false}// 符文之语已删除
 // q码：u暗金 s套装 w符文之语 r符文 b底材
-function kind(it){if(!it)return'';if(it.k)return'';if(it.rw!=null)return'w';if(it.q===5)return'u';if(it.q===6)return's';return rwBase(it)?'b':''}
-const COL={u:'#c8a060',s:'#3c3',w:'#e8c070',r:'#f90',b:'#bbb'},TAG={u:'暗金',s:'套装',w:'符文之语',r:'符文',b:'底材'};
+function kind(it){if(!it)return'';if(it.k)return'';if(it.anc===2)return'z';if(it.anc)return'a';if(it.q===5)return'u';if(it.q===6)return's';return rwBase(it)?'b':''}
+const COL={z:'#ff7040',a:'#ffb84c',u:'#c8a060',s:'#3c3',w:'#e8c070',r:'#f90',b:'#bbb'},TAG={z:'至臻',a:'上古',u:QN[5],s:QN[6],w:'旧版装备',r:'旧版材料',b:'底材'};
 function zn(){try{return zoneData().n||''}catch(e){return''}}
 function beam(k){const fb=document.getElementById('fbattle');if(!fb||document.hidden)return;const old=fb.querySelector('.dlbeam');if(old)old.remove();
  const d=document.createElement('div');d.className='dlbeam';d.style.setProperty('--c',COL[k]);d.innerHTML='<i></i><b></b>';fb.appendChild(d);
@@ -20,12 +20,13 @@ function push(it,k){if(!Array.isArray(S.dlog))S.dlog=[];S.dlog.unshift([Math.flo
 let busy=0;
 if(typeof offline==='function'){const _of=offline;offline=function(){busy=1;try{return _of.apply(this,arguments)}finally{busy=0}}}
 const f0=rollTC;
-function note(o){let best=null,bk='';const rk='busrw';for(const it of o||[]){const k=kind(it);if(!k)continue;push(it,k);if(!best||rk.indexOf(k)<rk.indexOf(bk)){best=it;bk=k}}
+function note(o){let best=null,bk='';const rk='zausbrw';for(const it of o||[]){const k=kind(it);if(!k)continue;push(it,k);if(!best||rk.indexOf(k)<rk.indexOf(bk)){best=it;bk=k}}
  if(best&&!busy){beam(bk);toast(`✦ ${TAG[bk]}掉落：${itemName(best)}`)}}
 rollTC=function(){const o=f0.apply(this,arguments);if(window.__NOUI||typeof S!=='object'||!S)return o;try{note(o)}catch(e){console.warn(e)}return o};
 function hm(t){const d=new Date(t*1000),p=n=>String(n).padStart(2,'0'),now=new Date();return(d.toDateString()===now.toDateString()?'':`${d.getMonth()+1}/${d.getDate()} `)+`${p(d.getHours())}:${p(d.getMinutes())}`}
+function displayName(value){return /暗夜|暗黑|符文|护身符|炼金|凹槽|暗金|威能|虚隙|秘径|纪元|佣兵|抗性|吸血|魔法物品|技能点|属性点|亡灵|necromancer/i.test(String(value))?'旧版装备':value}
 function show(){const L=Array.isArray(S.dlog)?S.dlog:[];
- modal(`<div class="dsw dlw"><h3>📜 掉落记录 <small>最近 ${MAX} 条</small></h3><div class="dll">${L.length?L.map((e,i)=>`<div class="dlr" onclick="DLOG.open(${i})"><span class="dlt">${hm(e[0])}</span><b style="color:${COL[e[2]]||'#ddd'}">${e[1]}</b><span class="dlm">${e[3]||''}</span></div>`).join(''):'<div class="dse">还没有亮眼掉落，继续刷吧</div>'}</div>
+ modal(`<div class="dsw dlw"><h3>📜 掉落记录 <small>最近 ${MAX} 条</small></h3><div class="dll">${L.length?L.map((e,i)=>`<div class="dlr" onclick="DLOG.open(${i})"><span class="dlt">${hm(e[0])}</span><b style="color:${COL[e[2]]||'#ddd'}">${displayName(e[1])}</b><span class="dlm">${e[3]||''}</span></div>`).join(''):'<div class="dse">还没有亮眼掉落，继续刷吧</div>'}</div>
  <div class="dsf"><button onclick="dmgStatsShow()">返回统计</button><button onclick="closeM()">关闭</button></div></div>`)}
 function open(i){const e=(S.dlog||[])[i];if(!e)return;const f=findItem(e[4]);if(f&&f.it&&itemName(f.it)===e[1])showItem(e[4]);else toast('该物品已不在（已出售/回收/分解）')}
 window.DLOG={show,open,kind,note};
