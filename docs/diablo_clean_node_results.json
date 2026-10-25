@@ -1,583 +1,375 @@
 {
-  "head": "a4e30cc6f071e66d82d770d4e50e04af37f1cdf6",
-  "baseline": "af6bfe1ac8d3100e4e19ec4c9e04e1766198c1d3",
+  "base": "af6bfe1",
+  "head": "26eaef52495b0ba9c4970d568afd35514c7281aa",
   "syntax": [
     {
-      "command": [
-        "node",
-        "--check",
-        "acts.js"
-      ],
+      "file": "acts.js",
+      "code": 0,
+      "seconds": 0.08,
+      "output": ""
+    },
+    {
+      "file": "audio.js",
+      "code": 0,
+      "seconds": 0.08,
+      "output": ""
+    },
+    {
+      "file": "audio_cq.js",
       "code": 0,
       "seconds": 0.09,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "audio.js"
-      ],
+      "file": "bloodmoon.js",
       "code": 0,
       "seconds": 0.08,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "audio_cq.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "bloodmoon.js"
-      ],
-      "code": 0,
-      "seconds": 0.11,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "bonus.js"
-      ],
-      "code": 0,
-      "seconds": 0.08,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "classes.js"
-      ],
-      "code": 0,
-      "seconds": 0.08,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "cloud.js"
-      ],
-      "code": 0,
-      "seconds": 0.08,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "combat_guard.js"
-      ],
-      "code": 0,
-      "seconds": 0.11,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "cowlevel.js"
-      ],
-      "code": 0,
-      "seconds": 0.08,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "cq/cq_battle_test.js"
-      ],
-      "code": 0,
-      "seconds": 0.08,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "cq/cq_hero.js"
-      ],
-      "code": 0,
-      "seconds": 0.09,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "cq/data_cq.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "cq/gamble_cq.js"
-      ],
-      "code": 0,
-      "seconds": 0.08,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "cq/hero_page.js"
-      ],
+      "file": "bonus.js",
       "code": 0,
       "seconds": 0.1,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "cq/mir2_b6.js"
-      ],
+      "file": "classes.js",
       "code": 0,
       "seconds": 0.08,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "cq/mir2_equipment.js"
-      ],
+      "file": "cloud.js",
       "code": 0,
       "seconds": 0.07,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "cq/mir2_equipment_migrate.js"
-      ],
+      "file": "combat_guard.js",
       "code": 0,
       "seconds": 0.07,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "cq/mir2_maps.js"
-      ],
+      "file": "cowlevel.js",
       "code": 0,
       "seconds": 0.07,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "cq/mir2_sets.js"
-      ],
+      "file": "cq/battle_mount.js",
       "code": 0,
       "seconds": 0.08,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "cq/pages_cq.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "data.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "data_acts.js"
-      ],
+      "file": "cq/cq_battle_test.js",
       "code": 0,
       "seconds": 0.08,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "data_endgame.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "dlog.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "eg_ach.js"
-      ],
-      "code": 0,
-      "seconds": 0.06,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "eg_bounty.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "eg_core.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "eg_events.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "eg_mj.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "eg_rift.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "game.js"
-      ],
+      "file": "cq/cq_hero.js",
       "code": 0,
       "seconds": 0.08,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "items.js"
-      ],
+      "file": "cq/data_cq.js",
       "code": 0,
       "seconds": 0.07,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "late.js"
-      ],
+      "file": "cq/gamble_cq.js",
       "code": 0,
       "seconds": 0.07,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "loot.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "power.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "reforge.js"
-      ],
+      "file": "cq/hero_page.js",
       "code": 0,
       "seconds": 0.08,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "settings.js"
-      ],
+      "file": "cq/mir2_b6.js",
       "code": 0,
       "seconds": 0.08,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "shop.js"
-      ],
+      "file": "cq/mir2_equipment.js",
       "code": 0,
-      "seconds": 0.06,
+      "seconds": 0.09,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "stash.js"
-      ],
+      "file": "cq/mir2_equipment_migrate.js",
+      "code": 0,
+      "seconds": 0.09,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_maps.js",
       "code": 0,
       "seconds": 0.07,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "sw.js"
-      ],
+      "file": "cq/mir2_sets.js",
+      "code": 0,
+      "seconds": 0.09,
+      "output": ""
+    },
+    {
+      "file": "cq/pages_cq.js",
       "code": 0,
       "seconds": 0.07,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "tests/bloodmoon_test.js"
-      ],
+      "file": "cq/sys_cq.js",
       "code": 0,
       "seconds": 0.07,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "tests/cq_guard_test.js"
-      ],
+      "file": "data.js",
+      "code": 0,
+      "seconds": 0.09,
+      "output": ""
+    },
+    {
+      "file": "data_acts.js",
       "code": 0,
       "seconds": 0.07,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "tests/cq_m1_test.js"
-      ],
+      "file": "data_endgame.js",
       "code": 0,
       "seconds": 0.07,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "tests/cq_migrate_test.js"
-      ],
+      "file": "dlog.js",
       "code": 0,
-      "seconds": 0.07,
+      "seconds": 0.1,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "tests/cq_prune2_test.js"
-      ],
-      "code": 0,
-      "seconds": 0.06,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "tests/diablo_clean_migrate_test.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "tests/diablo_clean_save_fixture.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "tests/diablo_clean_save_test.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "tests/diablo_meta_test.js"
-      ],
+      "file": "eg_ach.js",
       "code": 0,
       "seconds": 0.08,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "tests/items_test.js"
-      ],
+      "file": "eg_bounty.js",
       "code": 0,
       "seconds": 0.07,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "tests/mir2_b6_test.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "tests/mir2_equipment_test.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "tests/mir2_integration_test.js"
-      ],
-      "code": 0,
-      "seconds": 0.06,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "tests/mir2_sets_test.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "tests/reforge_test.js"
-      ],
-      "code": 0,
-      "seconds": 0.07,
-      "output": ""
-    },
-    {
-      "command": [
-        "node",
-        "--check",
-        "tests/tianguang_test.js"
-      ],
+      "file": "eg_core.js",
       "code": 0,
       "seconds": 0.08,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "tianguang.js"
-      ],
+      "file": "eg_events.js",
+      "code": 0,
+      "seconds": 0.09,
+      "output": ""
+    },
+    {
+      "file": "eg_mj.js",
+      "code": 0,
+      "seconds": 0.09,
+      "output": ""
+    },
+    {
+      "file": "eg_rift.js",
+      "code": 0,
+      "seconds": 0.08,
+      "output": ""
+    },
+    {
+      "file": "game.js",
+      "code": 0,
+      "seconds": 0.08,
+      "output": ""
+    },
+    {
+      "file": "items.js",
+      "code": 0,
+      "seconds": 0.09,
+      "output": ""
+    },
+    {
+      "file": "late.js",
+      "code": 0,
+      "seconds": 0.08,
+      "output": ""
+    },
+    {
+      "file": "loot.js",
+      "code": 0,
+      "seconds": 0.11,
+      "output": ""
+    },
+    {
+      "file": "power.js",
+      "code": 0,
+      "seconds": 0.09,
+      "output": ""
+    },
+    {
+      "file": "reforge.js",
+      "code": 0,
+      "seconds": 0.08,
+      "output": ""
+    },
+    {
+      "file": "settings.js",
       "code": 0,
       "seconds": 0.07,
       "output": ""
     },
     {
-      "command": [
-        "node",
-        "--check",
-        "uber.js"
-      ],
+      "file": "shop.js",
+      "code": 0,
+      "seconds": 0.07,
+      "output": ""
+    },
+    {
+      "file": "stash.js",
+      "code": 0,
+      "seconds": 0.09,
+      "output": ""
+    },
+    {
+      "file": "sw.js",
+      "code": 0,
+      "seconds": 0.07,
+      "output": ""
+    },
+    {
+      "file": "tests/bloodmoon_test.js",
+      "code": 0,
+      "seconds": 0.08,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_guard_test.js",
+      "code": 0,
+      "seconds": 0.08,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_m1_test.js",
+      "code": 0,
+      "seconds": 0.07,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_migrate_test.js",
+      "code": 0,
+      "seconds": 0.09,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_prune2_test.js",
+      "code": 0,
+      "seconds": 0.07,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_prune_test.js",
+      "code": 0,
+      "seconds": 0.07,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_clean_migrate_test.js",
+      "code": 0,
+      "seconds": 0.11,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_clean_purge_test.js",
+      "code": 0,
+      "seconds": 0.08,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_clean_save_fixture.js",
+      "code": 0,
+      "seconds": 0.07,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_clean_save_test.js",
+      "code": 0,
+      "seconds": 0.07,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_meta_test.js",
+      "code": 0,
+      "seconds": 0.07,
+      "output": ""
+    },
+    {
+      "file": "tests/items_test.js",
+      "code": 0,
+      "seconds": 0.07,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_b6_test.js",
+      "code": 0,
+      "seconds": 0.08,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_equipment_test.js",
+      "code": 0,
+      "seconds": 0.09,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_integration_test.js",
+      "code": 0,
+      "seconds": 0.07,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_sets_test.js",
+      "code": 0,
+      "seconds": 0.08,
+      "output": ""
+    },
+    {
+      "file": "tests/reforge_test.js",
+      "code": 0,
+      "seconds": 0.07,
+      "output": ""
+    },
+    {
+      "file": "tests/tianguang_test.js",
+      "code": 0,
+      "seconds": 0.07,
+      "output": ""
+    },
+    {
+      "file": "tianguang.js",
+      "code": 0,
+      "seconds": 0.08,
+      "output": ""
+    },
+    {
+      "file": "uber.js",
       "code": 0,
       "seconds": 0.07,
       "output": ""
@@ -585,526 +377,370 @@
   ],
   "tests": [
     {
-      "command": [
-        "node",
-        "tests/ancient_test.js"
-      ],
+      "file": "tests/ancient_test.js",
       "code": 0,
-      "seconds": 31.82,
+      "seconds": 32.91,
       "output": "ancient_test: 17 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/ancx_test.js"
-      ],
+      "file": "tests/ancx_test.js",
       "code": 0,
-      "seconds": 0.19,
+      "seconds": 0.18,
       "output": "ancx_test: 10 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/bloodmoon_test.js"
-      ],
+      "file": "tests/bloodmoon_test.js",
       "code": 0,
-      "seconds": 0.44,
+      "seconds": 0.46,
       "output": "bloodmoon_test: 16 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/bossloot_test.js"
-      ],
+      "file": "tests/bossloot_test.js",
       "code": 0,
-      "seconds": 1.03,
+      "seconds": 1.23,
       "output": "bossloot_test: 21 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cls_book_test.js"
-      ],
+      "file": "tests/cls_book_test.js",
       "code": 0,
-      "seconds": 0.22,
+      "seconds": 0.3,
       "output": "cls_book_test: 34 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cls_hero_budget_test.js"
-      ],
+      "file": "tests/cls_hero_budget_test.js",
       "code": 0,
-      "seconds": 30.53,
+      "seconds": 35.87,
       "output": "zs/zs: 15.03%, 合击 25\nzs/fs: 11.06%, 合击 27\nzs/ds: 11.72%, 合击 27\nfs/zs: 12.82%, 合击 26\nfs/fs: 12.72%, 合击 26\nfs/ds: 12.85%, 合击 27\nds/zs: 16.33%, 合击 27\nds/fs: 13.60%, 合击 25\nds/ds: 13.24%, 合击 27\ncls_hero_budget_test: 9 combinations pass\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cls_hero_test.js"
-      ],
+      "file": "tests/cls_hero_test.js",
       "code": 0,
-      "seconds": 0.15,
+      "seconds": 0.25,
       "output": "cls_hero_test: 22 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cls_pet_test.js"
-      ],
+      "file": "tests/cls_pet_test.js",
       "code": 0,
-      "seconds": 0.42,
+      "seconds": 0.51,
       "output": "cls_pet_test: 6 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_attrfix_test.js"
-      ],
+      "file": "tests/cq_attrfix_test.js",
       "code": 0,
-      "seconds": 0.17,
+      "seconds": 0.27,
       "output": "cq_attrfix_test: 14 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_autobest_test.js"
-      ],
+      "file": "tests/cq_autobest_test.js",
       "code": 0,
-      "seconds": 0.15,
+      "seconds": 0.18,
       "output": "cq_autobest_test: 9 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_autogrow_test.js"
-      ],
+      "file": "tests/cq_autogrow_test.js",
       "code": 0,
-      "seconds": 0.17,
+      "seconds": 0.21,
       "output": "cq_autogrow_test: 58 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_balance_test.js"
-      ],
+      "file": "tests/cq_balance_test.js",
       "code": 0,
-      "seconds": 0.16,
+      "seconds": 0.2,
       "output": "cq_balance_test: 15 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_balfix_test.js"
-      ],
+      "file": "tests/cq_balfix_test.js",
       "code": 0,
-      "seconds": 0.17,
+      "seconds": 0.21,
       "output": "cq_balfix_test: 20 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_enh_detail_test.js"
-      ],
+      "file": "tests/cq_enh_detail_test.js",
       "code": 0,
-      "seconds": 0.16,
+      "seconds": 0.23,
       "output": "cq_enh_detail_test: 11 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_enh_test.js"
-      ],
+      "file": "tests/cq_enh_test.js",
       "code": 0,
-      "seconds": 0.16,
+      "seconds": 0.19,
       "output": "  +0→+9 平均尝试次数 213.0\ncq_enh_test: 16 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_guard_test.js"
-      ],
+      "file": "tests/cq_guard_test.js",
       "code": 0,
-      "seconds": 0.18,
+      "seconds": 0.21,
       "output": "cq_guard_test: 8 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_hero_system_test.js"
-      ],
+      "file": "tests/cq_hero_system_test.js",
       "code": 0,
-      "seconds": 0.16,
+      "seconds": 0.2,
       "output": "cq_hero_system_test: 16 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_icons_test.js"
-      ],
+      "file": "tests/cq_icons_test.js",
       "code": 0,
-      "seconds": 0.16,
+      "seconds": 0.19,
       "output": "cq_icons_test: 150 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_late_test.js"
-      ],
+      "file": "tests/cq_late_test.js",
       "code": 0,
-      "seconds": 0.17,
+      "seconds": 0.25,
       "output": "cq_late_test: 9 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_lifepct_test.js"
-      ],
+      "file": "tests/cq_lifepct_test.js",
       "code": 0,
-      "seconds": 0.15,
+      "seconds": 0.18,
       "output": "cq_lifepct_test: 4 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_m1_test.js"
-      ],
+      "file": "tests/cq_m1_test.js",
       "code": 0,
-      "seconds": 0.45,
+      "seconds": 0.48,
       "output": "cq_m1_test: 41 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_m2_test.js"
-      ],
+      "file": "tests/cq_m2_test.js",
       "code": 0,
-      "seconds": 0.29,
+      "seconds": 0.4,
       "output": "cq_m2_test: 49 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_migrate_test.js"
-      ],
+      "file": "tests/cq_migrate_test.js",
       "code": 0,
-      "seconds": 0.16,
+      "seconds": 0.22,
       "output": "cq_migrate_test: 10 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_offline_test.js"
-      ],
+      "file": "tests/cq_offline_test.js",
       "code": 0,
-      "seconds": 0.2,
+      "seconds": 0.23,
       "output": "cq_offline_test: 12 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_prune2_test.js"
-      ],
+      "file": "tests/cq_prune2_test.js",
       "code": 0,
-      "seconds": 0.19,
+      "seconds": 0.24,
       "output": "cq_prune2_test: 58 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_prune_test.js"
-      ],
+      "file": "tests/cq_prune_test.js",
       "code": 0,
-      "seconds": 0.17,
+      "seconds": 0.19,
       "output": "cq_prune_test: 19 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_reforge_seed_test.js"
-      ],
+      "file": "tests/cq_reforge_seed_test.js",
       "code": 0,
-      "seconds": 1.41,
+      "seconds": 1.89,
       "output": "cq_reforge_seed_test: 8 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_signin_test.js"
-      ],
+      "file": "tests/cq_signin_test.js",
       "code": 0,
-      "seconds": 0.16,
+      "seconds": 0.19,
       "output": "cq_signin_test: 18 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_skillbar_test.js"
-      ],
+      "file": "tests/cq_skillbar_test.js",
       "code": 0,
-      "seconds": 0.18,
+      "seconds": 0.32,
       "output": "cq_skillbar_test: 28 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_spend_test.js"
-      ],
+      "file": "tests/cq_spend_test.js",
       "code": 0,
-      "seconds": 0.15,
+      "seconds": 0.16,
       "output": "cq_spend_test: 17 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_stash_test.js"
-      ],
+      "file": "tests/cq_stash_test.js",
       "code": 0,
-      "seconds": 0.72,
+      "seconds": 0.85,
       "output": "cq_stash_test: 19 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_sysapi_test.js"
-      ],
+      "file": "tests/cq_sysapi_test.js",
       "code": 0,
-      "seconds": 0.17,
+      "seconds": 0.24,
       "output": "cq_sysapi_test: 34 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/cq_ui_test.js"
-      ],
+      "file": "tests/cq_ui_test.js",
       "code": 0,
-      "seconds": 0.16,
+      "seconds": 0.18,
       "output": "cq_ui_test: 16 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/diablo_clean_migrate_test.js"
-      ],
+      "file": "tests/diablo_clean_migrate_test.js",
       "code": 0,
-      "seconds": 0.34,
+      "seconds": 0.39,
       "output": "diablo_clean_migrate: 29 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/diablo_clean_save_test.js"
-      ],
+      "file": "tests/diablo_clean_purge_test.js",
       "code": 0,
-      "seconds": 0.16,
+      "seconds": 0.39,
+      "output": "diablo_clean_purge: 37 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/diablo_clean_save_test.js",
+      "code": 0,
+      "seconds": 0.2,
       "output": "Migration metrics: {\"uids\":[81001,81002,81003],\"oldPower\":[222,210,206],\"newPower\":[222,210,206]}\ndiablo_clean_save: 14 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/diablo_meta_test.js"
-      ],
+      "file": "tests/diablo_meta_test.js",
       "code": 0,
-      "seconds": 0.17,
+      "seconds": 0.23,
       "output": "diablo_meta_test: 20 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/items_test.js"
-      ],
+      "file": "tests/items_test.js",
       "code": 0,
-      "seconds": 0.28,
+      "seconds": 0.35,
       "output": "items: 42 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_b6_test.js"
-      ],
+      "file": "tests/mir2_b6_test.js",
       "code": 0,
-      "seconds": 0.2,
+      "seconds": 0.34,
       "output": "mir2_b6_test: 32 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_bal_short_test.js"
-      ],
+      "file": "tests/mir2_bal_short_test.js",
       "code": 0,
-      "seconds": 0.18,
+      "seconds": 0.32,
       "output": "mir2_bal_short_test: 19 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_cloud_test.js"
-      ],
+      "file": "tests/mir2_cloud_test.js",
       "code": 0,
-      "seconds": 0.17,
+      "seconds": 0.31,
       "output": "mir2_cloud_test: 14 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_equipment_test.js"
-      ],
+      "file": "tests/mir2_equipment_test.js",
       "code": 0,
-      "seconds": 0.35,
+      "seconds": 0.57,
       "output": "mir2_equipment: 581 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_firstdrop_test.js"
-      ],
+      "file": "tests/mir2_firstdrop_test.js",
       "code": 0,
-      "seconds": 0.3,
+      "seconds": 0.41,
       "output": "mir2_firstdrop_test: 15 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_gamble_test.js"
-      ],
+      "file": "tests/mir2_gamble_test.js",
       "code": 0,
-      "seconds": 0.18,
+      "seconds": 0.74,
       "output": "mir2_gamble_test: 38 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_integration_test.js"
-      ],
+      "file": "tests/mir2_integration_test.js",
       "code": 0,
-      "seconds": 0.17,
+      "seconds": 0.22,
       "output": "mir2_integration_test: 10 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_lvl_test.js"
-      ],
+      "file": "tests/mir2_lvl_test.js",
       "code": 0,
-      "seconds": 0.33,
+      "seconds": 1.89,
       "output": "mir2_lvl_test: 69 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_maps_test.js"
-      ],
+      "file": "tests/mir2_maps_test.js",
       "code": 0,
-      "seconds": 0.4,
+      "seconds": 0.89,
       "output": "mir2_maps_test: 250 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_mutation_test.js"
-      ],
+      "file": "tests/mir2_mutation_test.js",
       "code": 0,
-      "seconds": 0.17,
+      "seconds": 0.2,
       "output": "mir2_mutation_test: 22 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_sets_test.js"
-      ],
+      "file": "tests/mir2_sets_test.js",
       "code": 0,
-      "seconds": 0.17,
+      "seconds": 0.22,
       "output": "mir2_sets: 43 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_skills_test.js"
-      ],
+      "file": "tests/mir2_skills_test.js",
       "code": 0,
-      "seconds": 0.25,
+      "seconds": 0.78,
       "output": "mir2_skills_test: 189 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_soul_test.js"
-      ],
+      "file": "tests/mir2_soul_test.js",
       "code": 0,
-      "seconds": 0.18,
+      "seconds": 0.21,
       "output": "mir2_soul_test: 15 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_streams_test.js"
-      ],
+      "file": "tests/mir2_streams_test.js",
       "code": 0,
-      "seconds": 0.23,
+      "seconds": 0.43,
       "output": "mir2_streams_test: 37 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mir2_summon_test.js"
-      ],
+      "file": "tests/mir2_summon_test.js",
       "code": 0,
-      "seconds": 0.16,
+      "seconds": 0.23,
       "output": "mir2_summon_test: 11 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/mj_test.js"
-      ],
+      "file": "tests/mj_test.js",
       "code": 0,
-      "seconds": 0.08,
+      "seconds": 0.09,
       "output": "\n结果：通过 19，失败 0\n"
     },
     {
-      "command": [
-        "node",
-        "tests/recycle_mir2_test.js"
-      ],
+      "file": "tests/recycle_mir2_test.js",
       "code": 0,
-      "seconds": 0.14,
+      "seconds": 0.17,
       "output": "recycle_mir2_test: 23 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/reforge_test.js"
-      ],
+      "file": "tests/reforge_test.js",
       "code": 0,
-      "seconds": 0.16,
+      "seconds": 0.22,
       "output": "reforge_test: 12 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/tianguang_test.js"
-      ],
+      "file": "tests/tianguang_test.js",
       "code": 0,
-      "seconds": 0.14,
+      "seconds": 0.16,
       "output": "tianguang_test: 9 pass, 0 fail\n"
     },
     {
-      "command": [
-        "node",
-        "tests/uber_test.js"
-      ],
+      "file": "tests/uber_test.js",
       "code": 0,
-      "seconds": 0.2,
+      "seconds": 0.29,
       "output": "uber_test: 47 pass, 0 fail\n"
     }
   ],
   "battle": {
-    "command": [
-      "node",
-      "cq/cq_battle_test.js"
-    ],
+    "file": "cq/cq_battle_test.js",
     "code": 0,
-    "seconds": 0.27,
+    "seconds": 0.49,
     "output": "cq_battle_test: 220 pass, 0 fail\n"
-  }
+  },
+  "testChangesSyntax": [
+    {
+      "file": "tests/diablo_clean_purge_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_clean_browser_fixture.js",
+      "code": 0,
+      "output": ""
+    }
+  ]
 }

@@ -13,6 +13,20 @@ old.merc={t:'mage',lvl:20,xp:123,eq:{weapon:{uid:90005,b:'swd1',q:2,m:{allres:10
 var oldScore=CQMir2Equip.legacyPower(old.eq.weapon);var clean=CQMir2EquipMigrate.purge(old,ACCT);var rawClean=JSON.stringify(clean);
 var banned= /"(?:sock|soc|rw|rwm|sockq|lp|rift|secret|staff|king|season|cqSeasonOld|merc|cqLegacy|cqOriginal|cqOriginalName|allres|ll|kp)"|暗夜|暗黑(?!战士)|符文|护身符|炼金|凹槽|暗金|威能|虚隙|秘径|纪元|佣兵|抗性|吸血|necromancer/i;`);
 ok(G('!banned.test(rawClean)'),'serialized state and account contain no old fields or terms');
+// Inspect parsed payloads as well as embedded JSON character/account strings.
+function retiredPaths(value,path='$',bad=[]){
+ if(typeof value==='string'){
+  if(/暗夜|暗黑(?!战士)|符文|护身符|炼金|凹槽|暗金|威能|虚隙|秘径|纪元|佣兵|抗性|吸血|魔法物品|技能点|属性点|亡灵|necromancer/i.test(value))bad.push(path+':term');
+  try{retiredPaths(JSON.parse(value),path,bad)}catch(e){}return bad;
+ }
+ if(!value||typeof value!=='object')return bad;
+ for(const [key,item] of Object.entries(value)){
+  if(/^(sock|soc|rw|sockq|allres|res|ll|lp|rift|secret|staff|king|season|merc|cqLegacy|kp)$/.test(key)||(key==='sp'&&('lvl' in value||'eq' in value)))bad.push(path+'.'+key);
+  retiredPaths(item,path+'.'+key,bad);
+ }
+ return bad;
+}
+ok(!retiredPaths(JSON.parse(G('rawClean'))).length,'complete retired keys and vocabulary absent in parsed cleanup');
 ok(G('clean.state.eq.weapon.uid===81001&&clean.state.eq.armor.uid===81002&&clean.state.bag.some(x=>x.uid===81003)&&clean.state.bag.some(x=>x.uid===90005)'),'all equipment UIDs including companion retained');
 ok(G('clean.state.lvl===60&&clean.state.reb===4&&clean.state.eq.weapon.rf.n===23&&clean.state.eq.weapon.rf.off.length===1'),'level rebirth and paid candidates retained');
 ok(G('clean.state.gold===12345+9100+10000+460+460+1800&&clean.state.bag.some(x=>x.id==="ess"&&x.n===9)'),'resources and points converted exactly once');
@@ -22,6 +36,7 @@ G(`localStorage.removeItem('cq-save-recovery-v1');CQMir2EquipMigrate.backup(old)
 ok(G(`JSON.parse(JSON.parse(backupRaw).entries[0].raw).eq.weapon.uid===81001&&recovery().length===2`), 'distinct source snapshots retained');
 G(`GS.setItem(CH_PRE+ACCT.cur,JSON.stringify(old));load();calc();save();var disk=JSON.parse(GS.getItem(CH_PRE+ACCT.cur));`);
 ok(G('!banned.test(JSON.stringify(disk))'),'load then save is clean');
+ok(!retiredPaths(JSON.parse(G('JSON.stringify(disk)'))).length,'local persisted JSON has no retired fields or words');
 G('var realNow=Date.now;Date.now=()=>1800000000000;save();var firstLoaded=JSON.stringify(S);load();var secondLoaded=JSON.stringify(S);Date.now=realNow');
 ok(G('firstLoaded===secondLoaded'),'second full load is identical with the persistence clock held fixed');
 G(`var setLocal=localStorage.setItem;localStorage.setItem=(k,v)=>{if(k.startsWith('cq-save-recovery-v1-fixed-'))throw Error('quota');setLocal(k,v)};localStorage.removeItem('cq-save-recovery-v1');var backupFailed=false;try{CQMir2EquipMigrate.backup({...old,quotaProbe:1})}catch(e){backupFailed=true}localStorage.setItem=setLocal;`);
@@ -69,6 +84,7 @@ var chain={update(p){sent=p;return this},eq(k,v){filters.push([k,v]);return this
  await G('upload()');
  ok(G("recovery().some(x=>JSON.parse(x.raw).chars?.[999]?.includes('cqOriginalName'))"),'inactive source character backed up before cloud cleanup');
  ok(G('!banned.test(JSON.stringify(sent.data))'),'cloud payload includes clean inactive characters');
+ ok(!retiredPaths(JSON.parse(G('JSON.stringify(sent.data)'))).length,'cloud upload embedded JSON has no retired fields or words');
  ok(G(`JSON.parse(sent.data.extra['cq-eg_rank'])[0].t===25&&!('se' in JSON.parse(sent.data.extra['cq-eg_rank'])[0])`),'historical rank retained without period column');
  ok(G('sent.version===8&&CLOUD.ver===8&&filters.some(x=>x[0]==="version"&&x[1]===7)&&filters.some(x=>x[0]==="updated_at"&&x[1]==="previous")'),'cloud version increments and atomic conflict filters retained');
  ok(G('!JSON.stringify(sent.data).includes("save-recovery")&&CU.id==="purge-test"'),'backup excluded and session retained');

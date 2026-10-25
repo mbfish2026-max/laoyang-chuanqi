@@ -7,7 +7,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
  def log_message(self,*args):pass
 srv=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(Quiet,directory=str(ROOT)));threading.Thread(target=srv.serve_forever,daemon=True).start()
 base=f'http://127.0.0.1:{srv.server_port}/';results=[]
-fixture=subprocess.check_output(['node','-e',"process.stdout.write(require('./tests/diablo_clean_save_fixture'))"],cwd=ROOT,text=True)
+fixture=subprocess.check_output(['node','-e',"process.stdout.write(require('./tests/diablo_clean_browser_fixture'))"],cwd=ROOT,text=True)
 words=re.compile('暗夜|暗黑|符文|护身符|炼金|凹槽|暗金|威能|虚隙|秘径|纪元|佣兵|抗性|吸血|魔法物品|技能点|属性点|亡灵|necromancer',re.I)
 jobs=[('role',"TAB='hero';render()"),('role_detail',"TAB='hero';render();document.querySelector('#panel').scrollTop=10000"),('bag',"TAB='bag';render()"),('shop',"TAB='shop';SHT='gam';render()"),('reforge',"SHT='rf';render()"),('ach',"TAB='eg';cqPg.fl('ach')"),('codex',"EG_ACV='cx';cqPg.fl('ach')"),('bounty',"S.actU[0]=1;cqPg.fl('bounty')"),('more',"cqPg.fl('more')"),('settings',"setUI()"),('worldboss_event',"ACTS.forEach(a=>S.Q[0][a.fq]=1);cqPg.fl('event')")]
 try:
@@ -26,7 +26,19 @@ try:
     try:
      pg.goto(base+'index.html');pg.wait_for_timeout(800)
      pg.evaluate("cloudBoot=async()=>{};CU=null;CL_GATE=0;window.__NOGATE=1;loop0=()=>{};window.step=()=>{};CQSys.createChar('本地验收','zs');S.auto=0;MON=[];closeM();calc();")
-     if kind=='old':pg.evaluate(fixture)
+     if kind=='old':
+      pg.evaluate(fixture)
+      row['migration']=pg.evaluate('''()=>{
+       save();let disk=JSON.parse(GS.getItem(CH_PRE+ACCT.cur));
+       let bad=[],retired=/^(sock|soc|rw|sockq|allres|res|ll|lp|rift|secret|staff|king|season|merc|cqLegacy)$/;
+       function walk(x,path){if(!x||typeof x!=='object')return;for(let [k,v] of Object.entries(x)){if(retired.test(k)||(path==='$'&&/^(kp|sp)$/.test(k)))bad.push(path+'.'+k);walk(v,path+'.'+k)}}
+       walk(disk,'$');let serialized=JSON.stringify(disk);
+       let items=[disk.eq.weapon,disk.eq.armor,...disk.bag].filter(x=>!x.k);
+       let backups=Object.keys(localStorage).filter(k=>k.startsWith('cq-save-recovery-v1-fixed-')).map(k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return {}}});
+       let original=backups.some(b=>b.raw&&(b.raw.includes(qaPurgeSource)||b.raw.includes(JSON.stringify(qaPurgeSource))));
+       let realNow=Date.now;Date.now=()=>1800000000000;save();let first=JSON.stringify(S);load();let same=first===JSON.stringify(S);Date.now=realNow;
+       return {bad,serialized,uids:items.map(x=>x.uid),power:items.map(power),oldPower:qaOldPower,level:disk.lvl,rebirth:disk.reb,gold:disk.gold,paid:disk.eq.weapon.rf.n,secondLoadIdentical:same,originalBackupRecoverable:original};
+      }''')
      pg.evaluate("S.auto=0;MON=[];S.actU=S.actU||{};closeM();calc();")
      for label,js in jobs:
       r=dict(page=label);row['pages'].append(r)
@@ -53,3 +65,9 @@ assert all(not q.get('error') and not q['hits'] for r in results for q in r['pag
 assert all(not q['wrapped'] for r in results for q in r['pages']), 'wrapped button label'
 assert all(r['settingsBlankClose'] and all(q.get('blankClose',True) for q in r['pages']) for r in results), 'backdrop close'
 assert all(not q['smallPrimary'] for r in results for q in r['pages']), 'primary touch target below 44 x 44'
+
+for row in results:
+ if row['save']=='old':
+  m=row['migration'];assert not m['bad'] and not words.search(m['serialized']), 'serialized retired data'
+  assert sorted(m['uids'])==[81001,81002,81003] and all(a>=b for a,b in zip(m['power'],m['oldPower'])), 'equipment preservation'
+  assert m['level']==60 and m['rebirth']==4 and m['gold']>=12345 and m['paid']==23 and m['secondLoadIdentical'] and m['originalBackupRecoverable'], 'progress or recovery'
