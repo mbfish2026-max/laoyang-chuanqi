@@ -17,15 +17,10 @@ modsTxt=function(m){return Object.entries(m).map(([k,v])=>(MODT[k]||k+' {v}').re
 // ---------- 基础工具 ----------
 function baseTypes(b){return ITYPES[b.cat]||[]}
 function affOk(a,b){const t=baseTypes(b);return a.it.some(x=>t.includes(x))&&!a.ex.some(x=>t.includes(x))}
-function ratioRow(b){return b.cls?(b.tier?IRATIO.clsu:IRATIO.cls):(b.tier?IRATIO.uber:IRATIO.norm)}
-function effMF(k,mf){if(k==='m'||mf<=10)return mf;const F=MF_DIM[k];return F?Math.floor(mf*F/(mf+F)):0}
-// 原版品质检定：返回 rand(chance) 的 chance（<128 成功）；导出给测试使用
-function qualityChance(k,ilvl,b,mf,fac){const row=ratioRow(b)[k];let c=Math.floor((row[0]-Math.floor((ilvl-b.q)/row[1]))*128);
- if(k==='u'||k==='s'||k==='r'||k==='m'){c=Math.floor(c*100/(100+effMF(k,mf||0)));if(c<row[2])c=row[2];const f=fac&&fac[k]||0;if(f)c=c-Math.floor(c*f/1024)}
- return Math.max(1,c)}
-qRoll=function(k,ilvl,b,mf,fac){return Math.floor(rnd()*qualityChance(k,ilvl,b,mf,fac))<128};
-function rollQuality(ilvl,b,mf,fac){if(qRoll('u',ilvl,b,mf,fac))return 5;if(qRoll('s',ilvl,b,mf,fac))return 6;if(qRoll('r',ilvl,b,mf,fac))return 4;if(qRoll('m',ilvl,b,mf,fac))return 3;
- if(qRoll('h',ilvl,b,0,0))return 2;if(qRoll('n',ilvl,b,0,0))return 1;return 0}
+// 传奇品质一次抽取；保留 qualityChance/qRoll 接口供旧调用兼容。
+function qualityChance(k,ilvl,b,mf,fac){const rates={u:.02,s:.03,r:.20,m:.50,h:0,n:1};return rates[k]?Math.round(128/rates[k]):Number.MAX_SAFE_INTEGER}
+qRoll=function(k,ilvl,b,mf,fac){return rnd()<128/qualityChance(k,ilvl,b,mf,fac)};
+function rollQuality(){const r=rnd();return r<.02?5:r<.05?6:r<.25?4:r<.75?3:1}
 maxSock=function(b,ilvl){const s=b.sock;if(!s)return 0;return ilvl<=25?s[0]:ilvl<=40?s[1]:s[2]};
 alvlOf=function(ilvl,qlvl){if(qlvl>ilvl)ilvl=qlvl;let a=ilvl<99-Math.floor(qlvl/2)?ilvl-Math.floor(qlvl/2):2*ilvl-99;return clamp(a,1,99)};
 

@@ -72,3 +72,7 @@
 .rfart .rfl.lk{display:flex;align-items:center;min-height:52px;padding:6px 8px;white-space:normal}
 .rfart .rfo{display:flex;flex-direction:column;justify-content:center;padding:6px 8px}
 .rfart .rfo.full{outline:none;box-shadow:0 0 0 2px #ffcf3a,0 0 12px #ffcf3acc}
+/* items cleanup: 390px viewport, single-row controls and 44px touch targets. */
+.rfst .rfl,.rfst .rfo{min-height:44px;box-sizing:border-box}
+.rfst button{min-height:44px;min-width:44px;white-space:nowrap}
+#modal:has(.rfst) .mb{max-height:85dvh;overflow:auto;box-sizing:border-box}

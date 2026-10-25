@@ -1,7 +1,7 @@
 'use strict';
 // 传奇装备回收；ess 保留为材料存档 ID，显示名统一为黑铁碎片。
 const MATS={ess:{n:'黑铁碎片',c:'#b98cff',d:'回收装备得到的黑铁碎片，用于淬锋精铸。'}};
-const RCY_Q=[[1,'普通'],[3,'精良'],[4,'稀有'],[5,'极品'],[6,'套装'],[8,'上古'],[9,'至臻']];
+const RCY_Q=[1,3,4,5,6].map(q=>[q,QN[q]]).concat([[8,'上古'],[9,'至臻']]);
 const RCY_S=[['weapon','武器'],['armor','衣服'],['helm','头盔'],['amulet','项链'],['shield','左手镯'],['gloves','右手镯'],['ring','戒指×2'],['belt','腰带'],['boots','靴子']];
 const RCY_C=RCY_S;
 function rcyDefault(){return {v:2,dv:4,on:0,q:{1:1,3:0,4:0,5:0,6:0,8:0,9:0},c:Object.fromEntries(RCY_S.map(([k])=>[k,1])),classes:{zs:1,fs:1,ds:1,any:1},nonClass:0,levelBelow:0,tierBelow:0,keepNew:1,keepBetter:1,mode:'ess'}}

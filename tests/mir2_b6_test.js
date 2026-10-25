@@ -14,7 +14,7 @@ ok(G('rfBlessRoll(uid)')===true,'祝福扣费出候选');ok(G('Object.keys(findI
 G(`var mm=JSON.stringify(findItem(uid).it.m);rfBlessPick(uid,false)`);ok(G('JSON.stringify(findItem(uid).it.m)===mm'),'保留旧值');G('rfBlessRoll(uid);rfBlessPick(uid,true)');ok(G('!!findItem(uid).it.rf.bless'),'采用新祝福');
 G('var item=findItem(uid).it;item.rf.n=10');ok(G('rfBlessRoll(uid)')===false,'稀有十次上限');ok(G('rfLimit({q:3})===7&&rfLimit({q:5})===15'),'品质次数7/10/15');
 G(`var blessing=JSON.stringify(item.rf.bless);for(let i=0;i<2;i++){const copy=JSON.parse(JSON.stringify(item));copy.uid=S.uid++;S.bag.push(copy)};var bm=Object.assign({},item.m),b6Bless=Object.assign({},item.rf.bless);CQB6.fuse(uid)`);
-ok(G('item.q===5&&!item.rf&&Object.keys(b6Bless).every(k=>item.m[k]===bm[k]-b6Bless[k]+(k===\'maxdmg\'?1:0))'),'融合清除祝福增量和次数，保留主体词条');
+ok(G('item.q===5&&item.rf.n===10&&JSON.stringify(item.rf.bless)===blessing&&Object.keys(b6Bless).every(k=>item.m[k]===bm[k]+(k===\'maxdmg\'?1:0))'),'融合保留祝福增量、已购买次数和主体词条');
 G('S.lvl=22;calc()');ok(G('CQB6.enter().ok')===1,'22级可进副本');ok(G('!!CQB6.enter().err'),'重复进入拒绝');G('CQB6.tick(1)');ok(G('CQB6.dungeon().left')===179,'游戏秒倒计时');
 G('var d=CQB6.dungeon();d.hp=1;CQB6.tick(1)');ok(G('d.state')==='dead','死亡终止');ok(G('!!CQB6.enter().err'),'失败消耗每日次数');
 G(`d.day='2000-01-01';CQB6.enter();d.left=0.1;d.enemy=1e9;d.hp=1e9;CQB6.tick(1)`);ok(G('d.state')==='timeout','超时终止');
