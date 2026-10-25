@@ -49,19 +49,21 @@ function migrate(state,account){const s=JSON.parse(JSON.stringify(state)),a=acco
  walk(s);if(a)walk(a);s.mir2Mig=Object.assign({},s.mir2Mig,{equipment:2});return{state:s,account:a,count}}
 // Serialization boundary. Backups deliberately never enter GS or cloud payloads.
 const PURGE_VERSION=1, BACKUP_KEY='cq-save-recovery-v1';
-function backup(value){
- function needed(o){if(typeof o==='string'){try{return needed(JSON.parse(o))}catch(e){return /暗夜|符文|护身符|暗金/.test(o)}}if(!o||typeof o!=='object')return false;
- if(['rune','gem','jewel','charm'].includes(o.k)||['jew','cha_s','cha_m','cha_l'].includes(o.b)||o.k==='mat'&&/rune|gem|keystone|essence/.test(o.id||''))return true;
- return Object.entries(o).some(([k,v])=>((['cqLegacy','cqOriginal','rw','lp','rift','secret','season','merc','sock','sockq','kp','sp','res','allres','runes','gems','keystones'].includes(k))&&!!v&&(typeof v!=='object'||Object.keys(v).length>0))||needed(v))}
- if(!needed(value))return;
- if(localStorage.getItem(BACKUP_KEY))return;
- const raw=JSON.stringify({at:Date.now(),data:value});
- // Fail closed: never destroy the only copy when browser storage is unavailable.
- try{localStorage.setItem(BACKUP_KEY,raw);
-  if(localStorage.getItem(BACKUP_KEY)!==raw)throw new Error('storage');
- }catch(cause){const e=new Error('存档备份失败');e.code='CQ_BACKUP_FAILED';throw e}
+function backup(value,owner){
+ const data=JSON.stringify(value);let hash=2166136261;
+ for(let i=0;i<data.length;i++)hash=Math.imul(hash^data.charCodeAt(i),16777619)>>>0;
+ const account=String(owner??(typeof ACCT_NS!=='undefined'?ACCT_NS:null)??'guest');
+ let entries=[];try{const old=JSON.parse(localStorage.getItem(BACKUP_KEY));if(Array.isArray(old?.entries))entries=old.entries.filter(x=>typeof x.raw==='string'&&x.account!=null);else if(old?.data)entries=[{account:'legacy-v1',at:old.at,raw:JSON.stringify(old.data)}]}catch(e){}
+ const found=entries.find(x=>x.account===account&&x.hash===hash&&x.raw===data);
+ if(found)return;
+ entries.push({account,hash,at:Date.now(),raw:data});
+ // One atomic storage write; retain at most 32 snapshots / 8 MiB. Never drop
+ // the incoming complete source. Quota/verification failure aborts the caller.
+ while(entries.length>32||JSON.stringify(entries).length>4*1024*1024){if(entries.length===1){const e=new Error('存档备份失败');e.code='CQ_BACKUP_FAILED';throw e}entries.shift()}
+ const raw=JSON.stringify({version:2,entries});
+ try{localStorage.setItem(BACKUP_KEY,raw);if(localStorage.getItem(BACKUP_KEY)!==raw)throw Error('storage')}
+ catch(cause){const e=new Error('存档备份失败');e.code='CQ_BACKUP_FAILED';throw e}
 }
-const obsolete=new Set(['sock','soc','rw','rwm','sockq','lp','rift','secret','staff','runs','king','season','cqSeasonOld','merc','mercU','autoMerc','cqLegacy','cqOriginal','cqOriginalName','cqUnknown','cqMetaHistory','af','unique','uniq','darkgold','kp','sp','cube','runes','gems','keystones','rune','gem','jewel','charm','alchemy','affixes']);
 const words=/暗夜|暗黑(?!战士)|符文|护身符|炼金|凹槽|暗金|威能|虚隙|秘径|纪元|佣兵|抗性|吸血|魔法物品|技能点|属性点|亡灵|necromancer/gi;
 function purge(state,account){
  const s=JSON.parse(JSON.stringify(state)),a=account==null?null:JSON.parse(JSON.stringify(account));
@@ -72,12 +74,13 @@ function purge(state,account){
  if(s.bon?.res){const r=Math.max(0,+s.bon.res||0);s.bon.def=(s.bon.def||0)+r*4;s.bon.mdef=(s.bon.mdef||0)+r*5;s.bon.attack=(s.bon.attack||0)+r;delete s.bon.res}
  if(s.sockq)gold+=Math.max(0,+s.sockq||0)*5000;
  const credit=(n)=>{gold+=Math.max(0,Number(n)||0)};
- function walk(o){
+ function walk(o,path='state'){
   if(!o||typeof o!=='object')return typeof o==='string'?o.replace(words,'旧版'):o;
-  if(Array.isArray(o))return o.map(walk).filter(x=>x!==undefined);
+  if(Array.isArray(o))return o.map((v,i)=>walk(v,path+'.'+i)).filter(x=>x!==undefined);
   if(pruneBad(o)){credit(pruneVal(o)*(o.n||1));return undefined}
   if(o.k==='mat'&&/rune|gem|keystone|essence/.test(o.id||''))o.id='ess';
-  if(typeof o.b==='string'&&!o.k){
+  const equipment=typeof o.b==='string'&&!o.k;
+  if(equipment){
    if(o.rw!=null&&o.q<=2&&BASEM[o.b])o.name=BASEM[o.b].n;
    // Read socket resources before the item migrator erases their active copy.
    const sockets=o.soc?.length?o.soc:(!o.cqPurgeVersion?o.cqOriginal?.soc:null);
@@ -96,24 +99,25 @@ function purge(state,account){
    o.cqPurgeVersion=PURGE_VERSION;
   }
   // Preserve retired progress as neutral numeric counters, never raw snapshots.
-  for(const k of ['secret','rift','season'])if(o[k]&&typeof o[k]==='object'){
+  const retired=path==='state'||path==='state.eg'||path==='state.eg.history';
+  for(const k of retired?['secret','rift','season']:[])if(o[k]&&typeof o[k]==='object'){
    if(k==='rift')credit((Number(o[k].keys)||Number(o[k].key)||Number(o[k].keystones)||0)*200);
    const counts=o.retiredProgress||(o.retiredProgress={});const dest=k==='secret'?'path':k==='rift'?'trial':'period';
    counts[dest]=Object.fromEntries(Object.values(o[k]).filter(v=>typeof v==='number').map((v,i)=>['n'+i,v]));
   }
-  for(const k of ['runes','gems','keystones'])if(o[k]){const val=o[k];credit(typeof val==='number'?val*200:Object.values(val).reduce((n,v)=>n+(Number(v)||0),0)*200)}
-  if(o.lp){const n=Object.keys(o.lp).length;o.retiredPowerCount=Math.max(o.retiredPowerCount||0,n)}
+  for(const k of path==='state'?['runes','gems','keystones']:[])if(o[k]){const val=o[k];credit(typeof val==='number'?val*200:Object.values(val).reduce((n,v)=>n+(Number(v)||0),0)*200)}
+  if(retired&&o.lp){const n=Object.keys(o.lp).length;o.retiredPowerCount=Math.max(o.retiredPowerCount||0,n)}
   for(const k of Object.keys(o)){
-   if(obsolete.has(k)||/^(allres|[fclp]res|ll|ml|edmg|edef|ias|fcr|lifep|manap|dr|mdr|allsk)$/.test(k)){delete o[k];continue}
+   if((equipment&&['sock','soc','rw','rwm','lp','cqLegacy','cqOriginal','cqOriginalName','cqUnknown','af','unique','uniq','darkgold','affixes'].includes(k))||((path==='state')&&['sockq','merc','mercU','autoMerc','cqMetaHistory','kp','sp','cube','runes','gems','keystones','cqSeasonOld'].includes(k))||(retired&&['secret','rift','season','lp'].includes(k))){delete o[k];continue}
    if(k==='mode'&&o[k]==='season')o[k]='normal';
    if(k==='t'&&o[k]==='wrift'){o[k]='wboss'}
-   o[k]=walk(o[k]);if(o[k]===undefined)delete o[k];else{const cleanKey=k.replace(words,'旧版');if(cleanKey!==k){o[cleanKey]=o[k];delete o[k]}}
+   o[k]=walk(o[k],path+'.'+k);if(o[k]===undefined)delete o[k];else{const cleanKey=k.replace(words,'旧版');if(cleanKey!==k){o[cleanKey]=o[k];delete o[k]}}
   }
   return o;
  }
  // Convert unspent points before deleting the obsolete keys.
  {const L=Math.max(s.lvl||1,s.cqLegacyLevel||1);credit((s.sp||0)*AG_GOLD.sp(L)+(s.kp||0)*AG_GOLD.kp(L));}
- const out=walk(s);if(a)walk(a);
+ const out=walk(s);if(a)walk(a,'account');
  if(gold){out.gold=(out.gold||0)+gold;out.cqPruneG=(out.cqPruneG||0)+gold;}
  out.cqPurgeVersion=PURGE_VERSION;return{state:out,account:a};
 }

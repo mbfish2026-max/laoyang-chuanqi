@@ -27,27 +27,30 @@ function clSetState(st){CL.state=st;if(typeof document==='undefined'||window.__N
 function clDirty(){CL.dirty=1}
 // ---------- 账号存档导出 / 导入（内存 GS） ----------
 function cleanRankData(raw){const rows=JSON.parse(raw);if(!Array.isArray(rows))return '[]';const rank=rows.map(({se,...row})=>row);return JSON.stringify(window.CQMir2EquipMigrate?CQMir2EquipMigrate.purge({rank},null).state.rank:rank)}
-function exportAccount(){save();const a=JSON.parse(GS.getItem(ACCT_KEY));const chars={};for(const c of a.chars){const r=GS.getItem(CH_PRE+c.id);if(r)chars[c.id]=JSON.parse(r)}
+function exportAccount(){backupAccountSource();save();const a=JSON.parse(GS.getItem(ACCT_KEY));const chars={};for(const c of a.chars){const r=GS.getItem(CH_PRE+c.id);if(r)chars[c.id]=JSON.parse(r)}
  const extra={};const rk=GS.getItem('cq-eg_rank');if(rk)extra['cq-eg_rank']=rk;
  if(window.CQMir2EquipMigrate){for(const id of Object.keys(chars)){const p=CQMir2EquipMigrate.purge(chars[id],a);chars[id]=p.state;Object.assign(a,p.account)}if(rk)extra['cq-eg_rank']=cleanRankData(rk)}
  return{fmt:1,acct:a,chars,extra,profile:{nickname:CL_PROFILE&&CL_PROFILE.nickname||''},at:Date.now()}}
-function importAccount(d){if(!d||!d.acct||!d.chars)throw new Error('云端存档格式错误');if(window.CQMir2EquipMigrate)CQMir2EquipMigrate.backup(d);ST_RESET=1;GS.clear();
+function importAccount(d){if(!d||!d.acct||!d.chars)throw new Error('云端存档格式错误');if(window.CQMir2EquipMigrate)CQMir2EquipMigrate.backup(d,CU?.id||ACCT_NS||'guest');backupAccountSource();ST_RESET=1;GS.clear();
  GS.setItem(ACCT_KEY,JSON.stringify(d.acct));for(const id in d.chars)GS.setItem(CH_PRE+id,JSON.stringify(d.chars[id]));for(const k in d.extra||{})GS.setItem(k,d.extra[k]);ST_RESET=0;
  ACCT=null;resetRuntime();load();calc();H.life=ST.life;H.mana=ST.mana;if(!window.__NOUI&&typeof offline==='function'){if(CL.inSync){const _m=modal;modal=h=>{CL.offHtml=h};try{offline()}finally{modal=_m}}else offline()}save();if(!window.__NOUI){closeM();render()}}
 function summary(d){if(!d||!d.acct)return'（空）';return d.acct.chars.map(c=>`${c.name} Lv.${(d.chars[c.id]||{}).lvl||c.lvl}`).join('、')}
 // ---------- 旧本机存档（localStorage）读取 / 合并 / 删除 ----------
 function legacyKeys(){const out=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^cq[-_](save_|acct|ch_|ch@|eg_rank|cloud$)/.test(k))out.push(k)}}catch(e){}return out}
-function legacyRead(acctKey,pre){try{const a=JSON.parse(cqRead(localStorage,acctKey));if(!a||!a.chars)return null;const chars={};for(const c of a.chars){const r=cqRead(localStorage,pre+c.id);if(r)chars[c.id]=JSON.parse(r)}
- const d={fmt:1,acct:a,chars};if(window.CQMir2EquipMigrate){CQMir2EquipMigrate.backup(d);for(const id of Object.keys(chars)){const p=CQMir2EquipMigrate.purge(chars[id],a);chars[id]=p.state;Object.assign(a,p.account)}
+// Read without cqRead's alias write: recovery must precede even alias creation.
+function legacySource(key){const k=cqKey(key);return localStorage.getItem(k)??localStorage.getItem('cq_'+k.slice(3))}
+function legacyRead(acctKey,pre){try{const a=JSON.parse(legacySource(acctKey));if(!a||!a.chars)return null;const chars={};for(const c of a.chars){const r=legacySource(pre+c.id);if(r)chars[c.id]=JSON.parse(r)}
+ const rk=legacySource('cq-eg_rank');const sourceAliases={};for(const key of [acctKey,...a.chars.map(c=>pre+c.id),'cq-eg_rank','cq-save_v2'])for(const alias of new Set([key,cqKey(key),'cq_'+cqKey(key).slice(3)])){const raw=localStorage.getItem(alias);if(raw!=null)sourceAliases[alias]=raw}const d={fmt:1,acct:a,chars,extra:rk?{'cq-eg_rank':rk}:{}};if(window.CQMir2EquipMigrate){CQMir2EquipMigrate.backup({...d,sourceAliases},acctKey);for(const id of Object.keys(chars)){const p=CQMir2EquipMigrate.purge(chars[id],a);chars[id]=p.state;Object.assign(a,p.account)}
   // Rewrite both aliases after the durable backup; auth keys are outside this path.
   for(const id of Object.keys(chars))for(const k of new Set([pre+id,cqKey(pre+id),'cq_'+cqKey(pre+id).slice(3)]))if(localStorage.getItem(k)!=null)localStorage.setItem(k,JSON.stringify(chars[id]));
   for(const k of new Set([acctKey,cqKey(acctKey),'cq_'+cqKey(acctKey).slice(3)]))if(localStorage.getItem(k)!=null)localStorage.setItem(k,JSON.stringify(a));}
  return d}catch(e){if(e.code==='CQ_BACKUP_FAILED')throw e;console.warn('legacyRead',e);return null}}
 
-function legacyExport(uid){let L=[];const own=uid&&legacyRead('cq_acct@'+uid,'cq_ch@'+uid+'_');if(own)L.push(own);const g=legacyRead('cq_acct','cq_ch_');if(g)L.push(g);
- if(!g){try{const o=JSON.parse(cqRead(localStorage,'cq-save_v2'));if(o&&[2,3].includes(o.v)){if(window.CQMir2EquipMigrate){CQMir2EquipMigrate.backup(o);const p=CQMir2EquipMigrate.purge(o,null);Object.keys(o).forEach(k=>delete o[k]);Object.assign(o,p.state);for(const k of ['cq-save_v2','cq_save_v2'])if(localStorage.getItem(k)!=null)localStorage.setItem(k,JSON.stringify(o))}L.push({fmt:1,acct:{v:1,cur:1,nid:2,suid:1e9,chars:[{id:1,name:o.name||'战士',cls:'战士',lvl:o.lvl||1,t:o.last||0}],shared:[]},chars:{1:o}})}}catch(e){if(e.code==='CQ_BACKUP_FAILED')throw e}}
+function backupLegacySources(owner){const legacy={};for(const key of legacyKeys())legacy[key]=localStorage.getItem(key);if(Object.keys(legacy).length&&window.CQMir2EquipMigrate)CQMir2EquipMigrate.backup({legacy},'legacy-all:'+String(owner||'guest'))}
+function legacyExport(uid){backupLegacySources(uid);let L=[];const own=uid&&legacyRead('cq_acct@'+uid,'cq_ch@'+uid+'_');if(own)L.push(own);const g=legacyRead('cq_acct','cq_ch_');if(g)L.push(g);
+ if(!g){try{const o=JSON.parse(legacySource('cq-save_v2'));if(o&&[2,3].includes(o.v)){if(window.CQMir2EquipMigrate){CQMir2EquipMigrate.backup({state:o,rank:legacySource('cq-eg_rank')},'legacy-single');const p=CQMir2EquipMigrate.purge(o,null);Object.keys(o).forEach(k=>delete o[k]);Object.assign(o,p.state);for(const k of ['cq-save_v2','cq_save_v2'])if(localStorage.getItem(k)!=null)localStorage.setItem(k,JSON.stringify(o))}L.push({fmt:1,acct:{v:1,cur:1,nid:2,suid:1e9,chars:[{id:1,name:o.name||'战士',cls:'战士',lvl:o.lvl||1,t:o.last||0}],shared:[]},chars:{1:o}})}}catch(e){if(e.code==='CQ_BACKUP_FAILED')throw e}}
  L=L.filter(hasProgress);if(!L.length)return null;let d=L[0];for(const x of L.slice(1))d=mergeAccounts(d,x);
- try{const rk=cqRead(localStorage,'cq-eg_rank');if(rk){const clean=cleanRankData(rk);d.extra={'cq-eg_rank':clean};for(const k of ['cq-eg_rank','cq_eg_rank'])if(localStorage.getItem(k)!=null)localStorage.setItem(k,clean)}}catch(e){}return d}
+ try{const rk=legacySource('cq-eg_rank');if(rk){if(window.CQMir2EquipMigrate)CQMir2EquipMigrate.backup({account:d,rank:rk},uid||'guest');const clean=cleanRankData(rk);d.extra={'cq-eg_rank':clean};for(const k of ['cq-eg_rank','cq_eg_rank'])if(localStorage.getItem(k)!=null)localStorage.setItem(k,clean)}}catch(e){if(e.code==='CQ_BACKUP_FAILED')throw e}return d}
 function chProg(o){return o?[o.lvl||0,o.xp||0,o.kills||0]:[0,0,0]}
 function progGT(a,b){for(let i=0;i<3;i++){if(a[i]!==b[i])return a[i]>b[i]}return false}
 function hasProgress(d){return!!d&&d.acct.chars.some(c=>{const o=d.chars[c.id];return o&&(o.lvl>1||o.xp||o.kills)})||!!d&&(d.acct.shared||[]).some(p=>p.length)}
@@ -67,7 +70,7 @@ function unionPages(dst,src,ctr,_){const seen=new Set(),uids=new Set();for(const
  for(const it of dst.flat())ctr.n=Math.max(ctr.n,it.uid||0);
  for(const p of src||[])for(const it0 of p||[]){const key=JSON.stringify(it0);if(seen.has(key))continue;seen.add(key);const it=JSON.parse(key);if(it.uid!=null&&uids.has(it.uid))it.uid=++ctr.n;uids.add(it.uid);ctr.n=Math.max(ctr.n,it.uid||0);
   let i=dst.findIndex(pg=>pg.length<48);if(i<0){dst.push([]);i=dst.length-1}dst[i].push(it)}}
-function legacyClear(){for(const k of legacyKeys())try{localStorage.removeItem(k)}catch(e){}}
+function legacyClear(){backupLegacySources(CU?.id);for(const k of legacyKeys())try{localStorage.removeItem(k)}catch(e){}}
 // ---------- 认证 ----------
 const CL_ACCT_DOM='laoyang-game.local';
 function clName2Email(n){return 'u'+Array.from(new TextEncoder().encode(n.toLowerCase())).map(b=>b.toString(16).padStart(2,'0')).join('')+'@'+CL_ACCT_DOM}
@@ -87,7 +90,7 @@ async function fetchRemote(withData){const r=await SB.from('cq_saves').select(wi
 // 登录后：云端为准；旧本机数据静默迁移
 // 登录同步期间的离线收益弹窗先暂存，等登录框关闭后再显示（否则会被 closeM 立即关掉）
 function clShowOff(){if(CL.offHtml&&!window.__NOUI){const h=CL.offHtml;CL.offHtml=null;modal(h)}}
-async function firstSync(){clSetState('busy');const rem=await fetchRemote(true);const leg=legacyExport(CU.id);let d=rem&&rem.data&&rem.data.acct?rem.data:null;
+async function firstSync(){clSetState('busy');const rem=await fetchRemote(true);if(rem?.data?.acct&&window.CQMir2EquipMigrate)CQMir2EquipMigrate.backup(rem.data,CU.id);const leg=legacyExport(CU.id);let d=rem&&rem.data&&rem.data.acct?rem.data:null;
  if(d){CLOUD.remoteAt=rem.updated_at;CLOUD.ver=rem.version||1}else{CLOUD.remoteAt=null;CLOUD.ver=0}
  if(leg)d=d?mergeAccounts(d,leg):leg;
  if(d){CL.inSync=1;try{importAccount(d)}finally{CL.inSync=0}}CL.ready=1;

@@ -13,6 +13,12 @@ function pstN(){return(typeof S!=='undefined'&&S&&S.pstN)||(typeof CQ_BAL!=='und
 function shN(){return(typeof ACCT!=='undefined'&&ACCT&&ACCT.shN)||(typeof CQ_BAL!=='undefined'?CQ_BAL.stash.s0:20)}
 function mkPages(n){return Array.from({length:n},()=>[])}
 function acctSave(){try{ACCT.t=Date.now();GS.setItem(ACCT_KEY,JSON.stringify(ACCT))}catch(e){}}
+// Capture every source character and auxiliary record before any load migration.
+function backupAccountSource(extra){if(!window.CQMir2EquipMigrate)return;
+ const raw=GS.getItem(ACCT_KEY);let acct;try{acct=JSON.parse(raw)}catch(e){}
+ const chars={};for(const c of acct?.chars||[])chars[c.id]=GS.getItem(CH_PRE+c.id);
+ CQMir2EquipMigrate.backup({acct:raw,chars,mirror:GS.getItem(KEY),rank:GS.getItem('cq-eg_rank'),extra},ACCT_NS||'guest');
+}
 function acctLoad(){try{ACCT=JSON.parse(GS.getItem(ACCT_KEY))}catch(e){ACCT=null}
  if(!ACCT||ACCT.v!==1){ACCT={v:1,cur:1,nid:2,suid:1e9,chars:[{id:1,name:'战士',cls:'战士',lvl:1,t:Date.now()}],shared:mkPages(shN())};
   const old=ACCT_NS?null:GS.getItem(KEY);if(old){GS.setItem(CH_PRE+1,old);try{const o=JSON.parse(old);ACCT.chars[0].lvl=o.lvl||1}catch(e){}}acctSave()}
@@ -33,15 +39,15 @@ function mergeMats(arr){const m={};for(let i=arr.length-1;i>=0;i--){const x=arr[
 function pushInto(arr,it){if(it.k==='mat'){const e=arr.find(x=>x.k==='mat'&&x.id===it.id);if(e){e.n+=it.n;return}}arr.push(it)}
 function bagFits(it){return fits(S.bag,it,BAG_SZ)}
 // ---------- 账号 / 角色：load/save 包装 ----------
-const _st_load=load;load=function(){acctLoad();const c=curChar()||ACCT.chars[0];ACCT.cur=c.id;const d=GS.getItem(CH_PRE+c.id);
- if(d&&window.CQMir2EquipMigrate)CQMir2EquipMigrate.backup({acct:ACCT,raw:d});
+const _st_load=load;load=function(){backupAccountSource();acctLoad();const c=curChar()||ACCT.chars[0];ACCT.cur=c.id;const d=GS.getItem(CH_PRE+c.id);
+
  if(d)GS.setItem(KEY,d);else GS.removeItem(KEY);_st_load();migrateChar(c)};
 function migrateChar(c){if(!S.pst){S.pst=mkPages(pstN());let p=0;for(const it of (S.stash||[])){while(p<pstN()-1&&!fits(S.pst[p],it,PAGE_SZ))p++;S.pst[p].push(it)}S.stash=[]}
  while(S.pst.length<pstN())S.pst.push([]);if(!S.stash)S.stash=[];drainOld();for(const p of S.pst)mergeMats(p);mergeMats(S.bag);
  S.name=S.name||c.name;S.cid=c.id;S.cls=S.cls||c.cid||'zs';S.mode=S.mode||c.mode||'normal';if(S.mode==='season'){S.mode='normal';S.retiredPeriod=1}if(c.mode==='season')c.mode='normal';/* 旧角色转普通，历史数据由统一清理层折算。 */if(!S.ci&&typeof clsInit==='function')clsInit();if(!S.ast)S.ast={on:0,dest:'p',t:{mat:1,set:0,rare:0}}}
 function drainOld(){if(S.stash&&S.stash.length){for(const it of S.stash.splice(0)){const p=S.pst.findIndex(pg=>fits(pg,it,PAGE_SZ));(S.pst[p<0?0:p]).push(it)}}}
-const _st_save=save;save=function(){if(ST_RESET)return;if(S.pst)drainOld();
- if(window.CQMir2EquipMigrate){CQMir2EquipMigrate.backup({state:S,account:ACCT});const p=CQMir2EquipMigrate.purge(S,ACCT);CQMir2EquipMigrate.commit(S,p.state);CQMir2EquipMigrate.commit(ACCT,p.account)}
+const _st_save=save;save=function(){if(ST_RESET)return;backupAccountSource({state:S,account:ACCT});if(S.pst)drainOld();
+ if(window.CQMir2EquipMigrate){const p=CQMir2EquipMigrate.purge(S,ACCT);CQMir2EquipMigrate.commit(S,p.state);CQMir2EquipMigrate.commit(ACCT,p.account)}
  _st_save();try{const raw=GS.getItem(KEY);if(raw)GS.setItem(CH_PRE+ACCT.cur,raw);const c=curChar();if(c){c.lvl=S.lvl;c.t=Date.now();c.name=S.name||c.name}acctSave()}catch(e){}};
 function resetRuntime(){MON=[];ALLY=[];CORPSE=[];killWin=[];spawnT=2;LOGS.length=0;LOGDIRTY=1;Object.assign(H,{cb:null,abs:0,castT:0,atkT:0,potT:0,mpT:0,curse:0})}
 function switchChar(id){if(!ACCT.chars.some(c=>c.id===id))return false;if(id!==ACCT.cur){save();ACCT.cur=id;acctSave()}resetRuntime();load();S.last=Date.now();calc();H.life=ST.life;H.mana=ST.mana;save();
