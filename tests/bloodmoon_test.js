@@ -25,7 +25,8 @@ if(HASW){const wd=G("(()=>{let n=0;for(let i=0;i<3000;i++){const m=mkMon('imp',3
 if(HASW){ok(G("(()=>{const z=S.zone;S.zone=99;const m=mkMon('imp',3,'uniq');m.bm=0;let n=0;for(let i=0;i<1500;i++)if(rollTC(m).some(it=>it&&it.ward))n++;S.zone=z;return n===0})()"),'非血月不掉破障');}
 // 破障效果
 const mon="(()=>{const m=mkMon('imp',30);m.res.fire=120;m.res.cold=60;m.res.light=30;return m})()";
-G(`var M=${mon};S.bag=[];calc()`);ok(G("resOf(M,'fire')")===80&&G("resOf(M,'cold')")===60,'无护符：免疫封顶 80（combat_guard.js）（immfloor 免疫保底已删除，legacy_prune C10）'+G("resOf(M,'fire')"));
+G(`var M=${mon};S.bag=[];calc()`);ok(G("resOf(M,'fire')")===0&&G("resOf(M,'cold')")===0,'旧怪物抗性不再产生免疫');
+G("M.hp=M.max=10000;M.mdef=0;hitMon(M,{fire:100},'hero');var unguarded=10000-M.hp;M.hp=10000;M.mdef=100;hitMon(M,{fire:100},'hero');var guarded=10000-M.hp");ok(G('unguarded>0&&guarded>0&&guarded<unguarded'),'魔御减伤且不会卡住战斗');
 if(HASW){G(`S.bag=[wardMake('fire')];calc()`);ok(G("resOf(M,'fire')")===40&&G("resOf(M,'cold')")===60&&G("resOf(M,'light')")===30,'烈焰破障：火 40，其他不变，低抗不抬高');}
 if(HASW){const fr0=G("(()=>{S.bag=[];calc();return ST.fres!=null?ST.fres:ST.res&&ST.res.fire})()"),fr1=G("(()=>{S.bag=[wardMake('fire')];calc();return ST.fres!=null?ST.fres:ST.res&&ST.res.fire})()"),fr2=G("(()=>{S.bag=[wardMake('fire'),wardMake('fire')];calc();return ST.fres!=null?ST.fres:ST.res&&ST.res.fire})()");}
 if(HASW){ok(fr0-fr1===25&&fr1===fr2,`代价 -25 火抗且同类不叠加 ${fr0}/${fr1}/${fr2}`);}

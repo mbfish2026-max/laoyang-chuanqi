@@ -11,7 +11,7 @@ const G=s=>vm.runInContext(s,ctx);let pass=0,fail=0;const ok=(c,m)=>{if(c)pass++
 G(`S=newSave();try{load()}catch(e){};S.diff=2;calc();EGM=null;`);
 const T=s=>G(`tgTier(${s})`);
 ok(T("{q:5,name:'x',m:{}}")==='unique'&&T("{q:6,m:{}}")==='set'&&T("{q:5,anc:1,m:{}}")==='ancient'&&T("{q:6,anc:2,m:{}}")==='primal'&&T("{q:5,myth:1,m:{}}")==='mythic','档位映射');
-ok(T("{k:'rune',r:19}")==='hirune'&&T("{k:'rune',r:18}")===null&&T("{q:4,m:{}}")===null&&T("{k:'gem',g:0,lv:0}")===null,'符文≥20 紫，稀有/宝石无光柱');
+ok(T("{k:'rune',r:19}")===null&&T("{k:'rune',r:18}")===null&&T("{q:4,m:{}}")===null&&T("{k:'gem',g:0,lv:0}")===null,'旧符文、稀有及宝石无光柱');
 ok(G("tgBest([{q:5,m:{}},{q:6,anc:2,m:{}},{k:'rune',r:25}]).t")==='primal','多件同掉取最高档');
 ok(new Set(Object.values(G("TG.COL"))).size===5,'5 种颜色');
 // 音效接口：调用 AUDIO.playLootTier，档位名均被 audio.js 识别

@@ -16,7 +16,9 @@ G(`var B2={mons:[{uid:9,idx:2,walk_spd:0}],roleIdx:27,_pets:[]};for(let i=0;i<40
 ok(G('CQ.MOVE.cheb(B2.mons[0].idx,B2.roleIdx)')<=1,'怪物走到贴身后停下');
 ok(G('CQ.MOVE.monCanAttack(B2,B2.mons[0])')==='role','贴身才可攻击');
 // ---------- 英雄 / 合击 ----------
-G(`localStorage.removeItem('cq_battle_hero_v1');var hero=new CQ.Hero(1,localStorage)`);
+G(`localStorage.removeItem('cq-battle_hero_v1');localStorage.setItem('cq_battle_hero_v1',JSON.stringify({prof:2,name:'兼容英雄',rage:55,autoHeji:false,hejiCount:3}));var legacyHero=new CQ.Hero(1,localStorage)`);
+ok(G("legacyHero.h.prof===2&&legacyHero.h.name==='兼容英雄'&&legacyHero.h.rage===55&&legacyHero.h.hejiCount===3&&!legacyHero.h.autoHeji"),'旧键英雄数据完整兼容');
+G(`localStorage.removeItem('cq_battle_hero_v1');localStorage.removeItem('cq-battle_hero_v1');var hero=new CQ.Hero(1,localStorage)`);
 ok(G('hero.h.prof')===3&&G('hero.combo().name')==='劈星斩','战士默认带道士，合击=劈星斩');
 ok(G("CQ.HEJI.COMBO[CQ.HEJI.comboKey(3,1)].name")==='劈星斩'&&G("CQ.HEJI.COMBO['2+2'].name")==='火龙气焰','合击表与顺序无关');
 G(`var hits=[];var host={now:()=>Date.now(),targets:()=>MON.filter(m=>m.hp>0),hit:(m,d,s)=>{hits.push([m.uid,d,s]);return d},atkMax:()=>100,lvl:()=>12,heroK:()=>.35};
@@ -34,7 +36,7 @@ ok(!G('hero.doHeji(host,true).ok'),'冷却中不能再次合击');
 G('hero.tick(CQ.HERO_TUNE.hejiCd+1,host)');ok(G('hero.h.hejiCd')===0,'冷却随时间结束');
 G('hits.length=0;hero.unit.atkT=0;hero.tick(.01,host)');ok(G('hits.length')===1&&G('hits[0][2]')==='cqhero','英雄自动普攻走 Host.hit');
 G('hero.h.autoHeji=true;hero.h.rage=100;hero.h.hejiCd=0;var ev=hero.tick(.01,host)');ok(G('ev&&ev.type')==='heji','自动合击：满怒气自动施放');
-ok(G("JSON.parse(localStorage.getItem('cq_battle_hero_v1')).hejiCount")>=1,'英雄兜底存档 localStorage');
+ok(G("JSON.parse(localStorage.getItem('cq-battle_hero_v1')).hejiCount")>=1,'英雄兜底存档 localStorage');
 // ---------- 桥接 Host ----------
 const role=JSON.parse(G('JSON.stringify(CQ.Host.role())'));
 ok(role.lvl===12&&role.maxhp>0&&role.hp>0,'Host.role 读 S/ST/H');

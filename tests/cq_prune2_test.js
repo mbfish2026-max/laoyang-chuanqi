@@ -7,7 +7,7 @@ for(const n of['RUNES','RUNEWORDS','rollRune','rollGem','cubeUI','egRuneName','e
 ok(G("Object.values(TCS).every(t=>!t.runes)"),'TCS 无 runes');
 ok(G("!BASES.some(b=>b.s==='charm'||b.s==='jewel')&&!BASEM.cha_s&&!BASEM.jew"),'无护身符/珠宝底材');
 G(`S=newSave();load();S.cls='zs';S.ci=0;clsInit();ensureLoot();calc();S.gold=1000;
- const keep=genItem(10,{q:4});S.bag.push(keep);window.__keep=JSON.stringify(keep);
+ const keep=genItem(10,{q:4});S.bag.push(keep);keep.en=4;window.__keep=JSON.stringify(keep);window.__keepPower=power(keep);window.__keepValue=sellPrice(keep);
  S.bag.push({uid:S.uid++,k:'rune',r:2},{uid:S.uid++,k:'gem',g:'rub',lv:1},{uid:S.uid++,b:'cha_s',q:3,m:{life:5}});
  if(!Array.isArray(S.pst))S.pst=[[]];S.pst[0].push({uid:S.uid++,b:'jew',q:3,m:{ar:10}});
  if(!Array.isArray(S.stash))S.stash=[];S.stash.push({uid:S.uid++,k:'rune',r:0});
@@ -25,7 +25,7 @@ ok(G("ACCT.shared.flat().every(x=>x.k!=='gem')"),'共享仓库已清理');
 ok(G("!S.merc&&!S.hero.eq.amulet"),'随从身上的护身符已移除');
 ok(G(`S.eq.weapon&&S.eq.weapon.uid===__wuid&&S.eq.weapon.rw===undefined&&!S.eq.weapon.rwm&&S.eq.weapon.soc.length===0&&S.eq.weapon.sock===0`),'符文之语武器保留本体、去掉符文之语与镶嵌');
 ok(G(`(h=>h&&h.rw===undefined&&h.soc.length===0&&h.name===BASEM[h.b].n)(S.bag.find(x=>x.uid===__huid))`),'背包里的白色符文之语底材：保留本体、名字恢复底材名');
-ok(G(`JSON.stringify(S.bag.find(x=>x.uid===JSON.parse(__keep).uid))===__keep`),'普通装备原样保留');
+ok(G(`(()=>{const before=JSON.parse(__keep),it=S.bag.find(x=>x.uid===before.uid);return it&&S.bag.filter(x=>x.uid===before.uid).length===1&&it.en===4&&it.q===before.q&&power(it)>=__keepPower&&sellPrice(it)>=__keepValue&&Object.entries(before.m).every(([k,v])=>allMods(it)[k]>=v)})()`),'普通装备身份、强化、价值与有效属性保留');
 const g1=G('S.gold');G(`save();acctSave();ACCT=null;resetRuntime();acctLoad();load();calc()`);ok(G('S.gold')===g1,'再次载入不重复折算（幂等）');
 G(`TAB='skill';try{SKT=3;render()}catch(e){window.__re='skill:'+e.message}SKT=0;TAB='shop';try{render()}catch(e){window.__re='shop:'+e.message}`);ok(!G('window.__re'),'技能/商店渲染不报错 '+G('window.__re'));
 G(`S.bag.push(genItem(20,{q:3}));const u=S.bag[S.bag.length-1].uid;try{showItem(u);showItem(__wuid)}catch(e){window.__se=e.message}`);ok(!G('window.__se'),'物品详情不报错 '+G('window.__se'));

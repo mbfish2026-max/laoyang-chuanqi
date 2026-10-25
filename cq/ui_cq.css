@@ -18,3 +18,7 @@ small{font-size:max(11px,.84em)!important}
 @keyframes cqen9enter{0%{opacity:0;transform:scale(.45)}30%{opacity:1}100%{opacity:0;transform:scale(1.2)}}
 .cqenh label{display:inline-flex;align-items:center;min-height:44px;max-width:100%;white-space:normal!important;flex-wrap:wrap}.cqenh input[type=checkbox]{width:24px;height:24px;margin:8px;flex:none}.cqenh .btn{min-width:44px}
 #modal .cqbrace-actions{display:flex;gap:8px;margin:8px 0}#modal .cqbrace-actions .btn{flex:1;min-height:44px;white-space:nowrap}#modal .cqb-detail-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+
+/* Settings difficulty: 5 + 4 buttons at phone width, each a full touch target. */
+#setM .mdset .btns{display:grid;grid-template-columns:repeat(5,minmax(44px,1fr));gap:6px}
+#setM .mdset .btns .btn{min-width:44px;min-height:44px;white-space:nowrap;margin:0;box-sizing:border-box}

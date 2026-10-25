@@ -13,14 +13,18 @@ function clonePart(from,id){
 }
 for(let c=0;c<3;c++){
  const cls=classes[c],z='zuma_'+cls,a='chiyue_'+cls,legacy=['shengzhan','fashen','tianzun'][c],dragon=['leiting','lieyan','guangmang'][c];
- const main=['maxdmg','mag','tao'][c],bonus={2:{def:1,mdef:1},4:{[main]:2},6:{[main]:3}};
- define(z,'祖玛·'+['战士','法师','道士'][c],cls,{2:{def:1,mdef:1},4:{[main]:2}});
+ const main=['maxdmg','mag','tao'][c],bonus={2:{def:1,mdef:1,life:12},4:{[main]:2,life:18},6:{[main]:3,mana:15}};
+ define(z,'祖玛·'+['战士','法师','道士'][c],cls,{2:{def:1,mdef:1},4:{[main]:2,life:30}});
  const helm=BASES.find(b=>b.n==='黑铁头盔');
  if(helm&&!SETITEMS.some(p=>p.set===z&&BASEM[p.b].s==='helm'))clonePart({b:helm.id,n:helm.n,lv:helm.q,rq:helm.q,m:{}},z);
- define(a,'赤月·'+['圣战','法神','天尊'][c],cls,{2:{def:1,mdef:1},4:{[main]:3}});
+ define(a,'赤月·'+['圣战','法神','天尊'][c],cls,{2:{def:1,mdef:1,life:12},4:{[main]:3,life:18}});
  for(const p of SETITEMS.filter(p=>p.set===legacy&&['helm','amulet','shield','ring'].includes(BASEM[p.b].s)))clonePart(p,a);
  define(dragon,['雷霆','烈焰','光芒'][c],cls,bonus);
- define(legacy,['圣战','法神','天尊'][c],cls,bonus);
+ define(legacy,['圣战','法神','天尊'][c],cls,bonus,[
+  '6件：烈火剑法追加半力斩击，不重复耗蓝或播放特效',
+  '6件：火墙可叠2层，各自持续；火墙冷却减半',
+  '6件：神兽命中向另外2个目标溅射'
+ ][c]);
 
 }
 const pools={zumalord:ids.filter(id=>id.startsWith('zuma_')),chiyuedemon:ids.filter(id=>id.startsWith('chiyue_')),molonglord:['leiting','lieyan','guangmang'],darkniumoking:['shengzhan','fashen','tianzun']};
@@ -29,7 +33,7 @@ function active(id,n){return count(id)>=n}
 function record(){if(!S.mir2Sets)S.mir2Sets={kills:{},seen:{},pending:[]};const r=S.mir2Sets;r.kills=r.kills||{};r.seen=r.seen||{};r.pending=r.pending||[];return r}
 function parts(key){return SETITEMS.filter(p=>(pools[key]||[]).includes(p.set))}
 function remember(it){if(it&&ids.includes(it.set)&&it.cqContentId)record().seen[it.cqContentId]=1}
-let installed=false;
+let installed=false,splashing=false;
 function install(){if(installed)return;installed=true;
  const style=document.createElement('style');style.textContent='#modal:has(.mir2-set-codex){position:fixed;inset:0;height:100dvh;align-items:center}#modal:has(.mir2-set-codex) .mb{max-height:calc(100dvh - 32px);overflow-y:auto;margin:0 auto;width:calc(100% - 24px);max-width:366px;box-sizing:border-box}#modal .mir2-set-codex{font-size:13px;line-height:1.55}#modal .mir2-set-codex .sec{border-top:1px solid #886b3d;padding:10px 0}';document.head.appendChild(style);
  // Duplicate names are valid across collection/mechanism sets; exact identity wins.
@@ -41,6 +45,26 @@ function install(){if(installed)return;installed=true;
  const calculate=calc;calc=function(){const r=calculate.apply(this,arguments);if(curCls()==='zs'){ST.wmin+=fixed('mindmg');ST.wmax+=fixed('maxdmg')}return r};
  const values=clsSV;clsSV=function(id){const v=values.apply(this,arguments),cls=curCls(),field=Array.isArray(v.dmg)?'dmg':Array.isArray(v.pd)?'pd':null;if(SKM[id]?.cls!==cls||!field||!['fs','ds'].includes(cls))return v;const add=fixed(cls==='fs'?'mag':'tao')*(cls==='fs'?3:1);if(!add)return v;const damage=v[field].map(x=>x+add);return Object.assign({},v,{[field]:damage,txt:typeof v.txt==='string'?v.txt.replace(v[field].join('-'),damage.join('-')):v.txt})};
  const hurt=hurtHero;hurtHero=function(value,el){if(value>0&&['fire','cold','light','magic'].includes(el))arguments[0]=Math.max(1,value-fixed('mdef'));return hurt.apply(this,arguments)};
+ // Summon splash is a skill mechanism; it never adds an equipment multiplier.
+ const hit=hitMon;hitMon=function(m,d,src,col){
+ const pet=src&&typeof src==='object'&&src.kind==='cqpet'&&src.owner!=='hero';
+ const before=m.hp,result=hit.apply(this,arguments);
+ if(!splashing&&pet&&src.sub==='zhss'&&active('tianzun',6)&&before>m.hp){splashing=true;try{for(const other of liveMon().filter(x=>x!==m).slice(0,2))hit.call(this,other,Object.fromEntries(Object.entries(d).filter(([k])=>k!=='pois').map(([k,v])=>[k,v*.35])),src,col)}finally{splashing=false}}
+ return result;
+ };
+ const melee=CLS_TY.hit;CLS_TY.hit=function(s,v,ms,tg){const r=melee.apply(this,arguments);if(s.id==='lhjf'&&active('shengzhan',6)&&tg.hp>0)clsMelee(tg,((1+(v.pct||0)/100)*.5-1)*100,(v.flat||0)*.5,v);return r};
+ const burn=CLS_TY.burn;CLS_TY.burn=function(s,v,ms,tg){
+ if(s.id!=='hq')return burn.apply(this,arguments);
+ const multi=active('fashen',6),targets=ms.slice(0,v.n||8);
+ for(const m of targets){const old=m.burn,alive=old&&old.left>0&&old.cqWalls;
+ const layers=multi?(alive?old.cqWalls.filter(x=>x.until>GT):[]):[];
+ layers.push({dps:v.dps*elMul('fire'),until:GT+(v.bdur||4)});
+ const kept=layers.slice(-2),end=Math.max(...kept.map(x=>x.until));
+ m.burn={left:end-GT,acc:0,cqWalls:kept};Object.defineProperty(m.burn,'dps',{enumerable:true,get(){return kept.filter(x=>x.until>GT).reduce((sum,x)=>sum+x.dps,0)}});
+ }return targets;
+ };
+ const feasible=acFeasible;acFeasible=function(id,ms){if(id==='hq'&&active('fashen',6)&&castable(id)&&clsCdLeft(id)<=0)return ms.length>0;return feasible.apply(this,arguments)};
+ const cooldown=clsCdLeft;clsCdLeft=function(id){const left=cooldown.apply(this,arguments);return id==='hq'&&active('fashen',6)&&ACT[id]!=null?Math.max(0,left-SKM[id].cd/2):left};
  const tc=rollTC;rollTC=function(m){const out=tc.apply(this,arguments);if(!m||!m.boss||!pools[m.key])return out;
  const r=record(),replay=!!m.cqLootReplay,n=r.kills[m.key]=(r.kills[m.key]||0)+(replay?0:1),all=parts(m.key);
  out.forEach(remember);
