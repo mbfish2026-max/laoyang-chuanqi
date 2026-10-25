@@ -6,7 +6,7 @@
 // 堆叠：宝石(同色同级)/符文(同号) 在数组中仍是独立对象（所有旧消耗逻辑天然“一次扣 1”），显示与占格按组合并；
 // 材料(k:'mat') 为带数量 n 的单对象。占格 = 组数。
 // ===================================================================================
-let ACCT_KEY='cq_acct',CH_PRE='cq_ch_',ACCT_NS=null;const PST_PAGES=20,SH_PAGES=20,PAGE_SZ=48,BAG_SZ=400,BAG_PG=48;
+let ACCT_KEY='cq-acct',CH_PRE='cq-ch_',ACCT_NS=null;const PST_PAGES=20,SH_PAGES=20,PAGE_SZ=48,BAG_SZ=400,BAG_PG=48;
 let ACCT=null,STV='bag',STP=0,SHP=0,STMOVE=1,ST_RESET=0,BGP=0,STF={q:'all',t:'all',s:''};
 // 老羊传奇：已解锁页数（PST_PAGES/SH_PAGES 仅作历史上限；实际页数 = 解锁数，见 cq/stash_cq.js 与 CQ_BAL.stash）
 function pstN(){return(typeof S!=='undefined'&&S&&S.pstN)||(typeof CQ_BAL!=='undefined'?CQ_BAL.stash.p0:20)}
@@ -20,7 +20,7 @@ function acctLoad(){try{ACCT=JSON.parse(GS.getItem(ACCT_KEY))}catch(e){ACCT=null
  for(const c of ACCT.chars)if(c&&c.mode==='season')c.mode='normal';// 纪元已删除：账号角色列表里的纪元标记转普通
  for(const p of ACCT.shared)mergeMats(p)}
 // 存档命名空间：游客 = 默认 key；登录账号 = key 带 user_id（数据按账号隔离）
-function setNS(uid){ACCT_NS=uid||null;ACCT_KEY=uid?'cq_acct@'+uid:'cq_acct';CH_PRE=uid?'cq_ch@'+uid+'_':'cq_ch_'}
+function setNS(uid){ACCT_NS=uid||null;ACCT_KEY=uid?'cq-acct@'+uid:'cq-acct';CH_PRE=uid?'cq-ch@'+uid+'_':'cq-ch_'}
 function switchNS(uid){if((uid||null)===ACCT_NS)return false;if(S&&ACCT)save();setNS(uid);ACCT=null;resetRuntime();load();S.last=Date.now();calc();H.life=ST.life;H.mana=ST.mana;save();if(!window.__NOUI){closeM();render()}return true}
 function curChar(){return ACCT.chars.find(c=>c.id===ACCT.cur)}
 // ---------- 堆叠工具 ----------

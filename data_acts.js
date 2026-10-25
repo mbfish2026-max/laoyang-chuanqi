@@ -4,10 +4,10 @@
 // 所有名称均为原创；注释中的“对应机制”只描述机制。
 
 // ---------- 难度 ----------
-// pen 抗性惩罚；hp/dmg/exp 为在怪物等级成长之上的难度系数(近似)；dxp 死亡损失“本级所需经验”的比例
+// hp/dmg/exp 为在怪物等级成长之上的难度系数(近似)；dxp 死亡损失“本级所需经验”的比例
 Object.assign(DIFFS[0],{n:'普通',pen:0,hp:1,dmg:1,exp:1,dxp:0,lock:0,naff:1});
-Object.assign(DIFFS[1],{n:'噩梦',pen:-40,hp:1.15,dmg:0.85,exp:2.8,dxp:0.05,lock:0,naff:2});
-Object.assign(DIFFS[2],{n:'地狱',pen:-100,hp:1.15,dmg:0.9,exp:5.5,dxp:0.10,lock:0,naff:3});
+Object.assign(DIFFS[1],{n:'噩梦',pen:0,hp:1.15,dmg:0.85,exp:2.8,dxp:0.05,lock:0,naff:2});
+Object.assign(DIFFS[2],{n:'地狱',pen:0,hp:1.15,dmg:0.9,exp:5.5,dxp:0.10,lock:0,naff:3});
 // 区域怪物等级：普通 ml → 噩梦 36..68 / 地狱 67..85 线性映射（普通最高 45）
 function mlD(ml,d){if(!d)return ml;return d===1?Math.round(36+(ml-1)*32/44):Math.round(67+(ml-1)*18/44)}
 
@@ -127,17 +127,17 @@ for(const k of ['rotwarden','fangqueen','summoner','kassar','jadeguard','flaychi
 const ELITE_AFF={
  st:{n:'蛮力',f:m=>{m.dmg=m.dmg.map(x=>x*1.5)}},
  fast:{n:'迅疾',f:m=>{m.spd*=1.5}},
- stone:{n:'石肤',f:m=>{m.def*=3;m.res.phys+=50}},
- fe:{n:'炎附',f:m=>{m.res.fire+=75;m.sk.push('inferno')}},
- ce:{n:'霜附',f:m=>{m.res.cold+=75;m.sk.push('frost')}},
- le:{n:'雷附',f:m=>{m.res.light+=75;m.sk.push('spark')}},
- mr:{n:'法抗',f:m=>{m.res.fire+=40;m.res.cold+=40;m.res.light+=40}},
+ stone:{n:'石肤',f:m=>{m.def*=3}},
+ fe:{n:'炎附',f:m=>{m.mdef+=75;m.sk.push('inferno')}},
+ ce:{n:'霜附',f:m=>{m.mdef+=75;m.sk.push('frost')}},
+ le:{n:'雷附',f:m=>{m.mdef+=75;m.sk.push('spark')}},
+ mr:{n:'魔御',f:m=>{m.mdef+=120}},
  mb:{n:'噬法',f:m=>{m.sk.push('manaburn')}},
  cur:{n:'咒缚',f:m=>{m.sk.push('curse')}},
  spec:{n:'幽击',f:m=>{m.sk.push('randel')}},
  fan:{n:'狂热',f:m=>{m.spd*=1.25;m.fan=1}},
 };
-const CHAMP_V=[{n:'狂战',f:m=>{m.dmg=m.dmg.map(x=>x*1.3)}},{n:'幽影',f:m=>{m.res.phys+=50;m.spd*=0.85}},{n:'狂热',f:m=>{m.spd*=1.4}},{n:'精英',f:m=>{}}];
+const CHAMP_V=[{n:'狂战',f:m=>{m.dmg=m.dmg.map(x=>x*1.3)}},{n:'幽影',f:m=>{m.def+=50;m.spd*=0.85}},{n:'狂热',f:m=>{m.spd*=1.4}},{n:'精英',f:m=>{}}];
 const UNIQ_T=['血爪','腐眼','碎颅','裂魂','灰鬃','毒牙','暗刺','霜喉','焦骨','噬心','铁颚','夜啸'];
 
 // ---------- 章节 / 区域 ----------

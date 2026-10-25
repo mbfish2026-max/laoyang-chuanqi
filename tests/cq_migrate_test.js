@@ -15,6 +15,6 @@ ok(G('S.lvl')===55&&G('S.cqLegacyLevel')===70,'旧70级映射55级并保留旧�
 ok(G('ACCT.sv')===1&&G('ACCT.shN')===2,'账号层 sv 与共享仓库页数');
 // 幂等：再载入不再改动
 G(`S.gold=123;save();load()`);ok(G('S.gold')===123,'迁移幂等');
-// 不触碰暗夜数据：迁移只读取 cq_ 键
-ok(G("KEY")==='cq_save_v2'&&G("ACCT_KEY").startsWith('cq_')&&G("CH_PRE").startsWith('cq_'),'存档键均为 cq_ 前缀');
+// 不触碰暗夜数据：迁移只写 cq- 键，旧键通过适配器读取
+ok(G("KEY")==='cq-save_v2'&&G("ACCT_KEY").startsWith('cq-')&&G("CH_PRE").startsWith('cq-'),'存档键均为 cq- 前缀');
 T.done();
