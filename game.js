@@ -10,12 +10,14 @@ function loadAssets(){for(const k in ASSETS){const i=new Image();i.onload=()=>{I
 function art(key,glyph,cls=''){return IMG[key]?`<img class="art ${cls}" src="${IMG[key]}">`:`<span class="glyph ${cls}">${glyph}</span>`}
 
 // ===== 存档 =====
-const KEY='cq_save_v2';let S;
+function cqKey(k){return String(k).replace(/^cq_/, 'cq-')}
+function cqRead(store,key){const k=cqKey(key);let v=store.getItem(k);if(v==null&&k.startsWith('cq-')){v=store.getItem('cq_'+k.slice(3));if(v!=null)store.setItem(k,v)}return v}
+const KEY='cq-save_v2';let S;
 function newSave(){return{v:3,lvl:1,xp:0,gold:0,at:{str:15,dex:25,vit:15,ene:25},sp:0,kp:0,sk:{rs:1},eq:{},bag:[],uid:1,
  autoSk:1,autoAt:1,autoEq:1,act:0,zone:0,wave:0,unl:0,cleared:{},q:{},pot:{hp:5,mp:3,rej:1,tp:3},auto:1,main:null,curse:null,diff:0,
  imbue:0,found:{},kpm:0,last:Date.now(),sell:{0:1,1:1,2:0,3:0},log:[]}}
 // 存档仅存于内存 GS（云端为唯一真相，见 cloud.js）；不再写入 localStorage
-const GS=(()=>{const m=new Map();return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>{v=String(v);if(m.get(k)!==v){m.set(k,v);if(typeof clDirty==='function')clDirty()}},removeItem:k=>{m.delete(k)},keys:()=>[...m.keys()],clear:()=>m.clear()}})();
+const GS=(()=>{const m=new Map();return{getItem:k=>m.has(cqKey(k))?m.get(cqKey(k)):null,setItem:(k,v)=>{k=cqKey(k);v=String(v);if(m.get(k)!==v){m.set(k,v);if(typeof clDirty==='function')clDirty()}},removeItem:k=>{m.delete(cqKey(k))},keys:()=>[...m.keys()],clear:()=>m.clear()}})();
 function load(){try{S=JSON.parse(GS.getItem(KEY))}catch(e){S=null}if(!S||![2,3].includes(S.v)){S=newSave();for(const b of['swd1','arm1']){const it=makeBase(BASEM[b],1);S.eq[BASEM[b].s]=it}}}
 function save(){S.last=Date.now();GS.setItem(KEY,JSON.stringify(S))}
 

@@ -1984,12 +1984,12 @@ for(let a=3;a<7;a++){
  if(a===4){zs[0].bosses=['rakecatking','orclord'];zs[5].boss='bloodgiant';last.bosses=['twinblood','twingold','chiyuedemon'];}
  if(a===5)last.bosses=['niumoking','darkniumoking'];
  if(a===6){zs[1].boss='molongmoth';zs[2].boss='molongstrong';zs[3].bosses=['molonggeneral','molongfake'];}
- // Six stable quest IDs. Old reward IDs retain their meaning and are never reissued by migration.
+ // 七章任务 ID 稳定；迁移保留完成标记，已领取奖励不重复发放。
  const qi=a===6?[0,1,2,3,4,4]:[0,1,2,3,4,zs.length-1];
  for(let q=1;q<=6;q++){const id='a'+(a+1)+'q'+q,z=zs[qi[q-1]];QUESTS[id]={act:a,n:z.n,d:'肃清'+z.n,rw:q===6?'解锁下一章节':'经验与金币',clear:1};if(q===6)QUESTS[id].fin=1;z.quest=id;}
  if(a===6){zs[4].quest='a7q5';zs[4].quests=['a7q5','a7q6'];}
  if(a===3){QUESTS.a4q1.rw='技能书 ×2';QUESTS.a4q2.rw='金币';}
- if(a===4){QUESTS.a5q1.rw='铁匠凹槽资格（旧奖励）';QUESTS.a5q3.rw='永久抗性 +10';QUESTS.a5q4.rw='个性化资格';QUESTS.a5q5.rw='经验';}
+ if(a===4){QUESTS.a5q1.rw='金币 5000';QUESTS.a5q3.rw='防御 +10、魔御 +10';QUESTS.a5q4.rw='个性化资格';QUESTS.a5q5.rw='经验';}
  ACTS[a]={id:'cqact'+(a+1),n:['第四','第五','第六','第七'][j]+'章 · '+chapterNames[j],camp:chapterNames[j]+'营地',boss:BOSSES[ends[j]].n,fq:'a'+(a+1)+'q6',mainEnd:zs.length-1,zones:zs,lock:0};chapters.push({act:a,bg:'assets/cq/bg/'+ids[a][0]+'.webp',thumb:'assets/cq/map/chapter_'+(a+1)+'.webp',boss:ends[j]});
 }
 const boars=['cqblackmaggot','cqhornfly','cqwedgemoth','cqredboar','cqblackboar','cqscorpionsnake'];

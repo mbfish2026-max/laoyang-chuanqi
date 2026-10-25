@@ -23,22 +23,22 @@ function egWbStart(){if(EGM)return toast('正在其他挑战中');const ph=egWbP
  const ml=Math.min(99,Math.max(S.lvl,egMaxMl())+3),end=EG().clock+(EG_WB.dur-ph);
  const run={k:'wboss',name:EG_WB.n,bg:'bg_act4',boss:null,
   start(){},spawn(){if(this.boss){if(this.boss.hp<=0){egLeave(1);return}if(!MON.includes(this.boss)){this.boss.cur=null;MON.push(this.boss);log(`${EG_WB.n} 仍在等待你的归来（剩余 ${Math.ceil(this.boss.hp/this.boss.max*100)}%）`)}return}const m=mkMon('wb_mogos',ml);const k=pick(EG_BOSSAFF);EG_AFF[k].f(m);m.aff=[EG_AFF[k].n];m.n=EG_WB.ic+m.n;m.max=m.hp=Math.round(m.max*(1+S.diff*0.5));m.egWb=1;this.boss=m;MON.push(m);log(`<b class="bossn">${EG_WB.n}</b> [${m.aff.join('/')}] 从灰烬中站起！`)},
-  onKill(m){if(!m.egWb)return;egStat('wboss');const got=[genItem(ml,{q:5}),genItem(ml,{q:5}),genItem(ml,{q:4}),oreItem(3)];for(const it of got)addBag(it);const g=5000+ml*200;S.gold+=g;EG().rift.keys+=2;
-   log(`<b class="quest">${EG_WB.n} 倒下了！获得 ◈${fmt(g)}、🔮钥石×2、${got.map(it=>`<span style="color:${itemColor(it)}">${itemName(it)}</span>`).join('、')}</b>`);toast('世界首领已击败')},
+  onKill(m){if(!m.egWb)return;egStat('wboss');const got=[genItem(ml,{q:5}),genItem(ml,{q:5}),genItem(ml,{q:4}),oreItem(3)];for(const it of got)addBag(it);const g=5000+ml*200;S.gold+=g;addBag(oreItem(2));
+   log(`<b class="quest">${EG_WB.n} 倒下了！获得 ◈${fmt(g)}、黑铁矿×2、${got.map(it=>`<span style="color:${itemColor(it)}">${itemName(it)}</span>`).join('、')}</b>`);toast('世界首领已击败')},
   onDie(){},
   wave(){return`剩余 ${egTime(end-EG().clock)}`},quest(){return`【世界首领】击败 ${EG_WB.n}（限时 ${egTime(end-EG().clock)}）`},
   top(){const b=this.boss;return`<div class="egline wb"><span>${EG_WB.ic} ⏳${egTime(end-EG().clock)}</span>${b?egPbar(b.hp,b.max,'time'):''}<span>${b?Math.ceil(b.hp/b.max*100)+'%':''}</span></div>`},end};
  egEnter(run)}
 egOn('sec',()=>{if(!egWbUnlocked())return;const ph=egWbPhase(),ev=EG().ev;const id=Math.floor((EG().clock+EG_WB.cyc-EG_WB.off)/EG_WB.cyc);
  if(EGM&&EGM.k==='wboss'&&EG().clock>=EGM.end){log(`<span class="dim">${EG_WB.n} 沉入灰烬，下次再战</span>`);egLeave(1);return}
- if(ph>EG_WB.cyc-EG_WB.warn&&ev.wbWarn!==id+1){ev.wbWarn=id+1;log(`<b style="color:#ffb040">${EG_WB.n} 将在 2 分钟后降临暮土！</b>`);toast('世界首领即将降临')}
+ if(ph>EG_WB.cyc-EG_WB.warn&&ev.wbWarn!==id+1){ev.wbWarn=id+1;log(`<b style="color:#ffb040">${EG_WB.n} 将在 2 分钟后降临盟重！</b>`);toast('世界首领即将降临')}
  if(ph<EG_WB.dur-30&&!EGM&&ev.wbAuto!==0&&ev.wbDone!==id){log('<b style="color:#ffb040">自动前往世界首领战场</b>');egWbStart()}});
 EG_BANNER.push(()=>{if(!S||!egWbUnlocked()||EGM)return'';const ph=egWbPhase();if(ph<EG_WB.dur&&EG().ev.wbDone!==Math.floor((EG().clock+EG_WB.cyc-EG_WB.off)/EG_WB.cyc))return`<div class="egline wb"><span>${EG_WB.ic} 世界首领降临中</span><button class="btn xs gold" onclick="egWbStart()">迎战</button></div>`;
  if(ph>EG_WB.cyc-EG_WB.warn)return`<div class="egline wb"><span>${EG_WB.ic} ${EG_WB.n} ${egTime(EG_WB.cyc-ph)} 后降临</span></div>`;return''});
 function egEvLock(){return S&&S.actU&&((S.actU[0]||0)>=1||S.diffU>0)?null:'完成普通难度第一章后开放世界首领事件'}
 function egEvPage(){const ev=EG().ev,wp=egWbPhase();
  const aff=Object.values(EG_AFF).map(a=>a.n).join('、');
- return`<div class="gp"><h3>${EG_WB.ic} 世界首领 <span class="r dim">${egWbUnlocked()?(wp<EG_WB.dur?'降临中':'下次 '+egTime(EG_WB.cyc-wp)):'🔒 通关普通后'}</span></h3><div class="dim">${EG_WB.n}每 ${EG_WB.cyc/3600} 小时（游戏时间）降临，持续 ${EG_WB.dur/60} 分钟，提前 2 分钟预告。随机携带 1 条首领词缀。击败必得 2 件暗金（威能几率×3）、稀有、高阶符文与 2 枚钥石。</div>
+ return`<div class="gp"><h3>${EG_WB.ic} 世界首领 <span class="r dim">${egWbUnlocked()?(wp<EG_WB.dur?'降临中':'下次 '+egTime(EG_WB.cyc-wp)):'🔒 通关普通后'}</span></h3><div class="dim">${EG_WB.n}每 ${EG_WB.cyc/3600} 小时（游戏时间）降临，持续 ${EG_WB.dur/60} 分钟，提前 2 分钟预告。随机携带 1 条首领词缀。击败必得 2 件极品、1 件稀有装备与黑铁矿。</div>
  <div class="btns"><button class="btn sm ${ev.wbAuto!==0?'on':''}" onclick="EG().ev.wbAuto=EG().ev.wbAuto===0?1:0;egRefresh()">降临时自动迎战</button>${egWbUnlocked()&&wp<EG_WB.dur?'<button class="btn sm gold" onclick="egWbStart()">迎战</button>':''}</div></div>
  <div class="gp"><h3>新精英词缀</h3><div class="dim">${aff}。噩梦起章节首领 50% 携带 1 条（${EG_BOSSAFF.map(k=>EG_AFF[k].n).join('/')}）。</div>
  ${Object.values(EG_AFF).map(a=>`<div class="row"><span>${a.n}</span><span class="dim">${{血肉再生:'每秒回复 3% 生命（中毒时 ×0.3）',死亡爆裂:'死亡时火焰爆炸波及全体',镜像:'生命低于 50% 时分裂出镜像',骨盾守护:'每 10 秒 2 秒无敌护盾',荆棘:'受英雄伤害时反弹 6%（单次≤5%生命）',冰狱:'每 8-11 秒冻结英雄 1 秒（不可冻结免疫）'}[a.n]}</span></div>`).join('')}</div>`}

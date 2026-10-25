@@ -1,6 +1,6 @@
 'use strict';
 // settings.js — 统一设置页：终局页第三行「⚙ 设置」打开。复用各模块原有面板/开关与存储（不复制状态）：
-// 角色页原「设置」(自动加点/换装、怪物难度、重置存档)、声音(audio.js)、省电(power.js)、账号与云存档(cloud.js) 均从角色页移入此处，角色页只留一个快捷按钮。
+// 角色页原「设置」(自动成长/换装、怪物难度、重置存档)、声音(audio.js)、省电(power.js)、账号与云存档(cloud.js) 均从角色页移入此处，角色页只留一个快捷按钮。
 // 背包「自动回收」开关、战斗页「自动推进」快捷按钮保持原位。须在 power.js / mdiff.js / cloud.js 之后加载。
 (function(){
 if(typeof renderHero!=='function')return;
@@ -8,7 +8,7 @@ const isSet=g=>(g.querySelector('h3')?.textContent||'').trim().startsWith('设�
 // 在离屏 #panel 中生成一份角色页，取出设置相关块（各模块包装层照常生效）
 function grab(){const real=document.getElementById('panel');if(!real)return null;real.id='panel_real';const tmp=document.createElement('div');tmp.id='panel';tmp.style.display='none';document.body.appendChild(tmp);
  let o={};try{_rh0();const gs=[...tmp.querySelectorAll('.gp')];const g=gs.find(isSet);
-  o.game=g?g.innerHTML.replace(/<h3>[\s\S]*?<\/h3>/,''):'';o.audio=tmp.querySelector('#audioSet')?.innerHTML.replace(/<h3>[\s\S]*?<\/h3>/,'')||'';
+  o.game=g?g.innerHTML.replace(/自动出售（无凹槽）/g,'自动回收').replace(/<h3>[\s\S]*?<\/h3>/,''):'';o.audio=tmp.querySelector('#audioSet')?.innerHTML.replace(/<h3>[\s\S]*?<\/h3>/,'')||'';
   o.pwr=tmp.querySelector('#pwrSet')?.innerHTML.replace(/<h3>[\s\S]*?<\/h3>/,'')||'';o.quest=gs.find(g=>(g.querySelector('h3')?.textContent||'').trim()==='任务')?.outerHTML||'';o.acct=tmp.querySelector('.gp.acct')?.innerHTML.replace(/<h3>[\s\S]*?<\/h3>/,'')||''}
  finally{tmp.remove();real.id='panel'}return o}
 const _rh0=renderHero;
@@ -18,7 +18,7 @@ renderHero=function(){const r=_rh0.apply(this,arguments);if(window.__NOUI)return
 function sec(t,h){return h?`<div class="gp setsec"><h3>${t}</h3>${h}</div>`:''}
 window.setUI=function(){const o=grab();if(!o)return;
  const auto=`<div class="row"><span>自动推进<br><small class="dim">关闭则原地挂机（战斗页也可切换）</small></span><button class="btn sm ${S.auto?'on':''}" onclick="S.auto^=1;render()">${S.auto?'已开启':'关闭'}</button></div>`;
- // 游戏块拆分：怪物难度/重置存档 → 游戏；自动加点/换装 → 战斗/自动
+ // 游戏块拆分：怪物难度/重置存档 → 游戏；自动成长/换装 → 战斗/自动
  const d=document.createElement('div');d.innerHTML=o.game;const md=d.querySelector('.mdset');const rs=[...d.querySelectorAll('button')].find(b=>/重置存档/.test(b.textContent));
  const mdH=md?md.outerHTML:'';if(md)md.remove();if(rs)rs.remove();
  [...d.querySelectorAll('.dim')].filter(e=>/自动出售/.test(e.textContent)).forEach(e=>e.remove());

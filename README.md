@@ -1,14 +1,9 @@
 # 老羊传奇
 
-竖屏挂机刷宝的 1.76 传奇。以「老羊传奇」为代码底子，战斗画面另接传奇卡片战场。
+浏览器单机挂机传奇，战士、法师、道士，传奇七章、技能书、英雄与合击。当前规则见 [DESIGN.md](DESIGN.md)，待办见 [TODO.md](TODO.md)。
 
-- **来源**：从 [idle-arpg](https://github.com/mbfish2026-max/idle-arpg) 当前 main 干净复制（**不保留** git 历史）
-- **来源 commit**：`a1501db3062fe437d509df517def1ae60edeaca7`
-- **本地路径**：`/workspace/laoyang-chuanqi`
-- **版本**：`cq-20261021z`
-- **存档前缀**：`cq_` / SW 缓存名 `cq-*`（与暗夜 `anye-` 隔离）
-- **云存档表**：`public.cq_saves`（见 `sql/laoyang_saves.sql`，需管理员在 Supabase 执行）
+浏览器通过 index.html 启动。游戏存档在内存 GS 与云端 SQL 表 cq_saves；新存储键统一 cq- 前缀，旧 cq_ 键只读迁移。登录态同时持久化至 localStorage 和 IndexedDB。
 
-本地预览：`python3 -m http.server` 后打开 `index.html`。
+旧装备、进度、购买次数必须保留；禁止属性只在迁移层一次性折成传奇属性，原始记录供核对，不重新参与有效计算。品质与装备迁移由对应装备模块维护。
 
-设计方案：`/workspace/design/chuanqi_v2_plan.md`。战斗挂载点见 `docs/battle_mount.md`。
+历史文档在 [docs/archive](docs/archive/)，不作为现行规则。meta 清理范围与验证见 [docs/diablo_clean_meta.md](docs/diablo_clean_meta.md)。

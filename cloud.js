@@ -10,15 +10,15 @@ let SB=null,CU=null,CLOUD={},CL_BUSY=0,CL_ERR='',CL_PROFILE=null;
 const CL={ready:0,dirty:0,state:'',fail:0,retryT:null,lastUp:0,kicked:0,warned:0};
 function clMetaSave(){}
 // 登录态持久化：Supabase 会话（含长期 refresh token）写 localStorage，并镜像到 IndexedDB；localStorage 被清时从 IndexedDB 恢复（iOS 主屏幕 Web App）
-const CL_IDB=(()=>{let p=null;const db=()=>p||(p=new Promise((res,rej)=>{try{const r=indexedDB.open('cq_auth',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}));
- const tx=(m,f)=>db().then(d=>new Promise((res,rej)=>{const t=d.transaction('kv',m),q=f(t.objectStore('kv'));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)})).catch(()=>null);
- return{get:k=>tx('readonly',s=>s.get(k)),set:(k,v)=>tx('readwrite',s=>s.put(v,k)),del:k=>tx('readwrite',s=>s.delete(k))}})();
-const CL_STORE={getItem:async k=>{let v=null;try{v=localStorage.getItem(k)}catch(e){}if(v!=null)return v;v=await CL_IDB.get(k);if(v!=null)try{localStorage.setItem(k,v)}catch(e){}return v==null?null:v},
- setItem:async(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}await CL_IDB.set(k,v)},removeItem:async k=>{try{localStorage.removeItem(k)}catch(e){}await CL_IDB.del(k)}};
-async function clHasStored(){try{return!!(await CL_STORE.getItem('cq_sb_auth'))}catch(e){return false}}
+const CL_IDB=(()=>{const pending={};const db=(name='cq-auth')=>pending[name]||(pending[name]=new Promise((res,rej)=>{try{const r=indexedDB.open(name,1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}));
+ const tx=(m,f,name)=>db(name).then(d=>new Promise((res,rej)=>{const t=d.transaction('kv',m),q=f(t.objectStore('kv'));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)})).catch(()=>null);
+ return{get:async k=>(await tx('readonly',s=>s.get(k)))??(await tx('readonly',s=>s.get(k),'cq_auth')),set:(k,v)=>tx('readwrite',s=>s.put(v,k)),del:async k=>{await tx('readwrite',s=>s.delete(k));await tx('readwrite',s=>s.delete(k),'cq_auth')}}})();
+const CL_STORE={getItem:async k=>{let v=null;try{v=cqRead(localStorage,k)}catch(e){}if(v!=null)return v;v=await CL_IDB.get(k);if(v==null&&k.startsWith('cq-'))v=await CL_IDB.get('cq_'+k.slice(3));if(v!=null){try{localStorage.setItem(k,v)}catch(e){}await CL_IDB.set(k,v)}return v==null?null:v},
+ setItem:async(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}await CL_IDB.set(k,v)},removeItem:async k=>{try{localStorage.removeItem(k)}catch(e){}await CL_IDB.del(k);if(k.startsWith('cq-')){try{localStorage.removeItem('cq_'+k.slice(3))}catch(e){}await CL_IDB.del('cq_'+k.slice(3))}}};
+async function clHasStored(){try{return!!(await CL_STORE.getItem('cq-sb_auth'))}catch(e){return false}}
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 function restoringUI(err){CL_GATE=1;modal(`<div class="mtitle">老羊传奇</div><div class="gp login"><div class="dim" id="lg_msg" style="text-align:center;padding:14px 0">${err?'连接云端失败，正在自动重试…<br>'+err:'正在恢复登录…'}</div>${err?'<div class="btns c"><button class="btn" onclick="cloudBoot()">立即重试</button> <button class="btn" onclick="loginUI(\'in\')">重新登录</button></div>':''}</div>`)}
-function sbReady(){if(SB)return Promise.resolve(SB);return new Promise(res=>{const done=()=>{try{SB=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'cq_sb_auth',detectSessionInUrl:false,storage:CL_STORE}})}catch(e){CL_ERR='云服务不可用'}res(SB)};
+function sbReady(){if(SB)return Promise.resolve(SB);return new Promise(res=>{const done=()=>{try{SB=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'cq-sb_auth',detectSessionInUrl:false,storage:CL_STORE}})}catch(e){CL_ERR='云服务不可用'}res(SB)};
  if(window.supabase&&window.supabase.createClient)return done();const s=document.createElement('script');s.src=SB_CDN;s.onload=done;s.onerror=()=>{CL_ERR='无法加载云服务，请检查网络后刷新';res(null)};document.head.appendChild(s)})}
 // ---------- 状态指示 ----------
 function clSetState(st){CL.state=st;if(typeof document==='undefined'||window.__NOUI)return;let e=document.getElementById('clsync');
@@ -27,19 +27,19 @@ function clSetState(st){CL.state=st;if(typeof document==='undefined'||window.__N
 function clDirty(){CL.dirty=1}
 // ---------- 账号存档导出 / 导入（内存 GS） ----------
 function exportAccount(){save();const a=JSON.parse(GS.getItem(ACCT_KEY));const chars={};for(const c of a.chars){const r=GS.getItem(CH_PRE+c.id);if(r)chars[c.id]=JSON.parse(r)}
- const extra={};const rk=GS.getItem('cq_eg_rank');if(rk)extra.cq_eg_rank=rk;
+ const extra={};const rk=GS.getItem('cq-eg_rank');if(rk)extra['cq-eg_rank']=rk;
  return{fmt:1,acct:a,chars,extra,profile:{nickname:CL_PROFILE&&CL_PROFILE.nickname||''},at:Date.now()}}
 function importAccount(d){if(!d||!d.acct||!d.chars)throw new Error('云端存档格式错误');ST_RESET=1;GS.clear();
  GS.setItem(ACCT_KEY,JSON.stringify(d.acct));for(const id in d.chars)GS.setItem(CH_PRE+id,JSON.stringify(d.chars[id]));for(const k in d.extra||{})GS.setItem(k,d.extra[k]);ST_RESET=0;
  ACCT=null;resetRuntime();load();calc();H.life=ST.life;H.mana=ST.mana;if(!window.__NOUI&&typeof offline==='function'){if(CL.inSync){const _m=modal;modal=h=>{CL.offHtml=h};try{offline()}finally{modal=_m}}else offline()}save();if(!window.__NOUI){closeM();render()}}
 function summary(d){if(!d||!d.acct)return'（空）';return d.acct.chars.map(c=>`${c.name} Lv.${(d.chars[c.id]||{}).lvl||c.lvl}`).join('、')}
 // ---------- 旧本机存档（localStorage）读取 / 合并 / 删除 ----------
-function legacyKeys(){const out=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^cq_(save_|acct|ch_|eg_rank|cloud$)/.test(k))out.push(k)}}catch(e){}return out}
-function legacyRead(acctKey,pre){try{const a=JSON.parse(localStorage.getItem(acctKey));if(!a||!a.chars)return null;const chars={};for(const c of a.chars){const r=localStorage.getItem(pre+c.id);if(r)chars[c.id]=JSON.parse(r)}return{fmt:1,acct:a,chars}}catch(e){return null}}
+function legacyKeys(){const out=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^cq[-_](save_|acct|ch_|ch@|eg_rank|cloud$)/.test(k))out.push(k)}}catch(e){}return out}
+function legacyRead(acctKey,pre){try{const a=JSON.parse(cqRead(localStorage,acctKey));if(!a||!a.chars)return null;const chars={};for(const c of a.chars){const r=cqRead(localStorage,pre+c.id);if(r)chars[c.id]=JSON.parse(r)}return{fmt:1,acct:a,chars}}catch(e){return null}}
 function legacyExport(uid){let L=[];const own=uid&&legacyRead('cq_acct@'+uid,'cq_ch@'+uid+'_');if(own)L.push(own);const g=legacyRead('cq_acct','cq_ch_');if(g)L.push(g);
- if(!g){try{const o=JSON.parse(localStorage.getItem('cq_save_v2'));if(o&&[2,3].includes(o.v))L.push({fmt:1,acct:{v:1,cur:1,nid:2,suid:1e9,chars:[{id:1,name:o.name||'战士',cls:'战士',lvl:o.lvl||1,t:o.last||0}],shared:[]},chars:{1:o}})}catch(e){}}
+ if(!g){try{const o=JSON.parse(cqRead(localStorage,'cq-save_v2'));if(o&&[2,3].includes(o.v))L.push({fmt:1,acct:{v:1,cur:1,nid:2,suid:1e9,chars:[{id:1,name:o.name||'战士',cls:'战士',lvl:o.lvl||1,t:o.last||0}],shared:[]},chars:{1:o}})}catch(e){}}
  L=L.filter(hasProgress);if(!L.length)return null;let d=L[0];for(const x of L.slice(1))d=mergeAccounts(d,x);
- try{const rk=localStorage.getItem('cq_eg_rank');if(rk)d.extra={cq_eg_rank:rk}}catch(e){}return d}
+ try{const rk=cqRead(localStorage,'cq-eg_rank');if(rk)d.extra={'cq-eg_rank':rk}}catch(e){}return d}
 function chProg(o){return o?[o.lvl||0,o.xp||0,o.kills||0]:[0,0,0]}
 function progGT(a,b){for(let i=0;i<3;i++){if(a[i]!==b[i])return a[i]>b[i]}return false}
 function hasProgress(d){return!!d&&d.acct.chars.some(c=>{const o=d.chars[c.id];return o&&(o.lvl>1||o.xp||o.kills)})||!!d&&(d.acct.shared||[]).some(p=>p.length)}

@@ -3,17 +3,35 @@
 // 通过包装 game.js 中的函数实现，尽量不改动 game.js 本体。
 const ACX={};const HSOFT=0.008,DSOFT=0.018;// 高等级怪物生命/伤害成长软化(近似调校)
 const GATE=4;let MAPD=null;
-// 地狱后期章节收紧等级宽限：第3/4章 2 级，第5章 0 级(世界之心/毁灭王座需≈84–85级)，让地狱曲线平滑、终章稳定通关
+// 章节推进宽限由 HELL_GATE 提供；传奇七章与显示等级由 mir2_maps/progression 接管。
 const GATE_N=6,GATE_NE=8;// 普通难度挂机推进宽限：章内区域间 6 级、进入新章节首区域 8 级（噩梦仍 GATE=4，地狱见 HELL_GATE）
 function gateOf(a,d,entry){return d===2?HELL_GATE[a]:d===0?(entry?GATE_NE:GATE_N):GATE}
 const ELK=['fire','cold','light','pois'],ELN={phys:'物',fire:'火',cold:'冰',light:'电',pois:'毒',magic:'魔'};
-function curPen(){return DIFFS[S.diff].pen}
+function curPen(){return 0}
 // ---------- 存档 / 进度 ----------
 function pkey(a=S.act,d=S.diff){return d+'_'+a}
 function syncProg(){if(!S.Q)return;S.Q[S.diff]=S.q;const k=pkey();S.CL[k]=S.cleared;S.UN[k]=S.unl;S.ZN[k]=S.zone}
+function cqMetaParaDefense(){
+ const pts=S.eg&&S.eg.para&&S.eg.para.pts;if(!pts||!pts.allres)return;
+ S.cqMetaHistory=S.cqMetaHistory||{};const r=Math.max(0,+pts.allres||0);
+ S.cqMetaHistory.paraAllres=(S.cqMetaHistory.paraAllres||0)+r;
+ const b=S.bon||(S.bon={});b.def=(b.def||0)+r*4;b.mdef=(b.mdef||0)+r*4;b.attack=(b.attack||0)+r;
+ delete pts.allres;
+}
+function cqMetaRewards(){cqMetaParaDefense();
+ if(S.cqMetaRewardsV1)return;S.cqMetaHistory=S.cqMetaHistory||{};
+ const b=S.bon||(S.bon={}),r=Math.max(0,+b.res||0),q=Math.max(0,+S.sockq||0);
+ S.cqMetaHistory.bonRes=b.res||0;S.cqMetaHistory.sockq=S.sockq||0;
+ // 旧永久防护折为固定防御与魔御，同时补固定攻击，原始值留档核对。
+ b.def=(b.def||0)+r*4;b.mdef=(b.mdef||0)+r*4;b.attack=(b.attack||0)+r;
+ if(q)S.gold=(S.gold||0)+q*5000;
+ delete b.res;delete S.sockq;
+ S.cqQuestReward=S.cqQuestReward||{};for(const d in S.Q||{})for(const k of ['a5q1','a5q3'])if(S.Q[d][k])S.cqQuestReward[d+'_'+k]=1;
+ S.cqMetaRewardsV1=1;
+}
 function migrate(){
  if(!S.Q){S.Q={0:S.q||{}};S.CL={'0_0':S.cleared||{}};S.UN={'0_0':S.unl||0};S.ZN={'0_0':S.zone||0};S.diff=0;S.act=0}
- S.ZN=S.ZN||{};S.actU=S.actU||{0:0};S.diffU=S.diffU||0;S.bon=S.bon||{life:0,res:0};S.sockq=S.sockq||0;S.pers=S.pers||0;
+ S.ZN=S.ZN||{};S.actU=S.actU||{0:0};S.diffU=S.diffU||0;S.bon=S.bon||{life:0};cqMetaRewards();S.pers=S.pers||0;
  if(S.act1done)S.actU[0]=Math.max(S.actU[0]||0,1);
  S.q=S.Q[S.diff]||(S.Q[S.diff]={});const k=pkey();S.cleared=S.CL[k]||(S.CL[k]={});S.unl=S.UN[k]||0;
  applyDiff();MAPA=S.act;MAPD=S.diff}
@@ -27,16 +45,15 @@ function goAct(a,d,quiet){if(!actOpen(a,d))return toast('尚未解锁');syncProg
  log(`<b class="quest">前往 ${DIFFS[d].n} · ${ACTS[a].n}（营地：${ACTS[a].camp}）</b>`);if(!quiet)render()}
 function unlockAfter(a){const d=S.diff;
  if(a<ACTS.length-1){S.actU[d]=Math.max(S.actU[d]||0,a+1);log(`<b class="quest">${DIFFS[d].n}难度 ${ACTS[a+1].n} 已解锁</b>`)}
- else if(d<DIFFS.length-1){S.diffU=Math.max(S.diffU,d+1);S.actU[d+1]=Math.max(S.actU[d+1]||0,0);log(`<b class="quest">${DIFFS[d+1].n}难度已解锁！（抗性 ${DIFFS[d+1].pen}）</b>`);toast(DIFFS[d+1].n+'难度已解锁')}
+ else if(d<DIFFS.length-1){S.diffU=Math.max(S.diffU,d+1);S.actU[d+1]=Math.max(S.actU[d+1]||0,0);log(`<b class="quest">${DIFFS[d+1].n}难度已解锁！</b>`);toast(DIFFS[d+1].n+'难度已解锁')}
  else log('<b class="quest">恭喜！地狱难度全部章节已完成</b>')}
 function nextStage(){const a=S.act,d=S.diff;if(a<ACTS.length-1&&actOpen(a+1,d))return[a+1,d];if(a===ACTS.length-1&&d<DIFFS.length-1&&actOpen(0,d+1))return[0,d+1];return null}
 
-// ---------- 怪物：难度、抗性/免疫、精英词缀、技能 ----------
-function resFor(T,d,isBoss){const b=Object.assign({},T.res||{});if(!d)return b;const o=d===1?T.resN:T.resH;const r={};
- for(const k in b)r[k]=b[k]>0?Math.min(isBoss?90:95,b[k]+(d===1?15:30)):b[k];
- if(o&&!isBoss)Object.assign(r,o);else if(o)for(const k in o)r[k]=Math.min(90,o[k]);return r}
+// ---------- 怪物：难度、防御/魔御、精英词缀、技能 ----------
+// 将旧怪物防护表统一成固定魔御；生命、攻击和首领成长保持原配置。
+function monsterMagicDefense(T,lv,d){const r=Object.assign({},T.res||{},d===1?T.resN:d===2?T.resH:{});const old=Math.min(80,Math.max(0,...['fire','cold','light','pois','magic'].map(k=>Math.max(0,r[k]||0)+(r[k]>0?(d===1?15:d===2?30:0):0))));const scale=100+Math.max(0,lv-1)*5;return Math.max(T.mdef||0,scale*old/(100-old))}
 const _mkMon=mkMon;mkMon=function(key,lv,flag){const m=_mkMon(key,lv,flag),T=MONS[key]||BOSSES[key],D=DIFFS[S.diff]||DIFFS[0];
- Object.assign(m.res,resFor(T,S.diff,!!BOSSES[key]));
+ m.res={};m.mdef=monsterMagicDefense(T,lv,S.diff);const basePhys=(T.res&&T.res.phys)||0;const rp=Math.min(80,Math.max(0,basePhys+(basePhys>0?(S.diff===1?15:S.diff===2?30:0):0)));m.def=Math.max(m.def,(100+Math.max(0,lv-1)*5)*rp/(100-rp));
  const hg=lv>25?1/(1+HSOFT*(lv-25)):1,dg=lv>25?1/(1+DSOFT*(lv-25)):1;m.max=m.hp=Math.round(m.max*D.hp*hg*(typeof clsHpK==="function"?clsHpK():1));const bfm=BOSSES[key]&&S.bf?Math.max(0.5,Math.pow(0.8,S.bf[bfKey(key)]||0)):1;m.dmg=m.dmg.map(x=>x*D.dmg*dg*bfm);m.exp=m.exp*expCurve(lv)*D.exp*(typeof clsXpK==="function"?clsXpK():1);m.sk=(T.sk||[]).slice();m.skT=2.5+rnd()*3;m.demon=T.demon;
  if(flag==='uniq'){const ks=Object.keys(ELITE_AFF).filter(k=>!(k==='mb'&&false));const n=Math.min(3,D.naff||1);const aff=[];
   while(aff.length<n){const k=pick(ks);if(!aff.includes(k))aff.push(k)}for(const k of aff)ELITE_AFF[k].f(m);m.aff=aff.map(k=>ELITE_AFF[k].n);m.n=pick(UNIQ_T)+'·'+T.n}
@@ -44,11 +61,9 @@ const _mkMon=mkMon;mkMon=function(key,lv,flag){const m=_mkMon(key,lv,flag),T=MON
  if(!BOSSES[key]){m.max=m.hp=Math.max(1,Math.round(m.max*DENSITY.hp));m.dmg=m.dmg.map(x=>x*DENSITY.dmg);m.exp*=DENSITY.exp}
  if(S.diff===2)m.exp*=HELL_ACT_EXP[S.act]||1;
  if(!S.diff&&S.act===0)m.dmg=m.dmg.map(x=>x*NORM_EARLY.dmg);
- m.imm=Object.keys(m.res).filter(k=>m.res[k]>=100);return m};
-// 免疫：抗性≥100。诅咒对免疫怪物只有 1/5 效果（同原版机制），未打破则伤害为 0
-resOf=function(m,k){let r=m.res[k]||0;const c=m.cur&&m.cur.until>GT?m.cur:null;let red=0;
- if(c){if(c.id==='ad'&&k==='phys')red=100;if(c.id==='de'&&k==='phys')red=50;if(c.id==='lr'&&k!=='phys'&&k!=='magic')red=c.x||0}
- if(r>=100){r-=red/5;return r>=100?100:clamp(r,-100,95)}return clamp(r-red,-100,95)};
+ m.imm=[];return m};
+// 防御/魔御为唯一防护来源；不读取元素免疫或降抗诅咒。
+resOf=function(m,k){const d=k==='phys'?Math.max(0,m.def||0):Math.max(0,m.mdef||0);return 100*d/(d+100+Math.max(0,(m.lv||1)-1)*5)};
 const DN=n=>Math.max(1,Math.round(n*DENSITY.n));
 function zoneMons(z){return z.mons&&z.mons.length?z.mons:['imp']}
 spawnWave=function(){const z=zoneData(),wi=S.wave,last=wi>=z.w-1;const mons=zoneMons(z);
@@ -71,8 +86,8 @@ bossKilled=function(m){if(!m.qb)return;if(MON.some(x=>x!==m&&x.hp>0&&x.qb))retur
 // ---------- 怪物技能 ----------
 const SKCD={charge:5,frost:9,nova:9,spark:4,randel:4,poisbreath:8,inferno:8,leech:5,manaburn:5,curse:9,stun:6,web:7,revive:6,heal:6,corpsefire:6};
 function hurtHero(v,el,m,dodge){if(dodge&&!hitChance(m.ar,ST.def,m.lv,S.lvl)){floatHero('闪避','#aaa');return 0}
- if(el==='phys'){v=Math.max(1,v-ST.dr);const ab=Math.min(H.abs,v);H.abs-=ab;v-=ab}else v=v*(1-ST.res[el]/100);v=Math.round(v);if(v>0){H.life-=v;floatHero('-'+v,{fire:'#f84',cold:'#8cf',light:'#ff6',pois:'#6f6'}[el]||'#f44')}return v}
-function hurtAlly(a,v,el){if(el!=='phys')v*=1-(a.res||0)/100;v=Math.round(v);a.hp-=v;a.hitT=0.25;floatNum('a'+a.uid,v,'#f66');return v}
+ if(el==='phys'){v=Math.max(1,v-ST.dr);const ab=Math.min(H.abs,v);H.abs-=ab;v-=ab}else v=el==='pois'&&window.CQMir2Equip?CQMir2Equip.magicGuard(v,el):Math.max(1,v*100/(100+((S.bon&&S.bon.mdef)||0)));v=Math.round(v);if(v>0){H.life-=v;floatHero('-'+v,{fire:'#f84',cold:'#8cf',light:'#ff6',pois:'#6f6'}[el]||'#f44')}return v}
+function hurtAlly(a,v,el){v=Math.max(1,v-(el==='phys'?(a.def||0):(a.mdef||0)));v=Math.round(v);a.hp-=v;a.hitT=0.25;floatNum('a'+a.uid,v,'#f66');return v}
 function aoe(m,v,el){hurtHero(v,el,m,0);for(const a of ALLY)if(a.hp>0)hurtAlly(a,v*0.8,el)}
 function single(m,v,el,dodge){const al=ALLY.filter(a=>a.hp>0);const w=al.find(a=>a.kind==='wall');const tg=w||(al.length&&rnd()<0.6?pick(al):'hero');if(tg==='hero')return hurtHero(v,el,m,dodge);return hurtAlly(tg,v,el)}
 function monSkill(m,s){let avg=(m.dmg[0]+m.dmg[1])/2;if(curseOf(m,'wk'))avg*=0.67;if(curseOf(m,'de'))avg*=0.5;const el=m.el&&m.el!=='phys'?m.el:null;
@@ -86,7 +101,7 @@ function monSkill(m,s){let avg=(m.dmg[0]+m.dmg[1])/2;if(curseOf(m,'wk'))avg*=0.6
  case'inferno':aoe(m,avg*0.9,'fire');break;
  case'leech':{const v=single(m,avg,'phys',1);m.hp=Math.min(m.max,m.hp+v);break}
  case'manaburn':{const v=Math.round(avg*1.5);H.mana=Math.max(0,H.mana-v);floatHero('噬法-'+v,'#58f');break}
- case'curse':H.curse=GT+6;calc();floatHero('受咒：抗性-25','#c3f');break;
+ case'curse':single(m,avg,'magic',0);floatHero('魔法冲击','#c3f');break;
  case'stun':if(single(m,avg*1.2,'phys',1)>0&&!ST.cbr){H.castT+=0.8;floatHero('眩晕','#fc6')}break;
  case'web':H.castT+=0.5;floatHero('缠网','#ccc');break;
  case'revive':{const i=CORPSE.findIndex(c=>MONS[c.key]);if(i<0||liveMon().length>=8)return 0;const c=CORPSE.splice(i,1)[0];const n=mkMon(c.key,c.lv);n.exp*=0.5;n.n='复苏·'+n.n;MON.push(n);log(`${m.n} 复活了 ${n.n}`);break}
@@ -104,11 +119,12 @@ function monsTick(dt){const ms=liveMon();let chill=0;
 
 // ---------- 角色属性：任务永久奖励、随从光环、受咒 ----------
 const _calc=calc;calc=function(){const o=_calc();const b=S.bon||{life:0,res:0};o.life+=b.life||0;
- for(const k in o.res){let v=o.res[k];if(b.res&&v<75)v=Math.min(75,v+b.res);if(typeof H!=='undefined'&&H.curse>GT)v-=25;o.res[k]=v}
+ cqMetaRewards();o.def+=b.def||0;o.mdef=(o.mdef||0)+(b.mdef||0);o.wmin+=b.attack||0;o.wmax+=b.attack||0;
+ for(const k in o.res)o.res[k]=0;
  ST=o;return o};
 
 // ---------- 任务 ----------
-const _questDone=questDone;questDone=function(q){_questDone(q);const d=S.diff,Q=QUESTS[q];
+const _questDone=questDone;questDone=function(q){cqMetaRewards();if(S.q[q])return;const d=S.diff,Q=QUESTS[q],rk=d+'_'+q;S.cqQuestReward=S.cqQuestReward||{};if(S.cqQuestReward[rk])return;_questDone(q);S.cqQuestReward[rk]=1;
  switch(q){
  case'q2':break;
  case'a2q1':if(window.CQSys&&CQSys.bookGive)CQSys.bookGive(1);break;
@@ -117,9 +133,9 @@ const _questDone=questDone;questDone=function(q){_questDone(q);const d=S.diff,Q=
  case'a3q4':{const x=S.atb||(S.atb={}),k=(typeof clsBase==='function'&&clsBase().main||['str'])[0];x[k]=(x[k]|0)+3;x.vit=(x.vit|0)+2;calc();break}
  case'a4q1':if(window.CQSys&&CQSys.bookGive)CQSys.bookGive(2);break;
  case'a4q2':{const g=[1500,3000,6000][d];S.gold+=g;log('熔炉迸出 '+g+' 金币');break}// 原奖励宝石+符文（已删除）改金币
- case'a5q1':S.sockq++;toast('铁匠：可为一件物品加凹槽');break;
+ case'a5q1':S.gold+=5000;toast('铁匠赠予金币 5000');break;
  case'a5q2':{const g=[2000,4000,8000][d];S.gold+=g;log('获得 '+g+' 金币');break}// 原奖励符文×3（已删除）改金币
- case'a5q3':S.bon.res+=10;calc();break;
+ case'a5q3':S.bon.def=(S.bon.def||0)+10;S.bon.mdef=(S.bon.mdef||0)+10;calc();break;
  case'a5q4':S.pers++;toast('可个性化一件物品');break;
  case'a5q5':{const x=Math.round((xpNeed(S.lvl+1)-xpNeed(S.lvl))*0.6);gainXp(x);log('远古英灵的祝福：经验 +'+fmt(x));break}
  }
@@ -155,31 +171,11 @@ function stuckTick(dt){const ms=liveMon();const hp=ms.reduce((a,m)=>a+m.hp/m.max
 const _step=step;step=function(dt){_step(dt);if(!ST)return;stuckTick(dt);monsTick(dt);ACX.eqT=(ACX.eqT||0)+dt;if(ACX.eqT>3){ACX.eqT=0;}};
 
 // ---------- 物品：加凹槽 / 个性化 （任务奖励） ----------
-function addSock(uid){const f=findItem(uid);if(!f||S.sockq<=0)return;const it=f.it,b=BASEM[it.b];if(it.k||!b.sock||it.sock||it.rw!=null)return;
- const mx=Math.max(1,maxSock(b,it.il));it.sock=it.q<=2?mx:it.q===3?Math.min(mx,R(1,2)):1;S.sockq--;log(`铁匠为 ${itemName(it)} 打出 ${it.sock} 个凹槽`);calc();showItem(uid);render()}
-function personalize(uid){const f=findItem(uid);if(!f||S.pers<=0)return;const it=f.it;if(it.k||it.pn||it.rw!=null)return;it.name='亡灵术士的'+it.name;it.pn=1;S.pers--;log('个性化完成：'+it.name);showItem(uid);render()}
+function personalize(uid){const f=findItem(uid);if(!f||S.pers<=0)return;const it=f.it;if(it.k||it.pn||it.rw!=null)return;it.name='勇士的'+it.name;it.pn=1;S.pers--;log('个性化完成：'+it.name);showItem(uid);render()}
 const _showItem=showItem;showItem=function(uid){_showItem(uid);const f=findItem(uid);if(!f||f.it.k)return;const it=f.it,b=BASEM[it.b];const box=document.querySelector('#modal .ipanel .btns.c');if(!box)return;let h='';
- if(S.sockq>0&&b.sock&&!it.sock&&it.rw==null)h+=`<button class="btn gold" onclick="addSock(${uid})">加凹槽×${S.sockq}</button>`;
  if(S.pers>0&&!it.pn&&it.rw==null)h+=`<button class="btn gold" onclick="personalize(${uid})">个性化×${S.pers}</button>`;
  if(h)box.insertAdjacentHTML('afterbegin',h)};
 
 // ---------- UI：战斗页、角色页随从、地图页 ----------
 const _renderFight=renderFight;renderFight=function(){_renderFight();{const fb=$('#fbattle'),bk='bg_act'+(S.act+1);if(fb&&IMG[bk]){fb.style.backgroundImage=`linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.25) 35%,rgba(0,0,0,.7)),url(${IMG[bk]})`}}const e=document.querySelector('#ftop .zn');if(e&&S.diff&&!e.querySelector('.diff'))e.innerHTML=`<b class="diff d${S.diff}">${DIFFS[S.diff].n}</b> `+e.innerHTML};
-renderMap=function(){const P=$('#panel');if(MAPD==null)MAPD=S.diff;if(MAPA==null)MAPA=S.act;const A=ACTS[MAPA],d=MAPD,open=actOpen(MAPA,d),k=pkey(MAPA,d),here=MAPA===S.act&&d===S.diff;
- const q=d===S.diff?S.q:(S.Q[d]||{}),cl=here?S.cleared:(S.CL[k]||{}),unl=here?S.unl:(S.UN[k]||0);
- const imm=key=>{const T=MONS[key];if(!T)return'';const r=resFor(T,d,0);const im=Object.keys(r).filter(x=>r[x]>=100);return im.length?`<span class="imm2">${im.map(x=>ELN[x]).join('')}免</span>`:''};
- const dtabs=DIFFS.map((D,i)=>`<button class="${MAPD===i?'on':''} ${i>S.diffU?'lk':''}" onclick="MAPD=${i};render()">${D.n}${D.pen?`(抗${D.pen})`:''}${i>S.diffU?'🔒':''}</button>`).join('');
- const atabs=ACTS.map((a,i)=>`<button class="${MAPA===i?'on':''} ${actOpen(i,d)?'':'lk'}" onclick="MAPA=${i};render()">第${'一二三四五'[i]}章${actOpen(i,d)?'':'🔒'}</button>`).join('');
- const qs=Object.entries(QUESTS).filter(([,Q])=>Q.act===MAPA);
- P.innerHTML=`<div class="stabs">${dtabs}</div><div class="stabs">${atabs}</div>
- <div class="gp actc"><h3>${A.n} <span class="dim">${DIFFS[d].n}</span></h3><div class="dim">营地：<b>${A.camp}</b> · 章节首领：<b class="bossn">${A.boss}</b> · 怪物等级 ${Math.min(...A.zones.map(z=>mlD(z.ml0,d)))}-${Math.max(...A.zones.map(z=>mlD(z.ml0,d)))}</div>
- <div class="dim">营地服务：随从雇佣/复活（角色页）${S.sockq?` · 铁匠加凹槽×${S.sockq}`:''}${S.pers?` · 个性化×${S.pers}`:''} · 当前：${DIFFS[S.diff].n}·${ACTS[S.act].n.split('·')[1]}</div>
- ${open&&!here?`<div class="btns"><button class="btn sm gold" onclick="goAct(${MAPA},${d});MAPD=${d}">前往 ${A.camp}</button></div>`:''}
- <div class="qlist">${qs.map(([k2,Q])=>`<div class="q ${q[k2]?'ok':''}">${q[k2]?'✔':'○'} ${Q.n}：<span class="dim">${Q.d}</span> → ${Q.rw}</div>`).join('')}</div></div>
- ${!open?`<div class="gp"><div class="dim">🔒 ${d>S.diffU?'击败上一难度终章首领后开放':'击败上一章首领后开放'}</div></div>`:''}
- ${A.zones.map((z,i)=>{const lk=!open||i>unl,cur=here&&i===S.zone,ml=mlD(z.ml0,d);const bs=z.bosses||(z.boss?[z.boss]:[]);const wb=z.bw?Object.values(z.bw).flatMap(x=>x.b):[];
-  return`<div class="zc ${lk?'lock':''} ${cur?'cur':''} ${bs.length||wb.length?'bz':''}" onclick="${lk?'':`mapGo(${MAPA},${d},${i})`}">
-  <div><b>${z.n}</b> ${z.dun?'<span class="tag">地下城</span>':''}${z.side?'<span class="tag">支线</span>':''}${cl[i]?'<span class="tag ok">已肃清</span>':''}<div class="dim">${z.mons.map(m=>MONS[m].n+imm(m)).join('·')}${bs.length?` · 首领 <span class="bossn">${bs.map(b=>BOSSES[b].n).join('、')}</span>`:''}${wb.length?` · 波次首领 <span class="bossn">${wb.map(b=>BOSSES[b].n).join('、')}</span>`:''}</div>
-  ${z.quest?`<div class="q ${q[z.quest]?'ok':''}">${q[z.quest]?'✔':'❗'} 任务：${QUESTS[z.quest].n}（${QUESTS[z.quest].rw}）</div>`:''}${z.part?`<div class="q ${q[z.part[0]+'_'+z.part[1]]?'ok':''}">${q[z.part[0]+'_'+z.part[1]]?'✔':'◇'} 道具：${QUESTS[z.part[0]].parts[z.part[1]]}</div>`:''}</div>
-  <div class="zr"><span>mlvl ${ml}</span><small>${z.w}波</small>${lk?'🔒':cur?'<em>当前</em>':''}</div></div>`}).join('')}`};
 function mapGo(a,d,i){if(a!==S.act||d!==S.diff)goAct(a,d,1);goZone(i);TAB='fight';render()}

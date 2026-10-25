@@ -1,9 +1,9 @@
 'use strict';
 // power.js — 省电（QA）：限帧、后台/锁屏暂停并按离线公式结算、「省电模式」「息屏挂机」。须最后加载（包装各层最终版本的函数）。
 (function(){
-const KEY='cq_pwr';
+const KEY='cq-pwr';
 const mobile=(typeof matchMedia==='function'&&matchMedia('(pointer:coarse)').matches)||/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent||'');
-let P={};try{P=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){P={}}
+let P={};try{P=JSON.parse(cqRead(localStorage,KEY))||{}}catch(e){P={}}
 // 省电模式默认关闭（手机默认开启会关掉攻击/技能特效）；旧版自动开启但未手动设置过(无 m 标记)的一次性重置为关闭
 if(!P.m)P.eco=false;
 const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify({eco:P.eco,m:1}))}catch(e){}};

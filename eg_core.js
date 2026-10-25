@@ -1,23 +1,22 @@
 'use strict';
 // ===== 终局系统核心（第五阶段）：存档字段 S.eg、终局页签、特殊战斗模式框架、游戏时钟 =====
 // 全部通过包装 game.js / acts.js 的全局函数实现；所有全局名以 EG/eg 开头避免冲突。
-// 存档：角色对象新字段 S.eg（缺失字段一律用默认值补齐，兼容多角色存档）；跨角色排行在 GS 'cq_eg_rank'（随账号云存档）。
+// 存档：角色对象新字段 S.eg（缺失字段一律用默认值补齐，兼容多角色存档）；跨角色排行在 GS 'cq-eg_rank'（随账号云存档）。
 const EG_DEF=()=>({v:1,clock:0,
  bounty:{day:'',week:'',d:[],w:[],caches:0,wcaches:0,auto:0,done:0,ret:null},
- rift:{keys:0,max:1,best:0,runs:0,ok:0},
- para:{lv:0,xp:0,pts:{}},
- lp:{arch:{},cube:{w:null,a:null,j:null}},
- season:null,ach:{},title:null,codex:{u:{},s:{}},
+  para:{lv:0,xp:0,pts:{}},
+ ach:{},title:null,codex:{u:{},s:{}},
  ev:{wbN:0,wbNext:0},stat:{}});
 function egFill(o,d){for(const k in d){if(o[k]===undefined||o[k]===null&&d[k]!==null)o[k]=d[k];else if(d[k]&&typeof d[k]==='object'&&!Array.isArray(d[k])&&typeof o[k]==='object'&&o[k])egFill(o[k],d[k])}return o}
-function EG(){if(!S)return EG_DEF();if(!S.eg||typeof S.eg!=='object')S.eg=EG_DEF();else if(!S.eg._ok){egFill(S.eg,EG_DEF());const v=S.eg.ev;if(v&&typeof v==='object')for(const k of['tideB','ember','emberT','autoChest'])delete v[k];if(S.eg.ach)delete S.eg.ach.t1;if(S.eg.stat)for(const k of['tide','tchest'])delete S.eg.stat[k];Object.defineProperty(S.eg,'_ok',{value:1,enumerable:false})}return S.eg}
+function egMetaArchive(e){if(e.metaArchiveV1)return;e.history=e.history||{};for(const k of ['secret','rift'])if(e[k]){e.history[k]=e[k];delete e[k]}if(e.bounty&&Array.isArray(e.bounty.w)){const old=e.bounty.w.filter(w=>w.t==='wrift');if(old.length){e.history.bounty=old;e.bounty.wcaches=(e.bounty.wcaches||0)+old.filter(w=>!w.done).length;e.bounty.w=e.bounty.w.filter(w=>w.t!=='wrift')}}e.history.ach=e.history.ach||{};for(const k of ['l3','p1','p2','r1','r2','r3','r4','x1','x2','m1','t1'])if(e.ach&&e.ach[k]){e.history.ach[k]=e.ach[k];delete e.ach[k]}e.metaArchiveV1=1}
+function EG(){if(!S)return EG_DEF();if(!S.eg||typeof S.eg!=='object')S.eg=EG_DEF();else if(!S.eg._ok){egFill(S.eg,EG_DEF());const v=S.eg.ev;if(v&&typeof v==='object')for(const k of['tideB','ember','emberT','autoChest'])delete v[k];if(S.eg.stat)for(const k of['tide','tchest'])delete S.eg.stat[k];egMetaArchive(S.eg);Object.defineProperty(S.eg,'_ok',{value:1,enumerable:false})}return S.eg}
 function egStat(k,n=1){const s=EG().stat;s[k]=(s[k]||0)+n}
 // 进度判定
 function egDone(d,a){return !!(S.Q&&S.Q[d]&&S.Q[d][ACTS[a].fq])}
 function egNormalDone(){return egDone(0,ACTS.length-1)}
 function egHellDone(){return egDone(2,ACTS.length-1)}
 
-// ---------- 特殊战斗模式（虚隙/秘径/世界首领等）----------
+// ---------- 特殊战斗模式（幽冥圣域/世界首领等）----------
 // EGM={k,name,bg,spawn(),next(),onKill(m),onDie(),top(),quit()}；不入存档（刷新即中止且不扣钥石）
 let EGM=null;
 function egEnter(m){if(EGM)egLeave(1);S.dz=0;EGM=m;MON=[];CORPSE=[];S.wave=0;spawnT=1.5;calc();H.life=ST.life;H.mana=ST.mana;if(m.start)m.start();log(`<b class="egm">进入 ${m.name}</b>`);if(typeof TAB!=='undefined'){TAB='fight';render()}}

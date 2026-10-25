@@ -158,4 +158,4 @@ ACTS[0]=Object.assign(ACTS[0],{n:'第一章 · 新手村',camp:'银杏村',boss:
  Z('毒蛇山谷',10,['redsnake','tigersnake','spider1'],'bg_cave',{boss:'redsnakeking',quest:'q4',dun:1}),
  Z('半兽人古墓',12,['halforc','tigersnake','orcwar'],'bg_catacomb',{w:6,boss:'orclord',quest:'q6',dun:1}),
 ]});
-// 第 2~7 章：M2 起替换（当前保留暗夜原章节数据仅用于推进不崩，名称待改）
+// 第 2~7 章由 mir2_maps.js 的传奇七章表覆盖；保留此处初始化顺序。

@@ -6,8 +6,8 @@
 // 背包护身符、已激活套装档位的词缀；与总值的差额记为「其他来源」（流派被动/威能/魂阶等）。
 // 只在角色页渲染与展开/收起时生成（按装备签名缓存），不进主循环。折叠状态记在 localStorage「cq_bonus_open」。
 // ===================================================================================
-const BX={key:'cq_bonus_open',sig:'',html:'',src:{}};
-function bxOpen(){try{return localStorage.getItem(BX.key)==='1'}catch(e){return false}}
+const BX={key:'cq-bonus_open',sig:'',html:'',src:{}};
+function bxOpen(){try{return cqRead(localStorage,BX.key)==='1'}catch(e){return false}}
 function bxToggle(){const o=!bxOpen();try{localStorage.setItem(BX.key,o?'1':'0')}catch(e){}const el=document.querySelector('#panel .bonusx');if(el)el.outerHTML=bxCard()}
 const bxEsc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
 const bxCls=()=>typeof curCls==='function'?curCls():'nec';

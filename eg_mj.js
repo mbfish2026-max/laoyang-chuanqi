@@ -1,5 +1,5 @@
 'use strict';
-// ===== 幽冥圣域（地狱通关后的分层挑战）：复用 eg_rift.js 的运行框架（随机章节怪池/归一化/进度条/首领），免费无钥石 =====
+// ===== 幽冥圣域（地狱通关后的分层挑战）：使用共用怪池与归一化工具，免费进入 =====
 // 规则：进度 100% → 幽冥圣域之主；5 分钟内通关 → 下一层 +1；超时通关仍发奖励不升层；阵亡 3 次或首领 90 秒无进展 → 层数 -1。
 // 自动推层：从当前层开始，成功 +1；失败 -1 并在该层循环刷，每刷 10 次再试一次失败的那层。幽冥圣域内不做离线结算（后台/息屏 → 退出幽冥圣域）。
 // 存档：S.eg.mj（每角色一份）。
@@ -84,9 +84,8 @@ function egMjPage(){const M=egMj(),L=egMjAutoL(M),ml=EG_MJ.ml(L),in_=EGM&&EGM.k=
   <div class="row"><span>极品/套装 · ${EG_MJ.cur}</span><b>${Math.round(EG_MJ.leg(L)*100)}% · +${EG_MJ.crys(L)}</b></div>
   <div class="row"><span>自动推层<br><small class="dim">成功+1，失败-1并刷${EG_MJ.retry}次再试</small></span><button class="btn sm ${M.auto?'on':''}" onclick="egMj().auto=egMj().auto?0:1;egRefresh()">${M.auto?'已开启':'关闭'}</button></div>
   ${M.wall?`<div class="dim">卡在 ${M.wall} 层：已刷 ${M.farm}/${EG_MJ.retry} 次</div>`:''}
-  <div class="btns">${in_?`<button class="btn" onclick="egLeave()">离开幽冥圣域</button>`:`<button class="btn gold" onclick="egMjStart(egMjAutoL(egMj()))" ${EGM?'disabled':''}>进入 ${egMjAutoL(M)} 层</button>`}<button class="btn sm" onclick="EGT='rift';render()">← 封魔幻境</button></div>
+  <div class="btns">${in_?`<button class="btn" onclick="egLeave()">离开幽冥圣域</button>`:`<button class="btn gold" onclick="egMjStart(egMjAutoL(egMj()))" ${EGM?'disabled':''}>进入 ${egMjAutoL(M)} 层</button>`}<button class="btn sm" onclick="EGT='history';render()">历史记录</button></div>
   <div class="dim">完成 ${M.ok} · 失败 ${M.fail} · 进入 ${M.runs}</div></div>
  <div class="gp"><h3>幽冥圣域碑 <span class="r dim">本账号各角色</span></h3><table class="egrank"><tr><th>#</th><th>角色</th><th>等级</th><th>最高层</th><th>用时</th><th>日期</th></tr>${ch.map((r,i)=>`<tr${r.cur?' class="mjcur"':''}><td>${i+1}</td><td>${r.nm}</td><td>${r.lv}</td><td><b>${r.best||'-'}</b></td><td>${r.best?egTime(r.t):'-'}</td><td>${r.d||'-'}</td></tr>`).join('')}</table></div>`}
-egPage({k:'mj',n:EG_MJ.n,hide:1,parent:'rift',lock:egMjLock,render:egMjPage,intro:'通关地狱后，封魔幻境尽头会裂开一道通往幽冥圣域的门：最高150层，转生开放更深层数，越深越强，奖励越好。'});
+egPage({k:'mj',n:EG_MJ.n,lock:egMjLock,render:egMjPage,intro:'通关地狱后开放幽冥圣域：最高150层，转生开放更深层数，越深越强，奖励越好。'});
 // 封魔幻境页顶部入口（不新增页签行）
-{const P=EG_PAGES.find(p=>p.k==='rift');if(P){const f=P.render;P.render=function(){const lk=egMjLock(),M=egMj();return`<div class="gp mjent"><div class="row"><span>🌀 <b>${EG_MJ.n}</b><br><small class="dim">${lk?'🔒 '+lk:`当前 ${M.cur} 层 · 最高 ${M.best} 层 · ${EG_MJ.ic}${M.cr}`}</small></span><button class="btn sm ${lk?'':'gold'}" onclick="EGT='mj';render()">${lk?'查看':'进入'}</button></div></div>`+f.apply(this,arguments)}}}

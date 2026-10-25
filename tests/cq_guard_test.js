@@ -1,8 +1,10 @@
-// combat_guard.js：有效抗性封顶 80、原地挂机 45 秒无进展刷新本波。node tests/cq_guard_test.js
+// combat_guard.js：防御/魔御计算、原地挂机 45 秒无进展刷新本波。node tests/cq_guard_test.js
 const T=require('./cq_harness')('cq_guard_test');const{G,ok}=T;
 G(`S=newSave();load();S.cls='zs';S.ci=0;clsInit();calc();H.life=ST.life;TAB='fight'`);
 G(`window.M=mkMon(ACTS[0].zones[1].mons[0],10);M.res.fire=120;M.res.cold=100;M.res.light=50`);
-ok(G("resOf(M,'fire')")===80&&G("resOf(M,'cold')")===80,'免疫/超高抗封顶 80');ok(G("resOf(M,'light')")===50,'低于 80 不变');
+G("M.mdef=100;var oldGuard=resOf(M,'fire');M.res.fire=0;M.res.cold=1000;M.cur={id:'lr',until:GT+5,x:1000}");
+ok(G("resOf(M,'fire')===oldGuard&&resOf(M,'cold')===oldGuard&&oldGuard>0&&oldGuard<100"),'元素旧表与降抗不影响魔御');
+G('M.def=200');ok(G("resOf(M,'phys')>oldGuard"),'物理防护使用防御');
 // 直接驱动 stuckTick：原地挂机，怪不掉血、无击杀
 G(`{S.auto=0;EGM=null;const m=mkMon(ACTS[0].zones[1].mons[0],10);MON=[m];ACX.st=0;ACX.k0=S.kills;ACX.mh=undefined;CG.n=0}`);
 for(let i=0;i<44;i++)G('stuckTick(1)');ok(G('MON.length')===1&&G('CG.n')===0,'44 秒内不处理');

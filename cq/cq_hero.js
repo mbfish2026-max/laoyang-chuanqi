@@ -45,8 +45,8 @@
   function defaultHeroProf(p){ return p === 1 ? 3 : 1; }   // 战士带道士，法师/道士带战士（样稿：战神 + 英雄·道士）
 
   // 存档：store 有 load/save（cq_bridge 的 CQSys 适配器，存进 S.hero → 云存档）就用它；否则是 localStorage 形式的兜底（无 CQSys 时 / node 测试）
-  var STORE_KEY = 'cq_battle_hero_v1';
-  function load(store){ if (store && store.load) return store.load(); try { var s = store && store.getItem(STORE_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+  var STORE_KEY = 'cq-battle_hero_v1';
+  function load(store){ if (store && store.load) return store.load(); try { var s = store && (store.getItem(STORE_KEY)||store.getItem('cq_battle_hero_v1')); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
   function save(store, h){ if (store && store.save) return store.save(h); try { if (store) store.setItem(STORE_KEY, JSON.stringify(h)); } catch (e) {} }
 
   function create(playerProf, store){
