@@ -1,0 +1,594 @@
+{
+  "syntax": [
+    {
+      "file": "acts.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "audio.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "audio_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "bloodmoon.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "bonus.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "classes.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cloud.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "combat_guard.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cowlevel.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/cq_hero.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/data_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/gamble_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/hero_page.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_b6.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_equipment.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_equipment_migrate.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_maps.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_sets.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/pages_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "data.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "data_acts.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "data_endgame.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "dlog.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "eg_ach.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "eg_bounty.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "eg_core.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "eg_events.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "eg_mj.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "eg_rift.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "game.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "items.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "late.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "loot.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "power.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "reforge.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "settings.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "shop.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "stash.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "sw.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_guard_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_migrate_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_clean_migrate_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_meta_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_b6_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_integration_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/reforge_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tianguang.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "uber.js",
+      "code": 0,
+      "output": ""
+    }
+  ],
+  "tests": [
+    {
+      "file": "tests/ancient_test.js",
+      "code": 0,
+      "output": "ancient_test: 17 pass, 0 fail\n",
+      "seconds": 32.9
+    },
+    {
+      "file": "tests/ancx_test.js",
+      "code": 0,
+      "output": "ancx_test: 10 pass, 0 fail\n",
+      "seconds": 0.17
+    },
+    {
+      "file": "tests/bloodmoon_test.js",
+      "code": 1,
+      "output": "  ✗ 无护符：免疫封顶 80（combat_guard.js）（immfloor 免疫保底已删除，legacy_prune C10）0\nbloodmoon_test: 14 pass, 1 fail\n",
+      "seconds": 0.47
+    },
+    {
+      "file": "tests/bossloot_test.js",
+      "code": 0,
+      "output": "bossloot_test: 21 pass, 0 fail\n",
+      "seconds": 1.08
+    },
+    {
+      "file": "tests/cls_book_test.js",
+      "code": 0,
+      "output": "cls_book_test: 34 pass, 0 fail\n",
+      "seconds": 0.2
+    },
+    {
+      "file": "tests/cls_hero_budget_test.js",
+      "code": 0,
+      "output": "zs/zs: 15.03%, 合击 25\nzs/fs: 11.06%, 合击 27\nzs/ds: 11.72%, 合击 27\nfs/zs: 12.82%, 合击 26\nfs/fs: 12.72%, 合击 26\nfs/ds: 12.85%, 合击 27\nds/zs: 16.33%, 合击 27\nds/fs: 13.60%, 合击 25\nds/ds: 13.24%, 合击 27\ncls_hero_budget_test: 9 combinations pass\n",
+      "seconds": 33.64
+    },
+    {
+      "file": "tests/cls_hero_test.js",
+      "code": 0,
+      "output": "cls_hero_test: 22 pass, 0 fail\n",
+      "seconds": 0.18
+    },
+    {
+      "file": "tests/cls_pet_test.js",
+      "code": 0,
+      "output": "cls_pet_test: 6 pass, 0 fail\n",
+      "seconds": 0.48
+    },
+    {
+      "file": "tests/cq_attrfix_test.js",
+      "code": 0,
+      "output": "cq_attrfix_test: 14 pass, 0 fail\n",
+      "seconds": 0.19
+    },
+    {
+      "file": "tests/cq_autobest_test.js",
+      "code": 0,
+      "output": "cq_autobest_test: 9 pass, 0 fail\n",
+      "seconds": 0.22
+    },
+    {
+      "file": "tests/cq_autogrow_test.js",
+      "code": 0,
+      "output": "cq_autogrow_test: 58 pass, 0 fail\n",
+      "seconds": 0.21
+    },
+    {
+      "file": "tests/cq_balance_test.js",
+      "code": 0,
+      "output": "cq_balance_test: 15 pass, 0 fail\n",
+      "seconds": 0.18
+    },
+    {
+      "file": "tests/cq_balfix_test.js",
+      "code": 0,
+      "output": "cq_balfix_test: 20 pass, 0 fail\n",
+      "seconds": 0.2
+    },
+    {
+      "file": "tests/cq_enh_detail_test.js",
+      "code": 0,
+      "output": "cq_enh_detail_test: 11 pass, 0 fail\n",
+      "seconds": 0.2
+    },
+    {
+      "file": "tests/cq_enh_test.js",
+      "code": 0,
+      "output": "  +0→+9 平均尝试次数 213.0\ncq_enh_test: 16 pass, 0 fail\n",
+      "seconds": 0.19
+    },
+    {
+      "file": "tests/cq_guard_test.js",
+      "code": 0,
+      "output": "cq_guard_test: 8 pass, 0 fail\n",
+      "seconds": 0.21
+    },
+    {
+      "file": "tests/cq_hero_system_test.js",
+      "code": 0,
+      "output": "cq_hero_system_test: 16 pass, 0 fail\n",
+      "seconds": 0.18
+    },
+    {
+      "file": "tests/cq_icons_test.js",
+      "code": 0,
+      "output": "cq_icons_test: 150 pass, 0 fail\n",
+      "seconds": 0.2
+    },
+    {
+      "file": "tests/cq_late_test.js",
+      "code": 0,
+      "output": "cq_late_test: 9 pass, 0 fail\n",
+      "seconds": 0.29
+    },
+    {
+      "file": "tests/cq_lifepct_test.js",
+      "code": 0,
+      "output": "cq_lifepct_test: 4 pass, 0 fail\n",
+      "seconds": 0.19
+    },
+    {
+      "file": "tests/cq_m1_test.js",
+      "code": 1,
+      "output": "  ✗ 祖玛旧套 4 件兼容保留\n  ✗ 强制极品产出正确名字 300,228\ncq_m1_test: 39 pass, 2 fail\n",
+      "seconds": 0.6
+    },
+    {
+      "file": "tests/cq_m2_test.js",
+      "code": 0,
+      "output": "cq_m2_test: 49 pass, 0 fail\n",
+      "seconds": 0.31
+    },
+    {
+      "file": "tests/cq_migrate_test.js",
+      "code": 0,
+      "output": "cq_migrate_test: 10 pass, 0 fail\n",
+      "seconds": 0.18
+    },
+    {
+      "file": "tests/cq_offline_test.js",
+      "code": 0,
+      "output": "cq_offline_test: 12 pass, 0 fail\n",
+      "seconds": 0.21
+    },
+    {
+      "file": "tests/cq_prune2_test.js",
+      "code": 1,
+      "output": "  ✗ 普通装备原样保留\ncq_prune2_test: 57 pass, 1 fail\n",
+      "seconds": 0.2
+    },
+    {
+      "file": "tests/cq_prune_test.js",
+      "code": 0,
+      "output": "cq_prune_test: 19 pass, 0 fail\n",
+      "seconds": 0.19
+    },
+    {
+      "file": "tests/cq_reforge_seed_test.js",
+      "code": 0,
+      "output": "cq_reforge_seed_test: 8 pass, 0 fail\n",
+      "seconds": 1.59
+    },
+    {
+      "file": "tests/cq_signin_test.js",
+      "code": 0,
+      "output": "cq_signin_test: 18 pass, 0 fail\n",
+      "seconds": 0.17
+    },
+    {
+      "file": "tests/cq_skillbar_test.js",
+      "code": 0,
+      "output": "cq_skillbar_test: 28 pass, 0 fail\n",
+      "seconds": 0.19
+    },
+    {
+      "file": "tests/cq_spend_test.js",
+      "code": 0,
+      "output": "cq_spend_test: 17 pass, 0 fail\n",
+      "seconds": 0.15
+    },
+    {
+      "file": "tests/cq_stash_test.js",
+      "code": 0,
+      "output": "cq_stash_test: 19 pass, 0 fail\n",
+      "seconds": 0.8
+    },
+    {
+      "file": "tests/cq_sysapi_test.js",
+      "code": 0,
+      "output": "cq_sysapi_test: 34 pass, 0 fail\n",
+      "seconds": 0.18
+    },
+    {
+      "file": "tests/cq_ui_test.js",
+      "code": 0,
+      "output": "cq_ui_test: 16 pass, 0 fail\n",
+      "seconds": 0.19
+    },
+    {
+      "file": "tests/diablo_clean_migrate_test.js",
+      "code": 0,
+      "output": "diablo_clean_migrate: 29 pass, 0 fail\n",
+      "seconds": 0.37
+    },
+    {
+      "file": "tests/diablo_meta_test.js",
+      "code": 0,
+      "output": "diablo_meta_test: 20 pass, 0 fail\n",
+      "seconds": 0.19
+    },
+    {
+      "file": "tests/items_test.js",
+      "code": 1,
+      "output": "\n== 数据规模\n  底材 239  前缀 85  后缀 88  暗金 137  套装 31/124件\n\n== 品质分布（各 20000 件）\n  ilvl10 MF0: 破旧0.00% 普通25.30% 精良0.00% 魔法51.45% 稀有21.72% 暗金0.36% 套装1.17%\n  ilvl30 MF0: 破旧0.00% 普通25.04% 精良0.00% 魔法52.47% 稀有21.20% 暗金0.47% 套装0.83%\n  ilvl60 MF0: 破旧0.00% 普通24.63% 精良0.00% 魔法53.22% 稀有21.26% 暗金0.39% 套装0.51%\n  ilvl85 MF0: 破旧0.00% 普通24.84% 精良0.00% 魔法52.48% 稀有20.98% 暗金0.91% 套装0.80%\n  ilvl85 MF300: 破旧0.00% 普通25.27% 精良0.00% 魔法51.59% 稀有21.41% 暗金0.84% 套装0.88%\n\n== 暗金率 vs MF（qualityChance 理论值，与原版公式一致）\nevalmachine.<anonymous>:1\neffMF('u',0)\n^\n\nReferenceError: effMF is not defined\n    at evalmachine.<anonymous>:1:1\n    at Script.runInContext (node:vm:149:12)\n    at Object.runInContext (node:vm:301:6)\n    at G (/workspace/cqx-clean-int/tests/items_test.js:14:15)\n    at Object.<anonymous> (/workspace/cqx-clean-int/tests/items_test.js:36:94)\n    at Module._compile (node:internal/modules/cjs/loader:1529:14)\n    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)\n    at Module.load (node:internal/modules/cjs/loader:1275:32)\n    at Module._load (node:internal/modules/cjs/loader:1096:12)\n    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)\n\nNode.js v20.19.2\n",
+      "seconds": 6.94
+    },
+    {
+      "file": "tests/mir2_b6_test.js",
+      "code": 0,
+      "output": "mir2_b6_test: 32 pass, 0 fail\n",
+      "seconds": 0.2
+    },
+    {
+      "file": "tests/mir2_bal_short_test.js",
+      "code": 0,
+      "output": "mir2_bal_short_test: 19 pass, 0 fail\n",
+      "seconds": 0.19
+    },
+    {
+      "file": "tests/mir2_cloud_test.js",
+      "code": 0,
+      "output": "mir2_cloud_test: 14 pass, 0 fail\n",
+      "seconds": 0.18
+    },
+    {
+      "file": "tests/mir2_equipment_test.js",
+      "code": 1,
+      "output": "  ✗ every effective modifier preserved\n  ✗ identity and upgrade fields retained\n  ✗ legacy zuma intact\nevalmachine.<anonymous>:1\nBASEM.amukuangfengxianglian.bm.ias[0]===2&&BASEM.swdqidaozhiren.bm.ias[0]===-1\n                                  ^\n\nTypeError: Cannot read properties of undefined (reading '0')\n    at evalmachine.<anonymous>:1:35\n    at Script.runInContext (node:vm:149:12)\n    at Object.runInContext (node:vm:301:6)\n    at G (/workspace/cqx-clean-int/tests/cq_harness.js:15:16)\n    at Object.<anonymous> (/workspace/cqx-clean-int/tests/mir2_equipment_test.js:45:4)\n    at Module._compile (node:internal/modules/cjs/loader:1529:14)\n    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)\n    at Module.load (node:internal/modules/cjs/loader:1275:32)\n    at Module._load (node:internal/modules/cjs/loader:1096:12)\n    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)\n\nNode.js v20.19.2\n",
+      "seconds": 0.22
+    },
+    {
+      "file": "tests/mir2_firstdrop_test.js",
+      "code": 0,
+      "output": "mir2_firstdrop_test: 15 pass, 0 fail\n",
+      "seconds": 0.35
+    },
+    {
+      "file": "tests/mir2_gamble_test.js",
+      "code": 0,
+      "output": "mir2_gamble_test: 38 pass, 0 fail\n",
+      "seconds": 0.2
+    },
+    {
+      "file": "tests/mir2_integration_test.js",
+      "code": 0,
+      "output": "mir2_integration_test: 10 pass, 0 fail\n",
+      "seconds": 0.21
+    },
+    {
+      "file": "tests/mir2_lvl_test.js",
+      "code": 0,
+      "output": "mir2_lvl_test: 69 pass, 0 fail\n",
+      "seconds": 0.35
+    },
+    {
+      "file": "tests/mir2_maps_test.js",
+      "code": 0,
+      "output": "mir2_maps_test: 250 pass, 0 fail\n",
+      "seconds": 0.44
+    },
+    {
+      "file": "tests/mir2_mutation_test.js",
+      "code": 0,
+      "output": "mir2_mutation_test: 22 pass, 0 fail\n",
+      "seconds": 0.19
+    },
+    {
+      "file": "tests/mir2_sets_test.js",
+      "code": 1,
+      "output": "  ✗ zuma four counted\n  ✗ holy warrior double strike\n  ✗ two wall layers\n  ✗ wall cooldown follows equipment\n  ✗ dog splash reaches two targets\n  ✗ splash does not apply global multiplier twice\n  ✗ dragon six direct skill damage is 1.5\n  ✗ meteor delayed damage boosted once\n  ✗ chiyue spell leech uses actual damage once\nmir2_sets: 26 pass, 9 fail\n",
+      "seconds": 0.19
+    },
+    {
+      "file": "tests/mir2_skills_test.js",
+      "code": 0,
+      "output": "mir2_skills_test: 189 pass, 0 fail\n",
+      "seconds": 0.26
+    },
+    {
+      "file": "tests/mir2_soul_test.js",
+      "code": 0,
+      "output": "mir2_soul_test: 15 pass, 0 fail\n",
+      "seconds": 0.17
+    },
+    {
+      "file": "tests/mir2_streams_test.js",
+      "code": 0,
+      "output": "mir2_streams_test: 37 pass, 0 fail\n",
+      "seconds": 0.24
+    },
+    {
+      "file": "tests/mir2_summon_test.js",
+      "code": 0,
+      "output": "mir2_summon_test: 11 pass, 0 fail\n",
+      "seconds": 0.18
+    },
+    {
+      "file": "tests/mj_test.js",
+      "code": 0,
+      "output": "\n结果：通过 19，失败 0\n",
+      "seconds": 0.08
+    },
+    {
+      "file": "tests/recycle_mir2_test.js",
+      "code": 0,
+      "output": "recycle_mir2_test: 23 pass, 0 fail\n",
+      "seconds": 0.15
+    },
+    {
+      "file": "tests/reforge_test.js",
+      "code": 0,
+      "output": "reforge_test: 12 pass, 0 fail\n",
+      "seconds": 0.19
+    },
+    {
+      "file": "tests/tianguang_test.js",
+      "code": 1,
+      "output": "  ✗ 符文≥20 紫，稀有/宝石无光柱\ntianguang_test: 8 pass, 1 fail\n",
+      "seconds": 0.15
+    },
+    {
+      "file": "tests/uber_test.js",
+      "code": 0,
+      "output": "uber_test: 47 pass, 0 fail\n",
+      "seconds": 0.2
+    },
+    {
+      "file": "tests/diablo_clean_save_test.js",
+      "code": 0,
+      "output": "diablo_clean_save: 13 pass, 0 fail\n",
+      "seconds": null
+    },
+    {
+      "file": "cq/cq_battle_test.js",
+      "code": 1,
+      "output": "evalmachine.<anonymous>:1\nJSON.parse(localStorage.getItem('cq_battle_hero_v1')).hejiCount\n                                                     ^\n\nTypeError: Cannot read properties of null (reading 'hejiCount')\n    at evalmachine.<anonymous>:1:54\n    at Script.runInContext (node:vm:149:12)\n    at Object.runInContext (node:vm:301:6)\n    at G (/workspace/cqx-clean-int/tests/cq_harness.js:15:16)\n    at Object.<anonymous> (/workspace/cqx-clean-int/cq/cq_battle_test.js:37:4)\n    at Module._compile (node:internal/modules/cjs/loader:1529:14)\n    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)\n    at Module.load (node:internal/modules/cjs/loader:1275:32)\n    at Module._load (node:internal/modules/cjs/loader:1096:12)\n    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)\n\nNode.js v20.19.2\n",
+      "seconds": 0.15
+    }
+  ]
+}
