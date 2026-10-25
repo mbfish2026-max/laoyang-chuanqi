@@ -4,7 +4,7 @@
 // 战斗开发 Bot 将传奇卡片战场挂到 #cqStage，并通过 CQBattle 接口对接。
 // 详见 docs/battle_mount.md
 (function(){
-const VER='cq-20261022a';
+const VER='cq-20261022b';
 window.CQ_VERSION=VER;
 window.CQBattle={
   version:VER,
