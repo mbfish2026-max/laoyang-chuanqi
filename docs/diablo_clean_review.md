@@ -1,3 +1,278 @@
+# 暗黑残留清理独立审核（第5轮）
+
+审核日期：2026-10-26；worktree `/workspace/cqx-clean-save`，分支 clean-save，被审 HEAD `7db0fa1`；原始基线 `af6bfe1`，增量 `ae95283..HEAD`。阅读 `git diff master..HEAD`、重点修复提交 `7db0fa1`、当前实现、31条原审计、共同原则及 ui/items/meta/purge 说明。只写报告，不修改实现或测试，不push，不登录真实账号或访问云库。
+
+结论：CHANGES_REQUESTED。MUST-FIX-03 已修复；MUST-FIX-04 来源覆盖已修复，但迁移前原档会被普通自动保存的滚动快照淘汰，仍不能保证恢复。未发现其他已确认的现行字段误删。以下是本轮结论；历史各轮原文完整保留在文末。
+
+## 31条逐项判定
+
+下表对无本轮改动项沿用既往审核证据并核对源码，图片、音频未重新目检/试听，浏览器视觉未重新执行。表内既往专项数字属于历史证据；本轮重跑清单单列。
+
+| 编号 | 判定 | 当前代码与理由 |
+|---|---|---|
+| 高01 | 已清 | `game.js:345` heroDisplayAttrs 与 `cq/pages_cq.js:22` 最终首屏共用传奇属性；取消较早的DOM补丁。首屏不再列吸血和旧百分比属性；bonus.js:47已删除废弃栏目，生成HTML专项通过。 |
+| 高02 | 已清 | `game.js:351` 详细面板使用同一展示助手；`late.js` 删除旧主属性增伤说明。旧力量/精力、元素抗、偷取、断点等详细表已替换。 |
+| 高03 | 已清 | `data.js:4` ASSETS.hero 与职业分支指向 `zs_portrait.webp`。目检现图为持刀人类战士。 |
+| 高04 | 已清 | index favicon、apple图和 manifest 180/192/512 引用存在；三张PNG均逐张目检为刀盾图，无亡灵。favicon二进制已更换，未逐一目检ICO内全部尺寸。 |
+| 高05 | 已清 | `shop.js:22` 旧 gamble 只转盟重赌石坊；旧独立抽取/扣费链移除。外层 gamble_fix 的容量检查不恢复旧赌博。 |
+| 高06 | 已清 | `reforge.js:11` 白名单、传奇品质资格和7/10/15上限；保留超过上限的历史 n、未决 off、boff/bless；待选时不能再次扣费，可保留原值。专项12项通过。 |
+| 高07 | 已清 | 全局 QN、赌石q3/q4/q5、回收/仓库/融合显示统一。稀有是本次原则明确允许品质，不能因原报告高07名称仍在就判失败；旧数字q映射属于兼容。 |
+| 高08 | 已清 | `data_endgame.js` 去掉旧收集/关卡目标，等级30/45/60、转生1/10；`eg_core.js:10` 封存废弃已完成记录，不再要求玩家完成。 |
+| 高09 | 已清 | `eg_ach.js:10` 图鉴改固定攻击/防御，不再注入全抗、MF、完整收集经验倍率；旧收集键保留。 |
+| 高10 | 已清 | `eg_bounty.js:14` r.ore与实际黑铁矿一致，页面奖励说明也已改；旧周常封存与补宝匣有一次性标记。 |
+| 高11 | 已清 | `eg_events.js:26` 去钥石、改黑铁矿，说明极品/稀有；世界首领改魔龙统领，未下调其生命/攻击配置。 |
+| 高12 | 已清 | eg_secret.js已删除、index无注册；运行时 egSecretStart 未定义；旧对象本轮转换为 retiredProgress.path 数值计数并删除原字段。 |
+| 高13 | 已清 | `dlog.js` q5标签改极品，旧名称显示有过滤；`eg_ach.js:3` 新增极品日志同步更新。`tianguang.js:5/8`标签改极品并去掉旧物触发分支。 |
+| 高14 | 已清 | `cq/mir2_maps.js:1989` 等任务文案与 `acts.js:136` 等执行改金币/防御魔御；cqMetaRewardsV1与难度+任务领取表防重；旧资格/永久防护折算，本轮删除 cqMetaHistory 原始快照。 |
+| 高15 | 已清 | `cq/mir2_sets.js:16–26` 套装奖励均为允许固定属性（含生命/法力）；吸血及全局1.5倍执行链未恢复。`:49–67`恢复双烈火、双火墙、冷却和神兽溅射，系特定技能机制，不是装备百分比属性；43项专项通过。身份、收集、300杀保底和待领保留。 |
+| 高16 | 未清 | 禁止属性换算、战力及幂等快速测试通过；路径限制已修复现行字段误删（03关闭）。迁移原档备份会被日常保存淘汰，04仍未关闭，详见本轮证据。 |
+| 高17 | 已清 | `acts.js:11/54/66/88`取消难度惩罚、元素免疫与降抗，使用防御/魔御；`cq/mir2_equipment.js:645`统一hurtHero魔法及毒伤入口，普通攻击由`game.js:265`调用同一magicGuard。首领生命、攻击配置未下调；原迁移魔御无效问题已修复，短验见下文。 |
+| 高18 | 已清 | `cq/mir2_equipment.js:589` 最终有效白名单；随机PREFIX/SUFFIX和淬锋仅八属性，固定生命/魔法上限按本次原则允许。 |
+| 中01 | 已清 | eg_rift.js仅剩圣域所需怪池工具/历史页；运行时无egRiftStart、无rift页注册。eg_mj独立入口和uber父入口接到已批准圣域，不再保留封魔幻境玩法。 |
+| 中02 | 未清 | cq_→cq-认证回读、退出双清及CAS仍在；完整源账号/别名备份覆盖已补齐，但原档保留缺陷仍阻断恢复保证（04）。 |
+| 中03 | 已清 | `sw.js:5` 删除条件为 startsWith('cq-') && k!==V，运行测试只删cq-old，保留当前版本、anye及其他缓存。版本名未改。 |
+| 中04 | 已清 | `art.css` .gp/.ipanel边框改金红CSS及新饰片；标题旧背景去掉。目检新饰片；不把其他选择器的旧ui2资源一概判违规。本次未做浏览器computed style复验。 |
+| 中05 | 已清 | audio的sched/sfx/playSkill不再调旧曲/技能合成回退；audio_cq失败或无采样静默。保留音频总线及独立命中音；未进行真人听辨。 |
+| 低01 | 保留兼容 | 旧data_items等同步加载，但后续表清空/覆盖；ITYPES/AF与CQ_D2_SLOT底材ID→部位映射仍是运行与旧档迁移依赖。允许保留依赖，不把旧名字字符串当当前掉落。 |
+| 低02 | 保留兼容 | prune_mig、sys_cq/sysapi负责旧消耗物折算、点数折金币、旧招募装备转英雄/溢出容器，必须保留以接管旧档。未发现恢复旧玩法入口。补偿提示本次明确豁免。 |
+| 低03 | 已清 | EG_DEF不再创建lp/cube/season/已取消关卡空壳；旧lp/season在清理边界改为中性计数并删除原始对象，保留数值进度。 |
+| 低04 | 已清 | `game.js:359/374`旧技能点模板和弹窗已移除，保留被包装函数接口；`:387`分类改材料，`:394`旧装备详情改最小回退；旧凹槽/暗金/五章服务模板及pages过期章节注释已清。`cq/pages_cq.js:147`最终技能书页、`classes.js:225`技能弹窗继续安装，七章地图最终覆盖仍在；本轮地图250项及浏览器实际技能页加载通过。低01依赖表中的历史定义不归为现行模板。 |
+| 低05 | 保留兼容 | 已移除无消费者ASSETS项及art2_map加载；其余ASSETS、art_map、art_icons3和技能图有调用/回退依赖。保留依赖可接受，文件存在不等于当下显示；未对全部战场资源逐帧目检。 |
+| 低06 | 保留兼容 | 活跃品质抽取改一次抽取；qualityChance/qRoll接口、稳定q/uid/部位ID及生成骨架供调用/旧档保留，理由成立。q5失败降q4等有限回退仍存在，不等于继续展示旧品质体系。 |
+| 低07 | 已清 | DESIGN/README/TODO改为七章/八属性/英雄/新键；旧规则移docs/archive并明确非现行。 |
+| 低08 | 已清 | 两份旧方案改为当前决定，旧版移archive；data_cq过期章节待改说明已更新，不再据旧方案保留取消模块。 |
+
+## 问题清单与修复复核
+
+### MUST-FIX-03：已修复，关闭
+
+`cq/mir2_equipment_migrate.js:102/111` 现在按角色根、eg、eg.history 和装备对象限制删除，不再跨树删除通用键。真实 save/load、export/import 回归保留 `eg.mj.runs=9`、`eg.uber.runs=8`、`ast.t.unique=1`、`cqSp.sp=300`；自定义对象中的 runs/unique/uniq/sp/lp/staff/king/cube/runes/gems/keystones/affixes/ias/dr 同样保留。结合 `eg_mj.js`、`uber.js`、`stash.js:120`、`cq/balance.js:22–28` 消费者核对，未发现本次路径限制继续误删这些现行状态。
+
+### MUST-FIX-04：部分修复，仍必须修——原始恢复副本被正常保存淘汰
+
+具体位置：`cq/mir2_equipment_migrate.js:59–62` 无条件追加不同快照并 `entries.shift()`；`stash.js:16–21/50` 每次save收集账号、全部角色原文及当前state；`game.js:457` 每5秒调用save。角色金币、时钟等正常变化足以产生新快照，清理后的副本与迁移前唯一原档共用32条/体积队列。云 import、legacyClear 又会覆盖/删除原始来源；随后队列淘汰会让最后可恢复原文消失。开发说明明确称其“有界恢复窗口”，但这改变了此前“已有备份不覆盖、未自动过期”的保障，不能用几十次普通保存后只剩清理档代替迁移恢复副本。
+
+独立内存探针（真实harness及真实load/save，不改产品文件）：给源角色设置 `sp=3`、装备 `cqOriginalName='original-recovery-marker'` 并写入GS，调用load/save。恢复区初始4条，其中完整角色原文经 `JSON.parse(entry.raw).chars[id]` 解码后与输入逐字相等；再执行40次 `S.gold++; save()`，恢复区32条，所有条目均不再包含marker。结果：`initialRestorable=true, initialEntries=4, afterEntries=32, originalStillPresent=false`。因此不是仅缺少恢复按钮，而是恢复所需字节已被主动删除。未修改真实本地/云档。
+
+必须修法：将每个来源账号/迁移批次的完整迁移前快照固定保留，与日常滚动快照分离；不得在正常save/upload或其他账号备份时自动淘汰唯一原始副本。只有已验证另有完整持久副本的重复内容才可去重/替换。容量不足须在破坏性迁移前中止，而非删除其他账号唯一原档。增加真实load/save→多于32次保存、跨账号、体积上限后的原档解码恢复回归，验证原始角色、共享仓库、排行及冲突别名仍可完整恢复。
+
+04已通过部分：完整GS账号所有角色/共享仓库/镜像/排行在load、save、export前收集；import清空GS前备份输入与原账号；firstSync在合并前备份原云账号；legacyRead保留冲突别名原文；legacyExport/legacyClear覆盖所有legacyKeys命名空间；存储失败和读回不一致阻止相应改写/上传。哈希去重同时比对完整raw，不因哈希碰撞漏备；有效旧v1.data可转换。认证存储不在删除范围；恢复区不进入云payload。这些改进不足以解决后续自动淘汰问题。
+
+## 词表命中清单
+
+全仓执行rg（js/html/css/manifest，19词，忽略大小写），排除tests/tools后173行，含 `cq/cq_battle_test.js` 测试命中；逐类核对，没有发现本轮新增日常可见禁词。未把内部字段、注释、迁移提示及被最终数据覆盖的旧定义算作实际UI。
+
+| 位置 | 命中与判定 |
+|---|---|
+| cq/mir2_maps.js:120 | 暗黑战士，用户豁免的传奇怪名。 |
+| data.js:17/39/199–206；data_items.js:110/270；data_items2.js:37/72；data_acts.js:228/242/244 | 暗金、抗性、亡灵、凹槽、威能、符文、暗夜；初始旧表，后续CQ/传奇装备、职业、地图覆盖。低01依赖兼容，未找到当前展示链。 |
+| cq/data_cq.js:106；items2.js:7 | 吸血/护身符早期属性或类型标签；最终白名单及底材覆盖，非现行随机词条/日常标签。 |
+| bloodmoon.js:15；bossloot.js:6 | 护身符/虚隙；wardMake因旧底材不存在返回，旧rift触发器已移除。 |
+| cq/ui_cq.js:5–6；ui_art.js:11；settings.js:11；eg_ach.js:4/16；dlog.js:27；cq/mir2_equipment_migrate.js:67 | 过滤/替换/迁移检测词表，不是输出宣传。 |
+| prune_mig.js:26；classes.js:163/167 | 旧档一次性补偿/技能整理提示，按用户豁免。 |
+| 其余命中 | 注释、测试或旧代码说明；html、manifest及CSS content未发现确认的日常禁词输出。完整本轮rg原始行清单附后。 |
+
+## 迁移、入口、难度、云与明显bug
+
+- 装备：本轮29项迁移及14项保存测试通过，三件旧装备UID保留，战力222/210/206迁移后不降；禁止属性不再进入allMods，纯purge及完整二次载入幂等，已购rf.n=23及候选保留。恢复副本风险另见04，不用样本通过代替全档保证。
+- 入口：无秘径脚本/egSecretStart；无独立egRiftStart或封魔幻境注册；旧gamble只转盟重赌石坊；凹槽服务入口已移除。eg_rift保留圣域工具依赖，未恢复取消模块。
+- 云版本/并发：`cloud.js:100–105` update同时匹配user_id、version、updated_at，成功才更新本机版本，空结果kick且版本不增；insert重复主键同样kick。`syncNow:108–111` 使用CL_BUSY互斥；beacon检查CL_BUSY并带条件版本。内存桩验证version7→8、双过滤、冲突停止、备份失败不发送及不推进版本。未做真实网络并发压力或真实云写入。
+- 会话/SW：cq_→cq-回读、认证新旧清理未被本轮变动；`sw.js:5` 只删cq-旧缓存。meta测试验证；未改发布版本/SW名。
+- 难度：本轮改动为保存边界，未修改首领生命/攻击或终极装备倍率。迁移及save快测覆盖魔御/五类伤害，meta三职业可伤首领、短平衡测试通过；静态未见明显不可通关或削首领的新变化。不跑长模拟，不能保证全部地图通关时间。
+- 引用：harness实际入口加载 `loadErr=[]`；index本地script存在性检查 `missingScripts=[]`。本轮新增backupAccountSource/backupLegacySources/legacySource均已定义且顺序满足。未发现新增未定义函数；未声称穷尽所有潜在运行分支。
+
+## 本轮实际执行与范围
+
+`diablo_clean_purge` 30、`diablo_clean_migrate` 29、`diablo_clean_save` 14、`mir2_cloud` 14、`mir2_bal_short` 19、`diablo_meta` 20，共126项通过。另执行独立恢复/淘汰内存探针、index引用检查、全仓词表扫描及git diff --check（通过）。所有测试仅harness/内存桩；未跑长模拟。现有“32条有上限”测试仅证明队列长度，未检查迁移前原档保留，不能反驳04复现。
+
+## 第5轮原始词表扫描
+
+<details>
+<summary>173行rg原始输出（包含注释和非玩家可见定义）</summary>
+
+```text
+art.css:38:/* ===== UI2 批次二：生命/法力球、怪物/角色卡框、血条/经验条/分割线、日志羊皮纸、快捷栏药水、炼金匣图标 ===== */
+data.js:17:const QN=['低劣','普通','超强','魔法','稀有','暗金','套装','合成','符文之语'];
+data.js:39: {id:'sr',t:0,n:'冥仆抗性',r:24,col:0,pre:['gm'],kind:'passive',ic:'🛡'},
+data.js:66:// ===== 怪物（mechanics: hp/dmg 为 mlvl1 基准，ranged 远程，undead 亡灵，res 抗性%）=====
+data.js:127:// ===== 基础类型：tier 0普通 1扩展 2精英；cat 用于符文之语底材 =====
+data.js:199: fres:'火焰抗性 +{v}%',cres:'冰冷抗性 +{v}%',lres:'闪电抗性 +{v}%',pres:'毒素抗性 +{v}%',allres:'所有抗性 +{v}%',
+data.js:200: allsk:'+{v} 所有技能等级',t0sk:'+{v} 冥仆系技能',t1sk:'+{v} 骨毒系技能',t2sk:'+{v} 咒怨系技能',sockp:'凹槽 ({v})',
+data.js:202: regen:'生命回复 +{v}/秒',mpk:'+{v} 法力/每次击杀',undead:'+{v}% 对亡灵伤害',firemin:'+{v} 火焰伤害',coldmin:'+{v} 冰冷伤害',lightmax:'+1-{v} 闪电伤害',poisdmg:'+{v} 毒素伤害(3秒)',
+data.js:206:for(const s of SKILLS)MODT['sk_'+s.id]='+{v} '+s.n+'（亡灵术士专属）';
+data.js:209:// ===== 暗金 =====
+cq/sysapi_cq.js:39:// v2 → v3：保留已有英雄；旧佣兵按职业转换，装备溢出退回背包/仓库。
+data_items.js:3:// data_items.js — 装备 / 掉落 / 符文 / 合成 数据（覆盖 data.js 中同名表，原地修改以保持 const 引用）
+data_items.js:5:// treasureclassex/runes/gems/cubemain）。所有物品/词缀/套装/符文名称均为本作原创。
+data_items.js:10:// gs = 原版 gemsockets；TCAP = 物品类型凹槽上限 [ilvl1-25, 26-40, 41+]；sock 由两者取小
+data_items.js:12:const NECRO_BLOCK=20; // 原版职业格挡加成（亡灵术士 20），盾/缩颅的 block 字段已含此值
+data_items.js:29: // 缩颅（亡灵术士专属副手）
+data_items.js:49: // 手套 / 腰带 / 鞋（无凹槽）
+data_items.js:96: // 凹槽
+data_items.js:105: // 对亡灵 / 毒伤
+data_items.js:110: AF('力量之',1,1,'str','amul,belt',{str:[1,2]}),AF('威能之',10,8,'str','amul,belt',{str:[3,5]}),AF('公牛之',26,19,'str','amul,belt',{str:[6,9]}),AF('巨人之',42,34,'str','amul,belt',{str:[10,15]}),AF('泰坦之',58,50,'str','amul,belt',{str:[16,20]}),
+data_items.js:161:// 已删除（legacy_prune 批次2：符文/宝石/护身符/珠宝/炼金匣）：GOODT/JEWEL_SCALE/RUNE_FALL/COUNTESS_RTC、宝石数值、NEW_RUNES/RUNE_UP、符文之语 NEW_RW
+data_items.js:163:// ---------- 暗金（lv=物品等级门槛 qlvl，rq=需求等级；蓝本为原版对应物品，重新命名并小幅改造） ----------
+data_items.js:265:// 已删除（legacy_prune 批次2：符文/宝石/护身符/珠宝/炼金匣）：合成配方 CRAFTS、底材加孔 SOCKET_RECIPES
+data_items.js:270: maxfres:'+{v}% 最大火焰抗性',maxcres:'+{v}% 最大冰冷抗性',maxlres:'+{v}% 最大闪电抗性',maxpres:'+{v}% 最大毒素抗性',ds:'{v}% 致命一击',blind:'{v}% 击中致盲',cb:'{v}% 压碎性打击',
+ancient.js:22:// 额外词缀：上古 +1、至臻 +2；从该部位合法词缀池抽（排除技能等级/凹槽/与已有属性重复），区间同样上移，至臻取满；记录在 it.ax={k:[lo,hi]}
+cq/mir2_maps.js:120:  "n": "暗黑战士",
+acts.js:135: case'a4q2':{const g=[1500,3000,6000][d];S.gold+=g;log('熔炉迸出 '+g+' 金币');break}// 原奖励宝石+符文（已删除）改金币
+acts.js:137: case'a5q2':{const g=[2000,4000,8000][d];S.gold+=g;log('获得 '+g+' 金币');break}// 原奖励符文×3（已删除）改金币
+acts.js:173:// ---------- 物品：加凹槽 / 个性化 （任务奖励） ----------
+uber.js:52:// 每角色限 1：同 ub 的 uniq1 护身符只算第一件
+uber.js:53:// charmMods 包装已删除（护身符已移除，legacy_prune）
+bloodmoon.js:3:// 精英/头目必掉 1 件魔法以上；专属掉落「破障护符」6 种。秘境/虚隙等终局模式中不生效。
+bloodmoon.js:4:// 破障护符（小护身符，背包生效，同类不叠加）：目标该伤害类型有效抗性上限 80→40（含免疫）；代价：自身同系抗性 -25（骨裂/虚空无对应抗性，改为所有抗性 -10/-15）。
+bloodmoon.js:15:function wardMake(k){const W=BM.WARD[k];if(!W||!BASEM.cha_s)return null;/* 老羊传奇：D2 护身符底材已移除，破障护符待 M4「血月降临」重做 */const it=makeBase(BASEM.cha_s,Math.min(99,(S&&S.lvl)||1));it.q=5;it.name='破障护符·'+W.n;it.ward=k;it.req=1;it.m=Object.assign({},W.m);it.uid=S.uid++;return it}
+bloodmoon.js:20:// charmMods 包装已删除（护身符已移除，legacy_prune）
+cq/m2_cq.js:100:// 任务奖励「技能书 ×n」（替代旧技能点）：本职业、未满级、需求等级 ≤ 当前等级的书里，优先已学会的（升级用）
+classes.js:30:// 属性自动成长：S.at = 初始 + floor(每级成长 × (L-1))（升级不给属性点）
+classes.js:131:function clsResK(s,ms){const el=s.el||(CLS_MELEE.has(s.ty)?(SV(s.id,slvl(s.id)).el||'phys'):null);if(!el||!ms.length)return 1;let a=0;for(const m of ms)a+=Math.max(0,1-resOf(m,el)/100);return a/ms.length}// 估值计入目标抗性：免疫时改用其他元素/魔法技能
+classes.js:158:// 旧存档清理（一次）：不属于本职业的已学技能（例如旧版战士自动学到的召唤/骨系技能）退还技能点；空技能的角色补本职业初始技能
+classes.js:159:// 旧存档清理（一次）：已删除模块（late_mods 魔改技能 x*_ 等）残留的技能 id，不在 SKM 中的退还技能点
+classes.js:163: if(back){S.kp=(S.kp||0)+back;if(S.main&&!SKM[S.main])S.main=null;if(typeof log==='function')try{log(`<b style="color:#ffd76a">技能整理：移除已下线技能，退还技能点 ${back}</b>`)}catch(e){}}}
+classes.js:167: S.kp=(S.kp||0)+back;S.main=null;S.curse=null;if(gone.length&&typeof log==='function')try{log(`<b style="color:#ffd76a">职业技能整理：移除非本职业技能 ${gone.join('、')}，退还技能点 ${back}</b>`)}catch(e){}}
+classes.js:193:// 技能学习 / 升级（沿用原版「传奇之旅」skill.txt）：升级不再给技能点，技能只能用技能书学习、升级
+classes.js:219:// 学习/升级按原版（职业相符、等级够、熟练度够、书够），不用技能点
+sw.js:2:/* 缓存名前缀 cq-，与暗夜 anye- 隔离；同域部署互不删缓存 */
+cq/mir2_equipment_migrate.js:67:const words=/暗夜|暗黑(?!战士)|符文|护身符|炼金|凹槽|暗金|威能|虚隙|秘径|纪元|佣兵|抗性|吸血|魔法物品|技能点|属性点|亡灵|necromancer/gi;
+cq/cq_battle_test.js:129: ok(/\['bag','背包'\],\['shop','商店'\],\['merc','英雄'\]\]/.test(bm)&&!/\['merc','佣兵'\]/.test(bm),'背包/商店在角色页子页签可达，英雄入口恢复');}
+cq/cq_battle_test.js:164: const T2=JSON.parse(G('JSON.stringify(cqPg._t.TOPT)'));ok(['hero','bag','shop','skill','eg','map'].every(k=>T2[k])&&!T2.fight,'顶栏在 角色(含背包/商店/佣兵)/技能/福利/地图 显示，战斗页不显示（战斗页有自己的金属顶栏）');
+cq/cq_battle_test.js:195:// ---------- 英雄战斗（M2：走位 / 开启技能 AI / 合击怒气 / 受伤阵亡复活 / 无佣兵） ----------
+cq/cq_battle_test.js:218: G(`ALLY.push({kind:'merc',uid:991,hp:50,max:50});S.merc=S.merc||{t:'archer',lvl:1,eq:{}};CQSys.heroMigrate();step(.1)`);ok(G("ALLY.every(a=>a.kind!=='merc')")&&G('typeof mercTick')==='undefined','旧佣兵不再参战');}
+ui_art.js:2:// ui_art.js — UI2 手绘框架的少量 DOM 接入（只替换 emoji / 给炼金匣配方加工匠图标；不改玩法文件）
+ui_art.js:3:// 商店「药水/卷轴」行的 🧪💜📜 → assets/ui2/pot_*.webp；炼金匣配方行 → artCraft() 工匠图标（art_map.js）
+ui_art.js:11:  if(tt&&tt.textContent.includes('炼金匣'))m.querySelectorAll('.row').forEach(r=>{if(r.dataset.ua)return;const b=r.querySelector('button[onclick]'),sp=r.firstElementChild;if(!b||!sp||sp===b)return;
+art_map.js:15:// 首饰类无档次：按品质取色（普通/魔法+/暗金及以上）
+cq/data_cq2.js:1:// cq/data_cq2.js — 老羊传奇 M2：第 2 章「比奇」、第 3 章「矿区」数据（方案 §3）。替换 ACTS[1]/ACTS[2]（原暗夜第二、三章）。
+cq/data_cq2.js:2:// 怪物 key 统一 cq 前缀，避免与暗夜 MONS（skel/yeti 等）冲突。首领真实时间刷新周期见 cq/m2_cq.js 的 CQ_BOSSRT。
+bagkeep.js:3:// 背包顺序会被很多路径改动：拾取 push 到末尾、自动换装/佣兵换装换下件 push 到末尾、items2/gamble_fix/lock 在 autoTick/回收/出售期间把
+bagkeep.js:4:// 双手/护身符/珠宝/赌博/锁定物品临时移出再 push 回末尾、回收 S.bag=keep.concat(mats) 等。逐个修补不可靠，改为「整理状态」：
+cq/ui_cq.js:2:// 去掉：符文图鉴/符文之语页签、回收设置里的符文行、缩颅/法球等 D2 部位选项。
+cq/ui_cq.js:5:const BAD_BTN=/^(符文图鉴|炼金匣|符文|宝石|符文宝石|高阶符文|符文之语|缩颅|法球)(\s|$|（|\()/;
+cq/ui_cq.js:6:const BAD_ROW=/^(符文[：:]|符文之语|高阶符文|缩颅|法球)/;
+mdiff.js:5:// 高级物品掉率：每次掉落额外按（倍率-1）次重掷掉落表，只保留稀有及以上（稀有/暗金/套装/传说）；额外重掷产生的金币和药水退回，不白送。
+late.js:3:// 主属性：超出职业初始值的部分每 X 点 → 所有技能、攻击、召唤物伤害 +1%（雇佣兵不算）
+late.js:32:// 伤害：英雄与召唤物（非雇佣兵）的所有命中
+late.js:33:// 亡灵召唤物（骨仆/骨巫/复生/魔像等，不含雇佣兵）地狱段额外系数：55 级前 =1（普通/噩梦不变），地狱 2–3 秒击杀普通怪
+late.js:43:// 详情显示：伤害没有走协同系数的技能（如亡灵召唤物），把伤害区间按倍率换算后替换到文字里
+cq/stash_cq.js:7:// 旧存档（暗夜结构 20 页）：把物品压缩进前 N 页；装不下则保留所需页数（只增不删，绝不丢物品）。ACCT.sv 记录账号层版本。
+compare.js:5:// 复用原有详情面板（威能/凹槽/锁定等其他模块的包装都照常生效）。加载于所有 showItem 包装之后。
+cq/data_cq.js:4:// 原地替换暗夜 D2 数据表：部位名、品质名、底材 BASES/BASEM、词缀 PREFIX/SUFFIX、极品 UNIQUES、套装 SETS/SETITEMS、
+cq/data_cq.js:9:// ---------- 部位：内部键沿用暗夜（避免改装备/对比/仓库逻辑），显示名换成传奇 10 部位 ----------
+cq/data_cq.js:12:// ---------- 品质：0/2/7/8 不再产出（破旧/超强/合成/符文之语），保留下标以兼容旧逻辑 ----------
+cq/data_cq.js:106: def:'防御 +{v}',ar:'准确 +{v}',dex:'敏捷 +{v}',life:'生命 +{v}',mana:'魔法值 +{v}',ias:'攻速 +{v}%',ll:'吸血 {v}%',mf:'寻宝 +{v}%',gf:'金币 +{v}%',
+cq/data_cq.js:108:// ---------- 极品（暗金位）：第 1 章 + 特戒；boss 字段 = 该首领专属（bossloot.js 优先使用，方案 §5.3 每首领 2–4 件） ----------
+cq/data_cq.js:129:// ---------- 符文 / 符文之语 / 宝石：数据层清空（M1 已定不做；旧存档中的符文由迁移折算，见 cq/sys_cq.js） ----------
+shop.js:28:const ESS_EX=[];// 精华兑换的宝石/护身符/符文已删除（legacy_prune 批次2）
+cls_fs.js:5:// 技能书最高 9 级，不分配技能点。数值参考 web-replica skill.txt（雷电 150%→285%、冰咆哮 240%+173 → 330%+1333、5→6 目标）。
+cq/battle_mount.js:3:// 暗夜自有战斗画面（#mgrid/#arow/#fx + art2_atmo/char）不再作为主战场。
+cq/battle_mount.js:16:   * 从暗夜 calc() 结果映射到传奇战斗属性（M1 由 cq_bridge 填充）。
+cq/battle_mount.js:80:// 暗夜旧页签（背包/商店/佣兵/终局）不再出现在底栏：背包/商店/佣兵并入「角色」页顶部子页签；「福利」= 原终局页（悬赏/功业/事件/设置…）。
+cq/battle_mount.js:85:// 英雄页沿用旧佣兵子页签键，存档与界面名称均为英雄。
+cls_zs.js:5:// 技能书最高 9 级，不分配技能点；需求等级按 1.76 学习顺序压缩到 M1 第一章（1–16 级）。
+cls_zs.js:11:// 基本剑术附带吸血（1.76 无单独吸血技能，并入剑术被动）：[1 级, 上限] %
+dlog.js:4:// 亮眼掉落：暗金/套装/符文之语/20号及以上符文/可做 3 孔以上符文之语的白色·精良空孔底材。
+dlog.js:11: return false}// 符文之语已删除
+dlog.js:12:// q码：u暗金 s套装 w符文之语 r符文 b底材
+dlog.js:27:function displayName(value){return /暗夜|暗黑|符文|护身符|炼金|凹槽|暗金|威能|虚隙|秘径|纪元|佣兵|抗性|吸血|魔法物品|技能点|属性点|亡灵|necromancer/i.test(String(value))?'旧版装备':value}
+cq/mir2_b6.js:17:// 同名、同底材、同品质；绑定/锁定、套装/暗金、上古装备不作为融合原料。
+items.js:3:// items.js — 装备生成 / 掉落 TC / 镶嵌 / 炼金匣 / 储物箱（覆盖 game.js 中的同名函数）
+items.js:44:  q=4;it.dur3=1} // 原版：暗金失败 → 稀有（3 倍耐久）
+items.js:57:function finishDefense(it,b){/* 暗金/套装的 def 区间作为本地加成；防御基础值已在 makeBase 生成 */return it}
+items.js:61:// socketMods：宝石/符文/符文之语已删除（legacy_prune 批次2），沿用 game.js 的空实现
+items.js:67:// 掉落「好东西」：只出戒指/护符（符文/宝石已删除；cq/sys_cq.js 会再覆盖为首饰/黑铁矿）
+items.js:113:// 镶嵌 / 炼金匣 / 合成已删除（legacy_prune 批次2）
+items.js:120:// 法系流派套装/暗金（亡灵 3 流派 + cls_build 中 role:'caster' 的流派）：力量/敏捷需求再封顶 30。
+art_icons3.js:2:// art_icons3.js — 美术：16 个轻型底材专属图标（assets/icon2/light/<id>.webp）+ 17 个新威能图标（assets/icon2/pw/<id>.webp），tools/art/gen_pw_lt_icons.py
+art_icons3.js:3:// 底材：写 ICON2[base id]（icon2Url 按 ICON2[it.b] 优先查）。威能：带 it.lp 且有图、且没有按名字专属图标的物品才显示威能图标（包装 icon2Url + 最外层 itemIcon）
+art_icons3.js:4:// 保留原图标：nec/cls 按名映射命中；或暗金/套装(q 5/6)且原链路给出的不是通用底材图（ICON2[b]/ICON2[cat_tier]）
+art_icons3.js:5:// 熔炼匣槽位 / 威能图鉴行原本无图标位置，不新增 DOM。须在 light_bases.js、art_nec_icons.js、art_cls_icons.js 之后加载
+cq/sys_cq.js:4:// 1) 品质：不再产出 破旧/超强/合成/符文之语；底材自带属性 bm（传奇白字）写入 it.m；无凹槽
+cq/sys_cq.js:5:// 2) 符文/宝石掉落 → 黑铁矿；熔炼匣（炼金匣）入口关闭
+cq/sys_cq.js:8:// 5) 存档版本 S.sv / ACCT.sv 与迁移 cqMigrate（只处理本作 cq_ 存档，绝不读取暗夜 anye_ 数据）
+cq/sys_cq.js:28:// ---------- 黑铁矿（原符文/宝石掉落位） ----------
+cq/sys_cq.js:38:// v0（暗夜结构 fork 后首次）→ v1：去掉符文/宝石/凹槽/符文之语；D2 底材物品折算金币；补强化字段
+cq/sys_cq.js:51: // v5（自动成长）：属性改为按等级推导；剩余属性点/技能点、洗点药水折金币；技能等级 20 → 9 按比例映射（职业侧 clsSk9：ceil(1+(旧-1)×8/19)）
+cq/sys_cq.js:71:// ---------- 自动成长（docs/auto_growth_plan.md，照原版传奇之旅：升级不给属性点/技能点） ----------
+cq/sys_cq.js:75:// 旧点数折金币：属性点 100×(1+等级/10)、技能点 500×(1+等级/10)（每点）
+loot.js:69:// 炼金匣「精华重铸」已删除（legacy_prune 批次2）
+offpeek.js:6:// 已接入：离线收益 offline、深渊虚隙结果 egRiftResult、秘境结果 egMjResult、悬赏宝箱 egOpenCache。
+offpeek.js:7:// （虚隙/秘境自动连打不弹结果窗，无倒计时需暂停；掉落记录 dlog.js 本就可点。）
+stashux.js:2:// stashux.js — 个人/共享仓库：显眼「⇅ 自动整理」按钮（同背包样式）+「炼金匣」（仓库物品可作材料）
+stashux.js:4:// 炼金匣：打开时把当前仓库物品临时并入背包供配方识别/消耗，每次配方或界面刷新后立即放回原页；产物留在背包，背包满则放回当前仓库。
+stashux.js:7:// 仓库内炼金匣（stashCube/STCUBE）已删除（legacy_prune 批次2）
+eg_ach.js:4:function egUname(it){return String(it.name).replace(/^亡灵术士的/,'')}
+eg_ach.js:16:function egTitles(){const e=EG(),t=EG_ACH.filter(a=>a[5]&&e.ach[a[0]]).map(a=>a[5]);if(e.ach._t)t.push(...Object.keys(e.ach._t).filter(t=>! /暗夜|暗黑|符文|护身符|炼金|凹槽|暗金|威能|虚隙|秘径|纪元|佣兵|抗性|吸血|亡灵|necromancer/i.test(t)));return t}
+cq_bridge.js:2:// cq_bridge.js — 老羊传奇战斗胶水（M1）：把传奇卡片战场（cq/*）接到暗夜框架的真实数据上。
+data_items2.js:3:// data_items2.js — 装备扩充（第四阶段）：弓/弩/长柄/矛/标枪/投掷/斧/锤/法杖底材、珠宝、护身符、
+data_items2.js:4:// 追加暗金/套装/符文之语、升级配方。全部原创命名；机制与量级参照原版 1.13。必须在 data_items.js 之后加载。
+data_items2.js:37: W2('stfx1','staff','乔木杖',30,1,[6,21],25,0,2),W2('stfx2','staff','四分杖',35,1,[8,26],25,0,3),W2('stfx3','staff','雪松杖',38,1,[11,32],25,0,4),W2('stfx4','staff','符文杖',47,1,[24,58],25,0,6),
+data_items2.js:41:// 已删除（legacy_prune 批次2：符文/宝石/护身符/珠宝/炼金匣）：珠宝/护身符 RARE_B、AF2 前后缀
+data_items2.js:42:// 珠宝/护身符后缀的显示名：与其它后缀统一为「XX之」放在名字最前（内部 n 不变，旧存档的词缀引用不受影响）
+data_items2.js:72: U2('暗夜之衣','arme2',82,73,{allsk:2,fcr:20,manapct:15,edef:[150,200],mdr:15}),U2('不灭之铠','arme3',88,80,{dr:[15,20],life:[100,150],allres:[30,40],edef:[180,220],drp:5}),
+data_items2.js:140:// 已删除（legacy_prune 批次2：符文/宝石/护身符/珠宝/炼金匣）：符文之语 NEW_RW2、升级/修复配方
+data_items2.js:144:// 已删除（legacy_prune 批次2：符文/宝石/护身符/珠宝/炼金匣）：SOCKET_RECIPES 扩充、符文之语 NEW_RW3/NEW_RW4
+stash.js:6:// 堆叠：宝石(同色同级)/符文(同号) 在数组中仍是独立对象（所有旧消耗逻辑天然“一次扣 1”），显示与占格按组合并；
+stash.js:26: for(const c of ACCT.chars)if(c&&c.mode==='season')c.mode='normal';// 纪元已删除：账号角色列表里的纪元标记转普通
+stash.js:120:const AST_T={mat:'材料',unique:'极品',set:'套装',rare:'稀有'};// 宝石/符文/珠宝/护身符/凹槽底材 已删除（legacy_prune 批次2）
+game.js:28:function socketMods(it){return{}}// 宝石/符文/符文之语已删除（legacy_prune 批次2），凹槽不再提供属性
+bossloot.js:2:// BOSS_LOOT[key]=[普通档, 噩梦档, 地狱档] 各 1 件现有暗金（按底材等级分档，确定性分配、互不重复）。
+bossloot.js:3:// 首领掉出暗金时，专属暗金权重 ×4（只替换暗金，不改暗金总量 → 不影响通关时长）。
+bossloot.js:6: EXTRA:{rift_guard:()=>typeof EG_RIFT!=='undefined'?EG_RIFT.guard:'虚隙守望者',mj_lord:()=>typeof EG_MJ!=='undefined'?EG_MJ.boss:'秘境之主'}};
+prune_mig.js:2:// prune_mig.js — legacy_prune 批次2：符文 / 宝石 / 护身符 / 珠宝 / 炼金匣 已删除后的旧存档清理（每次载入都跑，幂等）
+prune_mig.js:5://    符文(k:'rune') 宝石(k:'gem') 护身符(cha_s/m/l) 珠宝(jew) 整件移除，按旧卖价折金币：符文 50×(号+1)，宝石 20×(级+1)，护身符/珠宝 200
+prune_mig.js:6://  · 装备上已镶嵌的符文/宝石/珠宝：拆掉销毁并同样折金币，凹槽清零（it.sock=0, it.soc=[]）
+prune_mig.js:7://  · 符文之语：保留物品本体、去掉符文之语（删 it.rw / it.rwm，白/灰底材名字恢复底材名）
+prune_mig.js:13:// 清理一件留下的装备：拆镶嵌物、去符文之语；返回折算金币
+prune_mig.js:26: g+=sh;if(g>0){S.gold=(S.gold||0)+g;S.cqPruneG=(S.cqPruneG||0)+g;try{if(typeof log==='function')log('旧版符文/宝石/护身符已移除，折合 '+g+' 金币')}catch(e){}
+data_acts.js:30:// 仅主线区域：任何终局模式（EGM：秘境/虚隙/魂狱/暗渊/隐秘等）与奶牛关不生效（CLS_XPK/CLS_HPK 共用）
+data_acts.js:35:// ---------- 第一章怪物：补充噩梦/地狱抗性 ----------
+data_acts.js:36:// resN/resH 未写时：噩梦 = 普通非零抗性 +15，地狱 = +30（≥100 即免疫）
+data_acts.js:44:// sk: 怪物技能 charge冲撞 frost冰霜新星 nova元素新星 spark闪电弹 randel随机元素弹 poisbreath毒息 inferno烈焰喷吐 leech吸血 manaburn噬法 curse诅咒(降抗) stun重击眩晕 web缠网 revive复活同伴 heal治疗同伴 chill冰寒光环(减速)
+data_acts.js:228: a2q2:{act:1,n:'合铸权杖',d:'收集 符文匣、权杖杖身、蛇首护符',rw:'开启真墓',parts:{cube:'符文匣',shaft:'权杖杖身',amulet:'蛇首护符'}},
+data_acts.js:242: a5q1:{act:4,n:'围城',d:'击败 围城统领·申克',rw:'铁匠为一件物品加凹槽'},
+data_acts.js:244: a5q3:{act:4,n:'冰牢',d:'击败冻河的 冰封典狱·弗洛斯，救出巫女',rw:'永久所有抗性 +10'},
+sort.js:4:// 排序：品质高到低（暗金/符文之语→套装→合成→稀有→魔法→已开孔白装→超强→普通→低劣；非装备最后）→ 类型（武器→头盔→铠甲→盾牌→手套→鞋子→腰带→戒指→项链→护身符→珠宝 → 宝石 → 符文 → 材料 → 其他）→ 等级高到低（符文按等级）→ 名称
+dmgstats.js:2:// 归属：技能施放期间的英雄伤害→该技能；heroAct 内非施法→普通攻击；召唤物→召唤它的技能；佣兵→佣兵；
+lock.js:4:// 锁定物品：不可出售/一键出售/自动回收；不会被炼金匣等配方当材料消耗；不能作为重铸/拆除/升级/改造/提取等破坏性操作的目标；
+lock.js:5:// 不被自动换装（角色/佣兵）替换。全部为运行时包装，不改他人源文件。
+items2.js:4:// 双手武器、珠宝镶嵌、护身符（背包生效）、撕裂伤口/压碎性打击/致命一击等属性生效、详情显示修正、
+items2.js:5:// 珠宝/护身符掉落、升级/修复配方、新武器图标、随从可用弓/长柄。必须在 acts.js 之后加载。
+items2.js:7:const CATN={wand:'魔杖',dagger:'匕首',sword:'剑',helm:'头盔',armor:'铠甲',shield:'盾',head:'缩颅',bow:'弓',xbow:'弩',polearm:'长柄',spear:'矛',jav:'标枪',throw:'投掷',axe:'斧',mace:'锤',staff:'法杖',jewel:'珠宝',scha:'小护身符',mcha:'大护身符',lcha:'超大护身符',gloves:'手套',belt:'腰带',boots:'靴子',pshd:'圣徽盾',pelt:'毛皮头饰',bhelm:'野蛮人头盔',orb:'法球',abow:'弓'};
+items2.js:9:// 护身符/珠宝（isCharm/isJewel/charmMods/genJC/jewelUI）与炼金匣升级/修复配方已删除（legacy_prune 批次2）
+items2.js:25: // 最大抗性：超出 75 的部分最多可到 75+最大抗性
+items2.js:57:// ---------- 物品详情：属性统一显示、双手、珠宝/护身符按钮 ----------
+cls_ds.js:6:// 技能书最高 9 级，不分配技能点。数值参考 web-replica skill.txt（灵魂火符 150%+18 → 245%+1202、施毒 3→4 目标、5 秒冷却）。
+settings.js:11:  o.game=g?g.innerHTML.replace(/自动出售（无凹槽）/g,'自动回收').replace(/<h3>[\s\S]*?<\/h3>/,''):'';o.audio=tmp.querySelector('#audioSet')?.innerHTML.replace(/<h3>[\s\S]*?<\/h3>/,'')||'';
+gamble_fix.js:3:// 永不被自动回收 / 自动存仓 / 自动换装(本人与佣兵) 挪走，留在背包里由玩家在弹窗中自行决定（装备/锁定/存仓/出售）。
+art2_icon3.js:3:// art2_icon3.js — 美术2：终局/章节/佣兵/回收 emoji → 手绘图标 assets/icon3/<slug>.webp（计划：/workspace/emoji_plan.json）
+art2_icon3.js:31:// 底部导航：只换终局/佣兵两个按钮的图标（不碰战斗/角色/技能等其他按钮）
+art2_icon3.js:42:// ---------- 秘径蘑菇怪立绘（原只有 emoji 占位）----------
+audio.js:3:// 音效：普攻 / 技能 / 掉落(按品质，暗金/套装/符文之语特殊) / 升级 / UI 点击。
+audio.js:124://       ③ 同类同时发声上限 CAT_MAX；④ 召唤物/佣兵/命中类额外随机稀疏，避免满屏召唤物时成噪音。
+audio.js:179: // 诅咒（共用暗黑和弦底色，音程/音色各异）
+audio.js:248:// --- 召唤物 / 佣兵 / 命中 / 暴击 / 格挡 ---
+audio.js:265:// 命中 / 暴击(致命一击黄色飘字) / 召唤物与佣兵攻击：包装最外层 hitMon
+audio.js:272:// 格挡：英雄格挡飘字 / 佣兵格挡飘字
+audio.js:277:// 1 稀有 · 2 暗金/套装 · 3 高符文 · 4 上古/至臻 · 5 神话。不受战斗页限制，受音效音量/静音/后台暂停控制。
+audio.js:282: (D,t)=>{// 暗金/套装：低沉坠地 + 上行钟组
+audio.js:284: (D,t)=>{// 高符文：重石坠地「咚」+ 石面共振 + 符文低鸣，余韵 2 秒
+audio.js:294: (D,t)=>{// 神话：大地震颤 → 三连坠地 → 管风琴般的暗金和声 + 合唱 + 丧钟，约 4 秒
+audio.js:309:// AUDIO.reforge(kind)：charge 蓄力(~1s 熔炉+符文嗡鸣) / reveal 翻牌(连续 3 次不吞，音高递升) / pick 选定 / perfect 满值华丽。
+audio.js:314:  for(const d of[-8,8])tone(D,{f:mtof(38),glide:mtof(45),t,dur:1,type:'sawtooth',vol:0.05,a:0.6,d:0.2,sus:0.9,r:0.25,cut:700,q:5,det:d,wet:0.5});// 符文嗡鸣上升
+audio.js:333:// 否则最高品质为暗金及以上（暗金/套装/符文之语/高符文≥20号/上古/至臻/神话）→ 自己补播对应分档音效，旧 drop 音永不播；
+audio.js:334:// 其余（稀有/魔法/符文/宝石/普通）播旧 drop 音。离线结算/无 UI 时静默。
+```
+
+</details>
+
+## 各轮历史记录
+
+<details>
+<summary>第4轮完整报告（内含第1至3轮原文）</summary>
+
 # 暗黑残留清理独立审核（第4轮）
 
 审核日期：2026-10-26；worktree `/workspace/cqx-clean-save`，分支 clean-save，被审 HEAD `75fe879`；原始基线 `af6bfe1`，本轮增量 `ae95283..75fe879`。本地 master 已位于 ae95283，因此 `git diff master..HEAD` 仅含本轮12文件增量；同时对照 af6bfe1..HEAD 的整合改动、当前代码、外部31条审计、共同原则和四份开发说明。只写本报告，不改产品或测试，不push、不接触真实云账号。
@@ -1250,5 +1525,12 @@ prune_mig.js:26: g+=sh;if(g>0){S.gold=(S.gold||0)+g;S.cqPruneG=(S.cqPruneG||0)+g
 ```
 
 本轮必须修复：MUST-FIX-03（限定清理路径并保全现行字段）；MUST-FIX-04（完整、可验证且按源档覆盖的先备份后清理）。
+
+VERDICT: CHANGES_REQUESTED
+
+
+</details>
+
+本轮必须修：MUST-FIX-04（迁移前原档固定保留，具体文件行与修法见上文）；MUST-FIX-03关闭。
 
 VERDICT: CHANGES_REQUESTED
