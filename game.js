@@ -49,7 +49,7 @@ function qRoll(k,ilvl,qlvl,mfEff,bossMod){const[b,d,mn]=QRATIO[k];let c=Math.flo
 function alvlOf(ilvl,qlvl){if(qlvl>ilvl)ilvl=qlvl;let a=ilvl<99-qlvl/2?ilvl-Math.floor(qlvl/2):2*ilvl-99;return clamp(a,1,99)}
 function maxSock(b,ilvl){const s=b.sock;if(!s)return 0;return ilvl<=25?s[0]:ilvl<=40?s[1]:s[2]}
 function rollAff(list,b,alvl,used){const g=itemGroups(b);const c=list.filter(a=>a[1]<=alvl&&(a[2]==='*'||[...a[2]].some(x=>g.includes(x)))&&!used.has(a[3]));
- if(b.s!=='weapon'&&!b.sock){/*无凹槽部位不出嵌工*/}const f=c.filter(a=>!(a[3]==='sockp'&&!b.sock));if(!f.length)return null;
+ if(b.s!=='weapon'&&!b.sock){/*不支持的部位跳过*/}const f=c.filter(a=>!(a[3]==='sockp'&&!b.sock));if(!f.length)return null;
  // 高等级词缀权重略低
  const a=wpick(f,x=>1+ (alvl-x[1])*0.05);used.add(a[3]);return a}
 function applyAff(it,a,b,ilvl){let v=R(a[4],a[5]);if(a[3]==='sockp'){it.sock=Math.max(it.sock||0,Math.min(v,maxSock(b,ilvl)||1));return}
@@ -83,7 +83,7 @@ function calc(){const M={};const add=(k,v)=>{M[k]=(M[k]||0)+v};let idef=0,wep=nu
  const sc=setCount();for(const s in sc){const bo=SETS[s].bonus;for(const n in bo)if(sc[s]>=+n)for(const k in bo[n])add(k,bo[n][k])}
  const A={str:S.at.str+(M.str||0),dex:S.at.dex+(M.dex||0),vit:S.at.vit+(M.vit||0),ene:S.at.ene+(M.ene||0)};
  const pen=DIFFS[S.diff].pen;const res=k=>Math.min(75,(M[k]||0)+(M.allres||0)+pen);
- const CB=typeof clsBase==='function'?clsBase():{life0:45,lpl:1.5,lpv:2,mana0:25,mpl:2,mpe:2,at:{vit:15,ene:25}};// 职业系数（classes.js；亡灵术士与原公式一致）
+ const CB=typeof clsBase==='function'?clsBase():{life0:45,lpl:1.5,lpv:2,mana0:25,mpl:2,mpe:2,at:{vit:15,ene:25}};// 职业成长系数
  const o={attr:A,M,life:Math.floor((CB.life0+(S.lvl-1)*CB.lpl+(A.vit-CB.at.vit)*CB.lpv+(M.life||0))*(1+(M.lifepct||0)/100)),mana:Math.floor((CB.mana0+(S.lvl-1)*CB.mpl+(A.ene-CB.at.ene)*CB.mpe+(M.mana||0))*(1+(M.manapct||0)/100)),
   def:Math.floor(A.dex/4)+idef+(M.def||0),ar:A.dex*5-35+(M.ar||0)+S.lvl*3,
   res:{fire:res('fres'),cold:res('cres'),light:res('lres'),pois:res('pres')},
@@ -127,7 +127,7 @@ function SV(id,L){if(SKM[id]&&SKM[id].cls&&typeof clsSV==='function'){const v=cl
  case'bp':{const t=+(3+0.5*L).toFixed(1);v={dur:t,n:3,txt:`囚禁 3 个目标 ${t} 秒`};break}
  case'pn':{const d=r(50+18*(L-1),75+25*(L-1));v={dmg:d,txt:`全体毒伤 ${d[0]}-${d[1]}（2秒）`};break}
  case'bx':{const d=r(20+10*(L-1),30+12*(L-1));v={dmg:d,txt:`追踪骨魂 魔法 ${d[0]}-${d[1]}`};break}
- case'ad':{const t=8+3*(L-1);v={dur:t,n:ncur(L),txt:`${ncur(L)} 个目标物理抗性 -100%，${t}秒`};break}
+ case'ad':{const t=8+3*(L-1);v={dur:t,n:ncur(L),txt:`${ncur(L)} 个目标防御降低，${t}秒`};break}
  case'dv':{const t=+(7+1.4*(L-1)).toFixed(1);v={dur:t,n:ncur(L),txt:`${ncur(L)} 个目标无法远程攻击 ${t}秒`};break}
  case'wk':{const t=14+2*(L-1);v={dur:t,n:ncur(L),txt:`${ncur(L)} 个目标伤害 -33%，${t}秒`};break}
  case'im':{const p=225+25*(L-1),t=+(12+2.4*(L-1)).toFixed(1);v={dur:t,n:ncur(L),p,txt:`近战反伤 ${p}%，${t}秒`};break}
@@ -183,7 +183,6 @@ function rollTC(m){const t=m.actboss?{p:7,nd:0}:m.boss?{p:5,nd:15}:m.fl==='uniq'
   else if(e==='eq')out.push(genItem(m.lv,{mf:ST.mf,bossMod:bm}));
   else if(e==='good')out.push(rollGood(m))}
  return out}
-// 符文/宝石已删除（legacy_prune）：原来出符文的奖励改出黑铁矿（强化材料）
 function oreItem(n){return{uid:S.uid++,k:'mat',id:'heitie',n:n||1}}
 function addBag(it){
  if(!it.k&&it.sock===0&&S.sell[it.q]&&it.q<3){const g=sellPrice(it);S.gold+=g;cqInc(g);return}
@@ -356,15 +355,8 @@ function renderHero(){const s=ST,P=$('#panel');const row=(a,b)=>`<div class="row
 function addStat(){if(typeof toast==='function')toast('属性随等级自动成长')}
 
 // ===== 技能页 =====
-function renderSkills(){const P=$('#panel');const tabs=trees().map((t,i)=>`<button class="${SKT===i?'on':''}" onclick="SKT=${i};render()">${t}</button>`).join('');
-// 符文图鉴页已删除（legacy_prune 批次2）
- const list=SKILLS.filter(s=>s.t===SKT&&skOfCls(s)).sort((a,b)=>a.r-b.r||a.col-b.col);
- P.innerHTML=`<div class="stabs">${tabs}</div><div class="pts">技能点 <b>${S.kp}</b>　主攻：<b>${S.main?SKM[S.main].n:'自动'}</b>　诅咒：<b>${S.curse?SKM[S.curse].n:'自动'}</b></div>
- <div class="tree">${REQL.map((r,ri)=>`<div class="trow"><span class="rq">${r}</span>${[0,1,2].map(c=>{const s=list.find(x=>x.r===r&&x.col===c);return s?`<div class="tn ${bl(s.id)?'has':''} ${canLearn(s.id)?'can':''}" id="tn_${s.id}" onclick="skPop('${s.id}')">${skIcon(s)}<b>${bl(s.id)||''}</b></div>`:'<div class="tn void"></div>'}).join('')}</div>`).join('')}</div>
- ${list.map(s=>{const L=slvl(s.id),v=SV(s.id,Math.max(1,L||1));return`<div class="skc ${L?'':'off'}">${skIcon(s)}<div class="si"><div><b>${s.n}</b> <span class="lvt">Lv.${bl(s.id)}${L>bl(s.id)?`<span class="plus">+${L-bl(s.id)}</span>`:''}</span></div>
- <div class="dim">${s.kind==='passive'?'被动':'消耗 '+v.mana+' 法力'} · 施法 ${Math.round(ST.castT*25)}帧 · 需求 ${s.r}级${s.pre.length?' · 前置 '+s.pre.map(p=>SKM[p].n).join('、'):''}</div><div class="eff">${v.txt}</div>
- <div class="btns">${['attack'].includes(s.kind)&&L?`<button class="btn xs ${S.main===s.id?'on':''}" onclick="S.main=S.main==='${s.id}'?null:'${s.id}';render()">主攻</button>`:''}${s.kind==='curse'&&L?`<button class="btn xs ${S.curse===s.id?'on':''}" onclick="S.curse=S.curse==='${s.id}'?null:'${s.id}';render()">诅咒</button>`:''}</div></div>
- <button class="btn up" onclick="skPop('${s.id}')" ${canLearn(s.id)?'':'disabled'}>升级</button></div>`}).join('')}`;drawTree(list)}
+// Final class/page modules install the skill UI; keep hooks for wrappers.
+function renderSkills(){$('#panel').innerHTML=''}
 function drawTree(list){const t=$('.tree');if(!t)return;const o=t.getBoundingClientRect();let h='',h2='';
  // 折角连线：竖→横→竖，横段走两行图标之间的空隙；优先在父技能下方拐弯，子技能那一列竖段被别的图标挡住时改在子技能上方拐弯；
  // 折角线后画并垫一层暗色底边，和竖线交叉处显示为“跨过去”，不会被看成连到中间技能
@@ -379,11 +371,7 @@ function drawTree(list){const t=$('.tree');if(!t)return;const o=t.getBoundingCli
  t.insertAdjacentHTML('beforeend',`<svg class="tlines" width="${o.width}" height="${o.height}"><defs><marker id="ar1" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0L6,3L0,6z" fill="#c9a45a"/></marker><marker id="ar0" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0L6,3L0,6z" fill="#4a3820"/></marker></defs>${h}${h2}</svg>`)}
 function skIcon(s){const i=SKILLS.filter(x=>x.t===s.t).indexOf(s);const k='sk_sheet'+s.t;return IMG[k]?`<i class="ski" style="background-image:url(${IMG[k]});background-position:${(i%5)*25}% ${Math.floor(i/5)*100}%"></i>`:`<i class="ski t${s.t}">${s.ic}</i>`}
 function canLearn(id){const s=SKM[id];return skOfCls(s)&&S.kp>0&&S.lvl>=s.r&&s.pre.every(p=>bl(p)>0)&&bl(id)<20}
-function skPop(id){const s=SKM[id],b=bl(id);const lo=Math.max(1,b-1),hi=Math.max(4,b+3);let rows='';for(let l=lo;l<=hi;l++){const v=SV(id,l);rows+=`<div class="lvr ${l===b?'cur':''} ${l===b+1?'nx':''}">${l}级：${v.txt}${v.mana?`，消耗 ${v.mana} 法力`:''}</div>`}
- const syns=SYN[id]?`<div class="dim">协同：${SYN[id][0].map(x=>SKM[x].n+'('+bl(x)+')').join('、')} 每级 +${SYN[id][1]}%，当前 ×${syn(id).toFixed(2)}</div>`:'';
- const why=S.lvl<s.r?`需要角色等级 ${s.r}`:!s.pre.every(p=>bl(p))?`需要前置：${s.pre.map(p=>SKM[p].n).join('、')}`:S.kp<=0?'技能点不足':'';
- modal(`<div class="mtitle">技能升级</div><div class="gp"><div class="skh">${skIcon(s)}<div><b>${s.n}升级说明：</b><div class="dim">${trees()[s.t]} · 需求 ${s.r} 级${s.pre.length?' · 前置 '+s.pre.map(p=>SKM[p].n).join('、'):''}</div></div></div>${rows}${syns}
- <div class="dim">剩余技能点：${S.kp}${why?` · <span style="color:#f66">${why}</span>`:''}</div><div class="btns c"><button class="btn" onclick="closeM()">关闭</button><button class="btn gold" onclick="learn('${id}')" ${canLearn(id)?'':'disabled'}>开始升级</button></div></div>`)}
+function skPop(id){}
 function learn(id){if(!canLearn(id))return;S.sk[id]=bl(id)+1;S.kp--;calc();skPop(id);render()}
 
 // ===== 背包/装备 =====
@@ -396,7 +384,7 @@ function cell(it,on){try{return cell0(it,on)}catch(e){console.warn('坏物品',i
 function cell0(it,on){return`<div class="cell q${it.q??'x'} ${it.rw!=null?'rw':''}" style="--c:${itemColor(it)}" onclick="${on}">${itemIcon(it)}${it.sock?`<em class="sk">${'●'.repeat((it.soc||[]).length)}${'○'.repeat(it.sock-(it.soc||[]).length)}</em>`:''}<small>${itemName(it)}</small></div>`}
 function renderBag(){const P=$('#panel');const doll=SLOTS.map(k=>{const it=S.eq[k];return it?`<div class="dslot">${cell(it,`showItem(${it.uid},'eq')`)}</div>`:`<div class="dslot"><div class="cell empty"><i class="ii">${SLOTG[k.startsWith('ring')?'ring':k]}</i><small>${SLOTN[k]}</small></div></div>`}).join('');
  const sc=setCount();const sets=Object.entries(sc).map(([k,n])=>`<span class="setb">${SETS[k].n} ${n}件</span>`).join('');
- const fl=[['all','全部'],['eq','装备'],['misc','符文宝石']];const items=S.bag.filter(it=>BAGF==='all'||(BAGF==='eq'?!it.k:!!it.k));
+ const fl=[['all','全部'],['eq','装备'],['misc','材料']];const items=S.bag.filter(it=>BAGF==='all'||(BAGF==='eq'?!it.k:!!it.k));
  P.innerHTML=`<div class="gp"><h3>装备 <span class="dim">战力 ${SLOTS.reduce((a,k)=>a+(S.eq[k]?power(S.eq[k]):0),0)}</span></h3><div class="doll">${doll}</div>${sets}</div>
  <div class="gp"><h3>背包 ${S.bag.length}/40 <span class="r"><button class="btn xs" onclick="sellJunk()">出售白/蓝</button></span></h3>
  <div class="stabs sm">${fl.map(([k,n])=>`<button class="${BAGF===k?'on':''}" onclick="BAGF='${k}';render()">${n}</button>`).join('')}</div>
@@ -404,25 +392,8 @@ function renderBag(){const P=$('#panel');const doll=SLOTS.map(k=>{const it=S.eq[
 function findItem(uid){for(const k of SLOTS)if(S.eq[k]&&S.eq[k].uid===uid)return{it:S.eq[k],slot:k};const i=S.bag.findIndex(x=>x.uid===uid);return i>=0?{it:S.bag[i],i}:null}
 function stars(it){const n=it.k?1:it.rw!=null?5:[1,1,2,3,4,5,5,4,5][it.q];return'★'.repeat(n)+'☆'.repeat(5-n)}
 function showItem(uid){const f=findItem(uid);if(!f)return;const it=f.it;
-  if(it.k){const desc='';
-  return modal(`<div class="ipanel"><div class="ih">${itemIcon(it)}<div><b style="color:${itemColor(it)}">${itemName(it)}</b><div class="dim">${stars(it)}</div></div></div>${desc}<div class="tags"><span>可交易</span></div><div class="btns c"><button class="btn" onclick="sell(${uid})">出售 ${sellPrice(it)}◈</button><button class="btn" onclick="closeM()">关闭</button></div></div>`)}
- const b=BASEM[it.b],l=itemLocal(it),r=itemReq(it),m=allMods(it),ok=canEquip(it);
- const vis=[],hid=[];for(const k in it.m){const t=(MODT[k]||k).replace('{v}',it.m[k]);if(['edmg','edef','mindmg','maxdmg'].includes(k)&&(b.dmg||b.def))continue;(HIDDEN_KEYS.has(k)?hid:vis).push(t)}
- const sm=socketMods(it);
- let base='';if(b.dmg){const enh=l.min!==it.dmg[0]||l.max!==it.dmg[1];base+=`<div>单手伤害：<span class="${enh?'g':''}">${l.min}-${l.max}</span>${enh?` <small class="dim">(基础 ${it.dmg[0]}-${it.dmg[1]})</small>`:''}</div>`}
- if(b.def){const enh=l.def!==it.def;base+=`<div>防御：<span class="${enh?'g':''}">${l.def}</span>${enh?` <small class="dim">(基础 ${it.def})</small>`:''}</div>`}if(b.block)base+=`<div>格挡：${b.block}%</div>`;
- const setT=it.set?`<div class="setsec"><b>${SETS[it.set].n}</b>（已装备 ${setCount()[it.set]||0} 件）${Object.entries(SETS[it.set].bonus).map(([n,bo])=>`<div class="${(setCount()[it.set]||0)>=+n?'g':'dim'}">${n}件：${modsTxt(bo)}</div>`).join('')}${SETITEMS.filter(x=>x.set===it.set).map(x=>`<div class="dim">· ${x.n}</div>`).join('')}</div>`:'';
-  const rwT='';
-  const socs='';
- const cmp=f.slot?'':(()=>{const k=slotOf(b)==='ring'?'ring1':slotOf(b);const e=S.eq[k];return e?`<div class="dim">当前已装备：${itemName(e)}（战力 ${power(e)}）</div>`:''})();
-  const canSock=false;
- modal(`<div class="ipanel q${it.q}"><div class="ih">${itemIcon(it)}<div><b style="color:${itemColor(it)}">${itemName(it)}</b><div class="dim">${b.n} · ${['普通','扩展','精英'][b.tier]}级 · ${QN[it.rw!=null?8:it.q]}${it.sock&&it.q<3&&it.rw==null?' · 有凹槽':''}</div><div class="star">${stars(it)}</div><div class="dim">物品等级 ${it.il} · 耐久 —（挂机不磨损）</div></div></div>
- <div class="sec"><h4>【基础属性】</h4>${base}${vis.map(t=>`<div class="g">${t}</div>`).join('')}<div class="${S.lvl>=r.lv?'':'bad'}">需求等级：${r.lv}</div>${r.str?`<div class="${ST.attr.str>=r.str?'':'bad'}">需求力量：${r.str}</div>`:''}${r.dex?`<div class="${ST.attr.dex>=r.dex?'':'bad'}">需求敏捷：${r.dex}</div>`:''}</div>
- ${hid.length?`<div class="sec hid"><h4>【隐藏属性】</h4>${hid.map(t=>`<div>${t}</div>`).join('')}</div>`:''}${setT}
- <div class="pw">战力 <b>${power(it)}</b></div>${cmp}<div class="tags"><span>可交易</span><span>已鉴定</span>${it.q===5?'<span class="u">暗金</span>':''}${it.set?'<span class="s">套装</span>':''}${it.rw!=null?'<span class="u">符文之语</span>':''}</div>
- <div class="btns c">${f.slot?`<button class="btn" onclick="unequip('${f.slot}')">卸下</button>`:`<button class="btn gold" onclick="equip(${uid})" ${ok?'':'disabled'}>${ok?'装备':'需求不足'}</button>`}
- ${S.imbue&&!f.slot&&(it.q===1||it.q===2)&&!it.soc.length?`<button class="btn gold" onclick="imbue(${uid})">灌注</button>`:''}
- ${f.slot?'':`<button class="btn" onclick="sell(${uid})">出售 ${sellPrice(it)}◈</button>`}<button class="btn" onclick="closeM()">关闭</button></div></div>`)}
+ modal(`<div class="ipanel"><div class="ih">${itemIcon(it)}<b>${itemName(it)}</b></div><div class="btns c">${it.k?`<button class="btn" onclick="sell(${uid})">出售 ${sellPrice(it)}◈</button>`:''}<button class="btn" onclick="closeM()">关闭</button></div></div>`)}
+
 function equip(uid,side){const f=findItem(uid);if(!f||f.slot)return;const it=f.it,b=BASEM[it.b];let k=cqBrace(b)&&['shield','gloves'].includes(side)?side:cqEquipSlot(b);if(k==='ring')k=!S.eq.ring1?'ring1':!S.eq.ring2?'ring2':'ring1';
  if(!k||!canEquip(it))return;S.bag.splice(f.i,1);if(S.eq[k])S.bag.push(S.eq[k]);S.eq[k]=it;calc();H.life=Math.min(H.life,ST.life);closeM();render()}
 function unequip(k){if(S.bag.length>=40)return toast('背包已满');S.bag.push(S.eq[k]);delete S.eq[k];calc();closeM();render()}
@@ -436,7 +407,7 @@ let MAPA=0;
 function renderMap(){const P=$('#panel');const A=ACTS[MAPA];
  P.innerHTML=`<div class="stabs">${ACTS.map((a,i)=>`<button class="${MAPA===i?'on':''}" onclick="MAPA=${i};render()">第${'一二三四五'[i]}章</button>`).join('')}</div>
  <div class="gp actc"><h3>${A.n}</h3><div class="dim">营地：${A.camp} · 章节首领：<b class="bossn">${A.boss}</b></div>
- <div class="btns">${DIFFS.map((d,i)=>`<button class="btn xs ${S.diff===i?'on':''}" disabled>${d.n}${d.pen?`(抗性${d.pen})`:''}${d.lock?' 🔒':''}</button>`).join('')}</div></div>
+ <div class="btns">${DIFFS.map((d,i)=>`<button class="btn xs ${S.diff===i?'on':''}" disabled>${d.n}${d.lock?' 🔒':''}</button>`).join('')}</div></div>
  ${A.lock?`<div class="gp"><div class="dim">🔒 本章将在后续阶段开放（区域结构已在数据中预留）</div>${A.zones.map(z=>`<div class="zc lock"><b>${z.n}</b><span>mlvl ${z.ml}</span></div>`).join('')}</div>`:
  A.zones.map((z,i)=>{const lk=i>S.unl,cur=i===S.zone;return`<div class="zc ${lk?'lock':''} ${cur?'cur':''} ${z.boss?'bz':''}" onclick="${lk?'':`goZone(${i});TAB='fight';render()`}">
   <div><b>${z.n}</b> ${z.dun?'<span class="tag">地下城</span>':''}${z.side?'<span class="tag">支线</span>':''}${S.cleared[i]?'<span class="tag ok">已肃清</span>':''}<div class="dim">${z.mons.map(k=>MONS[k].n).join('·')}${z.boss?` · 首领 <span class="bossn">${BOSSES[z.boss].n}</span>`:''}</div>

@@ -613,11 +613,13 @@ function ranges(it){
  Object.freeze(out);RANGE_CACHE.set(it,{raw,signature,value:out});return out;
 }
 
-function newRange(eq,key){const out=[0,0];for(const it of Object.values(eq||{}))if(it&&!it.k&&it.cqVersion>=1&&!it.cqMigrated){const r=ranges(it)[key];if(r){out[0]+=r[0];out[1]+=r[1]}}return out}
+// Migrated fixed properties replace their archived range, rather than adding it twice.
+function effectiveRanges(it){const out=Object.assign({},ranges(it));if(it.cqMigrated){const m=allMods(it);for(const k of ['mag','tao','mdef']){const p=EP[k];out[k]=[(m[k]||0)+(m[p[0]]||0),(m[k]||0)+(m[p[1]]||0)]}}return out}
+function newRange(eq,key){const out=[0,0];for(const it of Object.values(eq||{}))if(it&&!it.k){const r=effectiveRanges(it)[key];if(r){out[0]+=r[0];out[1]+=r[1]}}return out}
 function rollAttack(range,eq){let luck=0;for(const it of Object.values(eq||(typeof S!=='undefined'?S.eq:{})))if(it&&!it.k&&it.cqVersion>=1&&!it.cqMigrated)luck+=(it.m?.luck||0)-(it.m?.curse||0);luck=Math.max(-9,Math.min(9,luck));const lo=Math.round(range[0]),hi=Math.round(range[1]);if(luck&&rnd()<Math.abs(luck)/9)return luck>0?hi:lo;return R(lo,hi)}
-function magicGuard(value,element,eq){if(!(value>0))return value;if(!['fire','cold','light','magic'].includes(element))return value;const r=newRange(eq||(typeof S!=='undefined'?S.eq:{}),'mdef');if(!r[0]&&!r[1])return value;return Math.max(1,value-R(Math.min(...r),Math.max(...r)))}
+function magicGuard(value,element,eq){if(!(value>0)||!['fire','cold','light','magic','pois'].includes(element))return value;const r=newRange(eq||(typeof S!=='undefined'?S.eq:{}),'mdef');const fixed=Math.max(0,R(Math.min(...r),Math.max(...r)))+(!eq&&typeof S!=='undefined'?Math.max(0,S.bon?.mdef||0):0);return Math.max(1,Math.min(value-fixed,value*100/(100+fixed)))}
 let installed=false;
-function equipRanges(eq){const out={dmg:[0,0],mag:[0,0],tao:[0,0],def:[0,0],mdef:[0,0]};for(const it of Object.values(eq||{})){if(!it||it.k)continue;for(const[k,v]of Object.entries(ranges(it)))if(out[k])out[k]=out[k].map((x,i)=>x+v[i])}return out}
+function equipRanges(eq){const out={dmg:[0,0],mag:[0,0],tao:[0,0],def:[0,0],mdef:[0,0]};for(const it of Object.values(eq||{})){if(!it||it.k)continue;for(const[k,v]of Object.entries(effectiveRanges(it)))if(out[k])out[k]=out[k].map((x,i)=>x+v[i])}return out}
 function install(){if(installed)return;installed=true;
  const url=it=>it&&!it.k&&ICONS[it.b]||null;
  if(window.CQSys){CQSys.itemIcon=url;const oldClass=CQSys.itemCls;CQSys.itemCls=it=>it&&it.cqMigrated?it.cqLegacyClass||null:oldClass(it);CQSys.equipRanges=()=>equipRanges(S.eq);CQSys.heroEquipRanges=()=>equipRanges(CQSys.hero().eq)}
@@ -641,7 +643,7 @@ function install(){if(installed)return;installed=true;
  CQMir2Equip.allowed=allowed;
  const local=itemLocal;itemLocal=function(it){const b=BASEM[it.b];const compatible=b&&((b.dmg&&!it.dmg)||(b.def&&it.def==null))?Object.assign({},it,{dmg:it.dmg||[0,0],def:it.def||0}):it;const o=local(compatible);const rs=ranges(it);for(const[k,r]of Object.entries(rs)){if(k==='dmg')continue;o[k+'Min']=r[0];o[k+'Max']=r[1]}return o};
  if(typeof hurtHero==='function'){const hurt=hurtHero;hurtHero=function(value,element,monster,dodge){return hurt.call(this,magicGuard(value,element),element,monster,dodge)}}
- // Primary attributes replace the removed skill-level affixes; only new gear contributes.
+ // Primary attributes replace the removed skill-level affixes; including migrated fixed values.
  let heroValueContext=0;
  if(typeof heroCast==='function'){const cast=heroCast;heroCast=function(){heroValueContext++;try{return cast.apply(this,arguments)}finally{heroValueContext--}}}
  function primary(eq,cls){return newRange(eq,cls==='fs'?'mag':cls==='ds'?'tao':null)}

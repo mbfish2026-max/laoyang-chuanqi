@@ -86,7 +86,7 @@ bossKilled=function(m){if(!m.qb)return;if(MON.some(x=>x!==m&&x.hp>0&&x.qb))retur
 // ---------- 怪物技能 ----------
 const SKCD={charge:5,frost:9,nova:9,spark:4,randel:4,poisbreath:8,inferno:8,leech:5,manaburn:5,curse:9,stun:6,web:7,revive:6,heal:6,corpsefire:6};
 function hurtHero(v,el,m,dodge){if(dodge&&!hitChance(m.ar,ST.def,m.lv,S.lvl)){floatHero('闪避','#aaa');return 0}
- if(el==='phys'){v=Math.max(1,v-ST.dr);const ab=Math.min(H.abs,v);H.abs-=ab;v-=ab}else v=el==='pois'&&window.CQMir2Equip?CQMir2Equip.magicGuard(v,el):Math.max(1,v*100/(100+((S.bon&&S.bon.mdef)||0)));v=Math.round(v);if(v>0){H.life-=v;floatHero('-'+v,{fire:'#f84',cold:'#8cf',light:'#ff6',pois:'#6f6'}[el]||'#f44')}return v}
+ if(el==='phys'){v=Math.max(1,v-ST.dr);const ab=Math.min(H.abs,v);H.abs-=ab;v-=ab}else v=Math.max(1,v);v=Math.round(v);if(v>0){H.life-=v;floatHero('-'+v,{fire:'#f84',cold:'#8cf',light:'#ff6',pois:'#6f6'}[el]||'#f44')}return v}
 function hurtAlly(a,v,el){v=Math.max(1,v-(el==='phys'?(a.def||0):(a.mdef||0)));v=Math.round(v);a.hp-=v;a.hitT=0.25;floatNum('a'+a.uid,v,'#f66');return v}
 function aoe(m,v,el){hurtHero(v,el,m,0);for(const a of ALLY)if(a.hp>0)hurtAlly(a,v*0.8,el)}
 function single(m,v,el,dodge){const al=ALLY.filter(a=>a.hp>0);const w=al.find(a=>a.kind==='wall');const tg=w||(al.length&&rnd()<0.6?pick(al):'hero');if(tg==='hero')return hurtHero(v,el,m,dodge);return hurtAlly(tg,v,el)}

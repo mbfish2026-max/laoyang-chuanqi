@@ -2,7 +2,9 @@
 // Pure object migration: no save/global character writes; caller commits the returned copy.
 (function(){
 const keep=new Set(['mindmg','maxdmg','def','mag','tao','mdef','ar','dex','luck','life','mana','defMin','defMax','magMin','magMax','taoMin','taoMax','mdefMin','mdefMax']);
-function migrateItem(input){const it=JSON.parse(JSON.stringify(input));if(it.k||it.cqCleanVersion>=2)return it;
+function guardUpgrade(it){if(it.k||it.cqGuardVersion>=1)return it;const old=it.cqLegacy||{};const pct=Math.min(80,Math.max(0,old.allres||0)+Math.max(0,...['fres','cres','lres','pres'].map(k=>old[k]||0)));const previous=['allres','fres','cres','lres','pres','dr','mdr'].reduce((n,k)=>n+Math.max(0,Number(old[k])||0),0);// Use the maximum old protection ceiling as denominator so separate items also compose safely.
+ const fixed=Math.ceil(100*pct/20)+Math.max(0,old.dr||0)+Math.max(0,old.mdr||0);it.m=it.m||{};it.m.mdef=(it.m.mdef||0)+Math.max(0,fixed-previous);it.cqGuardVersion=1;return it}
+function migrateItem(input){const it=JSON.parse(JSON.stringify(input));if(it.k)return it;if(it.cqCleanVersion>=2)return guardUpgrade(it);
  const original=JSON.parse(JSON.stringify(it));
  if(!BASEM[it.b]){const slot=typeof cqD2Slot==='function'&&cqD2Slot(it.b)||(it.dmg?'weapon':'armor'),dest=BASES.find(b=>b.s===slot);if(!dest)return it;it.b=dest.id;it.cqUnknown=original}
  const base=BASEM[it.b],target=window.CQMir2Equip?.legacyPower?CQMir2Equip.legacyPower(it):power(it);
@@ -40,10 +42,10 @@ function migrateItem(input){const it=JSON.parse(JSON.stringify(input));if(it.k||
    const next=JSON.parse(JSON.stringify(it));delete next.m[it.rf.k];delete next.m.def;return Math.max(1,Math.ceil(CQMir2Equip.legacyPower(old)-power(next)))};
   const low=converted(lo),high=converted(hi);return['def',converted(v),Math.min(low,high),Math.max(low,high)];
  })}
- it.cqCompensation={version:2,beforePower:target};return it}
+ it.cqCompensation={version:2,beforePower:target};return guardUpgrade(it)}
 function migrate(state,account){const s=JSON.parse(JSON.stringify(state)),a=account==null?null:JSON.parse(JSON.stringify(account));
  let count=0;
- function walk(o){if(!o||typeof o!=='object')return o;if(typeof o.b==='string'&&('uid'in o||'m'in o)){if(!o.k&&!(o.cqCleanVersion>=2)){count++;return migrateItem(o)}return o}if(Array.isArray(o))return o.map(walk);for(const k of Object.keys(o))if(!['cqUnknown','cqLegacy','cqOriginalName','cqOriginal','cqCompensation'].includes(k))o[k]=walk(o[k]);return o}
+ function walk(o){if(!o||typeof o!=='object')return o;if(typeof o.b==='string'&&('uid'in o||'m'in o)){if(!o.k&&(!(o.cqCleanVersion>=2)||!o.cqGuardVersion)){count++;return migrateItem(o)}return o}if(Array.isArray(o))return o.map(walk);for(const k of Object.keys(o))if(!['cqUnknown','cqLegacy','cqOriginalName','cqOriginal','cqCompensation'].includes(k))o[k]=walk(o[k]);return o}
  walk(s);if(a)walk(a);s.mir2Mig=Object.assign({},s.mir2Mig,{equipment:2});return{state:s,account:a,count}}
 window.CQMir2EquipMigrate={item:migrateItem,migrate};
 })();

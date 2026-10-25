@@ -1,7 +1,7 @@
 'use strict';
 // ===================================================================================
 // cloud.js — Supabase 云存档（唯一存储）：必须登录才能游玩；游戏数据只在内存 GS 与云端 public.cq_saves.data，不写 localStorage。
-// 同步：有改动时每 20 秒防抖上传；切后台/关页面/切角色/锁定/暗金套装掉落立即上传；失败指数退避重试并显示状态。
+// 同步：有改动时每 20 秒防抖上传；切后台/关页面/切角色/锁定/极品套装掉落立即上传；失败指数退避重试并显示状态。
 // 多设备：写前比对云端 updated_at，若被其他设备更新 → 本机显示「已在其他设备登录」并停止写入（绝不覆盖较新的云端）。
 // 旧本机存档迁移（静默）：云端无存档→上传本机；云端有→按角色合并（同角色取等级/经验高者，共享仓库合并去重），成功后删除本机旧键。
 // ===================================================================================
@@ -123,7 +123,7 @@ async function loginDo(tab){const raw=$('#lg_em').value.trim(),pw=$('#lg_pw').va
   if(tab==='up'){if(!nk)nk=raw;await clSignUp(em,pw,nk)}else await clSignIn(em,pw);CL_GATE=0;closeM();toast('已登录：'+clAcctName());render();clShowOff()}catch(e){msg.textContent='失败：'+clFriendlyErr(e)}}
 function accountPanel(){const t=CLOUD.last?new Date(CLOUD.last).toLocaleString('zh-CN'):'从未';const st={ok:'已同步',busy:'同步中',err:'离线重试',kick:'已在其他设备登录'}[CL.state]||'-';
  return CU?`<div class="gp acct"><h3>账号与云存档</h3><div class="row"><span>账号</span><b>${clAcctName()}</b></div><div class="row"><span>昵称</span><b>${(CL_PROFILE&&CL_PROFILE.nickname)||'-'}</b></div><div class="row"><span>同步状态</span><b>${st}</b></div><div class="row"><span>最后同步</span><b>${t}</b></div>${CL_ERR?`<div class="bad">${CL_ERR}</div>`:''}
- <div class="btns"><button class="btn sm gold" onclick="flushNow().then(()=>render())">立即同步</button><button class="btn sm" onclick="clSignOut()">退出登录</button></div>${chSwBtn()}<div class="dim">存档仅保存在云端：有改动时约 20 秒自动同步，切到后台、切换角色、锁定物品、掉落暗金/套装时立即同步。</div></div>`
+ <div class="btns"><button class="btn sm gold" onclick="flushNow().then(()=>render())">立即同步</button><button class="btn sm" onclick="clSignOut()">退出登录</button></div>${chSwBtn()}<div class="dim">存档仅保存在云端：有改动时约 20 秒自动同步，切到后台、切换角色、锁定物品、掉落极品/套装时立即同步。</div></div>`
  :`<div class="gp acct"><h3>账号与云存档</h3><div class="dim">请先登录。${CL_ERR?'<br>'+CL_ERR:''}</div><div class="btns"><button class="btn sm gold" onclick="loginUI('in')">登录 / 注册</button></div></div>`}
 function chSwBtn(){return typeof charUI==='function'?`<div class="btns"><button class="btn sm gold" onclick="charUI()">🔄 切换角色（${(typeof ACCT!=='undefined'&&ACCT?ACCT.chars.length:1)} 个）</button></div>`:''}
 const _cl_hero=renderHero;renderHero=function(){_cl_hero();document.querySelector('#panel').insertAdjacentHTML('beforeend',accountPanel())};

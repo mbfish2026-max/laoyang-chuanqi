@@ -25,4 +25,31 @@ const legacy=require('./cq_harness')('clean_baseline',{exclude:['cq/mir2_equipme
 legacy.G("load();CQSys.createChar('旧分支基准','zs');S.lvl=60;calc();var legacySample=['swd1','arm1','rin'].map((id,i)=>{var it=makeBase(BASEM[id],60);it.q=5;it.uid=22000+i;it.m={edmg:30,edef:20,ll:7,allres:20,allsk:2,life:30};return {it,power:power(it)}})");
 T.ctx.__baseline=JSON.parse(legacy.G('JSON.stringify(legacySample)'));
 ok(G('__baseline.every(row=>power(CQMir2EquipMigrate.item(row.it))>=row.power)'),'independent pre-wrapper power baseline');
+// Review sample: the old 75% protection took 250 from a 1000 hit.
+G('var guardSource={uid:999,b:"arm1",q:4,def:2,m:{allres:75,ll:7},cqVersion:1,cqMigrated:1};var guarded=CQMir2EquipMigrate.item(guardSource);S.eq={armor:guarded};S.bon={};calc()');
+ok(G('guarded.m.mdef>=300&&CQMir2Equip.equipRanges(S.eq).mdef[0]>=300'),'fixed compensation reaches actual and displayed magic defence');
+for(const element of ['fire','cold','light','magic','pois']){
+ G(`H.life=100000;var received=hurtHero(1000,'${element}',{ar:100,lv:60},false)`);
+ ok(G('received<=250&&100000-H.life===received'),element+' ordinary/skill/poison entry retains old 75% protection');
+}
+G('var upgraded=JSON.parse(JSON.stringify(guarded));delete upgraded.cqGuardVersion;upgraded.m.mdef=75;var repaired=CQMir2EquipMigrate.item(upgraded)');
+ok(G('repaired.m.mdef===375&&JSON.stringify(CQMir2EquipMigrate.item(repaired))===JSON.stringify(repaired)'),'already migrated saves receive guard repair once');
+G('var fixedGear={uid:998,b:"arm1",cqVersion:1,cqMigrated:1,cqCleanVersion:2,cqGuardVersion:1,m:{mdef:20,mag:30,tao:40},cqRange:{mdef:[2,3],mag:[1,2],tao:[3,4]}};S.eq={armor:fixedGear};S.bon={};calc();var fixedRanges=CQMir2Equip.equipRanges(S.eq)');
+ok(G('fixedRanges.mdef[0]===22&&fixedRanges.mdef[1]===23&&fixedRanges.mag[0]===31&&fixedRanges.tao[1]===44'),'migrated fixed and range values counted once for defence and caster primaries');
+G('S.eq={};S.bon={mdef:300};calc();H.life=100000;var questGuard=hurtHero(1000,"pois",{lv:60},false)');
+ok(G('questGuard===250'),'task magic defence uses same poison path');
+T.ctx.TextEncoder=TextEncoder;T.ctx.TextDecoder=TextDecoder;
+G(require('fs').readFileSync(require('path').join(__dirname,'../cloud.js'),'utf8'));
+G('S.bon={};calc();BX.sig="";var bonusHtml=bxBody();CU={id:"test"};var cloudHtml=accountPanel()');
+ok(G('!/威能|符文|护身符/.test(bonusHtml)&&!cloudHtml.includes("暗金")'),'bonus and account templates remove retired labels');
+G('S.eq={armor:CQMir2EquipMigrate.item({uid:991,b:"arm1",q:4,def:2,m:{allres:25}}),helm:CQMir2EquipMigrate.item({uid:992,b:"hlm1",q:4,def:2,m:{allres:50}})};S.bon={};calc();H.life=100000;var combinedGuard=hurtHero(1000,"fire",{lv:60},false)');
+ok(G('combinedGuard<=250'),'separate migrated items retain combined old protection');
+for(const cls of ['fs','ds']){
+ G(`S.cls='${cls}';S.eq={};calc();var casterId=S.cls==='fs'?'ldsh':'lhhf';var casterBase=clsSV(casterId,9).dmg;S.eq={armor:fixedGear};calc();var casterWith=clsSV(casterId,9).dmg`);
+ ok(G(`casterWith[0]===casterBase[0]+${cls==='fs'?93:43}&&casterWith[1]===casterBase[1]+${cls==='fs'?96:44}`),cls+' migrated primary reaches actual skill damage once');
+}
+G('S.hero=null;CQSys.heroCreate("ds");S.hero.lvl=60');
+G('delete window.cqHeroPage;window.__NOUI=0');
+G(require('fs').readFileSync(require('path').join(__dirname,'../cq/hero_page.js'),'utf8').replace('window.cqHeroPage={','window.__reviewHeroPage=page;window.cqHeroPage={'));
+ok(G('!/技能点|属性点/.test(__reviewHeroPage())'),'created hero page has no retired point labels');
 T.done();

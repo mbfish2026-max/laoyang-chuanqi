@@ -9,7 +9,7 @@ G("var originalRandom=Math.random;Math.random=()=>0;var referenceDrops=rollTC(Ob
 ok(G('referenceDrops.filter(it=>it.set).some(it=>it.cqContentId==="set_leiting_helm")'),'map set drops use exact content factory');
 ok(G('referenceDrops.filter(it=>!it.k).every(it=>it.cqVersion===1&&it.cqRange&&it.cqBest)'),'map drops have complete legendary metadata');
 G("var unknown={uid:90001,b:'future_legacy_armor',q:4,def:37,m:{life:55},en:7,rf:3,lock:1};S.bag=[unknown];S.sv=0;delete S.mir2Mig;ACCT.shared=[[JSON.parse(JSON.stringify(unknown))]];var oldLevel=S.lvl;save();load()");
-ok(G('S.bag[0].uid===90001&&S.bag[0].cqUnknown.b==="future_legacy_armor"&&S.bag[0].en===7&&S.bag[0].rf===3&&S.bag[0].lock===1'),'load migrates unknown legacy gear before cleanup');
+ok(G('S.bag[0].uid===90001&&S.bag[0].cqUnknown.b==="future_legacy_armor"&&S.bag[0].en===7&&S.bag[0].rf.n===3&&S.bag[0].rf.k===null&&S.bag[0].rf.off===null&&S.bag[0].lock===1'),'load migrates unknown legacy gear before cleanup');
 ok(G('S.lvl===oldLevel&&allMods(S.bag[0]).life>=55'),'legacy level and effective modifiers preserved');
 ok(G('ACCT.shared[0][0].cqVersion===1&&ACCT.shared[0][0].uid===90001'),'shared account gear migrates with character');
 G('var savedState=JSON.stringify(S),savedAccount=JSON.stringify(ACCT.shared);load()');

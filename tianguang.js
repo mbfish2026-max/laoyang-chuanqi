@@ -2,10 +2,10 @@
 // 档位（事件名 → AUDIO.playLootTier）：unique 橙 / set 绿 / ancient 金 / primal 红 / hirune·mythic 紫
 // 省电模式（window.PWR_ECO）：不画光柱，只保留横幅与声音。离线结算期间完全静默。
 const TG={COL:{unique:'#ff8a1e',set:'#3ccf3c',ancient:'#ffcf3a',primal:'#ff3030',hirune:'#b05cff',mythic:'#b05cff'},
- TAG:{unique:'暗金',set:'套装',ancient:'上古',primal:'至臻',hirune:'高阶符文',mythic:'终极'},
+ TAG:{unique:'极品',set:'套装',ancient:'上古',primal:'至臻',mythic:'终极'},
  RANK:{unique:1,set:1,hirune:2,ancient:3,primal:4,mythic:5},TOP:{primal:1,mythic:1,ancient:1},HR:20,busy:0,last:null};
 // 物品 → 档位名（null=无天光）
-function tgTier(it){if(!it)return null;if(it.k==='rune')return it.r+1>=TG.HR?'hirune':null;if(it.k)return null;
+function tgTier(it){if(!it)return null;if(it.k)return null;
  if(it.myth)return'mythic';if(it.anc===2)return'primal';if(it.anc===1)return'ancient';if(it.q===5)return'unique';if(it.q===6)return'set';return null}
 function tgBest(list){let b=null,bt=null;for(const it of list||[]){const t=tgTier(it);if(t&&(!bt||TG.RANK[t]>TG.RANK[bt])){b=it;bt=t}}return bt?{it:b,t:bt}:null}
 function tgPillar(t){const fb=document.getElementById('fbattle');if(!fb||document.hidden)return;

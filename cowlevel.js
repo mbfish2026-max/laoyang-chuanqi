@@ -31,7 +31,7 @@ function cowGo(d){if(!cowOpen(d))return toast('尚未解锁');if(S.act!==4||S.di
 {const f=monCard;monCard=function(m){const h=f(m);return(MONS[m.key]||BOSSES[m.key]||{}).cow?h.replace('class="mc ','class="mc cowm '):h}}
 // 地图入口（每难度一个，挂在章节标签下方）
 {const f=renderMap;renderMap=function(){f();const d=MAPD==null?S.diff:MAPD;if(!cowOpen(d))return;const P=$('#panel'),cur=inCow()&&S.diff===d;
- const h=`<div class="zc bz cowzc ${cur?'cur':''}" onclick="cowGo(${d})"><div><b>🐮 ${COWZ.n}</b> <span class="tag">秘境</span><span class="tag">${DIFFS[d].n}</span><div class="dim">狂蛮牛魔·铁角蛮牛 · 首领 <span class="bossn">牛魔王</span></div><div class="dim">经验+25% · 寻宝+60 · 符文↑ · 循环刷图</div></div><div class="zr"><span>mlvl ${mlD(45,d)+COW.ml}</span><small>${COW.w}波</small>${cur?'<em>当前</em>':''}</div></div>`;
+ const h=`<div class="zc bz cowzc ${cur?'cur':''}" onclick="cowGo(${d})"><div><b>🐮 ${COWZ.n}</b> <span class="tag">秘境</span><span class="tag">${DIFFS[d].n}</span><div class="dim">狂蛮牛魔·铁角蛮牛 · 首领 <span class="bossn">牛魔王</span></div><div class="dim">经验+25% · 寻宝+60 · 循环刷图</div></div><div class="zr"><span>mlvl ${mlD(45,d)+COW.ml}</span><small>${COW.w}波</small>${cur?'<em>当前</em>':''}</div></div>`;
  const g=P.querySelector('.actc');if(g)g.insertAdjacentHTML('beforebegin',h);else P.insertAdjacentHTML('beforeend',h)}}
 // 战斗页区域名
 {const f=renderFight;renderFight=function(){f();if(!inCow())return;const fb=$('#fbattle');if(fb)fb.classList.add('cowbg')}}

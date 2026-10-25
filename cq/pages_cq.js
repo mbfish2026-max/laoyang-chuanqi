@@ -75,7 +75,7 @@ function offPanelPg(){let st=null;try{st=OF()&&OF().state()}catch(e){}
  <div class="offb">${btn}</div></div><div class="dim">元宝 ${num(st.yb)} · 双倍只翻金币与经验</div></div>`}
 function flTabs(){return `<div class="stabs sm cqfltabs">${FLN.map(([k,n])=>`<button class="${FLT===k?'on':''}" onclick="cqPg.fl('${k}')">${n}${(k==='sign'&&(signState()||{}).canClaim)||(k==='off'&&cqPg._offDot())?'<em class="dot"></em>':''}</button>`).join('')}</div>`}
 // ---------------- 顶栏（设计稿 live.js topbar()：头像 / Lv+名字+战力 / 血蓝条 / 金币元宝 / 菜单）----------------
-// 与战斗页 #cqStage .cqb .top 同一组件外观（样式同 cq.css .cqb .top），这里给 角色(含背包/商店/佣兵)/技能/福利 页单独挂一份；地图页、战斗页不显示。
+// 与战斗页 #cqStage .cqb .top 同一组件外观（样式同 cq.css .cqb .top），这里给 角色(含背包/商店/英雄)/技能/福利 页单独挂一份；地图页、战斗页不显示。
 const TOPT={merc:1,hero:1,bag:1,shop:1,skill:1,eg:1,map:1};
 function topData(){const c=cls(),cur=(window.CQSys&&CQSys.currency)?CQSys.currency():{gold:S.gold,yb:null};const st=ST||{},h=(typeof H!=='undefined'&&H)||{};
  let xp=0;try{const a=xpNeed(S.lvl),b=xpNeed(S.lvl+1);xp=b>a?Math.max(0,Math.min(100,(S.xp-a)/(b-a)*100)):100}catch(e){}
@@ -90,9 +90,6 @@ const tx=(e,v)=>{if(e&&e.textContent!==v)e.textContent=v},wd=(e,v)=>{v=v.toFixed
 function topSync(){const e=topEl();if(!e)return;const on=!!TOPT[TAB];e.classList.toggle('hide',!on);document.body.classList.toggle('cq-topx',on);if(!on)return;
  const d=topData(),q=k=>e.querySelector('[data-r='+k+']');const ac='ava '+d.cls;const a=e.querySelector('.ava');if(a.className!==ac)a.className=ac;
  tx(q('pn'),'Lv.'+d.lvl+' '+d.name);tx(q('pw'),'战力 '+num(d.power));wd(q('hp'),d.hp);wd(q('mp'),d.mp);tx(q('gold'),num(d.gold));tx(q('yb'),d.yb!=null?num(d.yb):'—');return d}
-// ---------------- 地图（设计稿 p7_map：章节卡 + 19 张具体地图，按章分组）----------------
-// 数据全部来自 ACTS[0..2].zones / MONS / BOSSES / QUESTS / CQSys.bossRt / actOpen；点地图 → 传送确认 → goAct+goZone 后回战斗挂机。
-// 第四章起仍是暗夜数据，只显示「敬请期待」卡；原地图页（难度切换/主线任务/其他扩展）保留在底部「难度 · 任务」折叠区。
 const MAPN=3,CHB=[['stage_1001.png','orclord'],['stage_1002.png','zombieking'],['a2_cave_0.webp','stonezombieking']];
 let MAPOPEN=false,MQOPEN=false;
 // 主线任务行：CQSys.questLine()（名称+进度，去掉标签），单行省略；点开 = 原 hud_cq 的 .cqmq 面板（移到这里，不再放底部折叠区）
