@@ -14,6 +14,9 @@ ok(G(`SLOTN.shield==='左手镯'&&SLOTN.gloves==='右手镯'`),'显示语义统�
 G(`addMat('heitie20',2);save();load();`);
 ok(G(`matCount('heitie20')===98&&!!S.eq.shield&&!!S.eq.gloves`),'纯度与双槽存取不丢失');
 ok(G(`cqOre(2,20).id==='heitie20'&&cqOre(2,15).id==='heitie15'&&cqOre(2).id==='heitie'`),'矿石按独立材料堆叠');
-G(`CQSys.heroCreate('zs','强化英雄');var h1=genItem(1,{base:BASEM.shd1,q:1}),h2=genItem(1,{base:BASEM.shd1,q:1});S.bag.push(h1,h2);CQSys.heroEquip(h1.uid,'gloves');CQSys.heroEquip(h2.uid,'shield');`);
+G(`CQSys.heroCreate('zs','强化英雄');var h1=genItem(1,{base:BASEM.shd1,q:1}),h2=genItem(1,{base:BASEM.shd1,q:1});S.bag.push(h1,h2);`);
+ok(G(`CQSys.hero().lvl<itemReq(h1).lv&&CQSys.heroEquip(h1.uid,'gloves').err==='英雄等级不足'&&S.bag.includes(h1)&&!CQSys.hero().eq.gloves`),'低等级英雄不可穿戴手镯，物品留在背包');
+G(`CQSys.hero().lvl=Math.max(itemReq(h1).lv,itemReq(h2).lv);var he1=CQSys.heroEquip(h1.uid,'gloves'),he2=CQSys.heroEquip(h2.uid,'shield');`);
+ok(G(`he1.ok&&he1.slot==='gloves'&&he2.ok&&he2.slot==='shield'`),'英雄达到手镯需求等级后两侧穿戴均成功');
 ok(G(`CQSys.hero().eq.gloves===h1&&CQSys.hero().eq.shield===h2`),'英雄也可把相同手镯穿两侧');
 T.done();

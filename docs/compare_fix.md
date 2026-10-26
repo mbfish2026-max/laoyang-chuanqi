@@ -55,3 +55,13 @@
 - `python3 tests/compare_fix_browser.py`：Chromium/WebKit、390×844、触屏，通过背包/个人及共享仓库/英雄/商店/赌石/融合/淬炼/淬锋入口、双戒指、满值金边、锁定回收禁用、按钮同一行及 44×44、空白关闭、等级变化后的箭头刷新、pointer-events，以及新增显示内容的词汇检查。两个引擎均无 pageerror。
 - `python3 tests/compare_fix_history.py`：上述历史边界复现。
 - `git diff --check` 通过。浏览器截图输出到 `/tmp/compare_fix_chromium.png`、`/tmp/compare_fix_webkit.png`。
+
+## 独立验收失败修正（2026-10-26）
+
+基于 `e1082ac` 复现 `docs/compare_test.md` 中的失败：`cq_enh_detail_test.js` 创建的英雄为 1 级，而生成的 `BASEM.shd1` 手镯实际要求 5 级。`CQSys.heroEquip` 返回“英雄等级不足”，未执行双槽穿戴。原因是测试夹具没有满足新增的英雄等级限制，并非双手镯业务回归；未修改业务代码或降低装备等级要求。
+
+修正夹具时，先验证低等级英雄被拒绝、物品仍在背包且目标槽为空，再按两件手镯 `itemReq` 的最大需求提升英雄等级，断言两次接口成功且分别返回 `gloves` / `shield`，保留原双槽装备对象断言。该测试现为 13 pass、0 fail。
+
+将已有但未提交的 `docs/compare_review.md` 原样纳入本次提交；其中审核对象和历史验证结论保持原记录。`docs/compare_test.md` 也保留当时 FAIL 的独立验收记录，本节记录后续修正与复验。
+
+本次全量复验：按文件逐一执行 `node tests/*_test.js` 对应的全部 60 个测试文件（每个进程设置 120 秒超时），60/60 通过；`ancient_test.js` 耗时 32.92 秒，未超时。另执行 `node cq/cq_battle_test.js` 通过，总计 61/61 文件通过、0 失败。`git diff --check` 通过。仅提交到 `fix-compare`，不推送。
