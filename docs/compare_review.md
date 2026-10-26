@@ -55,3 +55,19 @@
 必改项：无。
 
 VERDICT: APPROVE
+
+
+## 增量复核：3839db8..91b59cd（2026-10-26）
+
+审核范围为 `3839db8b8df90c29af44c649c8aaec4af796936f..91b59cd`，包含独立验收材料与英雄手镯测试夹具修复。逐项阅读七个变更文件并追踪 `cq/sysapi_cq.js` 的 `heroEquip`、公共测试加载器与原断言；本次补充仅修改本审核文档。
+
+- **业务规则没有削弱。** 增量未修改任何业务脚本、装备配置或公共测试加载器。`heroEquip` 仍先检查职业与 `itemReq(it).lv`，不满足等级即返回，之后才移出背包并写入目标槽。修复仅将测试英雄等级设为两件装备实际需求的最大值，没有降低装备需求、替换接口或跳过检查。
+- **断言没有放宽。** 原有 `eq.gloves===h1 && eq.shield===h2` 对象身份断言完整保留；新增低等级拒绝、背包保留及目标槽为空断言，并检查达到等级后两次调用均成功且分别返回 `gloves` / `shield`。原强化、材料扣除、跨部位限制及存取断言均保留。
+- **没有新增面向玩家的暗黑词。** 对完整增量新增行扫描全部 18 个禁词：命中仅在 `docs/compare_test.md` 的词表和 `tests/compare_browser_acceptance.py` 的禁词表、故意构造的旧档名称。后者用于验证迁移清理，未写入产品资源；浏览器新旧档全部场景可见文本扫描均零命中。新增独立 Node 测试中的属性修改和资格不符输入均为隔离测试数据，不修改业务规则。
+- **历史报告范围清楚。** `compare_test.md` 和 `compare_test_evidence.json` 记录被测提交 `3839db8` 的历史失败，不能当作 `91b59cd` 的复验结果；`compare_fix.md` 已说明后续夹具修正。本文此前关于未跟踪文件及“未提交”的描述同样是历史审核时点记录。
+
+本次实际复验：`node tests/cq_enh_detail_test.js`（13/0）、`node tests/compare_fix_test.js`（21/0）、`node tests/compare_independent_test.js`（348/0）、`node tests/cq_hero_system_test.js`（16/0）、`node tests/cq_sysapi_test.js`（34/0），合计 432 pass、0 fail。`python3 tests/compare_browser_acceptance.py` 退出码 0，Chromium/WebKit × 新旧档 × 五场景共 20 场景通过，无 pageerror、禁词命中或验收失败；本次日志位于 `/tmp/compare_review_increment_browser.log`。`git diff --check` 通过。本次没有重复全量 61 文件测试，前文全量结果属于原修复记录；浏览器覆盖范围仍限上述场景。
+
+增量必改项：无。确认此次夹具修复未削弱业务规则，未引入玩家可见暗黑词。
+
+VERDICT: APPROVE
