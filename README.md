@@ -1,5 +1,7 @@
 # 老羊传奇
 
+- **版本**：`cq-20261022c`
+
 浏览器单机挂机传奇，战士、法师、道士，传奇七章、技能书、英雄与合击。当前规则见 [DESIGN.md](DESIGN.md)，待办见 [TODO.md](TODO.md)。
 
 浏览器通过 index.html 启动。游戏存档在内存 GS 与云端 SQL 表 cq_saves；新存储键统一 cq- 前缀，旧 cq_ 键只读迁移。登录态同时持久化至 localStorage 和 IndexedDB。
