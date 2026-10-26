@@ -1,0 +1,3856 @@
+{
+  "testedCommit": "3839db8b8df90c29af44c649c8aaec4af796936f",
+  "date": "2026-10-26",
+  "syntax": [
+    {
+      "file": "acts.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "ancient.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "applock.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "art2_icon3.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "art2_icon_entries.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "art2_map.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "art_icons3.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "art_map.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "audio.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "audio_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "auto_status.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "bagkeep.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "bagux.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "bloodmoon.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "bonus.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "bossloot.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "classes.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cloud.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cls_ds.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cls_fs.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cls_hero.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cls_zs.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cmp2.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "combat_guard.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "compare.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cowlevel.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/bal_fix_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/balance.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/battle_mount.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/cap_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/compare_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/cq_battle_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/cq_fx.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/cq_hero.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/cq_hero_balance_sim.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/cq_move.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/cq_scene.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/data_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/data_cq2.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/enhance.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/firstdrop_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/fuli_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/gamble_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/hero_page.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/hud_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/icons_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/m2_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_b6.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_equipment.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_equipment_migrate.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_loot.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_maps.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_progression.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_sets.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mir2_skills.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/mutation_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/pages_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/soul_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/stash_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/sys_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/sysapi_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq/ui_cq.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "cq_bridge.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "data.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "data_acts.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "data_endgame.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "data_items.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "data_items2.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "dlog.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "dmgstats.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "eg_ach.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "eg_bounty.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "eg_core.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "eg_events.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "eg_mj.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "eg_para.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "eg_rift.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "gamble_fix.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "game.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "icon2.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "items.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "items2.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "late.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "lock.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "login_flow.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "loot.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "mdiff.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "offpeek.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "power.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "prune_mig.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "reforge.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "salvage.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "settings.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "shop.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "skills.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "sort.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "stash.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "stash_equip.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "stashux.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "summon_keep.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "sw.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/ancient_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/ancx_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/auto_sim.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/bloodmoon_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/bossloot_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cls_book_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cls_hero_budget_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cls_hero_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cls_pet_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cls_sim.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/compare_fix_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_attrfix_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_autobest_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_autogrow_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_bal_sim.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_balance_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_balfix_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_book_sim.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_enh_detail_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_enh_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_guard_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_harness.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_hero_sim.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_hero_system_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_icons_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_late_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_lifepct_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_m1_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_m2_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_migrate_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_offline_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_prog_sim.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_prune2_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_prune_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_reforge_seed_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_signin_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_skillbar_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_spend_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_stash_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_sysapi_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/cq_ui_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_clean_browser_fixture.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_clean_migrate_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_clean_purge_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_clean_save_fixture.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_clean_save_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/diablo_meta_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/items_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_b6_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_bal_short_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_cloud_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_equipment_progression.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_equipment_sim.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_equipment_sim_cache.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_equipment_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_equipment_test_loader.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_firstdrop_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_gamble_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_integration_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_lvl_sim.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_lvl_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_maps_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_mutation_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_sets_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_skills_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_soul_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_streams_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mir2_summon_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/mj_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/recycle_mir2_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/reforge_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/tianguang_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/uber_test.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tianguang.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "uber.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "ui_art.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "ui_hold.js",
+      "code": 0,
+      "output": ""
+    },
+    {
+      "file": "tests/compare_independent_test.js",
+      "code": 0,
+      "output": ""
+    }
+  ],
+  "suite": [
+    {
+      "file": "tests/ancient_test.js",
+      "code": 0,
+      "seconds": 30.8,
+      "output": "ancient_test: 17 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/ancx_test.js",
+      "code": 0,
+      "seconds": 0.17,
+      "output": "ancx_test: 10 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/bloodmoon_test.js",
+      "code": 0,
+      "seconds": 0.44,
+      "output": "bloodmoon_test: 16 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/bossloot_test.js",
+      "code": 0,
+      "seconds": 0.94,
+      "output": "bossloot_test: 21 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cls_book_test.js",
+      "code": 0,
+      "seconds": 0.31,
+      "output": "cls_book_test: 34 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cls_hero_budget_test.js",
+      "code": 0,
+      "seconds": 34.18,
+      "output": "zs/zs: 15.03%, 合击 25\nzs/fs: 11.06%, 合击 27\nzs/ds: 11.72%, 合击 27\nfs/zs: 12.82%, 合击 26\nfs/fs: 12.72%, 合击 26\nfs/ds: 12.85%, 合击 27\nds/zs: 16.33%, 合击 27\nds/fs: 13.60%, 合击 25\nds/ds: 13.24%, 合击 27\ncls_hero_budget_test: 9 combinations pass\n"
+    },
+    {
+      "file": "tests/cls_hero_test.js",
+      "code": 0,
+      "seconds": 0.2,
+      "output": "cls_hero_test: 22 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cls_pet_test.js",
+      "code": 0,
+      "seconds": 0.49,
+      "output": "cls_pet_test: 6 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/compare_fix_test.js",
+      "code": 0,
+      "seconds": 0.19,
+      "output": "compare_fix: 21 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_attrfix_test.js",
+      "code": 0,
+      "seconds": 0.21,
+      "output": "cq_attrfix_test: 14 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_autobest_test.js",
+      "code": 0,
+      "seconds": 0.18,
+      "output": "cq_autobest_test: 9 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_autogrow_test.js",
+      "code": 0,
+      "seconds": 0.18,
+      "output": "cq_autogrow_test: 58 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_balance_test.js",
+      "code": 0,
+      "seconds": 0.19,
+      "output": "cq_balance_test: 15 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_balfix_test.js",
+      "code": 0,
+      "seconds": 0.2,
+      "output": "cq_balfix_test: 20 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_enh_detail_test.js",
+      "code": 1,
+      "seconds": 0.21,
+      "output": "  ✗ 英雄也可把相同手镯穿两侧\ncq_enh_detail_test: 10 pass, 1 fail\n"
+    },
+    {
+      "file": "tests/cq_enh_test.js",
+      "code": 0,
+      "seconds": 0.19,
+      "output": "  +0→+9 平均尝试次数 213.0\ncq_enh_test: 16 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_guard_test.js",
+      "code": 0,
+      "seconds": 0.22,
+      "output": "cq_guard_test: 8 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_hero_system_test.js",
+      "code": 0,
+      "seconds": 0.2,
+      "output": "cq_hero_system_test: 16 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_icons_test.js",
+      "code": 0,
+      "seconds": 0.19,
+      "output": "cq_icons_test: 150 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_late_test.js",
+      "code": 0,
+      "seconds": 0.25,
+      "output": "cq_late_test: 9 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_lifepct_test.js",
+      "code": 0,
+      "seconds": 0.16,
+      "output": "cq_lifepct_test: 4 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_m1_test.js",
+      "code": 0,
+      "seconds": 0.48,
+      "output": "cq_m1_test: 41 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_m2_test.js",
+      "code": 0,
+      "seconds": 0.43,
+      "output": "cq_m2_test: 49 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_migrate_test.js",
+      "code": 0,
+      "seconds": 0.2,
+      "output": "cq_migrate_test: 10 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_offline_test.js",
+      "code": 0,
+      "seconds": 0.24,
+      "output": "cq_offline_test: 12 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_prune2_test.js",
+      "code": 0,
+      "seconds": 0.24,
+      "output": "cq_prune2_test: 58 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_prune_test.js",
+      "code": 0,
+      "seconds": 0.2,
+      "output": "cq_prune_test: 19 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_reforge_seed_test.js",
+      "code": 0,
+      "seconds": 1.98,
+      "output": "cq_reforge_seed_test: 8 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_signin_test.js",
+      "code": 0,
+      "seconds": 0.22,
+      "output": "cq_signin_test: 18 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_skillbar_test.js",
+      "code": 0,
+      "seconds": 0.34,
+      "output": "cq_skillbar_test: 28 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_spend_test.js",
+      "code": 0,
+      "seconds": 0.17,
+      "output": "cq_spend_test: 17 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_stash_test.js",
+      "code": 0,
+      "seconds": 0.84,
+      "output": "cq_stash_test: 19 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_sysapi_test.js",
+      "code": 0,
+      "seconds": 0.25,
+      "output": "cq_sysapi_test: 34 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/cq_ui_test.js",
+      "code": 0,
+      "seconds": 0.17,
+      "output": "cq_ui_test: 16 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/diablo_clean_migrate_test.js",
+      "code": 0,
+      "seconds": 0.35,
+      "output": "diablo_clean_migrate: 29 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/diablo_clean_purge_test.js",
+      "code": 0,
+      "seconds": 0.32,
+      "output": "diablo_clean_purge: 37 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/diablo_clean_save_test.js",
+      "code": 0,
+      "seconds": 0.18,
+      "output": "Migration metrics: {\"uids\":[81001,81002,81003],\"oldPower\":[222,210,206],\"newPower\":[222,210,206]}\ndiablo_clean_save: 14 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/diablo_meta_test.js",
+      "code": 0,
+      "seconds": 0.29,
+      "output": "diablo_meta_test: 20 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/items_test.js",
+      "code": 0,
+      "seconds": 0.33,
+      "output": "items: 42 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_b6_test.js",
+      "code": 0,
+      "seconds": 0.32,
+      "output": "mir2_b6_test: 32 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_bal_short_test.js",
+      "code": 0,
+      "seconds": 0.3,
+      "output": "mir2_bal_short_test: 19 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_cloud_test.js",
+      "code": 0,
+      "seconds": 0.29,
+      "output": "mir2_cloud_test: 14 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_equipment_test.js",
+      "code": 0,
+      "seconds": 0.56,
+      "output": "mir2_equipment: 581 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_firstdrop_test.js",
+      "code": 0,
+      "seconds": 0.39,
+      "output": "mir2_firstdrop_test: 15 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_gamble_test.js",
+      "code": 0,
+      "seconds": 0.69,
+      "output": "mir2_gamble_test: 38 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_integration_test.js",
+      "code": 0,
+      "seconds": 0.21,
+      "output": "mir2_integration_test: 10 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_lvl_test.js",
+      "code": 0,
+      "seconds": 1.88,
+      "output": "mir2_lvl_test: 69 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_maps_test.js",
+      "code": 0,
+      "seconds": 0.9,
+      "output": "mir2_maps_test: 250 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_mutation_test.js",
+      "code": 0,
+      "seconds": 0.21,
+      "output": "mir2_mutation_test: 22 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_sets_test.js",
+      "code": 0,
+      "seconds": 0.2,
+      "output": "mir2_sets: 43 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_skills_test.js",
+      "code": 0,
+      "seconds": 0.73,
+      "output": "mir2_skills_test: 189 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_soul_test.js",
+      "code": 0,
+      "seconds": 0.19,
+      "output": "mir2_soul_test: 15 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_streams_test.js",
+      "code": 0,
+      "seconds": 0.39,
+      "output": "mir2_streams_test: 37 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mir2_summon_test.js",
+      "code": 0,
+      "seconds": 0.22,
+      "output": "mir2_summon_test: 11 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/mj_test.js",
+      "code": 0,
+      "seconds": 0.08,
+      "output": "\n结果：通过 19，失败 0\n"
+    },
+    {
+      "file": "tests/recycle_mir2_test.js",
+      "code": 0,
+      "seconds": 0.16,
+      "output": "recycle_mir2_test: 23 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/reforge_test.js",
+      "code": 0,
+      "seconds": 0.21,
+      "output": "reforge_test: 12 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/tianguang_test.js",
+      "code": 0,
+      "seconds": 0.14,
+      "output": "tianguang_test: 9 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/uber_test.js",
+      "code": 0,
+      "seconds": 0.27,
+      "output": "uber_test: 47 pass, 0 fail\n"
+    },
+    {
+      "file": "cq/cq_battle_test.js",
+      "code": 0,
+      "seconds": 0.5,
+      "output": "cq_battle_test: 220 pass, 0 fail\n"
+    },
+    {
+      "file": "tests/compare_independent_test.js",
+      "code": 0,
+      "output": "compare_independent: 348 pass, 0 fail\n"
+    }
+  ],
+  "browser": [
+    {
+      "engine": "chromium",
+      "save": "new",
+      "shots": [
+        "chromium_new_bag_390x844.png",
+        "chromium_new_stash_390x844.png",
+        "chromium_new_compare_390x844.png",
+        "chromium_new_hero_candidates_390x844.png",
+        "chromium_new_hero_compare_390x844.png"
+      ],
+      "checks": [
+        {
+          "scene": "bag",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 1,
+            "power": [],
+            "buttons": [
+              {
+                "text": "角色",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "商店",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "英雄",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "三合一融合",
+                "w": 77.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 75,
+                "client": 75,
+                "wrapped": false
+              },
+              {
+                "text": "排序",
+                "w": 122.65625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "回收",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "锁定",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 122.65625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "个人仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "共享仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "全部",
+                "w": 72.390625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "武器",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "防具",
+                "w": 72.390625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "首饰",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "材料",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "‹",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "›",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "战斗",
+                "w": 78.1875,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "角色",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "技能",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "地图",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "福利",
+                "w": 77.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": null
+        },
+        {
+          "scene": "stash",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 1,
+            "power": [],
+            "buttons": [
+              {
+                "text": "角色",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "商店",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "英雄",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "排序",
+                "w": 122.65625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "回收",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "锁定",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 122.65625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "个人仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "共享仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "全部",
+                "w": 72.390625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "武器",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "防具",
+                "w": 72.390625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "首饰",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "材料",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "‹",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "›",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "＋",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "战斗",
+                "w": 78.1875,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "角色",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "技能",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "地图",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "福利",
+                "w": 77.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": null
+        },
+        {
+          "scene": "compare",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 0,
+            "power": [
+              "战力差 ↓ -1000",
+              "战力差 ↑ +980"
+            ],
+            "buttons": [
+              {
+                "text": "存个人仓库",
+                "w": 146.5,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 145,
+                "client": 145,
+                "wrapped": false
+              },
+              {
+                "text": "存共享仓库",
+                "w": 146.5,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 145,
+                "client": 145,
+                "wrapped": false
+              },
+              {
+                "text": "穿戴",
+                "w": 56.390625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "对比",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "锁定",
+                "w": 56.390625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "回收",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "强化",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": true
+        },
+        {
+          "scene": "compare",
+          "blankTarget": "<div id=\"modal\" class=\"sheet\"><div class=\"mb\"><div class=\"ipanel\"><div class=\"ih\"><i class=\"ii art cqic\" style=\"background-image:url(assets/cq/icon/mir2/eq_rinjinjiezhi.png);background-size:contain;background-repeat:no-repeat;background-position:cent",
+          "blankClose": true
+        },
+        {
+          "scene": "hero_candidates",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 1,
+            "power": [],
+            "buttons": [
+              {
+                "text": "查看已穿装备",
+                "w": 104.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 102,
+                "client": 102,
+                "wrapped": false
+              },
+              {
+                "text": "卸下",
+                "w": 52.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 50,
+                "client": 50,
+                "wrapped": false
+              },
+              {
+                "text": "↑\n金戒指（极品 +1）",
+                "w": 298,
+                "h": 52,
+                "nowrap": true,
+                "scroll": 296,
+                "client": 296,
+                "wrapped": false
+              },
+              {
+                "text": "关闭",
+                "w": 52.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 50,
+                "client": 50,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": null
+        },
+        {
+          "scene": "hero_compare",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 0,
+            "power": [
+              "战力差 ↓ -1000",
+              "战力差 ↑ +980"
+            ],
+            "buttons": [
+              {
+                "text": "锁定",
+                "w": 90,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 88,
+                "client": 88,
+                "wrapped": false
+              },
+              {
+                "text": "穿戴",
+                "w": 90,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 88,
+                "client": 88,
+                "wrapped": false
+              },
+              {
+                "text": "关闭",
+                "w": 90,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 88,
+                "client": 88,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": true
+        },
+        {
+          "scene": "hero_compare",
+          "blankTarget": "<div id=\"modal\" class=\"sheet\"><div class=\"mb\"><div class=\"ipanel\"><h3>英雄 · 金戒指（极品 +1）</h3><div class=\"cqbest \">极品魔法 +1</div><div class=\"cqcompare\"><section><h4>戒指 · 金戒指（极品 +1）</h4><div class=\"cqpower dn\">战力差 ↓ -1000</div><div class=\"cqcompare-head\"><",
+          "blankClose": true
+        }
+      ],
+      "pageErrors": []
+    },
+    {
+      "engine": "chromium",
+      "save": "old",
+      "shots": [
+        "chromium_old_bag_390x844.png",
+        "chromium_old_stash_390x844.png",
+        "chromium_old_compare_390x844.png",
+        "chromium_old_hero_candidates_390x844.png",
+        "chromium_old_hero_compare_390x844.png"
+      ],
+      "checks": [
+        {
+          "migration": true
+        },
+        {
+          "scene": "bag",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 1,
+            "power": [],
+            "buttons": [
+              {
+                "text": "角色",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "商店",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "英雄",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "三合一融合",
+                "w": 77.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 75,
+                "client": 75,
+                "wrapped": false
+              },
+              {
+                "text": "排序",
+                "w": 122.65625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "回收",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "锁定",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 122.65625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "个人仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "共享仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "全部",
+                "w": 72.390625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "武器",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "防具",
+                "w": 72.390625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "首饰",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "材料",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "‹",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "›",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "战斗",
+                "w": 78.1875,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "角色",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "技能",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "地图",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "福利",
+                "w": 77.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": null
+        },
+        {
+          "scene": "stash",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 1,
+            "power": [],
+            "buttons": [
+              {
+                "text": "角色",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "商店",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "英雄",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "排序",
+                "w": 122.65625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "回收",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "锁定",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 122.65625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "个人仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "共享仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "全部",
+                "w": 72.390625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "武器",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "防具",
+                "w": 72.390625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "首饰",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "材料",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "‹",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "›",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "＋",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "战斗",
+                "w": 78.1875,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "角色",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "技能",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "地图",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "福利",
+                "w": 77.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": null
+        },
+        {
+          "scene": "compare",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 0,
+            "power": [
+              "战力差 ↓ -1000",
+              "战力差 ↑ +980"
+            ],
+            "buttons": [
+              {
+                "text": "存个人仓库",
+                "w": 146.5,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 145,
+                "client": 145,
+                "wrapped": false
+              },
+              {
+                "text": "存共享仓库",
+                "w": 146.5,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 145,
+                "client": 145,
+                "wrapped": false
+              },
+              {
+                "text": "穿戴",
+                "w": 56.390625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "对比",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "锁定",
+                "w": 56.390625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "回收",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "强化",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": true
+        },
+        {
+          "scene": "compare",
+          "blankTarget": "<div id=\"modal\" class=\"sheet\"><div class=\"mb\"><div class=\"ipanel\"><div class=\"ih\"><i class=\"ii art cqic\" style=\"background-image:url(assets/cq/icon/mir2/eq_rinjinjiezhi.png);background-size:contain;background-repeat:no-repeat;background-position:cent",
+          "blankClose": true
+        },
+        {
+          "scene": "hero_candidates",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 1,
+            "power": [],
+            "buttons": [
+              {
+                "text": "查看已穿装备",
+                "w": 104.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 102,
+                "client": 102,
+                "wrapped": false
+              },
+              {
+                "text": "卸下",
+                "w": 52.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 50,
+                "client": 50,
+                "wrapped": false
+              },
+              {
+                "text": "↑\n金戒指（极品 +1）",
+                "w": 298,
+                "h": 52,
+                "nowrap": true,
+                "scroll": 296,
+                "client": 296,
+                "wrapped": false
+              },
+              {
+                "text": "关闭",
+                "w": 52.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 50,
+                "client": 50,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": null
+        },
+        {
+          "scene": "hero_compare",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 0,
+            "power": [
+              "战力差 ↓ -1000",
+              "战力差 ↑ +980"
+            ],
+            "buttons": [
+              {
+                "text": "锁定",
+                "w": 90,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 88,
+                "client": 88,
+                "wrapped": false
+              },
+              {
+                "text": "穿戴",
+                "w": 90,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 88,
+                "client": 88,
+                "wrapped": false
+              },
+              {
+                "text": "关闭",
+                "w": 90,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 88,
+                "client": 88,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": true
+        },
+        {
+          "scene": "hero_compare",
+          "blankTarget": "<div id=\"modal\" class=\"sheet\"><div class=\"mb\"><div class=\"ipanel\"><h3>英雄 · 金戒指（极品 +1）</h3><div class=\"cqbest \">极品魔法 +1</div><div class=\"cqcompare\"><section><h4>戒指 · 金戒指（极品 +1）</h4><div class=\"cqpower dn\">战力差 ↓ -1000</div><div class=\"cqcompare-head\"><",
+          "blankClose": true
+        }
+      ],
+      "pageErrors": []
+    },
+    {
+      "engine": "webkit",
+      "save": "new",
+      "shots": [
+        "webkit_new_bag_390x844.png",
+        "webkit_new_stash_390x844.png",
+        "webkit_new_compare_390x844.png",
+        "webkit_new_hero_candidates_390x844.png",
+        "webkit_new_hero_compare_390x844.png"
+      ],
+      "checks": [
+        {
+          "scene": "bag",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 1,
+            "power": [],
+            "buttons": [
+              {
+                "text": "角色",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "商店",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "英雄",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "三合一融合",
+                "w": 77.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 75,
+                "client": 75,
+                "wrapped": false
+              },
+              {
+                "text": "排序",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "回收",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "锁定",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "个人仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "共享仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "全部",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "武器",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "防具",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "首饰",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "材料",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "‹",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "›",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "战斗",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "角色",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "技能",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "地图",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "福利",
+                "w": 77.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": null
+        },
+        {
+          "scene": "stash",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 1,
+            "power": [],
+            "buttons": [
+              {
+                "text": "角色",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "商店",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "英雄",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "排序",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "回收",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "锁定",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "个人仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "共享仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "全部",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "武器",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "防具",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "首饰",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "材料",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "‹",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "›",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "＋",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "战斗",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "角色",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "技能",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "地图",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "福利",
+                "w": 77.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": null
+        },
+        {
+          "scene": "compare",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 0,
+            "power": [
+              "战力差 ↓ -1000",
+              "战力差 ↑ +980"
+            ],
+            "buttons": [
+              {
+                "text": "存个人仓库",
+                "w": 146.5,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 145,
+                "client": 145,
+                "wrapped": false
+              },
+              {
+                "text": "存共享仓库",
+                "w": 146.5,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 145,
+                "client": 145,
+                "wrapped": false
+              },
+              {
+                "text": "穿戴",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "对比",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "锁定",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "回收",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "强化",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": true
+        },
+        {
+          "scene": "compare",
+          "blankTarget": "<div id=\"modal\" class=\"sheet\"><div class=\"mb\"><div class=\"ipanel\"><div class=\"ih\"><i class=\"ii art cqic\" style=\"background-image:url(assets/cq/icon/mir2/eq_rinjinjiezhi.png);background-size:contain;background-repeat:no-repeat;background-position:cent",
+          "blankClose": true
+        },
+        {
+          "scene": "hero_candidates",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 1,
+            "power": [],
+            "buttons": [
+              {
+                "text": "查看已穿装备",
+                "w": 104.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 102,
+                "client": 102,
+                "wrapped": false
+              },
+              {
+                "text": "卸下",
+                "w": 52.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 50,
+                "client": 50,
+                "wrapped": false
+              },
+              {
+                "text": "↑金戒指（极品 +1）",
+                "w": 298,
+                "h": 52,
+                "nowrap": true,
+                "scroll": 296,
+                "client": 296,
+                "wrapped": false
+              },
+              {
+                "text": "关闭",
+                "w": 52.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 50,
+                "client": 50,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": null
+        },
+        {
+          "scene": "hero_compare",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 0,
+            "power": [
+              "战力差 ↓ -1000",
+              "战力差 ↑ +980"
+            ],
+            "buttons": [
+              {
+                "text": "锁定",
+                "w": 90,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 88,
+                "client": 88,
+                "wrapped": false
+              },
+              {
+                "text": "穿戴",
+                "w": 90,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 88,
+                "client": 88,
+                "wrapped": false
+              },
+              {
+                "text": "关闭",
+                "w": 90,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 88,
+                "client": 88,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": true
+        },
+        {
+          "scene": "hero_compare",
+          "blankTarget": "<div id=\"modal\" class=\"sheet\"><div class=\"mb\"><div class=\"ipanel\"><h3>英雄 · 金戒指（极品 +1）</h3><div class=\"cqbest \">极品魔法 +1</div><div class=\"cqcompare\"><section><h4>戒指 · 金戒指（极品 +1）</h4><div class=\"cqpower dn\">战力差 ↓ -1000</div><div class=\"cqcompare-head\"><",
+          "blankClose": true
+        }
+      ],
+      "pageErrors": []
+    },
+    {
+      "engine": "webkit",
+      "save": "old",
+      "shots": [
+        "webkit_old_bag_390x844.png",
+        "webkit_old_stash_390x844.png",
+        "webkit_old_compare_390x844.png",
+        "webkit_old_hero_candidates_390x844.png",
+        "webkit_old_hero_compare_390x844.png"
+      ],
+      "checks": [
+        {
+          "migration": true
+        },
+        {
+          "scene": "bag",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 1,
+            "power": [],
+            "buttons": [
+              {
+                "text": "角色",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "商店",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "英雄",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "三合一融合",
+                "w": 77.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 75,
+                "client": 75,
+                "wrapped": false
+              },
+              {
+                "text": "排序",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "回收",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "锁定",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "个人仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "共享仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "全部",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "武器",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "防具",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "首饰",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "材料",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "‹",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "›",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "战斗",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "角色",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "技能",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "地图",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "福利",
+                "w": 77.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": null
+        },
+        {
+          "scene": "stash",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 1,
+            "power": [],
+            "buttons": [
+              {
+                "text": "角色",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "商店",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "英雄",
+                "w": 91.25,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 89,
+                "client": 89,
+                "wrapped": false
+              },
+              {
+                "text": "排序",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "回收",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "锁定",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "背包",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "个人仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "共享仓库",
+                "w": 122.671875,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 121,
+                "client": 121,
+                "wrapped": false
+              },
+              {
+                "text": "全部",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "武器",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "防具",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "首饰",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "材料",
+                "w": 72.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 70,
+                "client": 70,
+                "wrapped": false
+              },
+              {
+                "text": "‹",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "›",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "＋",
+                "w": 44,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 42,
+                "client": 42,
+                "wrapped": false
+              },
+              {
+                "text": "战斗",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "角色",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "技能",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "地图",
+                "w": 78.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              },
+              {
+                "text": "福利",
+                "w": 77.203125,
+                "h": 60,
+                "nowrap": true,
+                "scroll": 77,
+                "client": 77,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": null
+        },
+        {
+          "scene": "compare",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 0,
+            "power": [
+              "战力差 ↓ -1000",
+              "战力差 ↑ +980"
+            ],
+            "buttons": [
+              {
+                "text": "存个人仓库",
+                "w": 146.5,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 145,
+                "client": 145,
+                "wrapped": false
+              },
+              {
+                "text": "存共享仓库",
+                "w": 146.5,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 145,
+                "client": 145,
+                "wrapped": false
+              },
+              {
+                "text": "穿戴",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "对比",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "锁定",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "回收",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              },
+              {
+                "text": "强化",
+                "w": 56.40625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 54,
+                "client": 54,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": true
+        },
+        {
+          "scene": "compare",
+          "blankTarget": "<div id=\"modal\" class=\"sheet\"><div class=\"mb\"><div class=\"ipanel\"><div class=\"ih\"><i class=\"ii art cqic\" style=\"background-image:url(assets/cq/icon/mir2/eq_rinjinjiezhi.png);background-size:contain;background-repeat:no-repeat;background-position:cent",
+          "blankClose": true
+        },
+        {
+          "scene": "hero_candidates",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 1,
+            "power": [],
+            "buttons": [
+              {
+                "text": "查看已穿装备",
+                "w": 104.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 102,
+                "client": 102,
+                "wrapped": false
+              },
+              {
+                "text": "卸下",
+                "w": 52.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 50,
+                "client": 50,
+                "wrapped": false
+              },
+              {
+                "text": "↑金戒指（极品 +1）",
+                "w": 298,
+                "h": 52,
+                "nowrap": true,
+                "scroll": 296,
+                "client": 296,
+                "wrapped": false
+              },
+              {
+                "text": "关闭",
+                "w": 52.015625,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 50,
+                "client": 50,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": null
+        },
+        {
+          "scene": "hero_compare",
+          "vocabularyHits": [],
+          "smallTargets": [],
+          "possibleWrap": [],
+          "metrics": {
+            "arrows": 0,
+            "power": [
+              "战力差 ↓ -1000",
+              "战力差 ↑ +980"
+            ],
+            "buttons": [
+              {
+                "text": "锁定",
+                "w": 90,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 88,
+                "client": 88,
+                "wrapped": false
+              },
+              {
+                "text": "穿戴",
+                "w": 90,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 88,
+                "client": 88,
+                "wrapped": false
+              },
+              {
+                "text": "关闭",
+                "w": 90,
+                "h": 44,
+                "nowrap": true,
+                "scroll": 88,
+                "client": 88,
+                "wrapped": false
+              }
+            ],
+            "delta": 980,
+            "eligible": true
+          },
+          "deltaAgreement": true
+        },
+        {
+          "scene": "hero_compare",
+          "blankTarget": "<div id=\"modal\" class=\"sheet\"><div class=\"mb\"><div class=\"ipanel\"><h3>英雄 · 金戒指（极品 +1）</h3><div class=\"cqbest \">极品魔法 +1</div><div class=\"cqcompare\"><section><h4>戒指 · 金戒指（极品 +1）</h4><div class=\"cqpower dn\">战力差 ↓ -1000</div><div class=\"cqcompare-head\"><",
+          "blankClose": true
+        }
+      ],
+      "pageErrors": []
+    }
+  ]
+}
